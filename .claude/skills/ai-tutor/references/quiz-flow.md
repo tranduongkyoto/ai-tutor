@@ -5,12 +5,18 @@ Interactive quiz protocol for Mini Exam mode using `AskUserQuestion`.
 ## Setup
 
 1. Ask question count via `AskUserQuestion`: "How many questions for this exam?" — options: `5`, `10`, `15`
-2. Read inputs:
+2. Determine scope:
+   - Guided Phase 2: `scope=concepts`
+   - Guided Phase 4: `scope=scenarios`
+   - Guided Phase 6: `scope=hands-on`
+   - Guided Phase 7: `scope=comprehensive`
+   - Free mode: `scope=general`
+3. Read inputs:
    - Cache file: `.claude/skills/ai-tutor/cache/aws-csa-{domain}.md` (domain knowledge)
    - Domain topics: `certs/aws-csa/domains.md` (topic checklist for coverage)
    - Progress: `aws-csa/study-progress.md` (weak topics to prioritize)
-3. Generate questions using the Mini Exam prompt template from `references/prompt-templates.md`
-4. Run self-verify step: review each question for answer clarity, fix issues
+4. Generate questions using the Mini Exam prompt template from `references/prompt-templates.md`, passing `scope`
+5. Run self-verify step: review each question for answer clarity, fix issues
 
 ## Question Generation Rules
 
@@ -57,7 +63,7 @@ After all questions answered:
 
 1. Display summary:
    ```
-   ## Exam Results: {Domain} — {score}/{total} ({percentage}%)
+   ## Exam Results: {Domain} — {scope} — {score}/{total} ({percentage}%)
 
    | # | Result | Your Answer | Correct | Topic |
    |---|--------|-------------|---------|-------|

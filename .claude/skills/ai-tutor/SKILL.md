@@ -1,15 +1,15 @@
 ---
 name: ai-tutor
-description: "Interactive AWS certification tutor with 6 study modes, quizzes, and progress tracking"
-argument-hint: "[cert] [domain] [mode] | progress | refresh <domain>"
+description: "Interactive AWS certification tutor with guided study paths, quizzes, and progress tracking"
+argument-hint: "[domain] [mode] | guided [domain] | free [domain] [mode] | progress | refresh <domain>"
 metadata:
   author: user
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # AI Tutor - AWS Certification Study Companion
 
-Interactive tutor for AWS certification prep using PDF course materials, 6 study modes, interactive quizzes, and progress tracking.
+Interactive tutor for AWS certification prep using PDF course materials, guided 7-phase study paths per domain, interactive quizzes, and progress tracking.
 
 ## Argument Parsing
 
@@ -17,40 +17,101 @@ Parse `ARGUMENTS` to determine the action:
 
 | Pattern | Action |
 |---------|--------|
-| _(empty)_ | Show cert selection menu |
-| `progress` | Show progress dashboard (Load: `references/progress-tracking.md`). **Stop after displaying — do not continue to Step 1.** |
-| `refresh <domain>` | Re-extract PDF cache for domain (Load: `references/pdf-extractor.md`). **Stop after refresh — do not continue to Step 1.** |
-| `<cert> <domain> <mode>` | Direct mode execution |
-| Partial args | Menu fallback for missing parts |
+| _(empty)_ | Show domain selection → guided mode (default) |
+| `progress` | Show progress dashboard (Load: `references/progress-tracking.md`). **Stop after displaying.** |
+| `refresh <domain>` | Re-extract PDF cache for domain (Load: `references/pdf-extractor.md`). **Stop after refresh.** |
+| `guided <domain>` | Start/resume guided study path for domain |
+| `free <domain> <mode>` | Direct mode execution (skip guided path) |
+| `<domain>` | Start/resume guided study path for domain |
+| `<domain> <mode>` | Direct mode execution (skip guided path) |
 
-## Step 1: Selection (menu fallback for missing args)
+## Study Path (Guided Mode — Default)
 
-**Cert selection** (if not provided):
-Use `AskUserQuestion` — options: `aws-csa` (only cert available now).
+Each domain follows a 7-phase study path. Phases are completed in order — the tutor auto-recommends the next phase based on progress.
 
-**Domain selection** (if not provided):
+```
+Phase 1: LEARN       → concept-mapper         (understand services & relationships)
+Phase 2: TEST        → mini-exam:concepts     (test conceptual knowledge)
+Phase 3: APPLY       → scenario-generator     (apply to real-world scenarios)
+Phase 4: TEST        → mini-exam:scenarios    (test scenario reasoning)
+Phase 5: PRACTICE    → hands-on-lab           (build it yourself)
+Phase 6: TEST        → mini-exam:hands-on     (test practical knowledge)
+Phase 7: FINAL EXAM  → mini-exam:comprehensive (full domain exam)
+```
+
+**Optional tools** (available anytime via `free` mode or follow-up menu):
+- `architecture-reviewer` — evaluate architectures against Well-Architected
+- `weak-spot-analyzer` — cross-domain gap analysis (no domain needed)
+- `exam-strategy-coach` — exam day strategy and study planning (no domain needed)
+
+## Step 1: Selection
+
+**IMPORTANT:** Domain and mode are selected **sequentially**. Do NOT combine into a single `AskUserQuestion` call.
+
+### Step 1a: Domain selection (if not provided)
 Load: `certs/aws-csa/domains.md` to get the 12 domain list.
-Use `AskUserQuestion` with options grouped by category:
-- `compute`, `storage`, `databases`, `networking`
-- `security-identity`, `load-balancing-scaling`, `dns`, `integration-messaging`
-- `serverless`, `monitoring-audit`, `data-analytics`, `dr-architecture`
+**First**, print the full domain list as numbered text:
 
-NOTE: For `weak-spot-analyzer` and `exam-strategy` modes — skip domain selection entirely. These modes analyze cross-domain progress data.
+```
+📚 Available Domains:
+ 1. compute                 — Elastic Compute Cloud (EC2), Elastic Container Service (ECS), Elastic Kubernetes Service (EKS), Fargate
+ 2. storage                 — Elastic Block Store (EBS), Simple Storage Service (S3), Elastic File System (EFS), FSx, Snow Family
+ 3. databases               — Relational Database Service (RDS), Aurora, DynamoDB, ElastiCache
+ 4. networking              — Virtual Private Cloud (VPC), Subnets, NAT Gateway, Transit Gateway
+ 5. security-identity       — Identity and Access Management (IAM), Key Management Service (KMS), Web Application Firewall (WAF), GuardDuty, Cognito
+ 6. load-balancing-scaling  — Application Load Balancer (ALB), Network Load Balancer (NLB), Auto Scaling Group (ASG)
+ 7. dns                     — Route 53, Routing Policies
+ 8. integration-messaging   — Simple Queue Service (SQS), Simple Notification Service (SNS), Kinesis, Amazon MQ
+ 9. serverless              — Lambda, API Gateway, Step Functions
+10. monitoring-audit        — CloudWatch, CloudTrail, AWS Config
+11. data-analytics          — Athena, Redshift, Glue, Elastic MapReduce (EMR)
+12. dr-architecture         — Disaster Recovery (DR) Strategies, CloudFormation, Well-Architected Framework
+```
 
-**Mode selection** (if not provided):
-Use `AskUserQuestion` — options:
-- `concept-mapper` — Knowledge synthesis and service relationships
-- `mini-exam` — Interactive quiz with scoring
-- `scenario-generator` — Realistic exam scenarios with explanations
-- `weak-spot-analyzer` — Identify and prioritize weak areas
-- `hands-on-lab` — Progressive lab exercises
-- `architecture-reviewer` — Evaluate architectures against Well-Architected
-- `exam-strategy` — Exam day strategy and study planning
+**Then**, use `AskUserQuestion` with 4 recommended options. User can type any domain name or number via "Other".
+Rotate the 4 shown options based on study-progress.md: prioritize domains with lowest phase or least recent study. If no progress data, default to: `compute`, `storage`, `databases`, `networking`.
+
+**Wait for user response before proceeding.**
+
+### Step 1b: Mode selection
+
+Read `aws-csa/study-progress.md` to determine `current_phase` for the selected domain.
+
+**In guided mode** (default): Auto-determine the next phase. Show the user:
+
+```
+📍 {Domain} — Phase {N}/7: {phase_name}
+   {phase_description}
+
+Previous phases: ✓ Phase 1 (concept-mapper) ✓ Phase 2 (mini-exam) ...
+```
+
+Use `AskUserQuestion`:
+- `Continue to Phase {N}` (Recommended)
+- `Repeat Phase {N-1}`
+- `Switch to free mode`
+
+**In free mode** (if user typed `free` or chose it): Print full mode list, then `AskUserQuestion` with 4 options:
+
+```
+🎯 Study Modes:
+ 1. concept-mapper          — Knowledge synthesis and service relationships
+ 2. mini-exam               — Interactive quiz with scoring
+ 3. scenario-generator      — Realistic exam scenarios with explanations
+ 4. hands-on-lab            — Progressive lab exercises
+ 5. architecture-reviewer   — Evaluate architectures against Well-Architected
+ 6. weak-spot-analyzer      — Identify and prioritize weak areas (no domain needed)
+ 7. exam-strategy-coach     — Exam day strategy and study planning (no domain needed)
+```
+
+Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `hands-on-lab`.
+
+**Wait for user response before proceeding to Step 2.**
 
 ## Step 2: Load Context
 
 1. Read `certs/aws-csa/domains.md` for topic checklist
-2. Read `aws-csa/study-progress.md` for current progress (create if missing — see edge cases below)
+2. Read `aws-csa/study-progress.md` for current progress (create if missing — see edge cases)
 3. **If mode requires domain cache** (concept-mapper, mini-exam, scenario-generator, hands-on-lab, architecture-reviewer):
    Check cache: `.claude/skills/ai-tutor/cache/aws-csa-{domain}.md`
    - **Cache HIT**: Read cached content, proceed to Step 3
@@ -59,7 +120,7 @@ Use `AskUserQuestion` — options:
      - Input: domain name + PDF paths from domains.md
      - Output: writes cache file
      - Wait for completion, then read cache file
-4. **If mode is domain-less** (weak-spot-analyzer, exam-strategy): Skip cache check, proceed to Step 3 with progress data only
+4. **If mode is domain-less** (weak-spot-analyzer, exam-strategy-coach): Skip cache, proceed with progress data only
 
 ## Step 3: Execute Mode
 
@@ -68,14 +129,21 @@ Load `references/prompt-templates.md` for the selected mode's template.
 | Mode | Additional Input | Interactive? |
 |------|-----------------|-------------|
 | `concept-mapper` | Cache file | No |
-| `mini-exam` | Cache + quiz-flow.md | Yes (AskUserQuestion) |
+| `mini-exam` | Cache + quiz-flow.md + **scope** | Yes (AskUserQuestion) |
 | `scenario-generator` | Cache file | No |
-| `weak-spot-analyzer` | study-progress.md only | No |
 | `hands-on-lab` | Cache file | No |
 | `architecture-reviewer` | Cache + user architecture | Yes (AskUserQuestion) |
-| `exam-strategy` | study-progress.md + timeline | Yes (AskUserQuestion) |
+| `weak-spot-analyzer` | study-progress.md only | No |
+| `exam-strategy-coach` | study-progress.md + timeline | Yes (AskUserQuestion) |
 
-For `mini-exam`: Load `references/quiz-flow.md` for the interactive quiz protocol.
+**Mini-exam scope** (guided mode phases):
+- Phase 2: `scope=concepts` — test conceptual knowledge from concept-mapper
+- Phase 4: `scope=scenarios` — test scenario reasoning from scenario-generator
+- Phase 6: `scope=hands-on` — test practical knowledge from hands-on-lab
+- Phase 7: `scope=comprehensive` — full domain exam covering all topics
+- Free mode: `scope=general` — balanced mix (default behavior)
+
+For `mini-exam`: Load `references/quiz-flow.md` for the interactive quiz protocol. Pass `scope` to the quiz generator.
 
 Generate content following the mode's prompt template. Display output in terminal.
 
@@ -85,27 +153,62 @@ Load `references/progress-tracking.md` for the update protocol.
 
 1. Save session output:
    - **Domain modes**: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{domain}-{mode}.md`
-   - **Cross-domain modes**: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{mode}.md` (no domain in name)
+   - **Cross-domain modes**: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{mode}.md`
    - Use `bash -c 'date +%y%m%d-%H%M'` for timestamp
 2. Update `aws-csa/study-progress.md` following the update protocol
-3. Show recommendation for next study action
+   - **Guided mode**: Also update `current_phase` (advance to next phase)
+   - **Mini-exam phases**: Record `phase_scores` with the exam score
+3. Show phase completion status
 
 ## Step 5: Follow-Up Menu
 
-After session completion, use `AskUserQuestion`:
-- **Continue studying** — return to Step 1 (domain/mode selection)
-- **View progress** — show progress dashboard
-- **Done** — end session with brief summary
+**Guided mode** — show phase-aware next step:
+
+```
+✓ Phase {N} complete: {mode_name} ({domain})
+  {score summary if mini-exam}
+
+Next: Phase {N+1} — {next_mode_name} ({description})
+```
+
+Use `AskUserQuestion`:
+- `Continue to Phase {N+1}` (Recommended) — proceed in guided path
+- `Repeat Phase {N}` — redo current phase
+- `Optional: architecture-reviewer` — review an architecture (available anytime)
+- `Switch domain / Done` — change domain or end session
+
+If user selects "Other", also accept: `weak-spot-analyzer`, `exam-strategy-coach`, `free`, `progress`, `done`.
+
+**After Phase 7 (final exam)**: Show domain completion celebration + overall readiness:
+
+```
+🎉 Domain Complete: {Domain}!
+   Phase scores: P2={score}% → P4={score}% → P6={score}% → P7={score}%
+   Overall domain readiness: {readiness}%
+
+Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
+```
+
+**Free mode** — show generic menu:
+- `Continue studying` — return to Step 1
+- `Switch to guided mode` — start/resume guided path
+- `View progress` — show dashboard
+- `Done` — end session
 
 ## Edge Cases
 
 - **No study-progress.md**: Create initial file with empty YAML frontmatter (see `references/progress-tracking.md`)
 - **PDF extraction fails**: Show error, suggest `/ai-tutor refresh {domain}`
-- **No exam history**: Weak Spot and Exam Strategy show "No exam data yet. Start with a mini-exam to track progress."
-- **Invalid args**: Show usage with examples:
+- **No exam history**: weak-spot-analyzer and exam-strategy-coach show "No exam data yet. Start with a guided study path to build progress."
+- **Resuming a domain**: If `current_phase > 1`, show completed phases and resume from next incomplete phase
+- **Phase 7 passed (≥80%)**: Mark domain as "completed" in progress. User can still repeat or free-mode study.
+- **Phase 7 failed (<80%)**: Recommend repeating weak phases based on `phase_scores`, then retake Phase 7.
+- **Invalid args**: Show usage:
   ```
-  Usage: /ai-tutor [cert] [domain] [mode]
-         /ai-tutor progress
-         /ai-tutor refresh <domain>
-  Example: /ai-tutor aws-csa compute concept-mapper
+  Usage: /ai-tutor [domain]              — guided study path (default)
+         /ai-tutor free [domain] [mode]  — free mode, any mode
+         /ai-tutor progress              — view dashboard
+         /ai-tutor refresh <domain>      — refresh PDF cache
+  Example: /ai-tutor compute
+           /ai-tutor free storage mini-exam
   ```

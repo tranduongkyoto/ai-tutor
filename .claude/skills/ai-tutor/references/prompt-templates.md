@@ -2,6 +2,32 @@
 
 Mode-specific prompt templates for the AI Tutor skill. Each section defines the inputs, instructions, and output format for one study mode.
 
+## Global Rule: Full Service Names (ALL modes)
+
+**ALWAYS use full service/concept names on first mention, with abbreviation in parentheses.** After first mention, abbreviation alone is acceptable within the same section.
+
+Examples:
+- "Elastic Compute Cloud (EC2)" not just "EC2"
+- "Elastic Block Store (EBS)" not just "EBS"
+- "Application Load Balancer (ALB)" not just "ALB"
+- "Virtual Private Cloud (VPC)" not just "VPC"
+- "Identity and Access Management (IAM)" not just "IAM"
+- "Simple Storage Service (S3)" not just "S3"
+- "Relational Database Service (RDS)" not just "RDS"
+- "Elastic Network Interface (ENI)" not just "ENI"
+- "Auto Scaling Group (ASG)" not just "ASG"
+- "Content Delivery Network (CDN)" / "CloudFront" not just "CF"
+- "Key Management Service (KMS)" not just "KMS"
+- "Simple Queue Service (SQS)" not just "SQS"
+- "Simple Notification Service (SNS)" not just "SNS"
+- "Availability Zone (AZ)" not just "AZ"
+- "Network Access Control List (NACL)" not just "NACL"
+- "Security Group (SG)" not just "SG"
+- "Elastic File System (EFS)" not just "EFS"
+- "Network Address Translation (NAT)" not just "NAT"
+
+This applies to: concept maps, exam questions, scenario descriptions, lab instructions, architecture reviews, and all other generated content. The target audience is new AWS users preparing for their first certification.
+
 ---
 
 ## Mode: Concept Mapper
@@ -42,13 +68,30 @@ Generate a comprehensive concept map for the **{domain}** domain covering:
 ### Input
 - Domain: `{domain}`
 - Question count: `{count}` (5, 10, or 15)
+- Scope: `{scope}` — one of: `concepts`, `scenarios`, `hands-on`, `comprehensive`, `general`
 - Cached content: loaded from `cache/aws-csa-{domain}.md`
 - Topic checklist: from `certs/aws-csa/domains.md`
 - Weak topics: from `aws-csa/study-progress.md` (prioritize these)
 
+### Scope Rules
+
+| Scope | Focus | When Used |
+|-------|-------|-----------|
+| `concepts` | Test conceptual knowledge — service features, limits, comparisons | Guided Phase 2 (after concept-mapper) |
+| `scenarios` | Test scenario reasoning — "Company X needs Y, which service?" | Guided Phase 4 (after scenario-generator) |
+| `hands-on` | Test practical knowledge — CLI commands, config steps, troubleshooting | Guided Phase 6 (after hands-on-lab) |
+| `comprehensive` | Full domain exam — mix of all scopes, harder difficulty | Guided Phase 7 (final exam) |
+| `general` | Balanced mix (default) | Free mode |
+
+- For `concepts`: 70% fact-based, 30% scenario-based. Focus on "what is", "which service", "what's the limit"
+- For `scenarios`: 80% scenario-based, 20% fact-based. Focus on architecture decisions, trade-offs
+- For `hands-on`: 60% practical (CLI, config, steps), 40% scenario. Focus on "how to", troubleshooting
+- For `comprehensive`: 40% scenario, 30% fact, 30% practical. Difficulty: 20% easy, 40% medium, 40% hard
+- For `general`: default mix (60% scenario, 40% fact). Difficulty: 30% easy, 50% medium, 20% hard
+
 ### Instructions
 
-Generate `{count}` exam-style questions following these rules:
+Generate `{count}` exam-style questions following these rules (adjusted by scope above):
 
 **Question Quality Rules:**
 1. Each question MUST have exactly 5 options (A-E)
