@@ -157,4 +157,3 @@ coverage/
 /logs/*
 **/generated/
 geojson
-.claude/
