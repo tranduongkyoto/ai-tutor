@@ -6,7 +6,7 @@ Protocol for updating study progress, computing readiness scores, and displaying
 
 ## Update Protocol
 
-Execute after EVERY study session (all modes). Read current `aws-csa/study-progress.md`, apply updates, write back.
+Execute after EVERY study session (all modes). Read current `aws-csa/study-progress.md` (project root, NOT inside `.claude/skills/`), apply updates, write back.
 
 ### Step 1: Update YAML Frontmatter
 

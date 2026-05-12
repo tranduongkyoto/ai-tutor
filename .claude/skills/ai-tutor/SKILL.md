@@ -11,6 +11,17 @@ metadata:
 
 Interactive tutor for AWS certification prep using PDF course materials, guided 7-phase study paths per domain, interactive quizzes, and progress tracking.
 
+## Data Locations (project root relative)
+
+All mutable user data lives in the **project root**, NOT inside `.claude/skills/ai-tutor/`:
+
+| Type | Path | Purpose |
+|------|------|---------|
+| Progress | `aws-csa/study-progress.md` | Single source of truth for all study state |
+| Sessions | `aws-csa/study-sessions/{timestamp}-{domain}-{mode}.md` | Full session output files |
+| Cache | `.claude/skills/ai-tutor/cache/aws-csa-{domain}.md` | Derived PDF extraction (regeneratable) |
+| Cert defs | `.claude/skills/ai-tutor/certs/aws-csa/domains.md` | Static domain/topic definitions |
+
 ## Argument Parsing
 
 Parse `ARGUMENTS` to determine the action:
