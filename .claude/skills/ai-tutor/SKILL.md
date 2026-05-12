@@ -163,14 +163,20 @@ For `mini-exam`: Load `references/quiz-flow.md` for the interactive quiz protoco
 
 Generate content following the mode's prompt template. Display output in terminal.
 
+**Content output modes** (concept-mapper, scenario-generator, hands-on-lab):
+- Check if session file already exists for this domain+mode: `aws-csa/study-sessions/*-{domain}-{mode}.md`
+- **If exists AND user did NOT request regenerate**: Read and display the cached session file instead of regenerating. Show: `📄 Loading saved {mode} content. Use "Regenerate" option to create fresh content.`
+- **If not exists OR user requested regenerate**: Generate fresh content, display it, and save to session file (full content, not summary)
+
 ## Step 4: Save & Track
 
 Load `references/progress-tracking.md` for the update protocol.
 
-1. Save session output:
+1. Save session output — **write the FULL generated content** to the session file, not just a summary:
    - **Domain modes**: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{domain}-{mode}.md`
    - **Cross-domain modes**: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{mode}.md`
    - Use `bash -c 'date +%y%m%d-%H%M'` for timestamp
+   - For concept-mapper, scenario-generator, hands-on-lab: the session file IS the study material — include all generated text
 2. Update `aws-csa/study-progress.md` following the update protocol
    - **Guided mode**: Also update `current_phase` (advance to next phase)
    - **Mini-exam phases**: Record `phase_scores` with the exam score
@@ -190,10 +196,10 @@ Next: Phase {N+1} — {next_mode_name} ({description})
 Use `AskUserQuestion`:
 - `Continue to Phase {N+1}` (Recommended) — proceed in guided path
 - `Repeat Phase {N}` — redo current phase
-- `Optional: architecture-reviewer` — review an architecture (available anytime)
+- `Regenerate Phase {N}` — regenerate fresh content (ignores saved session file)
 - `Switch domain / Done` — change domain or end session
 
-If user selects "Other", also accept: `weak-spot-analyzer`, `exam-strategy-coach`, `free`, `progress`, `done`.
+If user selects "Other", also accept: `architecture-reviewer`, `weak-spot-analyzer`, `exam-strategy-coach`, `free`, `progress`, `done`.
 
 **After Phase 7 (final exam)**: Show domain completion celebration + overall readiness:
 

@@ -93,9 +93,14 @@ Generate a comprehensive concept map for the **{domain}** domain covering:
 
 Generate `{count}` exam-style questions following these rules (adjusted by scope above):
 
+**Question Types (match real SAA-C03 exam):**
+- ~80% **single-select**: 4 options (A-D), pick 1 correct
+- ~20% **multi-select**: 4 options (A-D), pick 2 correct. Question states "(Select TWO)"
+- For 10 questions: ~8 single + ~2 multi. For 5 questions: ~4 single + ~1 multi.
+
 **Question Quality Rules:**
-1. Each question MUST have exactly 5 options (A-E)
-2. Exactly ONE correct answer per question
+1. Each question MUST have exactly 4 options (A-D) — matches real SAA-C03 exam format
+2. Single-select: exactly ONE correct answer. Multi-select: exactly TWO correct answers
 3. Wrong options must be plausible but clearly incorrect given AWS documentation
 4. Questions must be grounded in the cached PDF content — do not invent facts
 5. Cover diverse topics from the checklist; prioritize weak topics (at least 30% of questions)
@@ -116,14 +121,14 @@ Fix any issues before presenting to the user.
 For each question, prepare:
 ```
 Question {N}: [scenario or question text]
+Type: single | multi
 A) [option]
 B) [option]
 C) [option]
 D) [option]
-E) [option]
-Correct: [letter]
+Correct: [letter] (single) or [letter, letter] (multi)
 Topic: [topic-slug]
-Explanation: [Why correct answer is right. For each wrong option: why it's wrong — 1 sentence each.]
+Explanation: [Why correct answer(s) are right. For each wrong option: why it's wrong — 1 sentence each.]
 ```
 
 Then present questions interactively using the protocol in `references/quiz-flow.md`.
@@ -135,16 +140,19 @@ Then present questions interactively using the protocol in `references/quiz-flow
 ### Input
 - Domain: `{domain}`
 - Cached content: loaded from `cache/aws-csa-{domain}.md`
+- Scenario map: loaded from `certs/aws-csa/scenario-map.md` — the `{domain}` section
 
 ### Instructions
 
-Generate 5 realistic exam-style scenarios for the **{domain}** domain. Each scenario should simulate a real SAA-C03 exam question at medium-to-hard difficulty.
+Read the scenario map for the **{domain}** domain. Generate one scenario per array item in the map. Each scenario should simulate a real SAA-C03 exam question at medium-to-hard difficulty.
+
+The scenario map defines exactly which sub-concepts need coverage. Each array item (e.g., `families-and-sizing`) becomes one scenario. Tag each scenario with its map entry.
 
 **Per scenario:**
 1. **Business Context**: Company situation, industry, scale (e.g., "A fintech startup processing 10K transactions/second...")
 2. **Technical Requirements**: Specific constraints — latency, availability, budget, compliance, scale
 3. **Question**: What should the solutions architect recommend?
-4. **Options (A-E)**: 5 options, each a valid-sounding architecture but only one best answer
+4. **Options (A-D)**: 4 options, each a valid-sounding architecture but only one best answer
 5. **Correct Answer**: Letter + detailed explanation
 6. **Why Others Are Wrong**: 1-2 sentences per wrong option explaining the specific flaw
 7. **Key Concept**: The AWS concept being tested
@@ -164,7 +172,6 @@ A) {option}
 B) {option}
 C) {option}
 D) {option}
-E) {option}
 
 **Answer: {letter}**
 {Detailed explanation}

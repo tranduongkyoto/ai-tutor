@@ -18,10 +18,20 @@ Interactive quiz protocol for Mini Exam mode using `AskUserQuestion`.
 4. Generate questions using the Mini Exam prompt template from `references/prompt-templates.md`, passing `scope`
 5. Run self-verify step: review each question for answer clarity, fix issues
 
+## Question Types (match real SAA-C03 exam)
+
+**Two types — mix ~80% single / ~20% multi per exam:**
+
+1. **Single-select** (type: `single`): 4 options (A-D), pick 1 correct answer
+2. **Multi-select** (type: `multi`): 4 options (A-D), pick 2 correct answers. Question states: *"(Select TWO)"*
+
+For a 10-question exam: ~8 single + ~2 multi. For 5-question: ~4 single + ~1 multi.
+
 ## Question Generation Rules
 
-- Exactly 5 options (A-E) per question
-- Exactly ONE unambiguously correct answer
+- Exactly 4 options (A-D) per question — matches real SAA-C03 exam format
+- Single-select: exactly ONE correct answer
+- Multi-select: exactly TWO correct answers, question must say "(Select TWO)"
 - Distractors must be plausible but definitively wrong per AWS docs
 - Ground all questions in cached PDF content
 - Prioritize weak topics from study-progress.md (at least 30% of questions if weak topics exist)
@@ -32,7 +42,7 @@ Interactive quiz protocol for Mini Exam mode using `AskUserQuestion`.
 
 For each question:
 
-1. **CRITICAL: Print ALL options as plain text FIRST.** Every option (A through D or E) MUST appear in the terminal output above the answer prompt. Never rely on `AskUserQuestion` descriptions to show option text — the user must read all options before answering.
+1. **CRITICAL: Print ALL 4 options as plain text FIRST.** Every option (A-D) MUST appear in the terminal output above the answer prompt. Never rely on `AskUserQuestion` descriptions to show option text.
    ```
    **Question {N}/{total}:**
    {question text}
@@ -41,19 +51,23 @@ For each question:
    B) {option B}
    C) {option C}
    D) {option D}
-   E) {option E}
    ```
 
-2. **After** all options are printed, use `AskUserQuestion` with:
-   - Question: "Your answer?"
-   - Options: `A`, `B`, `C`, `D` — use short labels only (e.g., "A"), descriptions are optional summaries
-   - User types `E` via the "Other" option if needed
+2. **After** all options are printed, use `AskUserQuestion`:
+   - **Single-select**: Question: "Your answer?" — Options: `A`, `B`, `C`, `D` — `multiSelect: false`
+   - **Multi-select**: Question: "Your answers? (Select TWO)" — Options: `A`, `B`, `C`, `D` — `multiSelect: true`
 
 3. After user answers, show immediate feedback:
-   ```
-   ✓ Correct! / ✗ Incorrect — correct answer: {letter}
-   {Brief explanation — why correct answer is right}
-   ```
+   - **Single-select**:
+     ```
+     ✓ Correct! / ✗ Incorrect — correct answer: {letter}
+     {Brief explanation — why correct answer is right}
+     ```
+   - **Multi-select**: User must select BOTH correct answers to score. Partial = incorrect.
+     ```
+     ✓ Correct! (selected A, C) / ✗ Incorrect — correct answers: {letter}, {letter}
+     {Brief explanation — why each correct answer is right}
+     ```
 
 4. Proceed to next question
 
@@ -82,5 +96,4 @@ After all questions answered:
 ## Edge Cases
 
 - **Odd question count**: Works fine — one question at a time
-- **User selects "Other" and types "E" or "e"**: Normalize to option E (case-insensitive match)
-- **User selects "Other" and types anything else**: Treat as incorrect, show correct answer
+- **User selects "Other" and types anything**: Treat as incorrect, show correct answer
