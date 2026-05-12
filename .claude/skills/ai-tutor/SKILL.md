@@ -44,6 +44,22 @@ Phase 7: FINAL EXAM  → mini-exam:comprehensive (full domain exam)
 - `weak-spot-analyzer` — cross-domain gap analysis (no domain needed)
 - `exam-strategy-coach` — exam day strategy and study planning (no domain needed)
 
+## Recommended Study Order (Hybrid Plan)
+
+When suggesting the next domain in follow-up menus, use tier-based priority order instead of alphabetical:
+
+| Tier | Domains | Min Phases | Rationale |
+|------|---------|-----------|-----------|
+| 1 (Core) | compute, networking, storage, security-identity | All 7 | ~60% of exam weight |
+| 2 (High) | load-balancing-scaling, databases, serverless, integration-messaging, dns, monitoring-audit | P1-P4 | Solid conceptual + scenario coverage |
+| 3 (Coverage) | data-analytics, dr-architecture | P1-P2 | Minimum viable, avoid zero on exam |
+
+**Domain recommendation logic** (for Step 5 follow-up menu):
+1. Suggest next unstudied domain from highest incomplete tier (Tier 1 first)
+2. Within a tier, order by exam weight: compute → networking → storage → security-identity
+3. After all domains reach their tier minimum, suggest: `weak-spot-analyzer` → targeted mini-exams on gaps → retry P7 on Tier 1 domains if <80%
+4. Tier 2 domains can be extended to full 7 phases if user is ahead of schedule
+
 ## Step 1: Selection
 
 **IMPORTANT:** Domain and mode are selected **sequentially**. Do NOT combine into a single `AskUserQuestion` call.

@@ -32,7 +32,7 @@ Interactive quiz protocol for Mini Exam mode using `AskUserQuestion`.
 
 For each question:
 
-1. Display the question and all 5 options as formatted terminal text:
+1. **CRITICAL: Print ALL options as plain text FIRST.** Every option (A through D or E) MUST appear in the terminal output above the answer prompt. Never rely on `AskUserQuestion` descriptions to show option text — the user must read all options before answering.
    ```
    **Question {N}/{total}:**
    {question text}
@@ -44,9 +44,9 @@ For each question:
    E) {option E}
    ```
 
-2. Use `AskUserQuestion` with:
+2. **After** all options are printed, use `AskUserQuestion` with:
    - Question: "Your answer?"
-   - Options: `A`, `B`, `C`, `D`
+   - Options: `A`, `B`, `C`, `D` — use short labels only (e.g., "A"), descriptions are optional summaries
    - User types `E` via the "Other" option if needed
 
 3. After user answers, show immediate feedback:
