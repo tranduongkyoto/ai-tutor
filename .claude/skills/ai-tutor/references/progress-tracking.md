@@ -22,9 +22,9 @@ domains:
     sessions_count: {increment by 1}
     modes_completed: {append mode slug if not already present}
     last_studied: {today's date, YYYY-MM-DD}
-    current_phase: {1-7, advance after completing a guided phase; default 1}
-    phase_scores: {phase_num: score_pct} # only for exam phases (2, 4, 6, 7)
-    completed: {true if Phase 7 passed ≥80%, else false/omit}
+    current_phase: {1-6, advance after completing a guided phase; default 1}
+    phase_scores: {phase_num: score_pct} # only for scored phases (p2: mini-exam, p4: mini-exam, p5: paper-lab, p6: mini-exam)
+    completed: {true if Phase 6 passed ≥80%, else false/omit}
     # If mode was mini-exam, also:
     exams:
       - date: {today, YYYY-MM-DD}
@@ -90,10 +90,10 @@ readiness = (coverage * 0.3) + (exam_avg * 0.5) + (recency * 0.2)
 
 **Coverage** (30% weight):
 ```
-coverage = (current_phase / 7) * 100
+coverage = (current_phase / 6) * 100
 ```
-- 7 phases in guided path; each completed phase adds ~14.3%
-- If using free mode without guided path, fallback: `(modes_completed.length / 7) * 100`
+- 6 phases in guided path; each completed phase adds ~16.7%
+- If using free mode without guided path, fallback: `(modes_completed.length / 6) * 100`
 
 **Exam Average** (50% weight):
 ```
@@ -143,10 +143,10 @@ Overall Readiness: {pct}%  {progress_bar}  {studied_count}/12 domains
 
 Domain                    Phase  Ready  Exams  Last       Status
 ───────────────────────── ────── ────── ────── ────────── ──────────────
-Compute                    7/7    85%    3      2d ago     ★ Mastered
-Storage                    4/7    62%    2      3d ago     ◆ Proficient
-Databases                  2/7    45%    1      5d ago     ▲ Developing
-Networking                 1/7    30%    0      7d ago     ▲ Developing
+Compute                    6/6    85%    3      2d ago     ★ Mastered
+Storage                    4/6    62%    2      3d ago     ◆ Proficient
+Databases                  2/6    45%    1      5d ago     ▲ Developing
+Networking                 1/6    30%    0      7d ago     ▲ Developing
 Security & Identity        -      0%     -      -          ○ Not started
 Load Balancing & Scaling   -      0%     -      -          ○ Not started
 DNS                        -      0%     -      -          ○ Not started
@@ -185,7 +185,7 @@ After each session AND on dashboard, suggest next action:
 2. Domain with lowest non-zero readiness that is stale (>7 days) → "Stale, needs review"
 3. Domain never started (pick foundational ones first: compute → networking → security-identity → storage) → "Not started yet"
 4. Domain with weak_topics that hasn't had a recent mini-exam → "Retest weak topics"
-5. Domain with Phase 7 failed (<80%) → "Retake final exam after reviewing weak phases"
+5. Domain with Phase 6 failed (<80%) → "Retake final exam after reviewing weak phases"
 
 **Format:**
 ```

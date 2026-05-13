@@ -8,8 +8,7 @@ Interactive quiz protocol for Mini Exam mode using `AskUserQuestion`.
 2. Determine scope:
    - Guided Phase 2: `scope=concepts`
    - Guided Phase 4: `scope=scenarios`
-   - Guided Phase 6: `scope=hands-on`
-   - Guided Phase 7: `scope=comprehensive`
+   - Guided Phase 6: `scope=comprehensive`
    - Free mode: `scope=general`
 3. Read inputs:
    - Cache file: `.claude/skills/ai-tutor/cache/aws-csa-{domain}.md` (domain knowledge)

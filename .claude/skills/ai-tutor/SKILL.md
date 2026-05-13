@@ -38,19 +38,19 @@ Parse `ARGUMENTS` to determine the action:
 
 ## Study Path (Guided Mode — Default)
 
-Each domain follows a 7-phase study path. Phases are completed in order — the tutor auto-recommends the next phase based on progress.
+Each domain follows a 6-phase study path. Phases are completed in order — the tutor auto-recommends the next phase based on progress.
 
 ```
 Phase 1: LEARN       → concept-mapper         (understand services & relationships)
 Phase 2: TEST        → mini-exam:concepts     (test conceptual knowledge)
 Phase 3: APPLY       → scenario-generator     (apply to real-world scenarios)
 Phase 4: TEST        → mini-exam:scenarios    (test scenario reasoning)
-Phase 5: PRACTICE    → hands-on-lab           (build it yourself)
-Phase 6: TEST        → mini-exam:hands-on     (test practical knowledge)
-Phase 7: FINAL EXAM  → mini-exam:comprehensive (full domain exam)
+Phase 5: DESIGN      → paper-lab              (open-ended architecture design exercises)
+Phase 6: FINAL EXAM  → mini-exam:comprehensive (full domain exam — MC + open-ended)
 ```
 
 **Optional tools** (available anytime via `free` mode or follow-up menu):
+- `hands-on-lab` — build real AWS infrastructure (CLI-based, requires AWS account)
 - `architecture-reviewer` — evaluate architectures against Well-Architected
 - `weak-spot-analyzer` — cross-domain gap analysis (no domain needed)
 - `exam-strategy-coach` — exam day strategy and study planning (no domain needed)
@@ -61,15 +61,15 @@ When suggesting the next domain in follow-up menus, use tier-based priority orde
 
 | Tier | Domains | Min Phases | Rationale |
 |------|---------|-----------|-----------|
-| 1 (Core) | compute, networking, storage, security-identity | All 7 | ~60% of exam weight |
+| 1 (Core) | compute, networking, storage, security-identity | All 6 | ~60% of exam weight |
 | 2 (High) | load-balancing-scaling, databases, serverless, integration-messaging, dns, monitoring-audit | P1-P4 | Solid conceptual + scenario coverage |
 | 3 (Coverage) | data-analytics, dr-architecture | P1-P2 | Minimum viable, avoid zero on exam |
 
 **Domain recommendation logic** (for Step 5 follow-up menu):
 1. Suggest next unstudied domain from highest incomplete tier (Tier 1 first)
 2. Within a tier, order by exam weight: compute → networking → storage → security-identity
-3. After all domains reach their tier minimum, suggest: `weak-spot-analyzer` → targeted mini-exams on gaps → retry P7 on Tier 1 domains if <80%
-4. Tier 2 domains can be extended to full 7 phases if user is ahead of schedule
+3. After all domains reach their tier minimum, suggest: `weak-spot-analyzer` → targeted mini-exams on gaps → retry P6 on Tier 1 domains if <80%
+4. Tier 2 domains can be extended to full 6 phases if user is ahead of schedule
 
 ## Step 1: Selection
 
@@ -125,13 +125,14 @@ Use `AskUserQuestion`:
  1. concept-mapper          — Knowledge synthesis and service relationships
  2. mini-exam               — Interactive quiz with scoring
  3. scenario-generator      — Realistic exam scenarios with explanations
- 4. hands-on-lab            — Progressive lab exercises
- 5. architecture-reviewer   — Evaluate architectures against Well-Architected
- 6. weak-spot-analyzer      — Identify and prioritize weak areas (no domain needed)
- 7. exam-strategy-coach     — Exam day strategy and study planning (no domain needed)
+ 4. paper-lab               — Open-ended architecture design exercises
+ 5. hands-on-lab            — Build real AWS infrastructure (optional, requires AWS account)
+ 6. architecture-reviewer   — Evaluate architectures against Well-Architected
+ 7. weak-spot-analyzer      — Identify and prioritize weak areas (no domain needed)
+ 8. exam-strategy-coach     — Exam day strategy and study planning (no domain needed)
 ```
 
-Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `hands-on-lab`.
+Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `paper-lab`.
 
 **Wait for user response before proceeding to Step 2.**
 
@@ -158,6 +159,7 @@ Load `references/prompt-templates.md` for the selected mode's template.
 | `concept-mapper` | Cache file | No |
 | `mini-exam` | Cache + quiz-flow.md + **scope** | Yes (AskUserQuestion) |
 | `scenario-generator` | Cache file | No |
+| `paper-lab` | Cache + quiz-flow.md (open-ended protocol) | Yes (AskUserQuestion) |
 | `hands-on-lab` | Cache file | No |
 | `architecture-reviewer` | Cache + user architecture | Yes (AskUserQuestion) |
 | `weak-spot-analyzer` | study-progress.md only | No |
@@ -166,8 +168,7 @@ Load `references/prompt-templates.md` for the selected mode's template.
 **Mini-exam scope** (guided mode phases):
 - Phase 2: `scope=concepts` — test conceptual knowledge from concept-mapper
 - Phase 4: `scope=scenarios` — test scenario reasoning from scenario-generator
-- Phase 6: `scope=hands-on` — test practical knowledge from hands-on-lab
-- Phase 7: `scope=comprehensive` — full domain exam covering all topics
+- Phase 6: `scope=comprehensive` — full domain exam covering all topics
 - Free mode: `scope=general` — balanced mix (default behavior)
 
 For `mini-exam`: Load `references/quiz-flow.md` for the interactive quiz protocol. Pass `scope` to the quiz generator.
@@ -212,11 +213,11 @@ Use `AskUserQuestion`:
 
 If user selects "Other", also accept: `architecture-reviewer`, `weak-spot-analyzer`, `exam-strategy-coach`, `free`, `progress`, `done`.
 
-**After Phase 7 (final exam)**: Show domain completion celebration + overall readiness:
+**After Phase 6 (final exam)**: Show domain completion celebration + overall readiness:
 
 ```
 🎉 Domain Complete: {Domain}!
-   Phase scores: P2={score}% → P4={score}% → P6={score}% → P7={score}%
+   Phase scores: P2={score}% → P4={score}% → P5={score}% → P6={score}%
    Overall domain readiness: {readiness}%
 
 Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
@@ -234,8 +235,8 @@ Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
 - **PDF extraction fails**: Show error, suggest `/ai-tutor refresh {domain}`
 - **No exam history**: weak-spot-analyzer and exam-strategy-coach show "No exam data yet. Start with a guided study path to build progress."
 - **Resuming a domain**: If `current_phase > 1`, show completed phases and resume from next incomplete phase
-- **Phase 7 passed (≥80%)**: Mark domain as "completed" in progress. User can still repeat or free-mode study.
-- **Phase 7 failed (<80%)**: Recommend repeating weak phases based on `phase_scores`, then retake Phase 7.
+- **Phase 6 passed (≥80%)**: Mark domain as "completed" in progress. User can still repeat or free-mode study.
+- **Phase 6 failed (<80%)**: Recommend repeating weak phases based on `phase_scores`, then retake Phase 6.
 - **Invalid args**: Show usage:
   ```
   Usage: /ai-tutor [domain]              — guided study path (default)

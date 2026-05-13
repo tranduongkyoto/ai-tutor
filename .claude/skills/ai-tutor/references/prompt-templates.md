@@ -79,13 +79,11 @@ Generate a comprehensive concept map for the **{domain}** domain covering:
 |-------|-------|-----------|
 | `concepts` | Test conceptual knowledge — service features, limits, comparisons | Guided Phase 2 (after concept-mapper) |
 | `scenarios` | Test scenario reasoning — "Company X needs Y, which service?" | Guided Phase 4 (after scenario-generator) |
-| `hands-on` | Test practical knowledge — CLI commands, config steps, troubleshooting | Guided Phase 6 (after hands-on-lab) |
-| `comprehensive` | Full domain exam — mix of all scopes, harder difficulty | Guided Phase 7 (final exam) |
+| `comprehensive` | Full domain exam — mix of all scopes, harder difficulty | Guided Phase 6 (final exam) |
 | `general` | Balanced mix (default) | Free mode |
 
 - For `concepts`: 70% fact-based, 30% scenario-based. Focus on "what is", "which service", "what's the limit"
 - For `scenarios`: 80% scenario-based, 20% fact-based. Focus on architecture decisions, trade-offs
-- For `hands-on`: 60% practical (CLI, config, steps), 40% scenario. Focus on "how to", troubleshooting
 - For `comprehensive`: 40% scenario, 30% fact, 30% practical. Difficulty: 20% easy, 40% medium, 40% hard
 - For `general`: default mix (60% scenario, 40% fact). Difficulty: 30% easy, 50% medium, 20% hard
 
@@ -183,6 +181,74 @@ D) {option}
 
 **Key Concept:** {concept being tested}
 ```
+
+---
+
+## Mode: Paper Lab
+
+### Input
+- Domain: `{domain}`
+- Cached content: loaded from `cache/aws-csa-{domain}.md`
+- Scenario map: loaded from `certs/aws-csa/scenario-map.md` — the `{domain}` section
+
+### Instructions
+
+Generate an interactive architecture design exercise for the **{domain}** domain. Present a realistic business scenario requiring multi-service architecture, then ask 5-6 open-ended decision questions one at a time.
+
+**Exercise Structure:**
+
+1. **Present Scenario**: A business context with specific technical requirements (scale, latency, availability, budget, compliance constraints). Ground in cached PDF content.
+
+2. **Decision Questions** (5-6 total, presented one at a time via `AskUserQuestion`):
+   - Each question targets a specific architectural decision
+   - Questions progress from foundational (compute/storage choice) to advanced (security, scaling, failure handling)
+   - Cover diverse topics from the domain's scenario map
+
+3. **Per Question Flow**:
+   - Print the question as plain text
+   - Use `AskUserQuestion` with free-text input (no predefined options): "Your answer:"
+   - After user responds, score using rubric and show feedback
+
+**Scoring Rubric** (per question):
+
+| Score | Criteria |
+|-------|----------|
+| 2 | Correct service/approach + correct reasoning explaining WHY |
+| 1 | Correct service/approach but weak/missing reasoning |
+| 0 | Wrong service/approach or fundamentally flawed reasoning |
+
+**Feedback Format** (after each answer):
+```
+Score: {0|1|2}/2
+{If 2: "✓ Excellent!" | If 1: "◆ Partially correct" | If 0: "✗ Not quite"}
+
+Expected answer: {correct service/approach + reasoning}
+{If score < 2: "Key insight: {what was missing from user's answer}"}
+```
+
+**Final Summary:**
+```
+## Paper Lab Results: {Domain} — {score}/{max} ({percentage}%)
+
+| # | Decision | Score | Your Answer (summary) | Expected |
+|---|----------|-------|-----------------------|----------|
+| 1 | {topic}  | {0-2} | {brief}               | {brief}  |
+...
+
+Weak areas: {topics where score < 2}
+```
+
+**Return data for progress tracking:**
+- `score`: total points earned
+- `total`: max possible points (questions * 2)
+- `percentage`: score/total * 100
+- `weak_topics`: topic slugs from questions scored < 2
+
+### Quality Rules
+- Questions must test architectural reasoning, not trivia
+- Each question should have one clearly best answer grounded in AWS best practices
+- Scenario must be realistic and exam-relevant
+- Cover topics from the domain's scenario map for balanced coverage
 
 ---
 
