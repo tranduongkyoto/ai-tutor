@@ -8,6 +8,7 @@ Interactive quiz protocol for Mini Exam mode using `AskUserQuestion`.
 2. Determine scope:
    - Guided Phase 2: `scope=concepts`
    - Guided Phase 4: `scope=scenarios`
+   - Guided Phase 5: `scope=design`
    - Guided Phase 6: `scope=comprehensive`
    - Free mode: `scope=general`
 3. Read inputs:

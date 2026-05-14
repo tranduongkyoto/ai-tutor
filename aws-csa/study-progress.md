@@ -1,16 +1,17 @@
 ---
 started: 2026-05-11
-last_session: 2026-05-13
-total_sessions: 9
+last_session: 2026-05-14
+total_sessions: 11
 domains:
   compute:
-    sessions_count: 9
-    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, hands-on-lab]
-    last_studied: 2026-05-13
-    current_phase: 5
-    exams: [{scope: concepts, score: 7, total: 10, pct: 70, date: 2026-05-12}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-12}]
-    phase_scores: {p2: 70, p4: 90}
-    weak_topics: [elastic-container-service (ECS)]
+    sessions_count: 11
+    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, hands-on-lab, mini-exam:design, mini-exam:comprehensive]
+    last_studied: 2026-05-14
+    current_phase: 6
+    completed: true
+    exams: [{scope: concepts, score: 7, total: 10, pct: 70, date: 2026-05-12}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-12}, {scope: design, score: 8, total: 10, pct: 80, date: 2026-05-14}, {scope: comprehensive, score: 10, total: 10, pct: 100, date: 2026-05-14}]
+    phase_scores: {p2: 70, p4: 90, p5: 80, p6: 100}
+    weak_topics: []
 ---
 
 # AWS CSA (SAA-C03) — Study Progress
@@ -52,3 +53,13 @@ domains:
 - Score: 9/10 (90%)
 - Missed: elastic-container-service (ECS) — Cluster Capacity Provider vs Service Auto Scaling
 - Output: (inline session)
+
+### 2026-05-14 12:37 | Compute | Mini Exam (Phase 5: Design)
+- Score: 8/10 (80%)
+- Missed: purchasing-options (Dedicated Hosts vs Instances), elastic-container-service (ECS) (App Runner)
+- Output: study-sessions/260514-1237-compute-mini-exam-design.md
+
+### 2026-05-14 12:55 | Compute | Mini Exam (Phase 6: Comprehensive Final)
+- Score: 10/10 (100%)
+- Missed: none
+- Output: study-sessions/260514-1255-compute-mini-exam-comprehensive.md

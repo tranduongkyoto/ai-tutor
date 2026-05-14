@@ -23,14 +23,14 @@ domains:
     modes_completed: {append mode slug if not already present}
     last_studied: {today's date, YYYY-MM-DD}
     current_phase: {1-6, advance after completing a guided phase; default 1}
-    phase_scores: {phase_num: score_pct} # only for scored phases (p2: mini-exam, p4: mini-exam, p5: paper-lab, p6: mini-exam)
+    phase_scores: {phase_num: score_pct} # only for scored phases (p2: mini-exam, p4: mini-exam, p5: mini-exam:design, p6: mini-exam)
     completed: {true if Phase 6 passed ≥80%, else false/omit}
     # If mode was mini-exam, also:
     exams:
       - date: {today, YYYY-MM-DD}
         score: {correct count}
         total: {question count}
-        scope: {concepts|scenarios|hands-on|comprehensive|general}
+        scope: {concepts|scenarios|design|comprehensive|general}
         missed_topics: [{list of topic slugs from incorrect answers}]
     weak_topics: {update — see weak topic rules below}
 ```

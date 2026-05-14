@@ -45,8 +45,8 @@ Phase 1: LEARN       → concept-mapper         (understand services & relations
 Phase 2: TEST        → mini-exam:concepts     (test conceptual knowledge)
 Phase 3: APPLY       → scenario-generator     (apply to real-world scenarios)
 Phase 4: TEST        → mini-exam:scenarios    (test scenario reasoning)
-Phase 5: DESIGN      → paper-lab              (open-ended architecture design exercises)
-Phase 6: FINAL EXAM  → mini-exam:comprehensive (full domain exam — MC + open-ended)
+Phase 5: DESIGN      → mini-exam:design       (architecture design decisions — MC format)
+Phase 6: FINAL EXAM  → mini-exam:comprehensive (full domain exam — all topics)
 ```
 
 **Optional tools** (available anytime via `free` mode or follow-up menu):
@@ -125,14 +125,13 @@ Use `AskUserQuestion`:
  1. concept-mapper          — Knowledge synthesis and service relationships
  2. mini-exam               — Interactive quiz with scoring
  3. scenario-generator      — Realistic exam scenarios with explanations
- 4. paper-lab               — Open-ended architecture design exercises
- 5. hands-on-lab            — Build real AWS infrastructure (optional, requires AWS account)
- 6. architecture-reviewer   — Evaluate architectures against Well-Architected
- 7. weak-spot-analyzer      — Identify and prioritize weak areas (no domain needed)
- 8. exam-strategy-coach     — Exam day strategy and study planning (no domain needed)
+ 4. hands-on-lab            — Build real AWS infrastructure (optional, requires AWS account)
+ 5. architecture-reviewer   — Evaluate architectures against Well-Architected
+ 6. weak-spot-analyzer      — Identify and prioritize weak areas (no domain needed)
+ 7. exam-strategy-coach     — Exam day strategy and study planning (no domain needed)
 ```
 
-Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `paper-lab`.
+Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `hands-on-lab`.
 
 **Wait for user response before proceeding to Step 2.**
 
@@ -159,7 +158,6 @@ Load `references/prompt-templates.md` for the selected mode's template.
 | `concept-mapper` | Cache file | No |
 | `mini-exam` | Cache + quiz-flow.md + **scope** | Yes (AskUserQuestion) |
 | `scenario-generator` | Cache file | No |
-| `paper-lab` | Cache + quiz-flow.md (open-ended protocol) | Yes (AskUserQuestion) |
 | `hands-on-lab` | Cache file | No |
 | `architecture-reviewer` | Cache + user architecture | Yes (AskUserQuestion) |
 | `weak-spot-analyzer` | study-progress.md only | No |
@@ -168,6 +166,7 @@ Load `references/prompt-templates.md` for the selected mode's template.
 **Mini-exam scope** (guided mode phases):
 - Phase 2: `scope=concepts` — test conceptual knowledge from concept-mapper
 - Phase 4: `scope=scenarios` — test scenario reasoning from scenario-generator
+- Phase 5: `scope=design` — test architecture design decisions and trade-offs
 - Phase 6: `scope=comprehensive` — full domain exam covering all topics
 - Free mode: `scope=general` — balanced mix (default behavior)
 
