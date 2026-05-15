@@ -38,42 +38,73 @@ For a 10-question exam: ~8 single + ~2 multi. For 5-question: ~4 single + ~1 mul
 - Mix: 60% scenario-based, 40% fact-based
 - Difficulty: 30% easy, 50% medium, 20% hard
 
+## Option Balance Rule
+
+- All 4 options (A-D) MUST be similar in length (within 2x of each other)
+- If option A is 15 words, option D cannot be 5 words
+- Longest option should NOT always be the correct answer
+- Apply this during question generation AND self-verify step
+
 ## Presentation (one question at a time)
 
-For each question:
+Each question follows a strict 2-step cycle. **Never combine steps into one turn.**
 
-1. **CRITICAL: Print ALL 4 options (A, B, C, D) as plain text in a SINGLE output block BEFORE calling AskUserQuestion.** Every option MUST appear in the terminal. Never split options across multiple outputs. Never omit option D.
-   
-   **MANDATORY format — print this EXACT structure (all 4 lines) in ONE text block:**
-   ```
-   **Question {N}/{total}:**
-   {question text}
+**Step 1 — Draft (MANDATORY). Do NOT call AskUserQuestion in this step:**
 
-   A) {option A full text}
-   B) {option B full text}
-   C) {option C full text}
-   D) {option D full text}
-   ```
-   
-   **SELF-CHECK before calling AskUserQuestion:** Count the printed options. If you printed fewer than 4 (A, B, C, D), STOP and reprint all 4. This is a known failure mode — the model sometimes drops option D.
+Write a complete text block with the question and ALL 4 options. Output this and STOP:
 
-2. **After** all 4 options are confirmed printed, use `AskUserQuestion`:
-   - **Single-select**: Question: "Your answer?" — Options: `A`, `B`, `C`, `D` — `multiSelect: false`
-   - **Multi-select**: Question: "Your answers? (Select TWO)" — Options: `A`, `B`, `C`, `D` — `multiSelect: true`
+```
+**Question {N}/{total}:**
+{question text}
 
-3. After user answers, show immediate feedback:
-   - **Single-select**:
-     ```
-     ✓ Correct! / ✗ Incorrect — correct answer: {letter}
-     {Brief explanation — why correct answer is right}
-     ```
-   - **Multi-select**: User must select BOTH correct answers to score. Partial = incorrect.
-     ```
-     ✓ Correct! (selected A, C) / ✗ Incorrect — correct answers: {letter}, {letter}
-     {Brief explanation — why each correct answer is right}
-     ```
+A) {option A full text}
+B) {option B full text}
+C) {option C full text}
+D) {option D full text}
+```
 
-4. Proceed to next question
+**Step 2 — Tool call (ONLY after Step 1 text is fully output):**
+
+Call `AskUserQuestion` with short labels only:
+- **Single-select**: Question: "Your answer?" — Options: `A`, `B`, `C`, `D` — `multiSelect: false`
+- **Multi-select**: Question: "Your answers? (Select TWO)" — Options: `A`, `B`, `C`, `D` — `multiSelect: true`
+
+**Step 3 — Feedback (TEXT-ONLY turn. Do NOT call AskUserQuestion for the next question in this turn):**
+
+Show immediate feedback and STOP. The next question starts in a new turn.
+
+- **Single-select**:
+  ```
+  ✓ Correct! — {letter} is right.
+  {Why correct answer is right. Why each wrong option is wrong — 1 sentence each.}
+  ```
+  or
+  ```
+  ✗ Incorrect — correct answer: {letter}
+  {Why correct answer is right. Why each wrong option is wrong — 1 sentence each.}
+  ```
+- **Multi-select**:
+  ```
+  ✓ Correct! (selected {letters}) / ✗ Incorrect — correct answers: {letter}, {letter}
+  {Why each correct answer is right. Why each wrong option is wrong.}
+  ```
+
+**Step 4 — Next question:** Return to Step 1 for the next question (new turn).
+
+## Multi-select Scoring
+
+- `AskUserQuestion` with `multiSelect: true` returns an ARRAY of selected options
+- User must select EXACTLY 2 options
+- Score as correct ONLY if both selected options match both correct answers
+- Order does not matter: `["A","C"]` equals `["C","A"]`
+- Selecting 1 or 3+ options = incorrect
+
+## Fallback
+
+If `AskUserQuestion` tool is unavailable or fails:
+- Print the question with all 4 options as text
+- Ask user to type their answer letter(s) directly in chat
+- Parse the response (accept: `A`, `a`, `A)`, `Option A`, `a,c`, `A and C`)
 
 ## Scoring
 
