@@ -1,17 +1,17 @@
 ---
 started: 2026-05-11
 last_session: 2026-05-15
-total_sessions: 13
+total_sessions: 16
 domains:
   networking:
-    sessions_count: 2
-    modes_completed: [concept-mapper, mini-exam:concepts]
+    sessions_count: 5
+    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design]
     last_studied: 2026-05-15
-    current_phase: 3
+    current_phase: 6
     completed: false
-    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-15}]
-    phase_scores: {p2: 90}
-    weak_topics: [nat-instance]
+    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-15}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-15}, {scope: design, score: 6, total: 10, pct: 60, date: 2026-05-15}]
+    phase_scores: {p2: 90, p4: 90, p5: 60}
+    weak_topics: [direct-connect, nacl-vs-sg]
   compute:
     sessions_count: 11
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, hands-on-lab, mini-exam:design, mini-exam:comprehensive]
@@ -81,3 +81,18 @@ domains:
 - Score: 9/10 (90%)
 - Missed: nat-instance (Source/Destination Check)
 - Output: study-sessions/260515-1016-networking-mini-exam.md
+
+### 2026-05-15 10:21 | Networking | Scenario Generator (Phase 3)
+- Scenarios: 9 (multi-vpc-design, cidr-planning, public-vs-private-subnet, nacl-vs-sg-filtering, nat-gateway-ha, peering-vs-tgw, gateway-vs-interface-endpoints, tgw-hub-spoke-multicast-ecmp, flow-log-troubleshooting)
+- Key concepts: TGW route table isolation, CIDR overlap avoidance, 3-tier subnet placement, NACL stateless DENY rules, NAT GW per-AZ HA, TGW peering cross-region, Gateway Endpoint free for S3/DynamoDB, IP Multicast only on TGW, Flow Log ACCEPT+REJECT diagnosis
+- Output: study-sessions/260515-1021-networking-scenario-generator.md
+
+### 2026-05-15 11:55 | Networking | Mini Exam (Phase 4: Scenarios)
+- Score: 9/10 (90%)
+- Missed: direct-connect (DX backup timing — second DX >1 month, S2S VPN is fast backup)
+- Output: study-sessions/260515-1155-networking-mini-exam-scenarios.md
+
+### 2026-05-15 16:43 | Networking | Mini Exam (Phase 5: Design)
+- Score: 6/10 (60%)
+- Missed: direct-connect (MACsec encryption, Hosted DX burst, Snowball for large migration), nacl-vs-sg (SCP preventive control > SG for defense-in-depth)
+- Output: study-sessions/260515-1643-networking-mini-exam-design.md
