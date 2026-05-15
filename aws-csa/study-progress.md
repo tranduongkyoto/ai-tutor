@@ -1,8 +1,17 @@
 ---
 started: 2026-05-11
-last_session: 2026-05-14
-total_sessions: 11
+last_session: 2026-05-15
+total_sessions: 13
 domains:
+  networking:
+    sessions_count: 2
+    modes_completed: [concept-mapper, mini-exam:concepts]
+    last_studied: 2026-05-15
+    current_phase: 3
+    completed: false
+    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-15}]
+    phase_scores: {p2: 90}
+    weak_topics: [nat-instance]
   compute:
     sessions_count: 11
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, hands-on-lab, mini-exam:design, mini-exam:comprehensive]
@@ -63,3 +72,12 @@ domains:
 - Score: 10/10 (100%)
 - Missed: none
 - Output: study-sessions/260514-1255-compute-mini-exam-comprehensive.md
+
+### 2026-05-15 08:51 | Networking | Concept Mapper (Phase 1)
+- Topics: vpc, subnets, igw, nat-gateway, nat-instance, nacl, security-groups, vpc-peering, vpc-endpoints, flow-logs, site-to-site-vpn, direct-connect, transit-gateway, egress-only-igw, network-firewall
+- Output: study-sessions/260515-0851-networking-concept-mapper.md
+
+### 2026-05-15 10:16 | Networking | Mini Exam (Phase 2: Concepts)
+- Score: 9/10 (90%)
+- Missed: nat-instance (Source/Destination Check)
+- Output: study-sessions/260515-1016-networking-mini-exam.md
