@@ -42,18 +42,22 @@ For a 10-question exam: ~8 single + ~2 multi. For 5-question: ~4 single + ~1 mul
 
 For each question:
 
-1. **CRITICAL: Print ALL 4 options as plain text FIRST.** Every option (A-D) MUST appear in the terminal output above the answer prompt. Never rely on `AskUserQuestion` descriptions to show option text.
+1. **CRITICAL: Print ALL 4 options (A, B, C, D) as plain text in a SINGLE output block BEFORE calling AskUserQuestion.** Every option MUST appear in the terminal. Never split options across multiple outputs. Never omit option D.
+   
+   **MANDATORY format — print this EXACT structure (all 4 lines) in ONE text block:**
    ```
    **Question {N}/{total}:**
    {question text}
 
-   A) {option A}
-   B) {option B}
-   C) {option C}
-   D) {option D}
+   A) {option A full text}
+   B) {option B full text}
+   C) {option C full text}
+   D) {option D full text}
    ```
+   
+   **SELF-CHECK before calling AskUserQuestion:** Count the printed options. If you printed fewer than 4 (A, B, C, D), STOP and reprint all 4. This is a known failure mode — the model sometimes drops option D.
 
-2. **After** all options are printed, use `AskUserQuestion`:
+2. **After** all 4 options are confirmed printed, use `AskUserQuestion`:
    - **Single-select**: Question: "Your answer?" — Options: `A`, `B`, `C`, `D` — `multiSelect: false`
    - **Multi-select**: Question: "Your answers? (Select TWO)" — Options: `A`, `B`, `C`, `D` — `multiSelect: true`
 
@@ -92,6 +96,52 @@ After all questions answered:
    - `total`: number of questions
    - `missed_topics`: list of topic slugs from incorrect answers
    - `percentage`: score/total * 100
+
+## Session File Format (ALL scopes)
+
+**CRITICAL:** Every mini-exam session file MUST save full question details — not just a summary table. This applies to ALL scopes (concepts, scenarios, design, comprehensive, general).
+
+Write the session file to `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{domain}-mini-exam-{scope}.md` with this format:
+
+```markdown
+# {Domain} — Mini Exam: {Scope Title} (Phase {N})
+**Date:** {YYYY-MM-DD HH:MM}
+**Score:** {score}/{total} ({percentage}%)
+**Scope:** {scope} — {scope description}
+
+---
+
+## Questions & Results
+
+### Q{N} ✓/✗ — {Short title} ({topic-slug})
+**Question:** {Full question text}
+
+A) {option A text}
+B) {option B text}
+C) {option C text}
+D) {option D text}
+
+**Your answer: {letter(s)}** — Correct/Incorrect. {Explanation of why correct answer is right. If incorrect, state the correct answer.}
+
+---
+
+{repeat for all questions}
+
+## Summary
+- **Score:** {score}/{total} ({percentage}%)
+- **Missed topics:** {comma-separated topic slugs, or "none"}
+- **Strong areas:** {topics answered correctly}
+- **Key lessons:**
+  - {lesson from each missed question — what to remember}
+```
+
+**Rules:**
+- Always include ALL 4 choices (A-D) with full text — never abbreviate
+- Always record the user's actual answer letter(s)
+- Mark each question with ✓ (correct) or ✗ (incorrect)
+- For multi-select questions, show both selected and correct answers
+- Include the explanation after each question — not just at the end
+- The "Key lessons" section summarizes takeaways from missed questions only
 
 ## Edge Cases
 
