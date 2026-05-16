@@ -2,11 +2,13 @@
 
 Mode-specific prompt templates for the AI Tutor skill. Each section defines the inputs, instructions, and output format for one study mode.
 
-## Global Rule: Full Service Names (ALL modes)
+## Global Rule: Full Names First (ALL modes)
 
-**ALWAYS use full service/concept names on first mention, with abbreviation in parentheses.** After first mention, abbreviation alone is acceptable within the same section.
+**ALWAYS use the full name on first mention for ANY abbreviation or acronym, with the short form in parentheses.** After first mention, the abbreviation alone is acceptable within the same section. This applies to EVERYTHING — AWS services, architectural concepts, protocols, strategies, industry terms.
 
-Examples:
+**Rule:** If a term has an abbreviation/acronym, write the full name first. No exceptions. Never assume the reader knows what an abbreviation means.
+
+Examples — AWS Services:
 - "Elastic Compute Cloud (EC2)" not just "EC2"
 - "Elastic Block Store (EBS)" not just "EBS"
 - "Application Load Balancer (ALB)" not just "ALB"
@@ -26,7 +28,29 @@ Examples:
 - "Elastic File System (EFS)" not just "EFS"
 - "Network Address Translation (NAT)" not just "NAT"
 
-This applies to: concept maps, exam questions, scenario descriptions, lab instructions, architecture reviews, and all other generated content. The target audience is new AWS users preparing for their first certification.
+Examples — Concepts, Strategies, Protocols:
+- "Disaster Recovery (DR)" not just "DR"
+- "High Availability (HA)" not just "HA"
+- "Recovery Point Objective (RPO)" not just "RPO"
+- "Recovery Time Objective (RTO)" not just "RTO"
+- "Infrastructure as Code (IaC)" not just "IaC"
+- "Cross-Region Replication (CRR)" not just "CRR"
+- "Same-Region Replication (SRR)" not just "SRR"
+- "High Performance Computing (HPC)" not just "HPC"
+- "Input/Output Operations Per Second (IOPS)" not just "IOPS"
+- "Service Level Agreement (SLA)" not just "SLA"
+- "Data Lifecycle Manager (DLM)" not just "DLM"
+- "Customer Managed Key (CMK)" not just "CMK"
+- "Virtual Tape Library (VTL)" not just "VTL"
+- "Server-Side Encryption (SSE)" not just "SSE"
+- "Transport Layer Security (TLS)" not just "TLS"
+- "Secure Sockets Layer (SSL)" not just "SSL"
+- "Block Public Access (BPA)" not just "BPA"
+- "Write Once Read Many (WORM)" not just "WORM"
+- "Electronic Health Records (EHR)" not just "EHR"
+- "Enterprise Resource Planning (ERP)" not just "ERP"
+
+This applies to: concept maps, exam questions, scenario descriptions, lab instructions, architecture reviews, and all other generated content. The target audience is new AWS users preparing for their first certification — never assume prior knowledge of any abbreviation.
 
 ---
 
