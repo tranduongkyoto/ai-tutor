@@ -48,11 +48,32 @@ Generate a comprehensive concept map for the **{domain}** domain covering:
 6. **Security Considerations**: IAM, encryption at rest/transit, network security per service
 7. **Exam Tips**: Key distinctions tested in SAA-C03, keywords that signal specific answers
 
+### Diagram Directives
+
+Generate **3-5 diagrams** across the concept map. Place them in the sections below — skip a diagram if the section has no visual value for the domain.
+
+| Section | Diagram Type | Format | Guidance |
+|---------|-------------|--------|----------|
+| §3 Service Integrations | Service relationship flowchart | Mermaid `graph LR` | Nodes = domain services, edges = data/traffic flow direction. Show how services chain together. |
+| §4 Architectural Patterns | Architecture diagram (top 2 patterns) | Mermaid `graph TD` | Layered layout: Internet → public tier → private tier → data tier. One diagram per major pattern. |
+| §4 (sub) | Decision tree for pattern selection | Mermaid `graph TD` with diamond decisions | "When to use which pattern?" — branch on requirements (HA? cost? latency?) to recommended pattern. |
+| §6 Security | Defense-in-depth layers | ASCII art | Stack diagram showing outer → inner layers: perimeter (NACL) → instance (SG) → service (IAM) → data (encryption). |
+| §7 Exam Tips | Keyword-to-answer decision tree | Mermaid `graph TD` | Map exam trigger words (e.g., "block IP", "private S3 access") to correct service/answer via branching. |
+
+**Diagram quality rules:**
+- Mermaid: use `graph TD` or `graph LR` only — no sequence, pie, gantt, or other types
+- Max 15 nodes per diagram; split into multiple diagrams if larger
+- Include a 3-5 line ASCII text fallback below each Mermaid block for terminal users
+- Node labels: full service name on first occurrence, abbreviation OK after
+- Decision trees: condition/question at top, branches as choices, leaf = answer/recommendation
+
 ### Output Format
 - Use headers (`##`, `###`) for sections
 - Bullet points for details — concise, not paragraphs
 - Tables for comparisons (e.g., instance type families, storage tier comparison)
 - Bold key terms and service names
+- Mermaid code blocks (` ```mermaid `) for architecture and decision diagrams
+- ASCII blocks for terminal-friendly diagram fallbacks
 - End with a "Key Takeaways" section (5-7 bullet points)
 
 ### Quality Rules
@@ -154,8 +175,9 @@ The scenario map defines exactly which sub-concepts need coverage. Each array it
 3. **Question**: What should the solutions architect recommend?
 4. **Options (A-D)**: 4 options, each a valid-sounding architecture but only one best answer
 5. **Correct Answer**: Letter + detailed explanation
-6. **Why Others Are Wrong**: 1-2 sentences per wrong option explaining the specific flaw
-7. **Key Concept**: The AWS concept being tested
+6. **Architecture Diagram**: Mermaid `graph TD` showing the correct answer's architecture — services as nodes, connections as edges. Include 3-5 line ASCII fallback. Max 10 nodes. Show ONLY the recommended solution (not all options).
+7. **Why Others Are Wrong**: 1-2 sentences per wrong option explaining the specific flaw
+8. **Key Concept**: The AWS concept being tested
 
 ### Output Format
 
@@ -175,6 +197,13 @@ D) {option}
 
 **Answer: {letter}**
 {Detailed explanation}
+
+**Architecture:**
+```mermaid
+graph TD
+    {recommended architecture — services as nodes, connections as edges}
+```
+ASCII: {3-5 line text description of the architecture flow}
 
 **Why others are wrong:**
 - A) {reason}
