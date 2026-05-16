@@ -1,17 +1,17 @@
 ---
 started: 2026-05-11
 last_session: 2026-05-15
-total_sessions: 16
+total_sessions: 17
 domains:
   networking:
-    sessions_count: 5
-    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design]
+    sessions_count: 6
+    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
     last_studied: 2026-05-15
     current_phase: 6
-    completed: false
-    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-15}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-15}, {scope: design, score: 6, total: 10, pct: 60, date: 2026-05-15}]
-    phase_scores: {p2: 90, p4: 90, p5: 60}
-    weak_topics: [direct-connect, nacl-vs-sg]
+    completed: true
+    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-15}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-15}, {scope: design, score: 6, total: 10, pct: 60, date: 2026-05-15}, {scope: comprehensive, score: 9, total: 10, pct: 90, date: 2026-05-15}]
+    phase_scores: {p2: 90, p4: 90, p5: 60, p6: 90}
+    weak_topics: [direct-connect-gateway]
   compute:
     sessions_count: 11
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, hands-on-lab, mini-exam:design, mini-exam:comprehensive]
@@ -96,3 +96,8 @@ domains:
 - Score: 6/10 (60%)
 - Missed: direct-connect (MACsec encryption, Hosted DX burst, Snowball for large migration), nacl-vs-sg (SCP preventive control > SG for defense-in-depth)
 - Output: study-sessions/260515-1643-networking-mini-exam-design.md
+
+### 2026-05-15 22:38 | Networking | Mini Exam (Phase 6: Comprehensive Final)
+- Score: 9/10 (90%)
+- Missed: direct-connect-gateway (DX Gateway for multi-region VPC connectivity)
+- Output: study-sessions/260515-2238-networking-mini-exam-comprehensive.md
