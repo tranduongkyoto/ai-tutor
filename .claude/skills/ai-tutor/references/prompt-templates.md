@@ -66,6 +66,7 @@ Generate **3-5 diagrams** across the concept map. Place them in the sections bel
 - Include a 3-5 line ASCII text fallback below each Mermaid block for terminal users
 - Node labels: full service name on first occurrence, abbreviation OK after
 - Decision trees: condition/question at top, branches as choices, leaf = answer/recommendation
+- **Syntax portability (IntelliJ/GitHub/VS Code):** always quote diamond node labels `{"like this?"}`, use `/` instead of commas in edge labels (e.g., `"HPC / ML"` not `"HPC, ML"`), avoid bare special characters in labels
 
 ### Output Format
 - Use headers (`##`, `###`) for sections

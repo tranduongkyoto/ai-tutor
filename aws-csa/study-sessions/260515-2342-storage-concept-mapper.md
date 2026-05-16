@@ -152,17 +152,17 @@ ASCII fallback:
 
 ```mermaid
 graph TD
-    START{What type of storage?} -->|Block| BLOCK{Persistent?}
-    BLOCK -->|Yes| EBSD{IOPS need?}
-    BLOCK -->|No, temporary| IS[Instance Store]
-    EBSD -->|Less than 16K| GP[gp3]
-    EBSD -->|16K-64K| IO1[io1]
-    EBSD -->|Over 64K| IO2[io2 Block Express]
-    START -->|File, shared| FILE{Protocol?}
-    FILE -->|NFS, Linux| EFSD[EFS]
-    FILE -->|SMB, Windows| FSX[FSx for Windows]
-    FILE -->|HPC, Lustre| FSXL[FSx for Lustre]
-    START -->|Object| OBJ{Access pattern?}
+    START{"What type of storage?"} -->|Block| BLOCK{"Persistent?"}
+    BLOCK -->|Yes| EBSD{"IOPS need?"}
+    BLOCK -->|"No - temporary"| IS[Instance Store]
+    EBSD -->|"Less than 16K"| GP[gp3]
+    EBSD -->|"16K-64K"| IO1[io1]
+    EBSD -->|"Over 64K"| IO2[io2 Block Express]
+    START -->|"File - shared"| FILE{"Protocol?"}
+    FILE -->|"NFS / Linux"| EFSD[EFS]
+    FILE -->|"SMB / Windows"| FSX[FSx for Windows]
+    FILE -->|"HPC / Lustre"| FSXL[FSx for Lustre]
+    START -->|Object| OBJ{"Access pattern?"}
     OBJ -->|Frequent| STD[S3 Standard]
     OBJ -->|Infrequent| IA[S3 Standard-IA]
     OBJ -->|Unknown| IT[S3 Intelligent-Tiering]
@@ -239,16 +239,16 @@ ASCII fallback:
 
 ```mermaid
 graph TD
-    Q{Exam keyword?} -->|"shared filesystem"| EFS[EFS]
+    Q{"Exam keyword?"} -->|"shared filesystem"| EFS[EFS]
     Q -->|"Windows file share"| FSX[FSx for Windows]
-    Q -->|"HPC, machine learning"| FSXL[FSx for Lustre]
-    Q -->|"highest IOPS, sub-ms latency"| IO2[io2 Block Express]
-    Q -->|"temporary, cache, buffer"| IS[Instance Store]
-    Q -->|"lifecycle, archive, classes"| LC[S3 Lifecycle Rules]
+    Q -->|"HPC / machine learning"| FSXL[FSx for Lustre]
+    Q -->|"highest IOPS / sub-ms latency"| IO2[io2 Block Express]
+    Q -->|"temporary / cache / buffer"| IS[Instance Store]
+    Q -->|"lifecycle / archive / classes"| LC[S3 Lifecycle Rules]
     Q -->|"cross-region compliance"| CRR[S3 CRR]
     Q -->|"unknown access pattern"| IT[S3 Intelligent-Tiering]
-    Q -->|"large migration, petabytes"| SNOW[Snowball / Snowmobile]
-    Q -->|"hybrid, on-premises"| SGW[Storage Gateway]
+    Q -->|"large migration / petabytes"| SNOW[Snowball / Snowmobile]
+    Q -->|"hybrid / on-premises"| SGW[Storage Gateway]
     Q -->|"cost-effective archive"| GDA[Glacier Deep Archive]
     Q -->|"immediate archive retrieval"| GIR[Glacier Instant Retrieval]
 ```
