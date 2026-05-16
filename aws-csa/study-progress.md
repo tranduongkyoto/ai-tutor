@@ -1,8 +1,16 @@
 ---
 started: 2026-05-11
 last_session: 2026-05-15
-total_sessions: 17
+total_sessions: 18
 domains:
+  storage:
+    sessions_count: 1
+    modes_completed: [concept-mapper]
+    last_studied: 2026-05-15
+    current_phase: 1
+    exams: []
+    phase_scores: {}
+    weak_topics: []
   networking:
     sessions_count: 6
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
@@ -101,3 +109,7 @@ domains:
 - Score: 9/10 (90%)
 - Missed: direct-connect-gateway (DX Gateway for multi-region VPC connectivity)
 - Output: study-sessions/260515-2238-networking-mini-exam-comprehensive.md
+
+### 2026-05-15 23:42 | Storage | Concept Mapper (Phase 1)
+- Topics: ebs-types, ebs-snapshots, instance-store, efs, s3-classes, s3-security, s3-versioning, s3-replication, s3-lifecycle, s3-performance, s3-event-notifications, s3-analytics, s3-access-points, s3-object-lambda, fsx, snow-family, storage-gateway
+- Output: study-sessions/260515-2342-storage-concept-mapper.md
