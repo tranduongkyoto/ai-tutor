@@ -1,16 +1,16 @@
 ---
 started: 2026-05-11
-last_session: 2026-05-15
-total_sessions: 18
+last_session: 2026-05-16
+total_sessions: 20
 domains:
   storage:
-    sessions_count: 1
-    modes_completed: [concept-mapper]
-    last_studied: 2026-05-15
-    current_phase: 1
-    exams: []
-    phase_scores: {}
-    weak_topics: []
+    sessions_count: 3
+    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator]
+    last_studied: 2026-05-16
+    current_phase: 3
+    exams: [{scope: concepts, score: 8, total: 10, pct: 80, date: 2026-05-16}]
+    phase_scores: {p2: 80}
+    weak_topics: [storage-gateway, ebs-multi-attach]
   networking:
     sessions_count: 6
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
@@ -113,3 +113,13 @@ domains:
 ### 2026-05-15 23:42 | Storage | Concept Mapper (Phase 1)
 - Topics: ebs-types, ebs-snapshots, instance-store, efs, s3-classes, s3-security, s3-versioning, s3-replication, s3-lifecycle, s3-performance, s3-event-notifications, s3-analytics, s3-access-points, s3-object-lambda, fsx, snow-family, storage-gateway
 - Output: study-sessions/260515-2342-storage-concept-mapper.md
+
+### 2026-05-16 01:14 | Storage | Mini Exam (Phase 2: Concepts)
+- Score: 8/10 (80%)
+- Missed: storage-gateway (Tape Gateway for tape workflows), ebs-multi-attach (io1/io2 only)
+- Output: study-sessions/260516-0114-storage-mini-exam-concepts.md
+
+### 2026-05-16 04:06 | Storage | Scenario Generator (Phase 3)
+- Scenarios: 12 (gp3-vs-io2-vs-st1, provisioned-iops-sizing, cross-region-copy-lifecycle, efs-vs-ebs-vs-fsx, standard-vs-ia-vs-glacier, intelligent-tiering, transition-rules-expiration, bucket-policy-vs-acl-vs-iam, encryption-sse-s3-vs-sse-kms, fsx-lustre-vs-windows-vs-efs, snowcone-vs-snowball-vs-snowmobile, file-vs-volume-vs-tape-gateway)
+- Key concepts: EBS type matching, io2 Block Express for >64K IOPS, Snapshot Archive lifecycle, FSx Lustre for HPC, S3 class selection by access pattern, Intelligent-Tiering for unpredictable patterns, lifecycle chain with minimum periods, BPA must be OFF for public access, SSE-KMS+CMK for audit/rotation/revocation, Snow Family sizing, Storage Gateway type mapping
+- Output: study-sessions/260516-0406-storage-scenario-generator.md
