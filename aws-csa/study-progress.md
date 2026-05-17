@@ -1,16 +1,16 @@
 ---
 started: 2026-05-11
-last_session: 2026-05-16
-total_sessions: 20
+last_session: 2026-05-17
+total_sessions: 22
 domains:
   storage:
-    sessions_count: 3
-    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator]
-    last_studied: 2026-05-16
-    current_phase: 3
-    exams: [{scope: concepts, score: 8, total: 10, pct: 80, date: 2026-05-16}]
-    phase_scores: {p2: 80}
-    weak_topics: [storage-gateway, ebs-multi-attach]
+    sessions_count: 5
+    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design]
+    last_studied: 2026-05-17
+    current_phase: 5
+    exams: [{scope: concepts, score: 8, total: 10, pct: 80, date: 2026-05-16}, {scope: scenarios, score: 6, total: 10, pct: 60, date: 2026-05-16}, {scope: design, score: 6, total: 10, pct: 60, date: 2026-05-17}]
+    phase_scores: {p2: 80, p4: 60, p5: 60}
+    weak_topics: [s3-security, s3-performance, s3-lifecycle, snow-family]
   networking:
     sessions_count: 6
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
@@ -123,3 +123,13 @@ domains:
 - Scenarios: 12 (gp3-vs-io2-vs-st1, provisioned-iops-sizing, cross-region-copy-lifecycle, efs-vs-ebs-vs-fsx, standard-vs-ia-vs-glacier, intelligent-tiering, transition-rules-expiration, bucket-policy-vs-acl-vs-iam, encryption-sse-s3-vs-sse-kms, fsx-lustre-vs-windows-vs-efs, snowcone-vs-snowball-vs-snowmobile, file-vs-volume-vs-tape-gateway)
 - Key concepts: EBS type matching, io2 Block Express for >64K IOPS, Snapshot Archive lifecycle, FSx Lustre for HPC, S3 class selection by access pattern, Intelligent-Tiering for unpredictable patterns, lifecycle chain with minimum periods, BPA must be OFF for public access, SSE-KMS+CMK for audit/rotation/revocation, Snow Family sizing, Storage Gateway type mapping
 - Output: study-sessions/260516-0406-storage-scenario-generator.md
+
+### 2026-05-16 05:31 | Storage | Mini Exam (Phase 4: Scenarios)
+- Score: 6/10 (60%)
+- Missed: s3-security (Object Lock Compliance vs Governance, SSE-C vs SSE-KMS key storage), s3-performance (prefix hot spots, small files problem), s3-lifecycle (minimum storage period penalties)
+- Output: study-sessions/260516-0531-storage-mini-exam-scenarios.md
+
+### 2026-05-17 01:13 | Storage | Mini Exam (Phase 5: Design)
+- Score: 6/10 (60%)
+- Missed: s3-performance (Firehose inline conversion), s3-lifecycle (Glacier Instant 90d min vs Standard-IA 30d), s3-security (bucket policy VPC condition + cross-account exception), snow-family (Snowcone limits vs Snowball Edge)
+- Output: study-sessions/260517-0113-storage-mini-exam-design.md
