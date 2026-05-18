@@ -179,6 +179,8 @@ Explanation: [Why correct answer(s) are right. For each wrong option: why it's w
 
 Then present questions interactively using the protocol in `references/quiz-flow.md`.
 
+**CRITICAL — Answer Concealment:** The internal format above (with `Correct:` and `Explanation:` fields) is for YOUR internal tracking only. When presenting questions to the user in Step 1 of the quiz flow, output ONLY the question text and options A-D. NEVER include the correct answer, explanation, or any answer hints in the question presentation. The answer is revealed ONLY after the user submits their response (Step 3).
+
 ---
 
 ## Mode: Scenario Generator

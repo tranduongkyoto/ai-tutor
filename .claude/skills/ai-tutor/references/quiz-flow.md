@@ -2,6 +2,8 @@
 
 Interactive quiz protocol for Mini Exam mode using `AskUserQuestion`.
 
+**HARD RULE — Never reveal answers before user responds.** Each question's correct answer and explanation MUST be hidden until Step 3 (after the user submits). Showing "Answer: B" or any correct-answer hint alongside the question defeats the entire purpose of the exam. The internal question data (Correct, Explanation fields) is for scoring only — never output it during question presentation.
+
 ## Setup
 
 1. Ask question count via `AskUserQuestion`: "How many questions for this exam?" — options: `5`, `10`, `15`
@@ -62,6 +64,8 @@ B) {option B full text}
 C) {option C full text}
 D) {option D full text}
 ```
+
+**CRITICAL: Do NOT reveal the answer in this step.** The output MUST contain ONLY the question text and options A-D. Never include: the correct answer letter, "Answer:", "Correct:", explanations, or any hint about which option is right. The answer is revealed ONLY in Step 3 after the user responds.
 
 **Step 2 — Tool call (ONLY after Step 1 text is fully output):**
 
