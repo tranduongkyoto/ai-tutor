@@ -1,8 +1,15 @@
 ---
 started: 2026-05-11
 last_session: 2026-05-18
-total_sessions: 23
+total_sessions: 24
 domains:
+  security-identity:
+    sessions_count: 1
+    modes_completed: [concept-mapper]
+    last_studied: 2026-05-18
+    current_phase: 1
+    exams: []
+    weak_topics: []
   storage:
     sessions_count: 6
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
@@ -139,3 +146,7 @@ domains:
 - Score: 9/10 (90%)
 - Missed: s3-encryption (S3 Bucket Keys for reducing KMS ThrottlingException)
 - Output: study-sessions/260518-1154-storage-mini-exam-comprehensive.md
+
+### 2026-05-18 17:38 | Security & Identity | Concept Mapper (Phase 1)
+- Topics: iam, organizations, scp, iam-identity-center, control-tower, kms, cloudhsm, acm, ssm-parameter-store, secrets-manager, waf, shield, firewall-manager, guardduty, inspector, macie
+- Output: study-sessions/260518-1738-security-identity-concept-mapper.md
