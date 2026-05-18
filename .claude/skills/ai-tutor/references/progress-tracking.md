@@ -112,13 +112,22 @@ recency = 100                           if days_since <= 7
         = 0                             if days_since > 30 or never studied
 ```
 
-### Overall Readiness
+### Overall Readiness (Exam-Weight-Adjusted)
+
+Weighted by SAA-C03 exam coverage per tier. Each domain within a tier shares equal weight.
 
 ```
-overall = average of all 12 domain readiness scores
+Tier weights (from SKILL.md):
+  Tier 1 (60%): compute, networking, storage, security-identity        → 15% each
+  Tier 2 (35%): load-balancing-scaling, databases, serverless,
+                integration-messaging, dns, monitoring-audit           → 5.83% each
+  Tier 3  (5%): data-analytics, dr-architecture                       → 2.5% each
+
+overall = Σ (domain_readiness × domain_tier_weight)
 ```
 - Domains never studied have readiness = 0
-- This means overall readiness is diluted by unstudied domains (intentional — you need all 12)
+- Tier 1 domains contribute more to overall readiness (matches real exam weight)
+- Example: 3 Tier-1 domains at ~90% readiness → overall ≈ 41% (not 23% as with equal weighting)
 
 ### Status Thresholds
 

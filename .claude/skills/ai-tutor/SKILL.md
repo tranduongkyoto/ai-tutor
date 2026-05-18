@@ -212,13 +212,19 @@ Use `AskUserQuestion`:
 
 If user selects "Other", also accept: `architecture-reviewer`, `weak-spot-analyzer`, `exam-strategy-coach`, `free`, `progress`, `done`.
 
-**After Phase 6 (final exam)**: Show domain completion celebration + overall readiness:
+**After Phase 6 (final exam)**: Show domain completion celebration + full progress dashboard.
+Compute readiness using the **exact formula** from `references/progress-tracking.md` § Readiness Formula — do NOT invent ad-hoc metrics (domain coverage %, exam weight %, etc.):
 
 ```
 🎉 Domain Complete: {Domain}!
    Phase scores: P2={score}% → P4={score}% → P5={score}% → P6={score}%
-   Overall domain readiness: {readiness}%
+   Domain readiness: {readiness}% (formula: coverage×0.3 + exam_avg×0.5 + recency×0.2)
+```
 
+Then display the **full progress dashboard** (same format as `/ai-tutor progress` — see `references/progress-tracking.md` § Dashboard Format). This ensures the readiness numbers shown here match exactly what the dashboard shows.
+
+After the dashboard, show recommendation:
+```
 Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
 ```
 
