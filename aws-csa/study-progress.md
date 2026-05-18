@@ -1,15 +1,16 @@
 ---
 started: 2026-05-11
 last_session: 2026-05-18
-total_sessions: 24
+total_sessions: 27
 domains:
   security-identity:
-    sessions_count: 1
-    modes_completed: [concept-mapper]
+    sessions_count: 4
+    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios]
     last_studied: 2026-05-18
-    current_phase: 1
-    exams: []
-    weak_topics: []
+    current_phase: 4
+    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-18}, {scope: scenarios, score: 8, total: 10, pct: 80, date: 2026-05-18}]
+    phase_scores: {p2: 90, p4: 80}
+    weak_topics: [acm, shield]
   storage:
     sessions_count: 6
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
@@ -150,3 +151,18 @@ domains:
 ### 2026-05-18 17:38 | Security & Identity | Concept Mapper (Phase 1)
 - Topics: iam, organizations, scp, iam-identity-center, control-tower, kms, cloudhsm, acm, ssm-parameter-store, secrets-manager, waf, shield, firewall-manager, guardduty, inspector, macie
 - Output: study-sessions/260518-1738-security-identity-concept-mapper.md
+
+### 2026-05-18 11:42 | Security & Identity | Mini Exam (Phase 2: Concepts)
+- Score: 9/10 (90%)
+- Missed: acm (ACM imported certs no auto-renewal, Edge-Optimized API GW requires us-east-1)
+- Output: study-sessions/260518-1142-security-identity-mini-exam-concepts.md
+
+### 2026-05-18 11:45 | Security & Identity | Scenario Generator (Phase 3)
+- Scenarios: 11 (cross-account-access, permission-boundaries, scp-inheritance-and-ou-design, deny-vs-allow-strategy, cmk-vs-aws-managed-keys, key-rotation, parameter-store-vs-secrets-manager, waf-rules-for-common-attacks, shield-standard-vs-advanced, threat-detection-and-response, user-pools-vs-identity-pools)
+- Key concepts: resource-based policy for simultaneous cross-account access, Permission Boundaries for delegated admin, SCP allowlist vs blocklist per OU, CMK for full key control, Secrets Manager+SSM hybrid, WAF on ALB not NLB, Shield Advanced for L7 DDoS, GuardDuty for crypto mining, Cognito User Pools+Identity Pools
+- Output: study-sessions/260518-1145-security-identity-scenario-generator.md
+
+### 2026-05-18 12:54 | Security & Identity | Mini Exam (Phase 4: Scenarios)
+- Score: 8/10 (80%)
+- Missed: acm (ALB cert same region, Edge API GW us-east-1 vs Regional API GW same region), shield (Standard L3/4 free vs Advanced L7+DRT+cost-protection $3K/month)
+- Output: study-sessions/260518-1254-security-identity-mini-exam-scenarios.md
