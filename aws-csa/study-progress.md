@@ -1,16 +1,17 @@
 ---
 started: 2026-05-11
-last_session: 2026-05-17
-total_sessions: 22
+last_session: 2026-05-18
+total_sessions: 23
 domains:
   storage:
-    sessions_count: 5
-    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design]
-    last_studied: 2026-05-17
-    current_phase: 5
-    exams: [{scope: concepts, score: 8, total: 10, pct: 80, date: 2026-05-16}, {scope: scenarios, score: 6, total: 10, pct: 60, date: 2026-05-16}, {scope: design, score: 6, total: 10, pct: 60, date: 2026-05-17}]
-    phase_scores: {p2: 80, p4: 60, p5: 60}
-    weak_topics: [s3-security, s3-performance, s3-lifecycle, snow-family]
+    sessions_count: 6
+    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
+    last_studied: 2026-05-18
+    current_phase: 6
+    completed: true
+    exams: [{scope: concepts, score: 8, total: 10, pct: 80, date: 2026-05-16}, {scope: scenarios, score: 6, total: 10, pct: 60, date: 2026-05-16}, {scope: design, score: 6, total: 10, pct: 60, date: 2026-05-17}, {scope: comprehensive, score: 9, total: 10, pct: 90, date: 2026-05-18}]
+    phase_scores: {p2: 80, p4: 60, p5: 60, p6: 90}
+    weak_topics: [s3-encryption]
   networking:
     sessions_count: 6
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
@@ -133,3 +134,8 @@ domains:
 - Score: 6/10 (60%)
 - Missed: s3-performance (Firehose inline conversion), s3-lifecycle (Glacier Instant 90d min vs Standard-IA 30d), s3-security (bucket policy VPC condition + cross-account exception), snow-family (Snowcone limits vs Snowball Edge)
 - Output: study-sessions/260517-0113-storage-mini-exam-design.md
+
+### 2026-05-18 11:54 | Storage | Mini Exam (Phase 6: Comprehensive Final)
+- Score: 9/10 (90%)
+- Missed: s3-encryption (S3 Bucket Keys for reducing KMS ThrottlingException)
+- Output: study-sessions/260518-1154-storage-mini-exam-comprehensive.md
