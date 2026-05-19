@@ -1,0 +1,382 @@
+# Load Balancing & Scaling - AWS CSA Content Cache
+
+## Services & Concepts
+
+### Scalability — Core Definitions
+- **Vertical Scalability (Scale Up/Down)**: Increase instance size; e.g., t2.micro → t2.large
+  - Common for non-distributed systems: RDS, ElastiCache
+  - Hardware limit applies (cannot scale beyond largest instance)
+- **Horizontal Scalability (Scale Out/In)** = Elasticity: Increase/decrease number of instances
+  - Implies distributed systems; common for web/modern apps
+  - Enabled by EC2 Auto Scaling Group + Load Balancer
+- **High Availability**: Running application in at least 2 AZs to survive data center loss
+  - Passive HA: RDS Multi-AZ (standby replica)
+  - Active HA: horizontal scaling across multiple AZs
+
+### EC2 Scaling Quick Reference
+- **Vertical scale range**: t2.nano (0.5 GB RAM, 1 vCPU) → u-12tb1.metal (12.3 TB RAM, 448 vCPUs)
+- **Horizontal scaling tools**: Auto Scaling Group, Load Balancer
+- **HA tools**: ASG multi-AZ, Load Balancer multi-AZ
+
+---
+
+### Elastic Load Balancer (ELB) — Overview
+- **Managed load balancer**: AWS handles upgrades, maintenance, HA
+- **Benefits**: Spread load, single DNS point of access, health checks, SSL termination, stickiness, HA across zones, separate public/private traffic
+- **Integrations**: EC2, EC2 ASG, ECS, ACM, CloudWatch, Route 53, WAF, Global Accelerator
+- LBs can be **internal** (private) or **external** (public)
+
+### Health Checks
+- Done on a port + route (e.g., HTTP port 4567, endpoint `/health`)
+- Instance is **unhealthy** if response is NOT HTTP 200 (OK)
+- Health checks are crucial — LB stops forwarding to unhealthy instances
+
+---
+
+### Classic Load Balancer (CLB) — v1, 2009
+- **Protocols**: TCP (Layer 4), HTTP & HTTPS (Layer 7)
+- **Health checks**: TCP or HTTP based
+- Fixed hostname: `XXX.region.elb.amazonaws.com`
+- **Old generation** — not recommended for new deployments
+- One SSL cert per CLB; need multiple CLBs for multiple hostnames with different SSL certs
+- Cross-zone LB: disabled by default; no charges when enabled
+- Sticky sessions: supported (cookie name `AWSELB`)
+
+---
+
+### Application Load Balancer (ALB) — v2, 2016
+- **Layer 7 (HTTP)**; supports HTTP, HTTPS, WebSocket, HTTP/2
+- Supports redirects (e.g., HTTP → HTTPS)
+- **Routing rules** to different target groups based on:
+  - URL path: `example.com/users` vs `example.com/posts`
+  - Hostname: `one.example.com` vs `other.example.com`
+  - Query strings/headers: `example.com/users?id=123&order=false`
+- Great fit for **microservices & containers** (Docker, ECS)
+- Port mapping feature to redirect to dynamic port in ECS
+- One ALB replaces multiple CLBs (one per application)
+- Fixed hostname: `XXX.region.elb.amazonaws.com`
+- Client IP NOT directly visible to backend — use `X-Forwarded-For` header
+  - Also: `X-Forwarded-Port`, `X-Forwarded-Proto`
+- Multiple listeners with multiple SSL certs via SNI
+- Cross-zone LB: **enabled by default**; no charges for inter-AZ data
+
+#### ALB Target Groups
+- **EC2 instances** (can be managed by ASG) — HTTP
+- **ECS tasks** (managed by ECS itself) — HTTP
+- **Lambda functions** — HTTP request translated to JSON event
+- **IP Addresses** — must be private IPs (e.g., on-premises via private IP)
+- Health checks at the **target group level**
+- ALB can route to multiple target groups
+
+---
+
+### Network Load Balancer (NLB) — v2, 2017
+- **Layer 4 (TCP/UDP)**; supports TCP, TLS (secure TCP), UDP
+- Handles **millions of requests per second** with ultra-low latency
+- **One static IP per AZ**; supports assigning Elastic IP (useful for IP whitelisting)
+- Used for extreme performance, TCP or UDP traffic
+- Cross-zone LB: **disabled by default**; charges apply if enabled
+- Multiple listeners with multiple SSL certs via SNI
+
+#### NLB Target Groups
+- EC2 instances
+- IP Addresses (must be private IPs)
+- **Application Load Balancer** (NLB in front of ALB — common pattern)
+- Health checks support **TCP, HTTP, and HTTPS** protocols
+
+---
+
+### Gateway Load Balancer (GWLB) — 2020
+- **Layer 3 (Network Layer) — IP Packets**
+- Deploy, scale, and manage fleet of 3rd party network virtual appliances
+- Use cases: Firewalls, Intrusion Detection/Prevention Systems, Deep Packet Inspection, payload manipulation
+- Combines:
+  - **Transparent Network Gateway** — single entry/exit for all traffic
+  - **Load Balancer** — distributes to virtual appliances
+- Uses **GENEVE protocol on port 6081**
+- Traffic flow: Users → Route Table → GWLB → 3rd party security appliances (target group) → Application
+- Cross-zone LB: disabled by default; charges apply if enabled
+
+#### GWLB Target Groups
+- EC2 instances
+- IP Addresses (must be private IPs)
+
+---
+
+### Sticky Sessions (Session Affinity)
+- Same client always redirected to same backend instance
+- Works for: CLB, ALB, NLB
+- Cookie has an expiration date you control
+- Use case: user session data persistence
+- Warning: enabling stickiness can cause load imbalance
+
+#### Sticky Session Cookie Types
+| Cookie Type | Name | Generated By |
+|---|---|---|
+| Application-based Custom | Specified per target group | Target (application) |
+| Application-based Application | `AWSALBAPP` | Load balancer |
+| Duration-based (ALB) | `AWSALB` | Load balancer |
+| Duration-based (CLB) | `AWSELB` | Load balancer |
+
+- **Reserved names** (do NOT use for custom cookies): `AWSALB`, `AWSALBAPP`, `AWSALBTG`
+
+---
+
+### Cross-Zone Load Balancing
+- **With**: Each LB node distributes evenly across ALL registered instances in ALL AZs
+- **Without**: Requests stay within the LB node's own AZ only (can cause uneven distribution)
+
+| LB Type | Default | Inter-AZ Charges |
+|---|---|---|
+| ALB | Enabled (can disable at TG level) | No charges |
+| NLB | Disabled | Charges if enabled |
+| GWLB | Disabled | Charges if enabled |
+| CLB | Disabled | No charges if enabled |
+
+---
+
+### SSL/TLS Termination
+- LB uses X.509 certificate (SSL/TLS server cert)
+- Manage via **ACM (AWS Certificate Manager)** or upload your own
+- HTTPS listener: must specify default cert; optional cert list for multiple domains
+- Clients use **SNI** to specify target hostname
+- Security policy configurable for legacy SSL/TLS clients
+- Traffic: HTTPS (encrypted) from users → LB → HTTP (unencrypted) over private VPC → EC2
+
+#### SNI (Server Name Indication)
+- Allows loading **multiple SSL certs onto one web server** (one LB)
+- Client indicates hostname in initial SSL handshake
+- LB finds correct cert or returns default
+- Supported by: **ALB, NLB, CloudFront**
+- **NOT supported by CLB** (old gen)
+
+#### SSL Cert Support by LB Type
+| LB | SSL Certs | Notes |
+|---|---|---|
+| CLB | 1 cert per LB | Need multiple CLBs for multiple hostnames |
+| ALB | Multiple via SNI | Multiple listeners with multiple certs |
+| NLB | Multiple via SNI | Multiple listeners with multiple certs |
+
+---
+
+### Connection Draining / Deregistration Delay
+- **CLB**: called "Connection Draining"
+- **ALB & NLB**: called "Deregistration Delay"
+- Time to complete in-flight requests while instance de-registers or is unhealthy
+- Stops sending new requests to the de-registering instance
+- **Range**: 1 to 3600 seconds; **default: 300 seconds**
+- Can be disabled (set to 0)
+- Best practice: set low value for short requests
+
+---
+
+### Auto Scaling Group (ASG)
+- **Purpose**: Scale out (add EC2) or scale in (remove EC2) based on load
+- Enforces min/max instance counts; auto-registers with load balancer
+- Re-creates terminated/unhealthy instances automatically
+- **ASG is free** — pay only for underlying EC2 instances
+
+#### ASG Capacity Settings
+- **Minimum Capacity**: Baseline always-running instances
+- **Desired Capacity**: Target number ASG tries to maintain
+- **Maximum Capacity**: Hard ceiling for scaling out
+
+#### ASG Launch Template (replaces deprecated Launch Configurations)
+Contains: AMI + Instance Type, EC2 User Data, EBS Volumes, Security Groups, SSH Key Pair, IAM Roles, Network/Subnets, Load Balancer info
+
+#### ASG + CloudWatch Alarms
+- Scale based on CloudWatch alarms monitoring metrics (e.g., Average CPU, custom metric)
+- Metrics computed across the **overall ASG instances** (not individual)
+- Alarm triggers scale-out (add instances) or scale-in (remove instances)
+
+---
+
+### ASG Scaling Policies
+
+#### Dynamic Scaling
+- **Target Tracking Scaling**: Simplest; maintain metric at target value
+  - Example: keep average ASG CPU at 40%
+- **Simple / Step Scaling**: Alarm-based; add/remove fixed number of units
+  - Example: CPU > 70% → add 2 units; CPU < 30% → remove 1
+
+#### Scheduled Scaling
+- Anticipate scaling based on known usage patterns
+- Example: increase min capacity to 10 at 5 PM every Friday
+
+#### Predictive Scaling
+- Uses ML to continuously forecast load from historical patterns
+- Automatically schedules scaling actions ahead of time
+- Flow: Analyze historical load → Generate forecast → Schedule scaling actions
+
+---
+
+### Good Metrics to Scale On
+- **CPUUtilization**: Average CPU across all ASG instances
+- **RequestCountPerTarget**: Stable number of requests per EC2 (e.g., target value: 1000 req/instance)
+- **Average Network In/Out**: Useful for network-bound applications
+- **Custom metric**: Push any metric via CloudWatch
+
+---
+
+### ASG Scaling Cooldowns
+- **Default cooldown period: 300 seconds** after any scaling activity
+- During cooldown: ASG will NOT launch or terminate additional instances (lets metrics stabilize)
+- Best practice: Use **ready-to-use AMI** to reduce instance configuration time → faster serving → shorter cooldown needed
+- Flowchart: Scaling Action → Is default cooldown in effect? Yes → Ignore Action; No → Launch/Terminate instance
+
+---
+
+## Key Configurations
+
+| Setting | Default | Range/Options |
+|---|---|---|
+| Connection Draining / Deregistration Delay | 300 seconds | 1–3600 seconds (0 = disabled) |
+| ASG Cooldown Period | 300 seconds | Configurable |
+| Health Check — unhealthy threshold | Non-200 HTTP response | Configurable |
+| Cross-Zone LB (ALB) | Enabled | Can disable at TG level |
+| Cross-Zone LB (NLB/GWLB/CLB) | Disabled | Can enable (NLB/GWLB incur charges) |
+
+---
+
+## Architectural Patterns
+
+### Standard Web App Pattern
+- Users → Internet → ALB (public, multi-AZ) → ASG of EC2 instances (private subnets, multi-AZ)
+- ELB health checks drive ASG termination/replacement of unhealthy instances
+
+### Microservices Pattern
+- Single ALB routes to multiple target groups by URL path or hostname
+- Each target group = one microservice with its own ASG
+- Replaces need for one CLB per application
+
+### Container/ECS Pattern
+- ALB with port mapping feature → dynamic port assignment per ECS task
+- Target group: ECS tasks
+
+### NLB + ALB Stacking Pattern
+- NLB in front of ALB: Use when need static IP (NLB) + advanced HTTP routing (ALB)
+- NLB target group points to ALB
+
+### Network Security Appliance Pattern
+- GWLB sits in routing path: Users → Route Table → GWLB → Security Appliances → Application
+- All traffic inspected before reaching application
+
+### Query-String Routing (Hybrid Cloud)
+- ALB routes `?Platform=Mobile` → EC2-based target group in AWS
+- ALB routes `?Platform=Desktop` → On-premises servers via private IP routing
+
+### Load Balancer Security Group Pattern
+- LB SG: Allow HTTP (80) and HTTPS (443) from 0.0.0.0/0
+- EC2 SG: Allow HTTP (80) ONLY from LB's security group ID → EC2 unreachable directly from internet
+
+---
+
+## Important Numbers & Limits
+
+| Item | Value |
+|---|---|
+| EC2 smallest instance (vertical scale floor) | t2.nano — 0.5 GB RAM, 1 vCPU |
+| EC2 largest instance (vertical scale ceiling) | u-12tb1.metal — 12.3 TB RAM, 448 vCPUs |
+| Connection Draining default | 300 seconds |
+| Connection Draining range | 1–3600 seconds |
+| ASG Cooldown default | 300 seconds |
+| GWLB protocol port | GENEVE on port 6081 |
+| NLB performance | Millions of requests/second, ultra-low latency |
+| NLB static IPs | 1 per AZ (Elastic IP assignable) |
+| HA minimum AZs | 2 (Availability Zones) |
+| CLB max SSL certs | 1 per CLB |
+| ALB/NLB SSL certs | Multiple (via SNI) |
+
+---
+
+## Diagram Descriptions
+
+### Load Balancing Basic Flow
+3 users → Elastic Load Balancer (center) → 3 EC2 instances. Each user's connection color-coded showing different instances serve each user.
+
+### Load Balancer Security Groups
+Users → LB (ports 80/443, source 0.0.0.0/0) → EC2 (port 80, source = LB security group ID only). EC2 SG references LB SG — not IP ranges.
+
+### ALB HTTP-Based Routing
+External ALB → Route `/user` → Target Group for Users (multiple EC2 + Health Check); Route `/search` → Target Group for Search (multiple EC2 + Health Check).
+
+### ALB Query String Routing
+External ALB → `?Platform=Mobile` → Target Group 1 (EC2 instances in AWS); `?Platform=Desktop` → Target Group 2 (on-premises servers via private IP).
+
+### ALB Client IP Flow
+Client IP 12.34.56.78 → ALB (connection termination) → EC2 receives LB's private IP. True client IP in `X-Forwarded-For` header.
+
+### NLB TCP Layer 4 Routing
+External NLB receives TCP + Rules from WWW → routes TCP to Target Group for Users, HTTP to Target Group for Search.
+
+### NLB Target Group Options (diagram showing 3 patterns)
+- NLB → Target Group (EC2 instances by instance ID)
+- NLB → Target Group (IP Addresses: 192.168.1.118, 10.0.4.21)
+- NLB → Target Group (Application Load Balancer)
+
+### GWLB Traffic Flow
+Users (source) → Route Table → traffic split: GWLB → 3rd Party Security Virtual Appliances (target group) → back to GWLB → Application (destination).
+
+### Cross-Zone LB Comparison
+- **With**: 2 AZs, AZ1 has 2 instances, AZ2 has 8 instances. 100 total requests → each instance gets exactly 10.
+- **Without**: AZ1 LB gets 50 requests → each of 2 instances gets 25. AZ2 LB gets 50 requests → each of 8 instances gets 6.25.
+
+### ASG Capacity Diagram
+ASG shows: Minimum Capacity (2 instances always on), Desired Capacity (4 instances), Maximum Capacity (7 instances total with 3 scaled-out instances shown dashed).
+
+### ASG + Load Balancer Integration
+Users → ELB → ELB health checks EC2 instances in ASG (dashed boundary). ASG spans multiple instances; healthy instances receive traffic; new instances auto-registered.
+
+### Predictive Scaling Diagram
+3-panel chart (4/1–4/30): Panel 1 — analyze historical load (solid blue line); Panel 2 — generate forecast (dotted blue extension); Panel 3 — schedule scaling actions (capacity bars aligned to predicted peaks).
+
+### ASG Cooldown Flowchart
+Diamond decision: "Default Cooldown in effect?" → Yes path: Ignore scaling action; No path: Launch or Terminate instance.
+
+---
+
+## Exam-Relevant Details
+
+### LB Type Selection — Decision Guide
+| Scenario / Keyword | Answer |
+|---|---|
+| HTTP/HTTPS routing, microservices, containers | ALB |
+| URL path-based routing, hostname-based routing | ALB |
+| WebSocket, HTTP/2 | ALB |
+| TCP, UDP, extreme performance, millions req/sec | NLB |
+| Static IP per AZ, Elastic IP whitelisting | NLB |
+| 3rd party firewall, intrusion detection, deep packet inspection | GWLB |
+| Layer 3, IP packets, transparent gateway | GWLB |
+| Legacy, old generation (avoid for new) | CLB |
+
+### Common Exam Traps
+
+1. **Cross-Zone LB defaults differ**: ALB = enabled by default (free); NLB/GWLB = disabled by default (charged if enabled); CLB = disabled by default (free if enabled)
+
+2. **SNI support**: ALB and NLB support SNI (multiple SSL certs). CLB does NOT support SNI — needs one CLB per SSL cert/hostname.
+
+3. **Connection Draining naming**: Called "Connection Draining" on CLB; called "Deregistration Delay" on ALB/NLB. Same feature, different names.
+
+4. **Client IP behind ALB**: Application servers see LB's private IP, NOT the client IP. Must read `X-Forwarded-For` header for true client IP.
+
+5. **NLB target groups can include ALB**: NLB → ALB is a valid and tested pattern (static IP + smart routing).
+
+6. **GWLB port**: GENEVE protocol on **port 6081** — specific number tested.
+
+7. **ASG is free**: You pay only for EC2 instances launched, not the ASG itself.
+
+8. **Launch Configurations are deprecated**: Exam may test that Launch Templates are the current/correct choice.
+
+9. **Health checks are at target group level for ALB**: Not at the LB level itself.
+
+10. **Sticky sessions cause imbalance**: Tradeoff — session persistence vs. uneven load distribution.
+
+11. **Scalability ≠ High Availability**: HA requires 2+ AZs; scalability is about handling load. A single large instance scales vertically but is NOT highly available.
+
+12. **Predictive scaling** uses ML/historical data — different from Scheduled (known fixed times) and Dynamic (reactive to alarms).
+
+13. **Reserved cookie names**: `AWSALB`, `AWSALBAPP`, `AWSALBTG` — cannot be used for custom application cookies.
+
+14. **Lambda as ALB target**: HTTP request to Lambda is translated to JSON event — cross-service integration.
+
+15. **GWLB operates at Layer 3** — contrast with ALB (Layer 7) and NLB (Layer 4). Only GWLB processes raw IP packets.

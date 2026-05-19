@@ -1,16 +1,17 @@
 ---
 started: 2026-05-11
-last_session: 2026-05-18
-total_sessions: 27
+last_session: 2026-05-19
+total_sessions: 33
 domains:
   security-identity:
-    sessions_count: 4
-    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios]
-    last_studied: 2026-05-18
-    current_phase: 4
-    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-18}, {scope: scenarios, score: 8, total: 10, pct: 80, date: 2026-05-18}]
-    phase_scores: {p2: 90, p4: 80}
-    weak_topics: [acm, shield]
+    sessions_count: 6
+    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
+    last_studied: 2026-05-19
+    current_phase: 6
+    completed: true
+    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-18}, {scope: scenarios, score: 8, total: 10, pct: 80, date: 2026-05-18}, {scope: design, score: 7, total: 10, pct: 70, date: 2026-05-19}, {scope: comprehensive, score: 9, total: 10, pct: 90, date: 2026-05-19}]
+    phase_scores: {p2: 90, p4: 80, p5: 70, p6: 90}
+    weak_topics: [iam]
   storage:
     sessions_count: 6
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
@@ -38,6 +39,14 @@ domains:
     exams: [{scope: concepts, score: 7, total: 10, pct: 70, date: 2026-05-12}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-12}, {scope: design, score: 8, total: 10, pct: 80, date: 2026-05-14}, {scope: comprehensive, score: 10, total: 10, pct: 100, date: 2026-05-14}]
     phase_scores: {p2: 70, p4: 90, p5: 80, p6: 100}
     weak_topics: []
+  load-balancing-scaling:
+    sessions_count: 4
+    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios]
+    last_studied: 2026-05-19
+    current_phase: 4
+    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-19}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-19}]
+    phase_scores: {p2: 90, p4: 90}
+    weak_topics: [connection-draining]
 ---
 
 # AWS CSA (SAA-C03) — Study Progress
@@ -166,3 +175,32 @@ domains:
 - Score: 8/10 (80%)
 - Missed: acm (ALB cert same region, Edge API GW us-east-1 vs Regional API GW same region), shield (Standard L3/4 free vs Advanced L7+DRT+cost-protection $3K/month)
 - Output: study-sessions/260518-1254-security-identity-mini-exam-scenarios.md
+
+### 2026-05-19 09:53 | Security & Identity | Mini Exam (Phase 5: Design)
+- Score: 7/10 (70%)
+- Missed: kms-multi-region-keys (DynamoDB Encryption Client + MRK for client-side field-level encryption), waf (CloudFront origin restriction via managed prefix list + custom header), firewall-manager (multi-account WAF/Shield policy orchestrator vs Control Tower governance)
+- Output: study-sessions/260519-0953-security-identity-mini-exam-design.md
+
+### 2026-05-19 11:33 | Security & Identity | Mini Exam (Phase 6: Comprehensive Final)
+- Score: 9/10 (90%)
+- Missed: iam (Lambda resource-based policy vs execution role — resource-based controls invocation, execution role controls access)
+- Output: study-sessions/260519-1133-security-identity-mini-exam-comprehensive.md
+
+### 2026-05-19 11:43 | Load Balancing & Scaling | Concept Mapper (Phase 1)
+- Topics: application-load-balancer (ALB), network-load-balancer (NLB), gateway-load-balancer (GWLB), classic-load-balancer (CLB), auto-scaling-group (ASG), sticky-sessions, cross-zone-load-balancing, ssl-server-name-indication (SNI), connection-draining
+- Output: study-sessions/260519-1143-load-balancing-scaling-concept-mapper.md
+
+### 2026-05-19 14:18 | Load Balancing & Scaling | Mini Exam (Phase 2: Concepts)
+- Score: 9/10 (90%)
+- Missed: connection-draining (Connection Draining vs Deregistration Delay — same feature, different names, both default 300s)
+- Output: study-sessions/260519-1418-load-balancing-scaling-mini-exam-concepts.md
+
+### 2026-05-19 14:21 | Load Balancing & Scaling | Scenario Generator (Phase 3)
+- Scenarios: 8 (path-based-vs-host-based-routing, alb-vs-nlb-decision, ultra-low-latency-tcp, third-party-appliance-integration, scaling-policies-target-vs-step-vs-simple, predictive-scaling, session-affinity-trade-offs, cross-az-traffic-distribution, multi-domain-ssl-on-single-alb, graceful-deregistration)
+- Key concepts: ALB L7 vs NLB L4 split, NLB static IP for whitelisting, GWLB transparent gateway GENEVE 6081, combine scaling policies (Target Tracking + Step + Scheduled + Predictive), sticky sessions AWSALB cookie trade-off, cross-zone defaults per LB type, SNI multi-cert on ALB, Deregistration Delay ≥ longest request
+- Output: study-sessions/260519-1421-load-balancing-scaling-scenario-generator.md
+
+### 2026-05-19 15:36 | Load Balancing & Scaling | Mini Exam (Phase 4: Scenarios)
+- Score: 9/10 (90%)
+- Missed: sticky-sessions/connection-draining (Deregistration Delay protects in-flight sessions during scale-in; NLB client IP doesn't solve server-side session loss)
+- Output: study-sessions/260519-1536-load-balancing-scaling-mini-exam-scenarios.md
