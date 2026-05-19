@@ -116,6 +116,9 @@ Generate **3-5 diagrams** across the concept map. Place them in the sections bel
 - Question count: `{count}` (5, 10, or 15)
 - Scope: `{scope}` — one of: `concepts`, `scenarios`, `hands-on`, `comprehensive`, `general`
 - Cached content: loaded from `cache/aws-csa-{domain}.md`
+- Cheat sheet cache (conditional): `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
+  - Load for scope=design, scope=comprehensive, scope=general
+  - Skip for scope=concepts, scope=scenarios
 - Topic checklist: from `certs/aws-csa/domains.md`
 - Weak topics: from `aws-csa/study-progress.md` (prioritize these)
 
@@ -131,9 +134,40 @@ Generate **3-5 diagrams** across the concept map. Place them in the sections bel
 
 - For `concepts`: 70% fact-based, 30% scenario-based. Focus on "what is", "which service", "what's the limit"
 - For `scenarios`: 80% scenario-based, 20% fact-based. Focus on architecture decisions, trade-offs
-- For `design`: 80% architecture decision scenarios, 20% best-practice recall. Focus on multi-service integration, Well-Architected trade-offs, service selection for complex requirements, cost vs performance vs availability decisions. Difficulty: 30% medium, 70% hard. Questions should present realistic business scenarios requiring architectural judgment — not single-service trivia.
-- For `comprehensive`: 40% scenario, 30% fact, 30% practical. Difficulty: 20% easy, 40% medium, 40% hard
+- For `design`: Architecture decision scenarios + cross-domain integration.
+  - 70% current domain questions (multi-service trade-offs within domain)
+  - 30% cross-domain questions (current domain + 1-2 other domains)
+  - Load cheat sheet cache for cross-cutting decision frameworks
+  - Difficulty: 30% medium, 70% hard
+  - Cross-domain questions MUST involve the current study domain as one component
+  - Tag cross-domain questions with multiple topic slugs: `Topic: [primary-topic, secondary-domain:topic]`
+  - Questions should present realistic business scenarios requiring architectural judgment — not single-service trivia.
+- For `comprehensive`: Full domain exam with cross-domain integration.
+  - 60% current domain questions (mix of all difficulty levels)
+  - 40% cross-domain questions (current domain + 1-2 others)
+  - Load cheat sheet cache for cross-cutting scenarios
+  - Difficulty: 20% easy, 30% medium, 50% hard
+  - Tag cross-domain questions with multiple topic slugs
 - For `general`: default mix (60% scenario, 40% fact). Difficulty: 30% easy, 50% medium, 20% hard
+
+### Cross-Domain Question Combinations (prioritize these pairings)
+
+When generating cross-domain questions for design/comprehensive scopes, use these high-frequency pairings from real SAA-C03 exams:
+
+| Current Domain | Cross With | Example Scenario |
+|---------------|-----------|-----------------|
+| storage | security-identity | S3 encryption (SSE-S3/KMS/C), bucket policy + VPC endpoints |
+| storage | networking | CloudFront + S3 OAI, S3 gateway endpoint |
+| databases | integration-messaging | SQS write buffer for DynamoDB, SNS + Lambda + RDS |
+| databases | compute | ElastiCache + EC2 for session caching, Aurora + Lambda |
+| compute | load-balancing-scaling | ALB + ASG + private subnet, NLB + static IP |
+| compute | serverless | Lambda vs Fargate decision, API Gateway + Lambda |
+| networking | security-identity | VPC endpoints + IAM policy, NACLs + WAF layering |
+| load-balancing-scaling | compute | ECS dynamic port mapping + ALB, ASG + Spot |
+| security-identity | monitoring-audit | GuardDuty findings → EventBridge → Lambda, CloudTrail + Config |
+| data-analytics | storage | Athena + S3, Glue ETL + S3, EMR + S3 |
+
+If the cross-domain involves a domain the user hasn't studied, use simpler factual questions about that domain (not deep architecture).
 
 ### Instructions
 
@@ -188,6 +222,8 @@ Then present questions interactively using the protocol in `references/quiz-flow
 ### Input
 - Domain: `{domain}`
 - Cached content: loaded from `cache/aws-csa-{domain}.md`
+- Cheat sheet cache (supplementary): `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
+  - Load if available; use for cross-cutting decision frameworks
 - Scenario map: loaded from `certs/aws-csa/scenario-map.md` — the `{domain}` section
 
 ### Instructions
@@ -419,3 +455,47 @@ Generate a personalized exam strategy based on current readiness and time remain
 
 ### Edge Case
 If no progress data: "You haven't started studying yet. Here's a recommended 4-week study plan from scratch..." with domain order and mode recommendations.
+
+---
+
+## Mode: Keyword Drill
+
+### Input
+- Keyword patterns: loaded from `references/keyword-patterns.md`
+- Cheat sheet cache: `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
+- Pattern count: `{count}` (10, 25, or all)
+- Progress: `aws-csa/study-progress.md` (prioritize previously missed patterns)
+
+### Instructions
+
+Run a quick-fire drill testing the user's ability to map exam trigger phrases to correct AWS services/patterns.
+
+1. Load patterns from `references/keyword-patterns.md`
+2. If user has previous keyword-drill sessions, prioritize missed patterns (at least 40%)
+3. Shuffle selected patterns randomly
+4. Present each pattern using the quiz flow from `references/quiz-flow.md` § Keyword Drill Flow
+5. Score and save results
+
+### Output Format (per pattern)
+Present trigger phrase as the "question", correct service + 3 distractors as options.
+After user answers, show: correct/incorrect + explanation (1 sentence).
+
+---
+
+## Mode: Mock Exam
+
+### Input
+- All available domain caches (read each from `cache/aws-csa-*.md`)
+- Cheat sheet cache: `cache/aws-csa-cheat-sheet.md`
+- Progress: `aws-csa/study-progress.md` (weak topics across all domains)
+
+### Instructions
+
+Generate a full SAA-C03 mock exam following the protocol in `references/mock-exam-flow.md`.
+
+Quality rules:
+- Questions must be exam-realistic — match real SAA-C03 style and difficulty
+- Cover ALL studied domains proportionally within each exam domain
+- Prioritize weak topics from progress data (at least 20% of questions)
+- Include cross-domain questions (~30%)
+- Self-verify every question before presenting

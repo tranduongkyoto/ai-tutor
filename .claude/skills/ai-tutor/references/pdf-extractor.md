@@ -85,6 +85,37 @@ Before executing any study mode that requires domain knowledge:
    - Spawn Agent with the prompt template above (filled with domain name, PDF paths, cache path)
    - After subagent completes, read the cache file
 
+## Cheat Sheet Extraction
+
+For cheat sheet extraction (triggered by `/ai-tutor refresh cheat-sheet` or on first use):
+
+1. Read the cheat sheet PDF: `sections/AWS-SAA-Master-Cheat-Sheet.pdf` (all pages)
+2. Extract into: `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
+
+**Subagent prompt additions:**
+- Organize by SAA-C03 exam domain sections (Domain 1-4)
+- Preserve decision frameworks and "when to use which" tables
+- Extract all service comparisons and selection criteria
+- Include exam tips and common traps per domain
+- Target 800-1200 lines (full content, no trimming)
+
+**Output sections:**
+```
+# AWS SAA-C03 Master Cheat Sheet — Content Cache
+
+## Domain 1: Design Secure Architectures (30%)
+{all content from Domain 1 sections}
+
+## Domain 2: Design Resilient Architectures (26%)
+{all content from Domain 2 sections}
+
+## Domain 3: Design High-Performing Architectures (24%)
+{all content from Domain 3 sections}
+
+## Domain 4: Design Cost-Optimized Architectures (20%)
+{all content from Domain 4 sections}
+```
+
 ## Refresh Protocol
 
 For `/ai-tutor refresh <domain>`:

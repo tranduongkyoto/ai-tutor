@@ -126,6 +126,10 @@ After all questions answered:
    ```
 
 2. List missed topics: extract topic tags from incorrect questions
+   - For single-topic questions: add topic slug to missed list
+   - For cross-domain questions (multiple topic tags): add ALL topic slugs to missed list
+   - Format: `primary-topic` for same-domain, `domain:topic` for cross-domain
+   Example: `[s3-security, networking:cloudfront]`
 3. Return data for progress tracking:
    - `score`: number correct
    - `total`: number of questions
@@ -148,7 +152,7 @@ Write the session file to `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{domain}-mini-
 
 ## Questions & Results
 
-### Q{N} ✓/✗ — {Short title} ({topic-slug})
+### Q{N} ✓/✗ — {Short title} ({topic-slug} | {topic-slug, cross-domain:topic-slug})
 **Question:** {Full question text}
 
 A) {option A text}
@@ -182,3 +186,42 @@ D) {option D text}
 
 - **Odd question count**: Works fine — one question at a time
 - **User selects "Other" and types anything**: Treat as incorrect, show correct answer
+
+---
+
+## Keyword Drill Flow
+
+Variant of the standard quiz flow optimized for quick-fire pattern recognition.
+
+### Setup
+1. Ask count via AskUserQuestion: "How many patterns?" — options: `10`, `25`, `All (~80)`
+2. Load `references/keyword-patterns.md`
+3. Read progress for previously missed patterns
+4. Select patterns: prioritize missed (40%), random from remaining (60%)
+5. Shuffle order
+
+### Per-Pattern Cycle (same 2-step as standard quiz)
+
+**Step 1 — Present pattern (TEXT ONLY, no AskUserQuestion):**
+```
+**Pattern {N}/{total}:**
+"{trigger phrase from the pattern}"
+
+A) {answer or distractor — shuffled}
+B) {answer or distractor — shuffled}
+C) {answer or distractor — shuffled}
+D) {answer or distractor — shuffled}
+```
+
+**Step 2 — Collect answer:**
+AskUserQuestion: "Your answer?" — Options: A, B, C, D — multiSelect: false
+
+**Step 3 — Feedback (TEXT ONLY):**
+```
+✓ Correct! / ✗ Incorrect — correct answer: {letter}
+{explanation from pattern data}
+```
+
+### Scoring
+Same as standard quiz: score/total, missed patterns list.
+Save missed patterns as `weak_topics` with prefix `kw:` (e.g., `kw:aurora-serverless`).

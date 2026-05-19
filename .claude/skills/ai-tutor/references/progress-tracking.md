@@ -35,6 +35,35 @@ domains:
     weak_topics: {update — see weak topic rules below}
 ```
 
+```yaml
+# For keyword-drill (stored at top-level, not per-domain):
+keyword_drill:
+  sessions_count: {increment}
+  last_drilled: {date}
+  exams:
+    - date: {date}
+      score: {correct}
+      total: {pattern count}
+      missed_patterns: [{pattern short-ids}]
+  weak_patterns: [{cumulative missed, same removal rule as weak_topics}]
+```
+
+```yaml
+# For mock-exam (stored at top-level, not per-domain):
+mock_exams:
+  - date: {date}
+    score: {correct}
+    total: 65
+    time_minutes: {elapsed}
+    by_exam_domain:
+      secure: {score}/{total}
+      resilient: {score}/{total}
+      high_performing: {score}/{total}
+      cost_optimized: {score}/{total}
+    missed_topics: [{all missed topic slugs}]
+    verdict: {PASS|BORDERLINE|FAIL}
+```
+
 ### Step 2: Update Weak Topics
 
 After a mini-exam:
@@ -58,6 +87,23 @@ For **all other modes**:
 ```
 ### {YYYY-MM-DD} {HH:MM} | {Domain Name} | {Mode Name}
 - Topics: {comma-separated topics covered}
+- Output: study-sessions/{filename}
+```
+
+For **keyword-drill**:
+```
+### {YYYY-MM-DD} {HH:MM} | Cross-Domain | Keyword Drill
+- Score: {score}/{total} ({pct}%)
+- Missed: {pattern short-ids}
+- Output: study-sessions/{filename}
+```
+
+For **mock-exam**:
+```
+### {YYYY-MM-DD} {HH:MM} | All Domains | Mock Exam
+- Score: {score}/65 ({pct}%) — {verdict}
+- Time: {elapsed} min
+- Weakest domain: {exam domain name}
 - Output: study-sessions/{filename}
 ```
 
@@ -166,6 +212,11 @@ Data & Analytics           -      0%     -      -          ○ Not started
 DR & Architecture          -      0%     -      -          ○ Not started
 
 Weak Areas: {all weak_topics across all domains, comma-separated}
+
+Mock Exams:
+  {date}: {score}/65 ({pct}%) — {verdict} — {time}min
+  Weakest domain: {exam domain name}
+
 Recommended Next: {domain} — {mode} ({reason})
 ```
 

@@ -7,6 +7,13 @@ pdf_base_path: sections/
 
 # AWS CSA (SAA-C03) - Domain Configuration
 
+## Cheat Sheet
+
+cheat-sheet:
+  name: "SAA-C03 Master Cheat Sheet"
+  pdf: sections/AWS-SAA-Master-Cheat-Sheet.pdf
+  description: "Cross-domain exam-focused decision frameworks, organized by SAA-C03 exam domains (Secure 30%, Resilient 26%, High-Performing 24%, Cost-Optimized 20%)"
+
 ## Domains
 
 ### compute

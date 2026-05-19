@@ -31,6 +31,9 @@ Parse `ARGUMENTS` to determine the action:
 | _(empty)_ | Show domain selection → guided mode (default) |
 | `progress` | Show progress dashboard (Load: `references/progress-tracking.md`). **Stop after displaying.** |
 | `refresh <domain>` | Re-extract PDF cache for domain (Load: `references/pdf-extractor.md`). **Stop after refresh.** |
+| `refresh cheat-sheet` | Re-extract cheat sheet PDF cache (Load: `references/pdf-extractor.md` § Cheat Sheet Extraction). **Stop after refresh.** |
+| `keyword-drill` | Start keyword pattern drill (no domain needed) |
+| `mock-exam` | Start full mock exam (requires ≥8/12 domain caches) |
 | `guided <domain>` | Start/resume guided study path for domain |
 | `free <domain> <mode>` | Direct mode execution (skip guided path) |
 | `<domain>` | Start/resume guided study path for domain |
@@ -54,6 +57,8 @@ Phase 6: FINAL EXAM  → mini-exam:comprehensive (full domain exam — all topic
 - `architecture-reviewer` — evaluate architectures against Well-Architected
 - `weak-spot-analyzer` — cross-domain gap analysis (no domain needed)
 - `exam-strategy-coach` — exam day strategy and study planning (no domain needed)
+- `keyword-drill` — quick-fire exam keyword → service mapping drill (no domain needed)
+- `mock-exam` — full 65-question timed SAA-C03 mock exam (no domain needed, requires ≥8 domain caches)
 
 ## Recommended Study Order (Hybrid Plan)
 
@@ -129,6 +134,8 @@ Use `AskUserQuestion`:
  5. architecture-reviewer   — Evaluate architectures against Well-Architected
  6. weak-spot-analyzer      — Identify and prioritize weak areas (no domain needed)
  7. exam-strategy-coach     — Exam day strategy and study planning (no domain needed)
+ 8. keyword-drill            — Quick-fire exam keyword → service mapping drill (no domain needed)
+ 9. mock-exam                — Full 65-question timed SAA-C03 mock exam (no domain needed, requires ≥8 domain caches)
 ```
 
 Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `hands-on-lab`.
@@ -147,7 +154,16 @@ Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `han
      - Input: domain name + PDF paths from domains.md
      - Output: writes cache file
      - Wait for completion, then read cache file
-4. **If mode is domain-less** (weak-spot-analyzer, exam-strategy-coach): Skip cache, proceed with progress data only
+4. **Cheat sheet cache** (for modes that use it):
+   Check cache: `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
+   - **Cache HIT**: Read cached content, add to context
+   - **Cache MISS**: Load `references/pdf-extractor.md` § Cheat Sheet Extraction
+     - Spawn pdf-extractor subagent for cheat sheet
+     - Wait for completion, then read cache file
+   - **Modes that use cheat sheet**: mini-exam (design/comprehensive/general), scenario-generator, keyword-drill, mock-exam
+5. **If mode is keyword-drill**: Skip domain cache. Load `references/keyword-patterns.md` + cheat sheet cache (step 4). No domain selection needed.
+6. **If mode is mock-exam**: Load ALL available domain caches + cheat sheet cache + `references/mock-exam-flow.md`. No domain selection needed. Prerequisite: ≥8/12 domain caches must exist.
+7. **If mode is domain-less** (weak-spot-analyzer, exam-strategy-coach): Skip cache, proceed with progress data only
 
 ## Step 3: Execute Mode
 
@@ -162,6 +178,8 @@ Load `references/prompt-templates.md` for the selected mode's template.
 | `architecture-reviewer` | Cache + user architecture | Yes (AskUserQuestion) |
 | `weak-spot-analyzer` | study-progress.md only | No |
 | `exam-strategy-coach` | study-progress.md + timeline | Yes (AskUserQuestion) |
+| `keyword-drill` | keyword-patterns.md + cheat-sheet cache | Yes (AskUserQuestion) |
+| `mock-exam` | All domain caches + cheat-sheet + mock-exam-flow.md | Yes (AskUserQuestion, batched) |
 
 **Mini-exam scope** (guided mode phases):
 - Phase 2: `scope=concepts` — test conceptual knowledge from concept-mapper
@@ -242,12 +260,17 @@ Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
 - **Resuming a domain**: If `current_phase > 1`, show completed phases and resume from next incomplete phase
 - **Phase 6 passed (≥80%)**: Mark domain as "completed" in progress. User can still repeat or free-mode study.
 - **Phase 6 failed (<80%)**: Recommend repeating weak phases based on `phase_scores`, then retake Phase 6.
+- **Mock exam with <8 domain caches**: Show "Only {N}/12 domains cached. Study at least 8 domains before attempting a mock exam. Missing: {list}. Use `/ai-tutor {domain}` to start studying."
 - **Invalid args**: Show usage:
   ```
   Usage: /ai-tutor [domain]              — guided study path (default)
          /ai-tutor free [domain] [mode]  — free mode, any mode
+         /ai-tutor keyword-drill         — keyword pattern drill
+         /ai-tutor mock-exam             — full 65-question mock exam
          /ai-tutor progress              — view dashboard
          /ai-tutor refresh <domain>      — refresh PDF cache
+         /ai-tutor refresh cheat-sheet   — refresh cheat sheet cache
   Example: /ai-tutor compute
            /ai-tutor free storage mini-exam
+           /ai-tutor keyword-drill
   ```
