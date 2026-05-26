@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
-last_session: 2026-05-19
-total_sessions: 33
+last_session: 2026-05-26
+total_sessions: 34
 domains:
   security-identity:
     sessions_count: 6
@@ -47,6 +47,14 @@ domains:
     exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-19}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-19}]
     phase_scores: {p2: 90, p4: 90}
     weak_topics: [connection-draining]
+  databases:
+    sessions_count: 1
+    modes_completed: [concept-mapper]
+    last_studied: 2026-05-26
+    current_phase: 1
+    exams: []
+    phase_scores: {}
+    weak_topics: []
 ---
 
 # AWS CSA (SAA-C03) — Study Progress
@@ -204,3 +212,7 @@ domains:
 - Score: 9/10 (90%)
 - Missed: sticky-sessions/connection-draining (Deregistration Delay protects in-flight sessions during scale-in; NLB client IP doesn't solve server-side session loss)
 - Output: study-sessions/260519-1536-load-balancing-scaling-mini-exam-scenarios.md
+
+### 2026-05-26 16:54 | Databases | Concept Mapper (Phase 1)
+- Topics: rds, aurora, elasticache, dynamodb, documentdb, neptune, keyspaces, timestream, rds-proxy, rds-custom, aurora-serverless, aurora-global, babelfish
+- Output: study-sessions/260526-1654-databases-concept-mapper.md
