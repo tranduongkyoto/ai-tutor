@@ -43,9 +43,9 @@ domains:
     sessions_count: 4
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios]
     last_studied: 2026-05-19
-    current_phase: 4
+    current_phase: 2
     exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-19}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-19}]
-    phase_scores: {p2: 90, p4: 90}
+    phase_scores: {p1: 90, p2: 90}
     weak_topics: [connection-draining]
   databases:
     sessions_count: 1

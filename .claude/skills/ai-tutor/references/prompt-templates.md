@@ -56,6 +56,8 @@ This applies to: concept maps, exam questions, scenario descriptions, lab instru
 
 ## Mode: Concept Mapper
 
+> **Note:** Used in free mode. In guided mode, use `learn-and-test` instead (Phase 1).
+
 ### Input
 - Domain: `{domain}` (e.g., "compute")
 - Cached content: loaded from `cache/aws-csa-{domain}.md`
@@ -109,12 +111,149 @@ Generate **3-5 diagrams** across the concept map. Place them in the sections bel
 
 ---
 
+## Mode: Learn and Test
+
+Guided Phase 1 mode. Interleaves section-by-section teaching with quiz questions using the Hint Flow Protocol.
+
+### Input
+- Domain: `{domain}`
+- Cached content: loaded from `cache/aws-csa-{domain}.md`
+- Quiz protocol: `references/quiz-flow.md` (§ Hint Flow Protocol, § Section Quiz Cycle)
+
+### Instructions
+
+Process domain content through 7 sections (same structure as concept-mapper):
+
+1. **Service Overview**: Each service with description and primary use case
+2. **Real-World Use Cases**: Practical scenarios — "Company X needs Y, use Z because..."
+3. **Service Integrations**: How services connect, data/traffic flow
+4. **Architectural Patterns**: Common architectures, when to use each
+5. **Cost Implications**: Pricing models, optimization tips
+6. **Security Considerations**: IAM, encryption, network security per service
+7. **Exam Tips**: Key distinctions for SAA-C03, trigger keywords
+
+**Per section:**
+1. Output full section content (same quality as concept-mapper: tables, diagrams, bold terms)
+2. Generate 2-3 questions on that section's material
+   - Mix: ~60% fact-based, ~40% scenario-based
+   - 4 options (A-D) per question
+   - Tag each with topic slug
+3. Run each question through the **Hint Flow Protocol** (see `references/quiz-flow.md`)
+4. After section's questions: show `Section {N}/7 complete: {X}/{Y} correct`
+5. Proceed to next section
+
+After all 7 sections: aggregate score (total correct / total questions), list missed topics by slug.
+
+### Hint Quality Rules
+
+- 1 sentence, directional nudge toward the AWS concept being tested
+- NEVER mention the correct option letter
+- NEVER repeat any option text verbatim
+- NEVER give away the answer directly
+- Focus on the architectural pattern, service category, or design principle
+- Examples:
+  - "Think about which service handles container orchestration without managing servers"
+  - "Consider the storage class optimized for infrequent access"
+
+### Diagram Directives
+
+Same as concept-mapper — generate 3-5 diagrams embedded in section content.
+
+### Session File Format
+
+```markdown
+# {Domain} — Learn and Test (Phase 1)
+**Date:** {YYYY-MM-DD HH:MM}
+**Score:** {score}/{total} ({pct}%)
+
+---
+
+## Section 1: Service Overview
+{full section content with diagrams}
+
+### Quiz: Section 1
+**Q1** ✓/✗ — {topic-slug}
+{question text}
+A) ... B) ... C) ... D) ...
+💡 Hint: {hint text}
+**Your answer: {letter}** — {Correct/Incorrect}. {explanation}
+
+---
+## Section 2: Real-World Use Cases
+...
+```
+
+---
+
+## Mode: Scenario Practice
+
+Guided Phase 2 mode. Per-scenario interactive loop using the Hint Flow Protocol.
+
+### Input
+- Domain: `{domain}`
+- Cached content: loaded from `cache/aws-csa-{domain}.md`
+- Scenario map: loaded from `certs/aws-csa/scenario-map.md` — the `{domain}` section
+- Cheat sheet cache (if available): `cache/aws-csa-cheat-sheet.md`
+
+### Instructions
+
+Read scenario-map for domain (same source as scenario-generator). Generate one scenario per map entry.
+
+**Per scenario (interactive loop — follows Scenario Practice Cycle in `references/quiz-flow.md`):**
+1. Show: Business Context + Requirements + Question + 4 Options (answer HIDDEN)
+2. Show hint (same turn): 💡 Hint: {1-2 sentence nudge toward correct AWS pattern}
+3. Collect user answer via AskUserQuestion
+4. Reveal (new turn):
+   - ✓/✗ + correct answer letter
+   - Detailed explanation
+   - Architecture diagram (Mermaid `graph TD`, max 10 nodes)
+   - Why each wrong option fails (1 sentence each)
+5. Proceed to next scenario
+
+After all scenarios: aggregate score, list missed topics.
+
+### Hint Quality Rules
+
+Same rules as learn-and-test, plus scenario-specific guidance:
+- Reference the architectural pattern or design principle being tested
+- Example: "Consider a managed service that decouples producers from consumers with FIFO ordering"
+
+### Session File Format
+
+```markdown
+# {Domain} — Scenario Practice (Phase 2)
+**Date:** {YYYY-MM-DD HH:MM}
+**Score:** {score}/{total} ({pct}%)
+
+---
+
+### Scenario 1: {Title} — ✓/✗ ({topic-slug})
+**Context:** ...
+**Requirements:** ...
+**Question:** ...
+A) ... B) ... C) ... D) ...
+**Hint:** {hint}
+**Your answer: {letter}** — {Correct/Incorrect}
+**Correct: {letter}** — {explanation}
+**Architecture:**
+```mermaid
+graph TD
+    ...
+```
+**Why others wrong:** ...
+
+---
+### Scenario 2: ...
+```
+
+---
+
 ## Mode: Mini Exam
 
 ### Input
 - Domain: `{domain}`
 - Question count: `{count}` (5, 10, or 15)
-- Scope: `{scope}` — one of: `concepts`, `scenarios`, `hands-on`, `comprehensive`, `general`
+- Scope: `{scope}` — one of: `design`, `comprehensive`, `general`
 - Cached content: loaded from `cache/aws-csa-{domain}.md`
 - Cheat sheet cache (conditional): `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
   - Load for scope=design, scope=comprehensive, scope=general
@@ -126,14 +265,10 @@ Generate **3-5 diagrams** across the concept map. Place them in the sections bel
 
 | Scope | Focus | When Used |
 |-------|-------|-----------|
-| `concepts` | Test conceptual knowledge — service features, limits, comparisons | Guided Phase 2 (after concept-mapper) |
-| `scenarios` | Test scenario reasoning — "Company X needs Y, which service?" | Guided Phase 4 (after scenario-generator) |
-| `design` | Test architecture design decisions — multi-service trade-offs, Well-Architected reasoning | Guided Phase 5 (architecture design) |
-| `comprehensive` | Full domain exam — mix of all scopes, harder difficulty | Guided Phase 6 (final exam) |
+| `design` | Test architecture design decisions — multi-service trade-offs, Well-Architected reasoning | Guided Phase 3 (architecture design) |
+| `comprehensive` | Full domain exam — mix of all scopes, harder difficulty | Guided Phase 4 (final exam) |
 | `general` | Balanced mix (default) | Free mode |
 
-- For `concepts`: 70% fact-based, 30% scenario-based. Focus on "what is", "which service", "what's the limit"
-- For `scenarios`: 80% scenario-based, 20% fact-based. Focus on architecture decisions, trade-offs
 - For `design`: Architecture decision scenarios + cross-domain integration.
   - 70% current domain questions (multi-service trade-offs within domain)
   - 30% cross-domain questions (current domain + 1-2 other domains)
@@ -218,6 +353,8 @@ Then present questions interactively using the protocol in `references/quiz-flow
 ---
 
 ## Mode: Scenario Generator
+
+> **Note:** Used in free mode. In guided mode, use `scenario-practice` instead (Phase 2).
 
 ### Input
 - Domain: `{domain}`

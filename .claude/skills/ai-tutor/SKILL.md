@@ -9,7 +9,7 @@ metadata:
 
 # AI Tutor - AWS Certification Study Companion
 
-Interactive tutor for AWS certification prep using PDF course materials, guided 7-phase study paths per domain, interactive quizzes, and progress tracking.
+Interactive tutor for AWS certification prep using PDF course materials, guided 4-phase study paths per domain, interactive quizzes, and progress tracking.
 
 ## Data Locations (project root relative)
 
@@ -41,18 +41,18 @@ Parse `ARGUMENTS` to determine the action:
 
 ## Study Path (Guided Mode — Default)
 
-Each domain follows a 6-phase study path. Phases are completed in order — the tutor auto-recommends the next phase based on progress.
+Each domain follows a 4-phase study path. Phases are completed in order — the tutor auto-recommends the next phase based on progress.
 
 ```
-Phase 1: LEARN       → concept-mapper         (understand services & relationships)
-Phase 2: TEST        → mini-exam:concepts     (test conceptual knowledge)
-Phase 3: APPLY       → scenario-generator     (apply to real-world scenarios)
-Phase 4: TEST        → mini-exam:scenarios    (test scenario reasoning)
-Phase 5: DESIGN      → mini-exam:design       (architecture design decisions — MC format)
-Phase 6: FINAL EXAM  → mini-exam:comprehensive (full domain exam — all topics)
+Phase 1: LEARN + TEST  → learn-and-test         (section-by-section: teach → quiz with hints)
+Phase 2: APPLY + TEST  → scenario-practice       (per-scenario: context → hint → answer → explain)
+Phase 3: DESIGN        → mini-exam:design        (architecture design decisions — MC format)
+Phase 4: FINAL EXAM    → mini-exam:comprehensive  (full domain exam — all topics)
 ```
 
 **Optional tools** (available anytime via `free` mode or follow-up menu):
+- `concept-mapper` — standalone knowledge synthesis and service relationships
+- `scenario-generator` — standalone realistic exam scenarios with explanations
 - `hands-on-lab` — build real AWS infrastructure (CLI-based, requires AWS account)
 - `architecture-reviewer` — evaluate architectures against Well-Architected
 - `weak-spot-analyzer` — cross-domain gap analysis (no domain needed)
@@ -66,15 +66,15 @@ When suggesting the next domain in follow-up menus, use tier-based priority orde
 
 | Tier | Domains | Min Phases | Rationale |
 |------|---------|-----------|-----------|
-| 1 (Core) | compute, networking, storage, security-identity | All 6 | ~60% of exam weight |
-| 2 (High) | load-balancing-scaling, databases, serverless, integration-messaging, dns, monitoring-audit | P1-P4 | Solid conceptual + scenario coverage |
-| 3 (Coverage) | data-analytics, dr-architecture | P1-P2 | Minimum viable, avoid zero on exam |
+| 1 (Core) | compute, networking, storage, security-identity | All 4 | ~60% of exam weight |
+| 2 (High) | load-balancing-scaling, databases, serverless, integration-messaging, dns, monitoring-audit | P1-P2 | Solid learn + scenario coverage |
+| 3 (Coverage) | data-analytics, dr-architecture | P1 | Minimum viable, avoid zero on exam |
 
 **Domain recommendation logic** (for Step 5 follow-up menu):
 1. Suggest next unstudied domain from highest incomplete tier (Tier 1 first)
 2. Within a tier, order by exam weight: compute → networking → storage → security-identity
-3. After all domains reach their tier minimum, suggest: `weak-spot-analyzer` → targeted mini-exams on gaps → retry P6 on Tier 1 domains if <80%
-4. Tier 2 domains can be extended to full 6 phases if user is ahead of schedule
+3. After all domains reach their tier minimum, suggest: `weak-spot-analyzer` → targeted mini-exams on gaps → retry P4 on Tier 1 domains if <80%
+4. Tier 2 domains can be extended to full 4 phases if user is ahead of schedule
 
 ## Step 1: Selection
 
@@ -112,10 +112,10 @@ Read `aws-csa/study-progress.md` to determine `current_phase` for the selected d
 **In guided mode** (default): Auto-determine the next phase. Show the user:
 
 ```
-📍 {Domain} — Phase {N}/7: {phase_name}
+📍 {Domain} — Phase {N}/4: {phase_name}
    {phase_description}
 
-Previous phases: ✓ Phase 1 (concept-mapper) ✓ Phase 2 (mini-exam) ...
+Previous phases: ✓ Phase 1 (learn-and-test) ✓ Phase 2 (scenario-practice) ...
 ```
 
 Use `AskUserQuestion`:
@@ -127,15 +127,17 @@ Use `AskUserQuestion`:
 
 ```
 🎯 Study Modes:
- 1. concept-mapper          — Knowledge synthesis and service relationships
- 2. mini-exam               — Interactive quiz with scoring
- 3. scenario-generator      — Realistic exam scenarios with explanations
- 4. hands-on-lab            — Build real AWS infrastructure (optional, requires AWS account)
- 5. architecture-reviewer   — Evaluate architectures against Well-Architected
- 6. weak-spot-analyzer      — Identify and prioritize weak areas (no domain needed)
- 7. exam-strategy-coach     — Exam day strategy and study planning (no domain needed)
- 8. keyword-drill            — Quick-fire exam keyword → service mapping drill (no domain needed)
- 9. mock-exam                — Full 65-question timed SAA-C03 mock exam (no domain needed, requires ≥8 domain caches)
+ 1. learn-and-test          — Section-by-section: teach → quiz with hints (guided P1)
+ 2. scenario-practice       — Per-scenario: context → hint → answer → explain (guided P2)
+ 3. concept-mapper          — Standalone knowledge synthesis and service relationships
+ 4. mini-exam               — Interactive quiz with scoring
+ 5. scenario-generator      — Standalone realistic exam scenarios with explanations
+ 6. hands-on-lab            — Build real AWS infrastructure (optional, requires AWS account)
+ 7. architecture-reviewer   — Evaluate architectures against Well-Architected
+ 8. weak-spot-analyzer      — Identify and prioritize weak areas (no domain needed)
+ 9. exam-strategy-coach     — Exam day strategy and study planning (no domain needed)
+10. keyword-drill            — Quick-fire exam keyword → service mapping drill (no domain needed)
+11. mock-exam                — Full 65-question timed SAA-C03 mock exam (no domain needed, requires ≥8 domain caches)
 ```
 
 Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `hands-on-lab`.
@@ -146,7 +148,7 @@ Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `han
 
 1. Read `certs/aws-csa/domains.md` for topic checklist
 2. Read `aws-csa/study-progress.md` for current progress (create if missing — see edge cases)
-3. **If mode requires domain cache** (concept-mapper, mini-exam, scenario-generator, hands-on-lab, architecture-reviewer):
+3. **If mode requires domain cache** (learn-and-test, scenario-practice, concept-mapper, mini-exam, scenario-generator, hands-on-lab, architecture-reviewer):
    Check cache: `.claude/skills/ai-tutor/cache/aws-csa-{domain}.md`
    - **Cache HIT**: Read cached content, proceed to Step 3
    - **Cache MISS**: Load `references/pdf-extractor.md` and spawn pdf-extractor subagent
@@ -154,13 +156,15 @@ Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `han
      - Input: domain name + PDF paths from domains.md
      - Output: writes cache file
      - Wait for completion, then read cache file
+   - **learn-and-test** also needs: `references/quiz-flow.md` (hint flow protocol)
+   - **scenario-practice** also needs: `certs/aws-csa/scenario-map.md` (loaded here in Step 2, not Step 3) + cheat-sheet cache (see item 4)
 4. **Cheat sheet cache** (for modes that use it):
    Check cache: `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
    - **Cache HIT**: Read cached content, add to context
    - **Cache MISS**: Load `references/pdf-extractor.md` § Cheat Sheet Extraction
      - Spawn pdf-extractor subagent for cheat sheet
      - Wait for completion, then read cache file
-   - **Modes that use cheat sheet**: mini-exam (design/comprehensive/general), scenario-generator, keyword-drill, mock-exam
+   - **Modes that use cheat sheet**: mini-exam (design/comprehensive/general), scenario-practice, scenario-generator, keyword-drill, mock-exam
 5. **If mode is keyword-drill**: Skip domain cache. Load `references/keyword-patterns.md` + cheat sheet cache (step 4). No domain selection needed.
 6. **If mode is mock-exam**: Load ALL available domain caches + cheat sheet cache + `references/mock-exam-flow.md`. No domain selection needed. Prerequisite: ≥8/12 domain caches must exist.
 7. **If mode is domain-less** (weak-spot-analyzer, exam-strategy-coach): Skip cache, proceed with progress data only
@@ -171,6 +175,8 @@ Load `references/prompt-templates.md` for the selected mode's template.
 
 | Mode | Additional Input | Interactive? |
 |------|-----------------|-------------|
+| `learn-and-test` | Cache + quiz-flow.md | Yes (AskUserQuestion) |
+| `scenario-practice` | Cache + scenario-map + cheat-sheet | Yes (AskUserQuestion) |
 | `concept-mapper` | Cache file | No |
 | `mini-exam` | Cache + quiz-flow.md + **scope** | Yes (AskUserQuestion) |
 | `scenario-generator` | Cache file | No |
@@ -181,12 +187,12 @@ Load `references/prompt-templates.md` for the selected mode's template.
 | `keyword-drill` | keyword-patterns.md + cheat-sheet cache | Yes (AskUserQuestion) |
 | `mock-exam` | All domain caches + cheat-sheet + mock-exam-flow.md | Yes (AskUserQuestion, batched) |
 
-**Mini-exam scope** (guided mode phases):
-- Phase 2: `scope=concepts` — test conceptual knowledge from concept-mapper
-- Phase 4: `scope=scenarios` — test scenario reasoning from scenario-generator
-- Phase 5: `scope=design` — test architecture design decisions and trade-offs
-- Phase 6: `scope=comprehensive` — full domain exam covering all topics
-- Free mode: `scope=general` — balanced mix (default behavior)
+**Guided mode scope mapping** (4 phases):
+- Phase 1: `learn-and-test` — section-by-section teach + quiz with hints (no scope param — sections defined by template)
+- Phase 2: `scenario-practice` — per-scenario interactive loop with hints (no scope param)
+- Phase 3: `mini-exam` with `scope=design` — architecture design decisions and trade-offs
+- Phase 4: `mini-exam` with `scope=comprehensive` — full domain exam covering all topics
+- Free mode mini-exam: `scope=general` — balanced mix (default behavior)
 
 For `mini-exam`: Load `references/quiz-flow.md` for the interactive quiz protocol. Pass `scope` to the quiz generator.
 
@@ -205,7 +211,7 @@ Load `references/progress-tracking.md` for the update protocol.
    - **Domain modes**: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{domain}-{mode}.md`
    - **Cross-domain modes**: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{mode}.md`
    - Use `bash -c 'date +%y%m%d-%H%M'` for timestamp
-   - For concept-mapper, scenario-generator, hands-on-lab: the session file IS the study material — include all generated text
+   - For learn-and-test, scenario-practice, concept-mapper, scenario-generator, hands-on-lab: the session file IS the study material — include all generated text
 2. Update `aws-csa/study-progress.md` following the update protocol
    - **Guided mode**: Also update `current_phase` (advance to next phase)
    - **Mini-exam phases**: Record `phase_scores` with the exam score
@@ -230,12 +236,12 @@ Use `AskUserQuestion`:
 
 If user selects "Other", also accept: `architecture-reviewer`, `weak-spot-analyzer`, `exam-strategy-coach`, `free`, `progress`, `done`.
 
-**After Phase 6 (final exam)**: Show domain completion celebration + full progress dashboard.
+**After Phase 4 (final exam)**: Show domain completion celebration + full progress dashboard.
 Compute readiness using the **exact formula** from `references/progress-tracking.md` § Readiness Formula — do NOT invent ad-hoc metrics (domain coverage %, exam weight %, etc.):
 
 ```
 🎉 Domain Complete: {Domain}!
-   Phase scores: P2={score}% → P4={score}% → P5={score}% → P6={score}%
+   Phase scores: P1={score}% → P2={score}% → P3={score}% → P4={score}%
    Domain readiness: {readiness}% (formula: coverage×0.3 + exam_avg×0.5 + recency×0.2)
 ```
 
@@ -258,8 +264,8 @@ Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
 - **PDF extraction fails**: Show error, suggest `/ai-tutor refresh {domain}`
 - **No exam history**: weak-spot-analyzer and exam-strategy-coach show "No exam data yet. Start with a guided study path to build progress."
 - **Resuming a domain**: If `current_phase > 1`, show completed phases and resume from next incomplete phase
-- **Phase 6 passed (≥80%)**: Mark domain as "completed" in progress. User can still repeat or free-mode study.
-- **Phase 6 failed (<80%)**: Recommend repeating weak phases based on `phase_scores`, then retake Phase 6.
+- **Phase 4 passed (≥80%)**: Mark domain as "completed" in progress. User can still repeat or free-mode study.
+- **Phase 4 failed (<80%)**: Recommend repeating weak phases based on `phase_scores`, then retake Phase 4.
 - **Mock exam with <8 domain caches**: Show "Only {N}/12 domains cached. Study at least 8 domains before attempting a mock exam. Missing: {list}. Use `/ai-tutor {domain}` to start studying."
 - **Invalid args**: Show usage:
   ```

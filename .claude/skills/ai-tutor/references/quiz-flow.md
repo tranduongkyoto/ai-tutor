@@ -7,11 +7,10 @@ Interactive quiz protocol for Mini Exam mode using `AskUserQuestion`.
 ## Setup
 
 1. Ask question count via `AskUserQuestion`: "How many questions for this exam?" — options: `5`, `10`, `15`
+   - **Skip for learn-and-test and scenario-practice modes** — question count is determined by content (2-3 per section or per scenario), not user choice.
 2. Determine scope:
-   - Guided Phase 2: `scope=concepts`
-   - Guided Phase 4: `scope=scenarios`
-   - Guided Phase 5: `scope=design`
-   - Guided Phase 6: `scope=comprehensive`
+   - Guided Phase 3: `scope=design`
+   - Guided Phase 4: `scope=comprehensive`
    - Free mode: `scope=general`
 3. Read inputs:
    - Cache file: `.claude/skills/ai-tutor/cache/aws-csa-{domain}.md` (domain knowledge)
@@ -186,6 +185,75 @@ D) {option D text}
 
 - **Odd question count**: Works fine — one question at a time
 - **User selects "Other" and types anything**: Treat as incorrect, show correct answer
+
+---
+
+## Hint Flow Protocol
+
+Extended quiz cycle used by learn-and-test and scenario-practice modes. Adds a hint step between question presentation and answer collection.
+
+### Per-Question Cycle (4 steps, 3 turns)
+
+**Step 1 — Present question (TEXT ONLY, no AskUserQuestion):**
+Show question text + all 4 options (A-D). NEVER reveal answer.
+
+**Step 2 — Show hint (TEXT ONLY, same turn as Step 1):**
+Show hint immediately after options:
+```
+💡 Hint: {1-sentence directional nudge}
+```
+
+Hint rules:
+- 1 sentence, points toward the AWS concept being tested
+- NEVER mention the correct option letter
+- NEVER repeat any option text verbatim
+- NEVER give away the answer directly
+- Focus on the architectural pattern, service category, or design principle
+
+**Step 3 — Collect answer (AskUserQuestion):**
+Same as standard flow: "Your answer?" with A, B, C, D options. `multiSelect: false`.
+
+**Step 4 — Feedback (TEXT ONLY, new turn):**
+Same as standard flow: ✓/✗ + explanation. Then proceed to next question or section.
+
+---
+
+## Section Quiz Cycle (learn-and-test mode)
+
+Flow for Phase 1 guided mode. Processes 7 concept sections sequentially.
+
+### Per-Section Flow
+1. Output full section content (same quality as concept-mapper)
+2. Generate 2-3 questions on that section's material
+3. Run each question through the Hint Flow Protocol (above)
+4. After section's questions: brief `Section {N}/7 complete: {X}/{Y} correct`
+5. Proceed to next section
+
+### After All 7 Sections
+- Aggregate score: `{total_correct}/{total_questions} ({pct}%)`
+- List missed topics by topic slug
+- No separate "question count" prompt — count is determined by sections (2-3 per section)
+
+---
+
+## Scenario Practice Cycle (scenario-practice mode)
+
+Flow for Phase 2 guided mode. Processes scenarios from scenario-map.
+
+### Per-Scenario Flow
+1. Show: Business Context + Requirements + Question + 4 Options (answer HIDDEN)
+2. Show hint (same turn): `💡 Hint: {nudge toward correct pattern}`
+3. Collect answer via AskUserQuestion
+4. Reveal (new turn):
+   - ✓/✗ + correct answer letter
+   - Detailed explanation
+   - Architecture diagram (Mermaid `graph TD`, max 10 nodes)
+   - Why each wrong option fails (1 sentence each)
+5. Proceed to next scenario
+
+### After All Scenarios
+- Aggregate score: `{correct}/{total} ({pct}%)`
+- List missed topics
 
 ---
 

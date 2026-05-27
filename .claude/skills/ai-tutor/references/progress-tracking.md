@@ -22,9 +22,10 @@ domains:
     sessions_count: {increment by 1}
     modes_completed: {append mode slug if not already present}
     last_studied: {today's date, YYYY-MM-DD}
-    current_phase: {1-6, advance after completing a guided phase; default 1}
-    phase_scores: {phase_num: score_pct} # only for scored phases (p2: mini-exam, p4: mini-exam, p5: mini-exam:design, p6: mini-exam)
-    completed: {true if Phase 6 passed ≥80%, else false/omit}
+    current_phase: {1-4, advance after completing a guided phase; default 1}
+    phase_scores: {p1: learn-and-test score, p2: scenario-practice score, p3: design score, p4: comprehensive score}
+    modes_completed: {append mode slug} # new slugs: learn-and-test, scenario-practice
+    completed: {true if Phase 4 passed ≥80%, else false/omit}
     # If mode was mini-exam, also:
     exams:
       - date: {today, YYYY-MM-DD}
@@ -64,6 +65,16 @@ mock_exams:
     verdict: {PASS|BORDERLINE|FAIL}
 ```
 
+### Backward Compatibility
+
+Domains with `completed: true` retain old 6-phase format (p2/p4/p5/p6 keys). New domains use 4-phase format (p1/p2/p3/p4 keys). When displaying old completed domains: show as "4/4" in dashboard (they finished all phases).
+
+**In-progress domain migration (case-by-case):**
+- `load-balancing-scaling` (old current_phase:4, scores p2:90, p4:90): Map to new current_phase:2, phase_scores: {p1:90, p2:90}. Completed equivalent of new P1 (learn+test) and P2 (scenario+test).
+- `databases` (old current_phase:1, only concept-mapper done): Reset to new current_phase:1, no scores to preserve. Will redo P1 with new learn-and-test format.
+
+**Slug compatibility rule:** Migrated domains retain old `modes_completed` slugs (e.g., `concept-mapper`, `mini-exam:concepts`). For coverage and recommendation calculations, always use `current_phase` — never the free-mode slug fallback — for domains that have been through guided mode. Old slugs in `modes_completed` are historical records, not inputs to the coverage formula.
+
 ### Step 2: Update Weak Topics
 
 After a mini-exam:
@@ -78,6 +89,22 @@ Append to the `## Session History` section:
 For **mini-exam** sessions:
 ```
 ### {YYYY-MM-DD} {HH:MM} | {Domain Name} | Mini Exam
+- Score: {score}/{total} ({percentage}%)
+- Missed: {comma-separated missed topics, or "none"}
+- Output: study-sessions/{filename}
+```
+
+For **learn-and-test** sessions:
+```
+### {YYYY-MM-DD} {HH:MM} | {Domain Name} | Learn and Test
+- Score: {score}/{total} ({percentage}%)
+- Missed: {comma-separated missed topics, or "none"}
+- Output: study-sessions/{filename}
+```
+
+For **scenario-practice** sessions:
+```
+### {YYYY-MM-DD} {HH:MM} | {Domain Name} | Scenario Practice
 - Score: {score}/{total} ({percentage}%)
 - Missed: {comma-separated missed topics, or "none"}
 - Output: study-sessions/{filename}
@@ -136,10 +163,11 @@ readiness = (coverage * 0.3) + (exam_avg * 0.5) + (recency * 0.2)
 
 **Coverage** (30% weight):
 ```
-coverage = (current_phase / 6) * 100
+coverage = (current_phase / 4) * 100
 ```
-- 6 phases in guided path; each completed phase adds ~16.7%
-- If using free mode without guided path, fallback: `(modes_completed.length / 6) * 100`
+- 4 phases in guided path; each completed phase adds 25%
+- If using free mode without guided path, fallback: `(modes_completed.length / 4) * 100` (cap at 100%)
+- For old completed domains (`completed: true`): coverage = 100%
 
 **Exam Average** (50% weight):
 ```
@@ -198,10 +226,10 @@ Overall Readiness: {pct}%  {progress_bar}  {studied_count}/12 domains
 
 Domain                    Phase  Ready  Exams  Last       Status
 ───────────────────────── ────── ────── ────── ────────── ──────────────
-Compute                    6/6    85%    3      2d ago     ★ Mastered
-Storage                    4/6    62%    2      3d ago     ◆ Proficient
-Databases                  2/6    45%    1      5d ago     ▲ Developing
-Networking                 1/6    30%    0      7d ago     ▲ Developing
+Compute                    4/4    85%    3      2d ago     ★ Mastered
+Storage                    3/4    62%    2      3d ago     ◆ Proficient
+Databases                  1/4    45%    1      5d ago     ▲ Developing
+Networking                 1/4    30%    0      7d ago     ▲ Developing
 Security & Identity        -      0%     -      -          ○ Not started
 Load Balancing & Scaling   -      0%     -      -          ○ Not started
 DNS                        -      0%     -      -          ○ Not started
@@ -245,7 +273,7 @@ After each session AND on dashboard, suggest next action:
 2. Domain with lowest non-zero readiness that is stale (>7 days) → "Stale, needs review"
 3. Domain never started (pick foundational ones first: compute → networking → security-identity → storage) → "Not started yet"
 4. Domain with weak_topics that hasn't had a recent mini-exam → "Retest weak topics"
-5. Domain with Phase 6 failed (<80%) → "Retake final exam after reviewing weak phases"
+5. Domain with Phase 4 failed (<80%) → "Retake final exam after reviewing weak phases"
 
 **Format:**
 ```
@@ -254,6 +282,6 @@ Recommended Next: {Domain Name} — Phase {N}: {mode} ({reason})
 
 Example:
 ```
-Recommended Next: Compute — Phase 2: mini-exam (continue study path)
-Recommended Next: Networking — Phase 1: concept-mapper (not started yet)
+Recommended Next: Compute — Phase 2: scenario-practice (continue study path)
+Recommended Next: Networking — Phase 1: learn-and-test (not started yet)
 ```
