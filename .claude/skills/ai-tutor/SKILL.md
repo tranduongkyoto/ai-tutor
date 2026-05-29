@@ -187,8 +187,10 @@ Load `references/prompt-templates.md` for the selected mode's template.
 | `keyword-drill` | keyword-patterns.md + cheat-sheet cache | Yes (AskUserQuestion) |
 | `mock-exam` | All domain caches + cheat-sheet + mock-exam-flow.md | Yes (AskUserQuestion, batched) |
 
+**learn-and-test content-first flow:** This mode writes full content (all 7 sections with diagrams) to the session file BEFORE starting the interactive quiz. This lets the user open the .md in IntelliJ IDEA to see rendered mermaid diagrams while answering quiz questions. Quiz results are appended to the same file after completion.
+
 **Guided mode scope mapping** (4 phases):
-- Phase 1: `learn-and-test` — section-by-section teach + quiz with hints (no scope param — sections defined by template)
+- Phase 1: `learn-and-test` — content-first: generates all sections to .md file, then runs quiz with hints (no scope param)
 - Phase 2: `scenario-practice` — per-scenario interactive loop with hints (no scope param)
 - Phase 3: `mini-exam` with `scope=design` — architecture design decisions and trade-offs
 - Phase 4: `mini-exam` with `scope=comprehensive` — full domain exam covering all topics

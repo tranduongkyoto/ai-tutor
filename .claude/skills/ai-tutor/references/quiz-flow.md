@@ -218,16 +218,21 @@ Same as standard flow: ✓/✗ + explanation. Then proceed to next question or s
 
 ---
 
-## Section Quiz Cycle (learn-and-test mode)
+## Section Quiz Cycle — Content-First (learn-and-test mode)
 
-Flow for Phase 1 guided mode. Processes 7 concept sections sequentially.
+Flow for Phase 1 guided mode. Two-phase: generate all content first, then quiz.
 
-### Per-Section Flow
-1. Output full section content (same quality as concept-mapper)
-2. Generate 2-3 questions on that section's material
-3. Run each question through the Hint Flow Protocol (above)
-4. After section's questions: brief `Section {N}/7 complete: {X}/{Y} correct`
-5. Proceed to next section
+### Content Phase (runs first, all sections)
+1. Generate all 7 sections with full content (same quality as concept-mapper — diagrams, tables, bold terms)
+2. Write complete content to session file
+3. Show: `📄 Content saved to {file}. Open in IDEA to study with rendered diagrams.`
+
+### Quiz Phase (runs after content is written)
+For each section (1-7):
+1. Generate 2-3 questions on that section's material
+2. Run each question through the Hint Flow Protocol (above)
+3. After section's questions: `Section {N}/7 complete: {X}/{Y} correct`
+4. Append quiz results to session file under `## Quiz Results → ### Section {N}: {name}` (section headers mirror content sections for cross-reference)
 
 ### After All 7 Sections
 - Aggregate score: `{total_correct}/{total_questions} ({pct}%)`

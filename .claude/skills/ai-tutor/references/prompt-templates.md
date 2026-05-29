@@ -113,7 +113,7 @@ Generate **3-5 diagrams** across the concept map. Place them in the sections bel
 
 ## Mode: Learn and Test
 
-Guided Phase 1 mode. Interleaves section-by-section teaching with quiz questions using the Hint Flow Protocol.
+Guided Phase 1 mode. Content-first: generates all 7 sections to file, then runs interactive quiz with hints.
 
 ### Input
 - Domain: `{domain}`
@@ -121,6 +121,10 @@ Guided Phase 1 mode. Interleaves section-by-section teaching with quiz questions
 - Quiz protocol: `references/quiz-flow.md` (§ Hint Flow Protocol, § Section Quiz Cycle)
 
 ### Instructions
+
+Two-phase flow: generate all content first (viewable in IntelliJ IDEA with rendered diagrams), then quiz interactively.
+
+#### Phase A: Content Generation
 
 Process domain content through 7 sections (same structure as concept-mapper):
 
@@ -132,17 +136,25 @@ Process domain content through 7 sections (same structure as concept-mapper):
 6. **Security Considerations**: IAM, encryption, network security per service
 7. **Exam Tips**: Key distinctions for SAA-C03, trigger keywords
 
-**Per section:**
-1. Output full section content (same quality as concept-mapper: tables, diagrams, bold terms)
-2. Generate 2-3 questions on that section's material
+Generate all 7 sections with full content (same quality as concept-mapper: tables, diagrams, bold terms).
+
+**Output content to terminal** as it's generated (same as concept-mapper behavior — user sees raw mermaid in CLI). **Also write** complete content to session file: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{domain}-learn-and-test.md`
+
+After all sections generated, display: `📄 Content saved to {file}. Open in IDEA to study with rendered diagrams.`
+
+#### Phase B: Interactive Quiz
+
+Immediately present first quiz question (no "ready?" prompt needed).
+
+Per section (1-7):
+1. Generate 2-3 questions on that section's material
    - Mix: ~60% fact-based, ~40% scenario-based
    - 4 options (A-D) per question
    - Tag each with topic slug
-3. Run each question through the **Hint Flow Protocol** (see `references/quiz-flow.md`)
-4. After section's questions: show `Section {N}/7 complete: {X}/{Y} correct`
-5. Proceed to next section
+2. Run each question through the **Hint Flow Protocol** (see `references/quiz-flow.md`)
+3. After section's questions: show `Section {N}/7 complete: {X}/{Y} correct`
 
-After all 7 sections: aggregate score (total correct / total questions), list missed topics by slug.
+After all 7 sections: aggregate score (total correct / total questions), list missed topics by slug. Append quiz results to the same session file under `## Quiz Results`.
 
 ### Hint Quality Rules
 
@@ -171,15 +183,29 @@ Same as concept-mapper — generate 3-5 diagrams embedded in section content.
 ## Section 1: Service Overview
 {full section content with diagrams}
 
-### Quiz: Section 1
+---
+## Section 2: Real-World Use Cases
+{full section content}
+
+---
+{... all 7 sections ...}
+
+---
+
+## Quiz Results
+
+### Section 1: Service Overview
 **Q1** ✓/✗ — {topic-slug}
 {question text}
 A) ... B) ... C) ... D) ...
 💡 Hint: {hint text}
 **Your answer: {letter}** — {Correct/Incorrect}. {explanation}
 
----
-## Section 2: Real-World Use Cases
+**Q2** ✓/✗ — {topic-slug}
+...
+
+### Section 2: Real-World Use Cases
+**Q1** ✓/✗ — {topic-slug}
 ...
 ```
 
