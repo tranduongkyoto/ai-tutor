@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
-last_session: 2026-05-26
-total_sessions: 34
+last_session: 2026-05-29
+total_sessions: 35
 domains:
   security-identity:
     sessions_count: 6
@@ -48,9 +48,9 @@ domains:
     phase_scores: {p1: 90, p2: 90}
     weak_topics: [connection-draining]
   databases:
-    sessions_count: 1
+    sessions_count: 2
     modes_completed: [concept-mapper]
-    last_studied: 2026-05-26
+    last_studied: 2026-05-29
     current_phase: 1
     exams: []
     phase_scores: {}
@@ -216,3 +216,9 @@ domains:
 ### 2026-05-26 16:54 | Databases | Concept Mapper (Phase 1)
 - Topics: rds, aurora, elasticache, dynamodb, documentdb, neptune, keyspaces, timestream, rds-proxy, rds-custom, aurora-serverless, aurora-global, babelfish
 - Output: study-sessions/260526-1654-databases-concept-mapper.md
+
+### 2026-05-29 18:02 | Databases | Learn and Test (Phase 1) [PARTIAL]
+- Score: 5/5 (100%) — Sections 1-2 of 7 complete
+- Covered: rds, rds-custom, aurora, elasticache, dynamodb, specialty-databases, use-cases, service-integrations (teaching only)
+- Status: Resume from Section 3 quiz onwards
+- Output: study-sessions/260529-1802-databases-learn-and-test.md
