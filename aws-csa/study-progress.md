@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
-last_session: 2026-05-29
-total_sessions: 35
+last_session: 2026-05-31
+total_sessions: 39
 domains:
   security-identity:
     sessions_count: 6
@@ -48,9 +48,18 @@ domains:
     phase_scores: {p1: 90, p2: 90}
     weak_topics: [connection-draining]
   databases:
-    sessions_count: 2
-    modes_completed: [concept-mapper]
-    last_studied: 2026-05-29
+    sessions_count: 6
+    modes_completed: [concept-mapper, learn-and-test, scenario-practice, mini-exam:design, mini-exam:comprehensive]
+    last_studied: 2026-05-31
+    current_phase: 5
+    completed: true
+    exams: [{scope: design, score: 7, total: 10, pct: 70, date: 2026-05-31}, {scope: comprehensive, score: 10, total: 10, pct: 100, date: 2026-05-31}]
+    phase_scores: {p1: 83, p2: 93, p3: 70, p4: 100}
+    weak_topics: []
+  serverless:
+    sessions_count: 1
+    modes_completed: []
+    last_studied: 2026-05-31
     current_phase: 1
     exams: []
     phase_scores: {}
@@ -217,8 +226,24 @@ domains:
 - Topics: rds, aurora, elasticache, dynamodb, documentdb, neptune, keyspaces, timestream, rds-proxy, rds-custom, aurora-serverless, aurora-global, babelfish
 - Output: study-sessions/260526-1654-databases-concept-mapper.md
 
-### 2026-05-29 18:02 | Databases | Learn and Test (Phase 1) [PARTIAL]
-- Score: 5/5 (100%) — Sections 1-2 of 7 complete
-- Covered: rds, rds-custom, aurora, elasticache, dynamodb, specialty-databases, use-cases, service-integrations (teaching only)
-- Status: Resume from Section 3 quiz onwards
+### 2026-05-29 18:02 | Databases | Learn and Test (Phase 1)
+- Score: 15/18 (83%) — All 7 sections complete
+- Covered: rds, rds-custom, aurora, elasticache, dynamodb, specialty-databases, use-cases, service-integrations, architectural-patterns, cost-implications, security-considerations, exam-tips
+- Missed: aurora-ml, defense-in-depth (RDS Proxy layers), babelfish
 - Output: study-sessions/260529-1802-databases-learn-and-test.md
+
+### 2026-05-30 11:21 | Databases | Scenario Practice (Phase 2)
+- Score: 13/14 (93%)
+- Scenarios: 14 (multi-az-vs-read-replicas, engine-selection, aurora-vs-rds, aurora-serverless, aurora-global, redis-vs-memcached, caching-strategies, partition-key-design, capacity-modes, dax-acceleration, global-tables, rds-proxy, documentdb-vs-dynamodb, specialty-databases)
+- Missed: aurora (confused Aurora Serverless with standard Aurora for high-throughput)
+- Output: study-sessions/260530-1121-databases-scenario-practice.md
+
+### 2026-05-31 11:01 | Databases | Mini Exam: Design (Phase 3)
+- Score: 7/10 (70%)
+- Missed: dynamodb-capacity (on-demand for extreme variance), aurora-cloning (copy-on-write for staging), aurora-custom-endpoints (workload isolation)
+- Output: study-sessions/260531-1101-databases-mini-exam-design.md
+
+### 2026-05-31 11:31 | Databases | Mini Exam: Comprehensive Final (Phase 4)
+- Score: 10/10 (100%)
+- Missed: none — all Phase 3 weak topics mastered
+- Output: study-sessions/260531-1131-databases-mini-exam-comprehensive.md

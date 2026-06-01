@@ -113,7 +113,7 @@ Generate **3-5 diagrams** across the concept map. Place them in the sections bel
 
 ## Mode: Learn and Test
 
-Guided Phase 1 mode. Content-first: generates all 7 sections to file, then runs interactive quiz with hints.
+Guided Phase 1 mode. Content-first: generates all 7 sections to .md file, then teaches and quizzes section-by-section with resume support.
 
 ### Input
 - Domain: `{domain}`
@@ -122,7 +122,7 @@ Guided Phase 1 mode. Content-first: generates all 7 sections to file, then runs 
 
 ### Instructions
 
-Two-phase flow: generate all content first (viewable in IntelliJ IDEA with rendered diagrams), then quiz interactively.
+Two-phase flow: generate all content to file first (viewable in IntelliJ IDEA), then teach + quiz one section at a time.
 
 #### Phase A: Content Generation
 
@@ -136,25 +136,34 @@ Process domain content through 7 sections (same structure as concept-mapper):
 6. **Security Considerations**: IAM, encryption, network security per service
 7. **Exam Tips**: Key distinctions for SAA-C03, trigger keywords
 
-Generate all 7 sections with full content (same quality as concept-mapper: tables, diagrams, bold terms).
-
-**Output content to terminal** as it's generated (same as concept-mapper behavior — user sees raw mermaid in CLI). **Also write** complete content to session file: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{domain}-learn-and-test.md`
+Generate all 7 sections with full content (same quality as concept-mapper: tables, diagrams, bold terms). **Write** complete content to session file: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{domain}-learn-and-test.md`
 
 After all sections generated, display: `📄 Content saved to {file}. Open in IDEA to study with rendered diagrams.`
 
-#### Phase B: Interactive Quiz
+**Note:** Content is written to file but NOT output to terminal during Phase A. Terminal output happens per-section in Phase B.
 
-Immediately present first quiz question (no "ready?" prompt needed).
+#### Phase B: Section-by-Section Teach and Quiz
 
-Per section (1-7):
-1. Generate 2-3 questions on that section's material
+**Resume detection:** Before starting, check for an existing partial session file for this domain (`aws-csa/study-sessions/*-{domain}-learn-and-test.md` with `[PARTIAL]` in the title or missing quiz results for some sections). If found:
+- Read the file to determine which sections already have `### Quiz: Section {N}` results
+- Skip completed sections; resume from the first section without quiz results
+- Show: `📍 Resuming from Section {N}/7 — Sections 1-{N-1} already completed.`
+
+**Per section (1-7):**
+1. **Teach** — Read section content from the session .md file and output it to terminal (user reads the section material)
+2. **Quiz** — Generate 2-3 questions on that section's material
    - Mix: ~60% fact-based, ~40% scenario-based
    - 4 options (A-D) per question
    - Tag each with topic slug
-2. Run each question through the **Hint Flow Protocol** (see `references/quiz-flow.md`)
-3. After section's questions: show `Section {N}/7 complete: {X}/{Y} correct`
+3. Run each question through the **Hint Flow Protocol** (see `references/quiz-flow.md`)
+4. After section's questions: show `Section {N}/7 complete: {X}/{Y} correct`
+5. **Save** — Append quiz results to the session file under the section: `### Quiz: Section {N}` (placed at the end of that section's content, before the next section)
+6. **Update header** — Update the session file header: `**Score:** {running_correct}/{running_total} ({pct}%) — Sections 1-{N} complete, Section {N+1}+ pending` and add `[PARTIAL]` to the title if not all sections are done
 
-After all 7 sections: aggregate score (total correct / total questions), list missed topics by slug. Append quiz results to the same session file under `## Quiz Results`.
+**After all 7 sections:**
+- Aggregate score: `{total_correct}/{total_questions} ({pct}%)`
+- List missed topics by slug
+- Remove `[PARTIAL]` from the title and update the final score in the header
 
 ### Hint Quality Rules
 
@@ -173,28 +182,19 @@ Same as concept-mapper — generate 3-5 diagrams embedded in section content.
 
 ### Session File Format
 
+Quiz results are interleaved within each section (not in a separate `## Quiz Results` block). This keeps each section's content and quiz together for easy review.
+
 ```markdown
-# {Domain} — Learn and Test (Phase 1)
+# {Domain} — Learn and Test (Phase 1) [PARTIAL]
 **Date:** {YYYY-MM-DD HH:MM}
-**Score:** {score}/{total} ({pct}%)
+**Score:** {running_correct}/{running_total} ({pct}%) — Sections 1-{N} complete, Section {N+1}+ pending
 
 ---
 
 ## Section 1: Service Overview
 {full section content with diagrams}
 
----
-## Section 2: Real-World Use Cases
-{full section content}
-
----
-{... all 7 sections ...}
-
----
-
-## Quiz Results
-
-### Section 1: Service Overview
+### Quiz: Section 1
 **Q1** ✓/✗ — {topic-slug}
 {question text}
 A) ... B) ... C) ... D) ...
@@ -204,39 +204,82 @@ A) ... B) ... C) ... D) ...
 **Q2** ✓/✗ — {topic-slug}
 ...
 
-### Section 2: Real-World Use Cases
+---
+
+## Section 2: Real-World Use Cases
+{full section content}
+
+### Quiz: Section 2
 **Q1** ✓/✗ — {topic-slug}
 ...
+
+---
+
+{... sections 3-7 same pattern ...}
 ```
+
+When all 7 sections are complete, remove `[PARTIAL]` from the title and update the score to final.
 
 ---
 
 ## Mode: Scenario Practice
 
-Guided Phase 2 mode. Per-scenario interactive loop using the Hint Flow Protocol.
+Guided Phase 2 mode. Content-first: generates all scenarios to .md file, then practices scenario-by-scenario with hints and resume support.
 
 ### Input
 - Domain: `{domain}`
 - Cached content: loaded from `cache/aws-csa-{domain}.md`
 - Scenario map: loaded from `certs/aws-csa/scenario-map.md` — the `{domain}` section
 - Cheat sheet cache (if available): `cache/aws-csa-cheat-sheet.md`
+- Quiz protocol: `references/quiz-flow.md` (§ Hint Flow Protocol, § Scenario Practice Cycle)
 
 ### Instructions
 
-Read scenario-map for domain (same source as scenario-generator). Generate one scenario per map entry.
+Two-phase flow: generate all scenario content to file first (viewable in IntelliJ IDEA with rendered architecture diagrams), then practice interactively one scenario at a time.
 
-**Per scenario (interactive loop — follows Scenario Practice Cycle in `references/quiz-flow.md`):**
-1. Show: Business Context + Requirements + Question + 4 Options (answer HIDDEN)
+#### Phase A: Content Generation
+
+Read scenario-map for domain. Generate one scenario per map entry with full content:
+
+**Per scenario, generate:**
+1. **Business Context**: Company situation, industry, scale
+2. **Technical Requirements**: Specific constraints — latency, availability, budget, compliance
+3. **Question**: What should the solutions architect recommend?
+4. **Options (A-D)**: 4 options, each a valid-sounding architecture but only one best answer
+5. **Correct Answer**: Letter + detailed explanation
+6. **Architecture Diagram**: Mermaid `graph TD` showing the correct answer's architecture (max 10 nodes). Include 3-5 line ASCII fallback.
+7. **Why Others Are Wrong**: 1-2 sentences per wrong option
+8. **Key Concept**: The AWS concept being tested
+
+**Write** all scenarios to session file: `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{domain}-scenario-practice.md`
+
+After all scenarios generated, display: `📄 {N} scenarios saved to {file}. Open in IDEA to study with rendered diagrams.`
+
+**Note:** Content is written to file but NOT output to terminal during Phase A. Terminal output happens per-scenario in Phase B.
+
+#### Phase B: Scenario-by-Scenario Practice
+
+**Resume detection:** Before starting, check for an existing partial session file for this domain (`aws-csa/study-sessions/*-{domain}-scenario-practice.md` with `[PARTIAL]` in the title or scenarios missing `**Your answer:**` results). If found:
+- Read the file to determine which scenarios already have answer results
+- Skip completed scenarios; resume from the first scenario without results
+- Show: `📍 Resuming from Scenario {N}/{total} — Scenarios 1-{N-1} already completed.`
+
+**Per scenario (follows Scenario Practice Cycle in `references/quiz-flow.md`):**
+1. **Teach** — Read scenario from the session .md file and output to terminal: Business Context + Requirements + Question + 4 Options (answer HIDDEN — do NOT show correct answer, explanation, diagram, or wrong-option analysis)
 2. Show hint (same turn): 💡 Hint: {1-2 sentence nudge toward correct AWS pattern}
 3. Collect user answer via AskUserQuestion
 4. Reveal (new turn):
    - ✓/✗ + correct answer letter
    - Detailed explanation
-   - Architecture diagram (Mermaid `graph TD`, max 10 nodes)
+   - Architecture diagram (from the .md file)
    - Why each wrong option fails (1 sentence each)
-5. Proceed to next scenario
+5. **Save** — Update the scenario in the session file: add `**Your answer: {letter}** — {Correct/Incorrect}` line
+6. **Update header** — Update running score and scenario progress: `**Score:** {running_correct}/{running_total} ({pct}%) — Scenarios 1-{N} complete, Scenario {N+1}+ pending`
+7. Proceed to next scenario
 
-After all scenarios: aggregate score, list missed topics.
+**After all scenarios:**
+- Aggregate score, list missed topics
+- Remove `[PARTIAL]` from the title and update the final score in the header
 
 ### Hint Quality Rules
 
@@ -246,14 +289,16 @@ Same rules as learn-and-test, plus scenario-specific guidance:
 
 ### Session File Format
 
+Scenarios are written with full content in Phase A. User answers are added inline during Phase B.
+
 ```markdown
-# {Domain} — Scenario Practice (Phase 2)
+# {Domain} — Scenario Practice (Phase 2) [PARTIAL]
 **Date:** {YYYY-MM-DD HH:MM}
-**Score:** {score}/{total} ({pct}%)
+**Score:** {running_correct}/{running_total} ({pct}%) — Scenarios 1-{N} complete, Scenario {N+1}+ pending
 
 ---
 
-### Scenario 1: {Title} — ✓/✗ ({topic-slug})
+### Scenario 1: {Title} ({topic-slug})
 **Context:** ...
 **Requirements:** ...
 **Question:** ...
@@ -267,10 +312,15 @@ graph TD
     ...
 ```
 **Why others wrong:** ...
+**Key Concept:** {concept being tested}
 
 ---
-### Scenario 2: ...
+### Scenario 2: {Title} ({topic-slug})
+**Context:** ...
+{... same structure, no "Your answer" until Phase B reaches this scenario ...}
 ```
+
+When all scenarios are complete, remove `[PARTIAL]` from the title and update the score to final.
 
 ---
 

@@ -220,33 +220,54 @@ Same as standard flow: ✓/✗ + explanation. Then proceed to next question or s
 
 ## Section Quiz Cycle — Content-First (learn-and-test mode)
 
-Flow for Phase 1 guided mode. Two-phase: generate all content first, then quiz.
+Flow for Phase 1 guided mode. Two-phase: generate all content to .md file first, then teach + quiz section-by-section.
 
 ### Content Phase (runs first, all sections)
 1. Generate all 7 sections with full content (same quality as concept-mapper — diagrams, tables, bold terms)
-2. Write complete content to session file
+2. Write complete content to session file (NOT to terminal — terminal output happens per-section in quiz phase)
 3. Show: `📄 Content saved to {file}. Open in IDEA to study with rendered diagrams.`
 
-### Quiz Phase (runs after content is written)
-For each section (1-7):
-1. Generate 2-3 questions on that section's material
-2. Run each question through the Hint Flow Protocol (above)
-3. After section's questions: `Section {N}/7 complete: {X}/{Y} correct`
-4. Append quiz results to session file under `## Quiz Results → ### Section {N}: {name}` (section headers mirror content sections for cross-reference)
+### Resume Detection (before starting quiz phase)
+Check for an existing partial session file (`*-{domain}-learn-and-test.md` with `[PARTIAL]` in title or sections missing `### Quiz: Section {N}`):
+- If found: read file, identify sections with quiz results, skip completed sections
+- Show: `📍 Resuming from Section {N}/7 — Sections 1-{N-1} already completed.`
+- If not found: start from Section 1
+
+### Quiz Phase (section-by-section — teach then quiz)
+For each section (1-7), in order:
+1. **Teach**: Read section content from the .md file and output it to terminal
+2. **Quiz**: Generate 2-3 questions on that section's material
+3. Run each question through the Hint Flow Protocol (above)
+4. After section's questions: `Section {N}/7 complete: {X}/{Y} correct`
+5. **Save inline**: Append quiz results to the session file as `### Quiz: Section {N}` at the end of that section (before the `---` separator and next section). This keeps content + quiz together.
+6. **Update header**: Update running score and section progress in the file header. Mark `[PARTIAL]` until all 7 sections are done.
 
 ### After All 7 Sections
 - Aggregate score: `{total_correct}/{total_questions} ({pct}%)`
 - List missed topics by topic slug
+- Remove `[PARTIAL]` from session file title; update final score in header
 - No separate "question count" prompt — count is determined by sections (2-3 per section)
 
 ---
 
 ## Scenario Practice Cycle (scenario-practice mode)
 
-Flow for Phase 2 guided mode. Processes scenarios from scenario-map.
+Flow for Phase 2 guided mode. Two-phase: generate all scenarios to .md file first, then practice scenario-by-scenario.
 
-### Per-Scenario Flow
-1. Show: Business Context + Requirements + Question + 4 Options (answer HIDDEN)
+### Content Phase (runs first, all scenarios)
+1. Generate all scenarios with full content (context, requirements, question, options, answer, architecture diagram, wrong-option analysis, key concept)
+2. Write complete content to session file (NOT to terminal — terminal output happens per-scenario in practice phase)
+3. Show: `📄 {N} scenarios saved to {file}. Open in IDEA to study with rendered diagrams.`
+
+### Resume Detection (before starting practice phase)
+Check for an existing partial session file (`*-{domain}-scenario-practice.md` with `[PARTIAL]` in title or scenarios missing `**Your answer:**`):
+- If found: read file, identify scenarios with answer results, skip completed scenarios
+- Show: `📍 Resuming from Scenario {N}/{total} — Scenarios 1-{N-1} already completed.`
+- If not found: start from Scenario 1
+
+### Practice Phase (scenario-by-scenario — teach then quiz)
+For each scenario, in order:
+1. **Teach**: Read scenario from the .md file. Output to terminal: Context + Requirements + Question + Options (answer HIDDEN — do NOT show correct answer, explanation, diagram, or wrong-option analysis)
 2. Show hint (same turn): `💡 Hint: {nudge toward correct pattern}`
 3. Collect answer via AskUserQuestion
 4. Reveal (new turn):
@@ -254,11 +275,14 @@ Flow for Phase 2 guided mode. Processes scenarios from scenario-map.
    - Detailed explanation
    - Architecture diagram (Mermaid `graph TD`, max 10 nodes)
    - Why each wrong option fails (1 sentence each)
-5. Proceed to next scenario
+5. **Save inline**: Update the scenario in the session file — add `**Your answer: {letter}** — {Correct/Incorrect}` line
+6. **Update header**: Update running score and scenario progress. Mark `[PARTIAL]` until all scenarios are done.
+7. Proceed to next scenario
 
 ### After All Scenarios
 - Aggregate score: `{correct}/{total} ({pct}%)`
 - List missed topics
+- Remove `[PARTIAL]` from session file title; update final score in header
 
 ---
 

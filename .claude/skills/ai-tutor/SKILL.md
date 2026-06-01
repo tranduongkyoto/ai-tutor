@@ -44,8 +44,8 @@ Parse `ARGUMENTS` to determine the action:
 Each domain follows a 4-phase study path. Phases are completed in order — the tutor auto-recommends the next phase based on progress.
 
 ```
-Phase 1: LEARN + TEST  → learn-and-test         (section-by-section: teach → quiz with hints)
-Phase 2: APPLY + TEST  → scenario-practice       (per-scenario: context → hint → answer → explain)
+Phase 1: LEARN + TEST  → learn-and-test         (content to .md first, then per-section: teach → quiz → save, with resume)
+Phase 2: APPLY + TEST  → scenario-practice       (content to .md first, then per-scenario: teach → hint → answer → reveal, with resume)
 Phase 3: DESIGN        → mini-exam:design        (architecture design decisions — MC format)
 Phase 4: FINAL EXAM    → mini-exam:comprehensive  (full domain exam — all topics)
 ```
@@ -128,7 +128,7 @@ Use `AskUserQuestion`:
 ```
 🎯 Study Modes:
  1. learn-and-test          — Section-by-section: teach → quiz with hints (guided P1)
- 2. scenario-practice       — Per-scenario: context → hint → answer → explain (guided P2)
+ 2. scenario-practice       — Content to .md first, then per-scenario: teach → hint → answer → reveal → save (guided P2)
  3. concept-mapper          — Standalone knowledge synthesis and service relationships
  4. mini-exam               — Interactive quiz with scoring
  5. scenario-generator      — Standalone realistic exam scenarios with explanations
@@ -187,11 +187,11 @@ Load `references/prompt-templates.md` for the selected mode's template.
 | `keyword-drill` | keyword-patterns.md + cheat-sheet cache | Yes (AskUserQuestion) |
 | `mock-exam` | All domain caches + cheat-sheet + mock-exam-flow.md | Yes (AskUserQuestion, batched) |
 
-**learn-and-test content-first flow:** This mode writes full content (all 7 sections with diagrams) to the session file BEFORE starting the interactive quiz. This lets the user open the .md in IntelliJ IDEA to see rendered mermaid diagrams while answering quiz questions. Quiz results are appended to the same file after completion.
+**learn-and-test section-by-section flow:** This mode writes full content (all 7 sections with diagrams) to the session file first, then teaches and quizzes one section at a time. Per section: output content to terminal → quiz with hints → save quiz results inline in the .md file → next section. Supports resume — if interrupted, detects `[PARTIAL]` in the session file and picks up at the next unquizzed section.
 
 **Guided mode scope mapping** (4 phases):
-- Phase 1: `learn-and-test` — content-first: generates all sections to .md file, then runs quiz with hints (no scope param)
-- Phase 2: `scenario-practice` — per-scenario interactive loop with hints (no scope param)
+- Phase 1: `learn-and-test` — content-first: generates all sections to .md file, then teaches + quizzes section-by-section with resume support (no scope param)
+- Phase 2: `scenario-practice` — content-first: generates all scenarios to .md file, then practices scenario-by-scenario with hints and resume support (no scope param)
 - Phase 3: `mini-exam` with `scope=design` — architecture design decisions and trade-offs
 - Phase 4: `mini-exam` with `scope=comprehensive` — full domain exam covering all topics
 - Free mode mini-exam: `scope=general` — balanced mix (default behavior)
