@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
-last_session: 2026-05-31
-total_sessions: 39
+last_session: 2026-06-01
+total_sessions: 41
 domains:
   security-identity:
     sessions_count: 6
@@ -57,13 +57,14 @@ domains:
     phase_scores: {p1: 83, p2: 93, p3: 70, p4: 100}
     weak_topics: []
   serverless:
-    sessions_count: 1
-    modes_completed: []
-    last_studied: 2026-05-31
-    current_phase: 1
+    sessions_count: 3
+    modes_completed: [learn-and-test, scenario-practice]
+    last_studied: 2026-06-01
+    current_phase: 3
     exams: []
-    phase_scores: {}
-    weak_topics: []
+    phase_scores: {p1: 100, p2: 75}
+    phase3_partial: {completed: 3, total: 10, correct: 1, incorrect: [api-gateway-usage-plans, lambda-power-tuning]}
+    weak_topics: [lambda-concurrency, cloudfront-functions-vs-waf, api-gateway-usage-plans, lambda-power-tuning]
 ---
 
 # AWS CSA (SAA-C03) — Study Progress
@@ -247,3 +248,15 @@ domains:
 - Score: 10/10 (100%)
 - Missed: none — all Phase 3 weak topics mastered
 - Output: study-sessions/260531-1131-databases-mini-exam-comprehensive.md
+
+### 2026-06-01 08:21 | Serverless | Learn and Test (Phase 1) — Resumed
+- Score: 18/18 (100%) — All 7 sections complete (resumed from Section 5)
+- Covered: lambda, api-gateway, step-functions, cognito, cloudfront-functions, lambda-edge, dynamodb-streams, rds-proxy, s3-lambda-trigger, serverless-patterns, cost-optimization, security-layers, exam-traps
+- Missed: none
+- Output: study-sessions/260531-1136-serverless-learn-and-test.md
+
+### 2026-06-01 09:10 | Serverless | Scenario Practice (Phase 2)
+- Score: 6/8 (75%)
+- Scenarios: 8 (cold-start-optimization, concurrency-limits, lambda-in-vpc, rest-vs-http-vs-websocket-api, orchestration-vs-choreography, serverless-auth-flow, edge-compute-vs-cloudfront-functions, lightweight-edge-processing)
+- Missed: lambda-concurrency (Reserved vs Provisioned Concurrency distinction), cloudfront-functions-vs-waf (small IP blocklist fits CloudFront Functions, WAF for large/dynamic lists)
+- Output: study-sessions/260601-0910-serverless-scenario-practice.md

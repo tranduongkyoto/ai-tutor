@@ -1,7 +1,7 @@
-# Serverless — Learn and Test (Phase 1) [PARTIAL]
+# Serverless — Learn and Test (Phase 1)
 **Date:** 2026-05-31 11:36
-**Score:** 10/10 (100%) — Sections 1-4 complete, Section 5+ pending
-**Status:** Partial — continuing to Section 5
+**Score:** 18/18 (100%) — All 7 sections complete
+**Status:** Complete
 
 ---
 
@@ -308,6 +308,25 @@ A) API Gateway + Lambda B) CloudFront in front of ALB C) S3 + pre-signed URLs D)
 - **CloudFront**: offload static content from Lambda/EC2 to reduce compute costs
 - **Step Functions**: Standard workflows for long-running; Express workflows for high-volume, short-duration (10x cheaper)
 
+### Quiz: Section 5
+**Q1** ✓ — snapstart-cost
+Cold starts affecting 5% of 10M requests/month. Most cost-effective elimination?
+A) Provisioned Concurrency B) SnapStart (no extra cost) C) Increase memory to 10 GB D) EC2 Reserved Instances
+💡 Hint: One option eliminates cold starts without any additional charge.
+**Your answer: B** — Correct. SnapStart pre-initializes from snapshot, no extra cost.
+
+**Q2** ✓ — step-functions-express
+50K short tasks/hour, high Step Functions bill. Best cost reduction?
+A) SQS + Lambda B) Express Workflows (10x cheaper) C) Reduce states D) Lambda Destinations
+💡 Hint: Step Functions offers two workflow types for different volume/duration profiles.
+**Your answer: B** — Correct. Express Workflows are 10x cheaper for high-volume, short-duration.
+
+**Q3** ✓ — api-gateway-caching
+Read-heavy API, Lambda costs 70% of bill, same catalog data. Reduce Lambda costs?
+A) DynamoDB provisioned mode B) API Gateway caching (reduces invocations) C) DAX D) Increase Lambda memory
+💡 Hint: Reduce invocation count, not per-invocation cost.
+**Your answer: B** — Correct. API Gateway caching intercepts repeated requests before reaching Lambda.
+
 ---
 
 ## Section 6: Security Considerations
@@ -359,6 +378,25 @@ Security layers (serverless):
 │  └───────────────────────────────────┘   │
 └──────────────────────────────────────────┘
 ```
+
+### Quiz: Section 6
+**Q1** ✓ — lambda-execution-vs-resource-policy
+Lambda reads S3 + writes DynamoDB; ECS needs to invoke it. Which two mechanisms?
+A) Execution role (S3+DynamoDB) + resource-based policy (ECS invoke) B) Execution role for all + IAM user C) Resource-based for access + execution for invoke D) Security Group + IAM role
+💡 Hint: Execution role = what Lambda can do. Resource-based = who can invoke.
+**Your answer: A** — Correct. Execution role for outbound access; resource-based policy for inbound invocation.
+
+**Q2** ✓ — cognito-row-level-security
+Mobile app, Cognito Identity Pools, users must only access own S3 folder. How?
+A) S3 bucket policy + IP B) IAM condition on cognito sub C) Lambda authorizer D) API Gateway resource policy
+💡 Hint: Identity Pools issue temporary credentials with IAM policies scoped per user.
+**Your answer: B** — Correct. `cognito-identity.amazonaws.com:sub` in IAM policy restricts per-user access.
+
+**Q3** ✓ — api-gateway-acm-region
+Edge-Optimized API Gateway, ACM cert in eu-west-1, custom domain fails. Why?
+A) Edge-Optimized requires cert in us-east-1 B) ACM not supported C) No custom domain on Edge D) Cert must be in CloudFront
+💡 Hint: Edge-Optimized routes through CloudFront — certs must be in us-east-1.
+**Your answer: A** — Correct. Edge-Optimized uses CloudFront, which requires ACM certs in us-east-1.
 
 ---
 
@@ -419,3 +457,16 @@ Security layers (serverless):
 - **DAX** = microsecond DynamoDB cache, zero code change
 - **RDS Proxy** = Lambda → RDS connection pooling, VPC only, IAM auth
 - **Lambda in VPC** = required for private resources (RDS, ElastiCache), NOT default behavior
+
+### Quiz: Section 7
+**Q1** ✓ — lambda-reserved-concurrency
+5 Lambda functions, Function A uses 900 of 1,000 regional limit, Function B throttled. Fix?
+A) More memory B) Reserved Concurrency on Function A (cap its usage) C) Provisioned Concurrency on B D) API Gateway throttle limit
+💡 Hint: All functions share the same regional concurrency pool.
+**Your answer: B** — Correct. Reserved Concurrency caps Function A, freeing pool for others.
+
+**Q2** ✓ — cognito-user-vs-identity-pools
+Team claims User Pools provides temporary AWS credentials for direct S3 uploads. Correct?
+A) Yes B) No — User Pools = JWT tokens; Identity Pools = AWS credentials C) No — Lambda must proxy D) No — API Gateway should proxy
+💡 Hint: User Pools output tokens, not AWS credentials.
+**Your answer: B** — Correct. User Pools = JWT tokens for auth. Identity Pools = temporary AWS credentials for direct access.
