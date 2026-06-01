@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
 last_session: 2026-06-01
-total_sessions: 41
+total_sessions: 42
 domains:
   security-identity:
     sessions_count: 6
@@ -57,14 +57,13 @@ domains:
     phase_scores: {p1: 83, p2: 93, p3: 70, p4: 100}
     weak_topics: []
   serverless:
-    sessions_count: 3
-    modes_completed: [learn-and-test, scenario-practice]
+    sessions_count: 4
+    modes_completed: [learn-and-test, scenario-practice, mini-exam:design]
     last_studied: 2026-06-01
     current_phase: 3
-    exams: []
-    phase_scores: {p1: 100, p2: 75}
-    phase3_partial: {completed: 3, total: 10, correct: 1, incorrect: [api-gateway-usage-plans, lambda-power-tuning]}
-    weak_topics: [lambda-concurrency, cloudfront-functions-vs-waf, api-gateway-usage-plans, lambda-power-tuning]
+    exams: [{scope: design, score: 3, total: 10, pct: 30, date: 2026-06-01}]
+    phase_scores: {p1: 100, p2: 75, p3: 30}
+    weak_topics: [lambda-concurrency, api-gateway-usage-plans, sqs-write-buffer-pattern, step-functions, multi-region-serverless, step-functions-error-handling]
 ---
 
 # AWS CSA (SAA-C03) — Study Progress
@@ -260,3 +259,8 @@ domains:
 - Scenarios: 8 (cold-start-optimization, concurrency-limits, lambda-in-vpc, rest-vs-http-vs-websocket-api, orchestration-vs-choreography, serverless-auth-flow, edge-compute-vs-cloudfront-functions, lightweight-edge-processing)
 - Missed: lambda-concurrency (Reserved vs Provisioned Concurrency distinction), cloudfront-functions-vs-waf (small IP blocklist fits CloudFront Functions, WAF for large/dynamic lists)
 - Output: study-sessions/260601-0910-serverless-scenario-practice.md
+
+### 2026-06-01 22:20 | Serverless | Mini Exam: Design (Phase 3)
+- Score: 3/10 (30%)
+- Missed: lambda-concurrency-throttling (throttling ≠ cold starts), api-gateway-usage-plans (Usage Plans for monetization), sqs-write-buffer-pattern (SQS breaks cascade failures), step-functions (Map MaxConcurrency as native rate limiter), multi-region-serverless (duplicate stack + Route 53 latency routing), step-functions-error-handling (Try/Catch + Wait for external service failures)
+- Output: study-sessions/260601-2220-serverless-mini-exam-design.md
