@@ -156,7 +156,7 @@ Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `han
      - Input: domain name + PDF paths from domains.md
      - Output: writes cache file
      - Wait for completion, then read cache file
-   - **learn-and-test** also needs: `references/quiz-flow.md` (hint flow protocol)
+   - **learn-and-test** also needs: `references/quiz-flow.md` (hint flow protocol) + cheat-sheet cache (see item 4) + cross-domain topics from `certs/aws-csa/scenario-map.md` (the `### cross-domain-topics` section for this domain)
    - **scenario-practice** also needs: `certs/aws-csa/scenario-map.md` (loaded here in Step 2, not Step 3) + cheat-sheet cache (see item 4)
 4. **Cheat sheet cache** (for modes that use it):
    Check cache: `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
@@ -164,7 +164,14 @@ Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `han
    - **Cache MISS**: Load `references/pdf-extractor.md` § Cheat Sheet Extraction
      - Spawn pdf-extractor subagent for cheat sheet
      - Wait for completion, then read cache file
-   - **Modes that use cheat sheet**: mini-exam (design/comprehensive/general), scenario-practice, scenario-generator, keyword-drill, mock-exam
+   - **Modes that use cheat sheet**: learn-and-test, mini-exam (design/comprehensive/general), scenario-practice, scenario-generator, keyword-drill, mock-exam
+   - **Mini-exam cross-domain cache loading** (design/comprehensive scopes only):
+     After loading the current domain cache, read `aws-csa/study-progress.md` to identify
+     studied domains (current_phase >= 2). Read `certs/aws-csa/scenario-map.md` →
+     `### cross-domain-topics` for the current domain. For each mapped domain that is
+     in the studied list, also load `cache/aws-csa-{paired-domain}.md`.
+     These caches provide content grounding for cross-domain questions.
+     Do NOT load caches for unstudied domains.
 5. **If mode is keyword-drill**: Skip domain cache. Load `references/keyword-patterns.md` + cheat sheet cache (step 4). No domain selection needed.
 6. **If mode is mock-exam**: Load ALL available domain caches + cheat sheet cache + `references/mock-exam-flow.md`. No domain selection needed. Prerequisite: ≥8/12 domain caches must exist.
 7. **If mode is domain-less** (weak-spot-analyzer, exam-strategy-coach): Skip cache, proceed with progress data only
@@ -175,10 +182,10 @@ Load `references/prompt-templates.md` for the selected mode's template.
 
 | Mode | Additional Input | Interactive? |
 |------|-----------------|-------------|
-| `learn-and-test` | Cache + quiz-flow.md | Yes (AskUserQuestion) |
+| `learn-and-test` | Cache + quiz-flow.md + cheat-sheet + cross-domain topics | Yes (AskUserQuestion) |
 | `scenario-practice` | Cache + scenario-map + cheat-sheet | Yes (AskUserQuestion) |
 | `concept-mapper` | Cache file | No |
-| `mini-exam` | Cache + quiz-flow.md + **scope** | Yes (AskUserQuestion) |
+| `mini-exam` | Cache + quiz-flow.md + **scope** + paired domain caches (design/comprehensive) + scenario-map cross-domain-topics | Yes (AskUserQuestion) |
 | `scenario-generator` | Cache file | No |
 | `hands-on-lab` | Cache file | No |
 | `architecture-reviewer` | Cache + user architecture | Yes (AskUserQuestion) |

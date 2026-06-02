@@ -119,6 +119,9 @@ Guided Phase 1 mode. Content-first: generates all 7 sections to .md file, then t
 - Domain: `{domain}`
 - Cached content: loaded from `cache/aws-csa-{domain}.md`
 - Quiz protocol: `references/quiz-flow.md` (§ Hint Flow Protocol, § Section Quiz Cycle)
+- Cheat sheet cache (supplementary): `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
+- Cross-domain topics: from `certs/aws-csa/scenario-map.md` → `### cross-domain-topics` section for this domain
+  - Only reference cheat sheet sections listed in the mapping's `cheat-sheet-ref`
 
 ### Instructions
 
@@ -179,6 +182,16 @@ After all sections generated, display: `📄 Content saved to {file}. Open in ID
 ### Diagram Directives
 
 Same as concept-mapper — generate 3-5 diagrams embedded in section content.
+
+### Quality Rules
+- Ground ALL content in the cached PDF material
+- Include specific numbers (limits, SLAs, quotas) — not vague language
+- Focus on exam-relevant details, not general AWS marketing
+- Cover ALL topics from the domain's topic checklist
+- Supplement domain cache with cross-domain content from topics explicitly listed
+  in this domain's `### cross-domain-topics` entries in `certs/aws-csa/scenario-map.md`.
+  For each mapped topic, reference the specified cheat sheet section to enrich
+  the relevant P1 section (typically §4 Architectural Patterns or §7 Exam Tips).
 
 ### Session File Format
 
@@ -331,9 +344,9 @@ When all scenarios are complete, remove `[PARTIAL]` from the title and update th
 - Question count: `{count}` (5, 10, or 15)
 - Scope: `{scope}` — one of: `design`, `comprehensive`, `general`
 - Cached content: loaded from `cache/aws-csa-{domain}.md`
-- Cheat sheet cache (conditional): `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
-  - Load for scope=design, scope=comprehensive, scope=general
-  - Skip for scope=concepts, scope=scenarios
+- Cheat sheet cache: `.claude/skills/ai-tutor/cache/aws-csa-cheat-sheet.md`
+- Cross-domain topics: from `certs/aws-csa/scenario-map.md` → `### cross-domain-topics` for this domain
+- Paired domain caches (design/comprehensive only): loaded in Step 2 for studied domains
 - Topic checklist: from `certs/aws-csa/domains.md`
 - Weak topics: from `aws-csa/study-progress.md` (prioritize these)
 
@@ -378,7 +391,20 @@ When generating cross-domain questions for design/comprehensive scopes, use thes
 | security-identity | monitoring-audit | GuardDuty findings → EventBridge → Lambda, CloudTrail + Config |
 | data-analytics | storage | Athena + S3, Glue ETL + S3, EMR + S3 |
 
-If the cross-domain involves a domain the user hasn't studied, use simpler factual questions about that domain (not deep architecture).
+### Cross-Domain Gating Rule
+
+Before generating cross-domain questions for `design` or `comprehensive` scopes:
+
+1. Read `aws-csa/study-progress.md`
+2. Build a list of **studied domains** = domains where `current_phase >= 2` (i.e., P1 is complete — phase advances from 1 to 2 after P1 completion)
+3. Cross-domain questions may ONLY reference domains in the studied list
+4. Scale cross-domain percentage based on studied domain count:
+   - 0-2 studied domains → 0% cross-domain (all questions from current domain only)
+   - 3-5 studied domains → 15% cross-domain
+   - 6+ studied domains → use normal scope percentage (30% design, 40% comprehensive)
+5. Tag each cross-domain question: `Requires: [domain1, domain2]` — both must be in studied list
+6. If a pairing from the Cross-Domain Question Combinations table involves an unstudied domain, skip that pairing entirely
+7. Cross-domain topics must match entries in `certs/aws-csa/scenario-map.md` → `### cross-domain-topics` for the current domain
 
 ### Instructions
 
@@ -398,6 +424,13 @@ Generate `{count}` exam-style questions following these rules (adjusted by scope
 6. Include scenario-based questions (60%) and fact-based questions (40%)
 7. Vary difficulty: 30% easy, 50% medium, 20% hard
 8. Tag each question with a topic slug from the domain's topic list
+9. **Content grounding:** Every question (including cross-domain) must be answerable
+   from the loaded caches only. For current domain: use domain cache + cheat sheet.
+   For cross-domain: only use paired domain cache files that were already loaded in
+   Step 2 (i.e., the paired domain must be in the studied list per Gating Rule step 2).
+   If a paired domain is not studied, do NOT load its cache and do NOT generate
+   questions about that pairing. If a concept exists in NO loaded cache, do NOT
+   generate a question about it.
 
 **Self-Verify Step:**
 After generating all questions, review each one:
@@ -405,6 +438,9 @@ After generating all questions, review each one:
 - Are distractors plausible but definitively wrong?
 - Does the question test real AWS knowledge (not trivia or trick wording)?
 - Is the topic tag accurate?
+- Does every cross-domain question reference only studied domains (per Gating Rule)?
+- Is every tested concept present in at least one loaded cache file?
+- Does every cross-domain topic match an entry in scenario-map.md cross-domain-topics?
 Fix any issues before presenting to the user.
 
 ### Output Format (internal — before presenting via quiz flow)
