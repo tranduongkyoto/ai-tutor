@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
-last_session: 2026-06-01
-total_sessions: 42
+last_session: 2026-06-02
+total_sessions: 44
 domains:
   security-identity:
     sessions_count: 6
@@ -57,13 +57,13 @@ domains:
     phase_scores: {p1: 83, p2: 93, p3: 70, p4: 100}
     weak_topics: []
   serverless:
-    sessions_count: 4
-    modes_completed: [learn-and-test, scenario-practice, mini-exam:design]
-    last_studied: 2026-06-01
-    current_phase: 3
-    exams: [{scope: design, score: 3, total: 10, pct: 30, date: 2026-06-01}]
-    phase_scores: {p1: 100, p2: 75, p3: 30}
-    weak_topics: [lambda-concurrency, api-gateway-usage-plans, sqs-write-buffer-pattern, step-functions, multi-region-serverless, step-functions-error-handling]
+    sessions_count: 6
+    modes_completed: [learn-and-test, scenario-practice, mini-exam:design, mini-exam:comprehensive]
+    last_studied: 2026-06-02
+    current_phase: 4
+    exams: [{scope: design, score: 3, total: 10, pct: 30, date: 2026-06-01}, {scope: design, score: 8, total: 10, pct: 80, date: 2026-06-02}, {scope: comprehensive, score: 7, total: 10, pct: 70, date: 2026-06-02}]
+    phase_scores: {p1: 100, p2: 75, p3: 80, p4: 70}
+    weak_topics: [api-gateway-endpoint-types, cognito-user-pools-vs-identity-pools, lambda-provisioned-vs-snapstart]
 ---
 
 # AWS CSA (SAA-C03) — Study Progress
@@ -264,3 +264,16 @@ domains:
 - Score: 3/10 (30%)
 - Missed: lambda-concurrency-throttling (throttling ≠ cold starts), api-gateway-usage-plans (Usage Plans for monetization), sqs-write-buffer-pattern (SQS breaks cascade failures), step-functions (Map MaxConcurrency as native rate limiter), multi-region-serverless (duplicate stack + Route 53 latency routing), step-functions-error-handling (Try/Catch + Wait for external service failures)
 - Output: study-sessions/260601-2220-serverless-mini-exam-design.md
+
+### 2026-06-02 16:14 | Serverless | Mini Exam: Design (Phase 3 Retry)
+- Score: 8/10 (80%) — PASSED (improved from 30%)
+- Weak topic review session before retry: all 6 weak topics addressed
+- Missed: api-gateway-vpc-access-patterns (VPC Interface Endpoint for execute-api serves internal+external from one API), kms-multi-select-audit (CloudTrail logs KMS calls by default — map all requirements to answers in multi-select)
+- Mastered from previous miss: lambda-concurrency, api-gateway-usage-plans, sqs-write-buffer-pattern, step-functions, multi-region-serverless, step-functions-error-handling
+- Output: study-sessions/260602-1614-serverless-mini-exam-design.md
+
+### 2026-06-02 17:41 | Serverless | Mini Exam: Comprehensive Final (Phase 4)
+- Score: 7/10 (70%) — FAILED (below 80% threshold)
+- Missed: api-gateway-endpoint-types (Edge-Optimized: API stays in deployment Region, only ACM cert in us-east-1), cognito-user-pools-vs-identity-pools (User Pools=JWT auth, Identity Pools=AWS credentials via STS), lambda-provisioned-vs-snapstart (Provisioned Concurrency eliminates cold starts completely, SnapStart only reduces)
+- Strong: lambda-pricing, dynamodb-streams-kinesis, step-functions, cloudfront-functions, cognito-kms-security, lambda-resource-policy
+- Output: study-sessions/260602-1741-serverless-mini-exam-comprehensive.md
