@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
-last_session: 2026-06-02
-total_sessions: 44
+last_session: 2026-06-03
+total_sessions: 47
 domains:
   security-identity:
     sessions_count: 6
@@ -57,13 +57,21 @@ domains:
     phase_scores: {p1: 83, p2: 93, p3: 70, p4: 100}
     weak_topics: []
   serverless:
-    sessions_count: 6
+    sessions_count: 7
     modes_completed: [learn-and-test, scenario-practice, mini-exam:design, mini-exam:comprehensive]
-    last_studied: 2026-06-02
-    current_phase: 4
-    exams: [{scope: design, score: 3, total: 10, pct: 30, date: 2026-06-01}, {scope: design, score: 8, total: 10, pct: 80, date: 2026-06-02}, {scope: comprehensive, score: 7, total: 10, pct: 70, date: 2026-06-02}]
-    phase_scores: {p1: 100, p2: 75, p3: 80, p4: 70}
-    weak_topics: [api-gateway-endpoint-types, cognito-user-pools-vs-identity-pools, lambda-provisioned-vs-snapstart]
+    last_studied: 2026-06-03
+    current_phase: 5
+    completed: true
+    exams: [{scope: design, score: 3, total: 10, pct: 30, date: 2026-06-01}, {scope: design, score: 8, total: 10, pct: 80, date: 2026-06-02}, {scope: comprehensive, score: 7, total: 10, pct: 70, date: 2026-06-02}, {scope: comprehensive, score: 8, total: 10, pct: 80, date: 2026-06-03}]
+    phase_scores: {p1: 100, p2: 75, p3: 80, p4: 80}
+    weak_topics: [lambda-reserved-concurrency, dynamodb-streams-idempotency]
+  dns:
+    sessions_count: 2
+    modes_completed: [learn-and-test, scenario-practice]
+    last_studied: 2026-06-03
+    current_phase: 3
+    phase_scores: {p1: 82, p2: 80}
+    weak_topics: [zone-apex-routing-s3, weighted-routing-zero-behavior, multi-value-vs-elb]
 ---
 
 # AWS CSA (SAA-C03) — Study Progress
@@ -277,3 +285,22 @@ domains:
 - Missed: api-gateway-endpoint-types (Edge-Optimized: API stays in deployment Region, only ACM cert in us-east-1), cognito-user-pools-vs-identity-pools (User Pools=JWT auth, Identity Pools=AWS credentials via STS), lambda-provisioned-vs-snapstart (Provisioned Concurrency eliminates cold starts completely, SnapStart only reduces)
 - Strong: lambda-pricing, dynamodb-streams-kinesis, step-functions, cloudfront-functions, cognito-kms-security, lambda-resource-policy
 - Output: study-sessions/260602-1741-serverless-mini-exam-comprehensive.md
+
+### 2026-06-03 14:57 | Serverless | Mini Exam: Comprehensive Final (Phase 4 Retry)
+- Score: 8/10 (80%) — PASSED (improved from 70%)
+- Weak topic review session before retry: all 3 weak topics addressed (api-gateway-endpoint-types, cognito-user-pools-vs-identity-pools, lambda-provisioned-vs-snapstart)
+- Missed: lambda-reserved-concurrency (reserved concurrency caps function's max concurrent executions to prevent starvation), dynamodb-streams-idempotency (Streams = at-least-once delivery, no built-in dedup, implement idempotent consumers)
+- Mastered from previous miss: api-gateway-endpoint-types, cognito-user-pools-vs-identity-pools, lambda-provisioned-vs-snapstart
+- Output: study-sessions/260603-1457-serverless-mini-exam-comprehensive.md
+
+### 2026-06-03 15:47 | DNS | Learn and Test (Phase 1)
+- Score: 14/17 (82%) — All 7 sections complete
+- Covered: route-53-basics, hosted-zones, alias-vs-cname, routing-policies, health-checks, hybrid-dns, service-integrations, failover-design, weighted-routing, cost-optimization, ttl-cost, security, private-dns-security, exam-traps, geolocation-vs-latency, resolver-endpoints, multi-value-vs-elb
+- Missed: hybrid-dns-resolver-direction (Inbound=on-prem→AWS, Outbound=AWS→on-prem), weighted-routing-zero-behavior (weight 0 stops traffic but doesn't remove record; ALL zeros=equal), multi-value-vs-elb (MV returns max 8 IPs client picks; NOT ELB replacement)
+- Output: study-sessions/260603-1547-dns-learn-and-test.md
+
+### 2026-06-03 17:03 | DNS | Scenario Practice (Phase 2)
+- Score: 4/5 (80%)
+- Scenarios: 5 (alias-vs-cname-selection, routing-policy-selection, active-passive-failover, zone-apex-routing, on-premises-dns-resolution)
+- Missed: zone-apex-routing (S3 endpoints no static IPs; Alias is Route 53 feature; only change NS records, no domain transfer)
+- Output: study-sessions/260603-1703-dns-scenario-practice.md
