@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
-last_session: 2026-06-03
-total_sessions: 47
+last_session: 2026-06-04
+total_sessions: 50
 domains:
   security-identity:
     sessions_count: 6
@@ -40,13 +40,14 @@ domains:
     phase_scores: {p2: 70, p4: 90, p5: 80, p6: 100}
     weak_topics: []
   load-balancing-scaling:
-    sessions_count: 4
-    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios]
-    last_studied: 2026-05-19
-    current_phase: 2
-    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-19}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-19}]
-    phase_scores: {p1: 90, p2: 90}
-    weak_topics: [connection-draining]
+    sessions_count: 7
+    modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
+    last_studied: 2026-06-04
+    current_phase: 5
+    completed: true
+    exams: [{scope: concepts, score: 9, total: 10, pct: 90, date: 2026-05-19}, {scope: scenarios, score: 9, total: 10, pct: 90, date: 2026-05-19}, {scope: design, score: 7, total: 10, pct: 70, date: 2026-06-04}, {scope: comprehensive, score: 6, total: 10, pct: 60, date: 2026-06-04}, {scope: comprehensive, score: 9, total: 10, pct: 90, date: 2026-06-04}]
+    phase_scores: {p1: 90, p2: 90, p3: 70, p4: 90}
+    weak_topics: [dns:route53-health-checks]
   databases:
     sessions_count: 6
     modes_completed: [concept-mapper, learn-and-test, scenario-practice, mini-exam:design, mini-exam:comprehensive]
@@ -304,3 +305,21 @@ domains:
 - Scenarios: 5 (alias-vs-cname-selection, routing-policy-selection, active-passive-failover, zone-apex-routing, on-premises-dns-resolution)
 - Missed: zone-apex-routing (S3 endpoints no static IPs; Alias is Route 53 feature; only change NS records, no domain transfer)
 - Output: study-sessions/260603-1703-dns-scenario-practice.md
+
+### 2026-06-04 10:05 | Load Balancing & Scaling | Mini Exam: Design (Phase 3)
+- Score: 7/10 (70%)
+- Missed: asg-scaling-policies (Predictive Scaling + pre-baked AMI for slow scale-out, not Scheduled), alb-health-checks (custom /ready endpoint gates traffic, cooldown only affects scaling actions), dns:route53-health-checks (health check failure immediately removes record, faster than weight change + TTL), connection-draining (Deregistration Delay is key scale-in bottleneck, boot time affects scale-out only)
+- Output: study-sessions/260604-1005-load-balancing-scaling-mini-exam-design.md
+
+### 2026-06-04 10:45 | Load Balancing & Scaling | Mini Exam: Comprehensive Final (Phase 4)
+- Score: 6/10 (60%) — FAILED (below 80% threshold)
+- Missed: asg-scaling-policies (Target Tracking built-in warm-up logic prevents premature scale-in), alb-weighted-target-groups (ALB weighted TGs for blue/green within single listener), nlb-health-checks (NLB supports TCP+HTTP+HTTPS health checks despite L4 forwarding), alb-health-checks (healthy threshold = unhealthy→healthy, unhealthy threshold × interval = detection speed)
+- Strong: connection-draining, gwlb, sticky-sessions, security-group-pattern, spot-instances, right-sizing
+- Output: study-sessions/260604-1045-load-balancing-scaling-mini-exam-comprehensive.md
+
+### 2026-06-04 11:35 | Load Balancing & Scaling | Mini Exam: Comprehensive Final (Phase 4 Retry)
+- Score: 9/10 (90%) — PASSED (improved from 60%)
+- Weak topic review before retry: asg-scaling-policies, alb-weighted-target-groups, nlb-health-checks, alb-health-checks
+- Missed: dns:route53-health-checks (Route 53 health check failure = immediate record removal, weight change = TTL-dependent)
+- Mastered from previous miss: asg-scaling-policies, alb-weighted-target-groups, nlb-health-checks, alb-health-checks
+- Output: study-sessions/260604-1135-load-balancing-scaling-mini-exam-comprehensive-retry.md
