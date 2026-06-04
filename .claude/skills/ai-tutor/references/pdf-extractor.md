@@ -5,7 +5,7 @@ Prompt and protocol for the Haiku-model subagent that extracts structured conten
 ## Subagent Configuration
 
 - **Agent type**: `general-purpose`
-- **Model**: `haiku`
+- **Model**: `sonnet`
 - **Purpose**: Read PDF sections (multimodal), extract structured content, write cache file
 
 ## Subagent Prompt Template
@@ -70,6 +70,12 @@ For each service/concept:
 - Include specific numbers (not "large" — say "up to 64 TiB")
 - Preserve technical accuracy from the source PDFs
 - Target 300-600 lines total
+
+**Disambiguation rule:**
+When a service has BOTH native/built-in features AND Lambda/custom-code features, separate them under distinct sub-headers:
+- `#### Native Features` — built-in capabilities requiring only configuration (e.g., Firehose Parquet/ORC conversion)
+- `#### Lambda/Custom Features` — capabilities requiring user-provided code (e.g., Firehose CSV→JSON transformation via Lambda)
+Never list native and custom features as adjacent bullets without headers. This prevents downstream content generation from conflating independent capabilities.
 ```
 
 ## Cache Check Protocol (for SKILL.md)
