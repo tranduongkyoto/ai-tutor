@@ -1,6 +1,6 @@
-# Integration & Messaging — Learn and Test (Phase 1) [PARTIAL]
+# Integration & Messaging — Learn and Test (Phase 1)
 **Date:** 2026-06-04 11:49
-**Score:** 0/0 (0%) — Section 1+ pending
+**Score:** 16/17 (94%) — All 7 sections complete
 
 ---
 
@@ -60,6 +60,19 @@
 - **NOT serverless** — runs on servers, does NOT scale like SQS/SNS
 - **High Availability (HA):** Active/Standby brokers across 2 Availability Zones (AZs) with shared Amazon Elastic File System (EFS) storage
 
+### Quiz: Section 1
+**Q1** ✗ — sqs-fifo
+SQS FIFO throughput: 300 msg/s (no batch), 3,000 msg/s (batched). Chose D which stated wrong number (3,000 without batching).
+**Your answer: D** — Incorrect. Correct: B (FIFO with Message Group ID + Deduplication ID, 200 msg/s fits within 300 msg/s no-batch limit)
+
+**Q2** ✅ — sns-fanout
+SNS pub/sub for one-to-many fan-out: Lambda + SQS + Email subscribers on single topic.
+**Your answer: C** — Correct.
+
+**Q3** ✅ — kinesis-data-streams
+KDS for real-time streaming + replay (1-365 day retention, immutable, replayable).
+**Your answer: C** — Correct.
+
 ---
 
 ## Section 2: Real-World Use Cases
@@ -86,6 +99,15 @@
 
 ### Amazon MQ — Legacy Migration
 - **Enterprise messaging migration:** On-premises ActiveMQ → Amazon MQ (same AMQP/STOMP protocols, minimal code changes). Active/Standby with EFS ensures HA.
+
+### Quiz: Section 2
+**Q1** ✅ — sns-fanout-s3
+S3 event rule limitation (1 rule per event-type+prefix). Solution: S3 → SNS → fan-out to multiple SQS + Lambda.
+**Your answer: B** — Correct.
+
+**Q2** ✅ — sqs-asg-scaling
+SQS decoupling: web tier → SQS → worker ASG. ASG scales on ApproximateNumberOfMessages CloudWatch metric.
+**Your answer: B** — Correct.
 
 ---
 
@@ -126,6 +148,19 @@ graph LR
     Firehose --> S3Archive[S3 Archive]
 ```
 ASCII: S3 Event → SNS Topic → [SQS Queue 1 → ASG Workers] + [SQS Queue 2 → Lambda] + [Lambda] + [Firehose → S3 Archive]
+
+### Quiz: Section 3
+**Q1** ✅ — sqs-dlq
+Dead Letter Queue (DLQ) for poison pill messages — after N failed receive attempts, message auto-moves to DLQ.
+**Your answer: B** — Correct.
+
+**Q2** ✅ — sns-firehose-s3
+SNS → Firehose → S3 with native Parquet conversion. No Lambda needed for format conversion.
+**Your answer: B** — Correct.
+
+**Q3** ✅ — kinesis-enhanced-fanout
+Enhanced Fan-Out provides dedicated 2 MB/s per consumer per shard via HTTP/2 push delivery (SubscribeToShard). Solves shared-read contention.
+**Your answer: B** — Correct.
 
 ---
 
@@ -185,6 +220,15 @@ ASCII: Producers → KDS → [Lambda (real-time)] + [Firehose → Lambda transfo
 | Legacy protocol compatibility | Amazon MQ |
 | Ordering + dedup + fan-out | SNS FIFO + SQS FIFO |
 
+### Quiz: Section 4
+**Q1** ✅ — sns-sqs-fanout
+SNS topic → multiple SQS queues for one-to-many fan-out. Each queue independent; slow consumer doesn't block others. Producer decoupled from consumers.
+**Your answer: B** — Correct.
+
+**Q2** ✅ — sns-fifo-sqs-fifo-ordered-fanout
+SNS FIFO → SQS FIFO for ordered fan-out with exactly-once delivery. Message Group ID (customer ID) for ordering; Deduplication ID for exactly-once.
+**Your answer: C** — Correct.
+
 ---
 
 ## Section 5: Cost Implications
@@ -213,6 +257,15 @@ ASCII: Producers → KDS → [Lambda (real-time)] + [Firehose → Lambda transfo
 - **Pay per broker instance-hour** + storage + data transfer
 - Most expensive messaging option — use only for protocol compatibility, not for new architectures
 
+### Quiz: Section 5
+**Q1** ✅ — sqs-cost-optimization (multi-select)
+Long Polling (20s WaitTimeSeconds) eliminates empty responses; batching (MaxNumberOfMessages=10) reduces API call count. Both directly reduce per-request costs.
+**Your answer: B, C** — Correct.
+
+**Q2** ✅ — kds-on-demand-cost
+KDS on-demand mode auto-scales and charges per actual throughput (stream-hour + GB), eliminating wasted shard-hours during low traffic.
+**Your answer: B** — Correct.
+
 ---
 
 ## Section 6: Security Considerations
@@ -239,6 +292,15 @@ All messaging services support:
 - **Cross-account messaging:** Use SQS/SNS resource-based policies to allow other accounts to send/receive
 - **Principle of least privilege:** Separate IAM roles for producers and consumers
 - **Dead Letter Queue (DLQ):** Move failed messages after N retries — prevents poison messages from blocking queue
+
+### Quiz: Section 6
+**Q1** ✅ — cross-account-sns-sqs-encryption
+Cross-account SNS→SQS: SNS SSE-KMS + SQS SSE-KMS (at-rest), HTTPS (in-transit), SNS access policy for cross-account subscription.
+**Your answer: A** — Correct.
+
+**Q2** ✅ — sqs-access-policy-source-arn
+SQS resource-based policy with `aws:SourceArn` condition restricts SendMessage to specific S3 bucket. S3 events use service principal, not IAM role.
+**Your answer: B** — Correct.
 
 ---
 
@@ -280,3 +342,16 @@ graph TD
     Q3 -->|No| SQS[SQS Standard]
 ```
 ASCII: Need real-time? → Yes: KDS | No → Need fan-out? → Yes: SNS+SQS | No → Need ordering? → Yes: SQS FIFO | No: SQS Standard
+
+### Quiz: Section 7
+**Q1** ✅ — s3-sns-fanout-limitation
+S3 event rule limitation (1 rule per event-type+prefix). Solution: S3 → SNS → fan-out to Lambda + SQS. EventBridge also valid but SNS is the classic exam answer.
+**Your answer: B** — Correct.
+
+**Q2** ✅ — sqs-visibility-timeout
+After visibility timeout (30s default) expires, message reappears in queue — another consumer can receive it. Consumers must be idempotent. DLQ only after maxReceiveCount threshold.
+**Your answer: C** — Correct.
+
+**Q3** ✅ — kds-real-time-plus-firehose-archival
+KDS → Lambda (real-time dashboard) + KDS → Firehose → S3 (archival). KDS retention enables replay. Firehose alone is near-real-time with no replay.
+**Your answer: B** — Correct.

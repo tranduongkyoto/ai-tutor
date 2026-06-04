@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
 last_session: 2026-06-04
-total_sessions: 50
+total_sessions: 52
 domains:
   security-identity:
     sessions_count: 6
@@ -73,6 +73,13 @@ domains:
     current_phase: 3
     phase_scores: {p1: 82, p2: 80}
     weak_topics: [zone-apex-routing-s3, weighted-routing-zero-behavior, multi-value-vs-elb]
+  integration-messaging:
+    sessions_count: 2
+    modes_completed: [learn-and-test, scenario-practice]
+    last_studied: 2026-06-04
+    current_phase: 3
+    phase_scores: {p1: 94, p2: 100}
+    weak_topics: [sqs-fifo-throughput]
 ---
 
 # AWS CSA (SAA-C03) — Study Progress
@@ -323,3 +330,15 @@ domains:
 - Missed: dns:route53-health-checks (Route 53 health check failure = immediate record removal, weight change = TTL-dependent)
 - Mastered from previous miss: asg-scaling-policies, alb-weighted-target-groups, nlb-health-checks, alb-health-checks
 - Output: study-sessions/260604-1135-load-balancing-scaling-mini-exam-comprehensive-retry.md
+
+### 2026-06-04 14:58 | Integration & Messaging | Learn and Test (Phase 1) — Resumed
+- Score: 16/17 (94%) — All 7 sections complete (resumed from Section 3 Q3)
+- Covered: sqs, sns, kinesis-data-streams, data-firehose, amazon-mq, service-integrations, architectural-patterns, cost-implications, security-considerations, exam-tips
+- Missed: sqs-fifo-throughput (FIFO 300 msg/s no-batch, 3000 msg/s batched — confused 3000 as no-batch limit)
+- Output: study-sessions/260604-1149-integration-messaging-learn-and-test.md
+
+### 2026-06-04 15:54 | Integration & Messaging | Scenario Practice (Phase 2)
+- Score: 8/8 (100%)
+- Scenarios: 8 (standard-vs-fifo-queue, dead-letter-queue-design, sns-fanout-pattern, message-filtering, shard-capacity-planning, kinesis-vs-sqs-decision, real-time-etl-to-s3-redshift, mq-migration-from-on-premises)
+- Missed: none — perfect score
+- Output: study-sessions/260604-1554-integration-messaging-scenario-practice.md
