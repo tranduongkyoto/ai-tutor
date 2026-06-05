@@ -8,7 +8,13 @@ Interactive quiz protocol for Mini Exam mode using `AskUserQuestion`.
 
 1. Ask question count via `AskUserQuestion`: "How many questions for this exam?" — options: `5`, `10`, `15`
    - **Skip for learn-and-test and scenario-practice modes** — question count is determined by content (2-3 per section or per scenario), not user choice.
-2. Determine scope:
+2. **Calculate time limit and record start time:**
+   - `time_limit_minutes = question_count × 3` (e.g., 10 questions = 30 min)
+   - For learn-and-test: `time_limit_minutes = total_questions_across_sections × 3` (calculate after content generation, when total question count is known)
+   - For scenario-practice: `time_limit_minutes = scenario_count × 3`
+   - Record start time: `date +%s` (epoch seconds)
+   - Display: `⏱ Time limit: {time_limit_minutes} min ({question_count} questions × 3 min each)`
+3. Determine scope:
    - Guided Phase 3: `scope=design`
    - Guided Phase 4: `scope=comprehensive`
    - Free mode: `scope=general`
@@ -52,9 +58,11 @@ Each question follows a strict 2-step cycle. **Never combine steps into one turn
 
 **Step 1 — Draft (MANDATORY). Do NOT call AskUserQuestion in this step:**
 
-Write a complete text block with the question and ALL 4 options. Output this and STOP:
+Calculate elapsed time (`date +%s` minus start time) and show timer header before the question:
 
 ```
+⏱ {elapsed_min}:{elapsed_sec} / {time_limit_minutes}:00 — {remaining_min} min remaining
+
 **Question {N}/{total}:**
 {question text}
 
@@ -63,6 +71,8 @@ B) {option B full text}
 C) {option C full text}
 D) {option D full text}
 ```
+
+If elapsed time exceeds the time limit, show `⚠️ TIME'S UP — {over_min} min over limit` instead of remaining time. Continue allowing answers (time limit is advisory, not a hard cutoff).
 
 **CRITICAL: Do NOT reveal the answer in this step.** The output MUST contain ONLY the question text and options A-D. Never include: the correct answer letter, "Answer:", "Correct:", explanations, or any hint about which option is right. The answer is revealed ONLY in Step 3 after the user responds.
 
@@ -113,9 +123,11 @@ If `AskUserQuestion` tool is unavailable or fails:
 
 After all questions answered:
 
-1. Display summary:
+1. Record end time: `date +%s`. Calculate `elapsed_minutes = (end - start) / 60`.
+2. Display summary:
    ```
    ## Exam Results: {Domain} — {scope} — {score}/{total} ({percentage}%)
+   ⏱ Time: {elapsed_minutes} min / {time_limit_minutes} min {within_limit ? "✓" : "⚠️ over limit"}
 
    | # | Result | Your Answer | Correct | Topic |
    |---|--------|-------------|---------|-------|
@@ -124,16 +136,19 @@ After all questions answered:
    ...
    ```
 
-2. List missed topics: extract topic tags from incorrect questions
+3. List missed topics: extract topic tags from incorrect questions
    - For single-topic questions: add topic slug to missed list
    - For cross-domain questions (multiple topic tags): add ALL topic slugs to missed list
    - Format: `primary-topic` for same-domain, `domain:topic` for cross-domain
    Example: `[s3-security, networking:cloudfront]`
-3. Return data for progress tracking:
+4. Return data for progress tracking:
    - `score`: number correct
    - `total`: number of questions
    - `missed_topics`: list of topic slugs from incorrect answers
    - `percentage`: score/total * 100
+   - `time_minutes`: elapsed time in minutes (rounded)
+   - `time_limit_minutes`: the time limit that was set
+   - `within_time_limit`: boolean (elapsed <= limit)
 
 ## Session File Format (ALL scopes)
 
@@ -145,6 +160,7 @@ Write the session file to `aws-csa/study-sessions/{YYMMDD}-{HHMM}-{domain}-mini-
 # {Domain} — Mini Exam: {Scope Title} (Phase {N})
 **Date:** {YYYY-MM-DD HH:MM}
 **Score:** {score}/{total} ({percentage}%)
+**Time:** {elapsed_minutes} min / {time_limit_minutes} min {within_limit ? "✓ within limit" : "⚠️ over limit"}
 **Scope:** {scope} — {scope description}
 
 ---
@@ -243,9 +259,11 @@ For each section (1-7), in order:
 6. **Update header**: Update running score and section progress in the file header. Mark `[PARTIAL]` until all 7 sections are done.
 
 ### After All 7 Sections
+- Record end time. Calculate elapsed minutes.
 - Aggregate score: `{total_correct}/{total_questions} ({pct}%)`
+- Show: `⏱ Time: {elapsed_minutes} min / {time_limit_minutes} min`
 - List missed topics by topic slug
-- Remove `[PARTIAL]` from session file title; update final score in header
+- Remove `[PARTIAL]` from session file title; update final score and time in header
 - No separate "question count" prompt — count is determined by sections (2-3 per section)
 
 ---
@@ -280,9 +298,11 @@ For each scenario, in order:
 7. Proceed to next scenario
 
 ### After All Scenarios
+- Record end time. Calculate elapsed minutes.
 - Aggregate score: `{correct}/{total} ({pct}%)`
+- Show: `⏱ Time: {elapsed_minutes} min / {time_limit_minutes} min`
 - List missed topics
-- Remove `[PARTIAL]` from session file title; update final score in header
+- Remove `[PARTIAL]` from session file title; update final score and time in header
 
 ---
 
@@ -292,10 +312,12 @@ Variant of the standard quiz flow optimized for quick-fire pattern recognition.
 
 ### Setup
 1. Ask count via AskUserQuestion: "How many patterns?" — options: `10`, `25`, `All (~80)`
-2. Load `references/keyword-patterns.md`
-3. Read progress for previously missed patterns
-4. Select patterns: prioritize missed (40%), random from remaining (60%)
-5. Shuffle order
+2. Calculate time limit: `time_limit_minutes = pattern_count × 3`. Record start time (`date +%s`).
+   Display: `⏱ Time limit: {time_limit_minutes} min ({pattern_count} patterns × 3 min each)`
+3. Load `references/keyword-patterns.md`
+4. Read progress for previously missed patterns
+5. Select patterns: prioritize missed (40%), random from remaining (60%)
+6. Shuffle order
 
 ### Per-Pattern Cycle (same 2-step as standard quiz)
 
@@ -320,5 +342,6 @@ AskUserQuestion: "Your answer?" — Options: A, B, C, D — multiSelect: false
 ```
 
 ### Scoring
-Same as standard quiz: score/total, missed patterns list.
+Record end time. Calculate elapsed minutes.
+Same as standard quiz: score/total, missed patterns list. Show time summary: `⏱ Time: {elapsed_minutes} min / {time_limit_minutes} min`
 Save missed patterns as `weak_topics` with prefix `kw:` (e.g., `kw:aurora-serverless`).

@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
-last_session: 2026-06-04
-total_sessions: 52
+last_session: 2026-06-05
+total_sessions: 59
 domains:
   security-identity:
     sessions_count: 6
@@ -69,17 +69,29 @@ domains:
   dns:
     sessions_count: 2
     modes_completed: [learn-and-test, scenario-practice]
-    last_studied: 2026-06-03
-    current_phase: 3
+    last_studied: 2026-06-05
+    current_phase: 5
+    completed: true
     phase_scores: {p1: 82, p2: 80}
-    weak_topics: [zone-apex-routing-s3, weighted-routing-zero-behavior, multi-value-vs-elb]
+    weak_topics: []
   integration-messaging:
-    sessions_count: 2
-    modes_completed: [learn-and-test, scenario-practice]
-    last_studied: 2026-06-04
-    current_phase: 3
-    phase_scores: {p1: 94, p2: 100}
-    weak_topics: [sqs-fifo-throughput]
+    sessions_count: 5
+    modes_completed: [learn-and-test, scenario-practice, mini-exam:design, mini-exam:comprehensive]
+    last_studied: 2026-06-05
+    current_phase: 5
+    completed: true
+    exams: [{scope: design, score: 8, total: 10, pct: 80, date: 2026-06-05}, {scope: comprehensive, score: 6, total: 10, pct: 60, date: 2026-06-05}, {scope: comprehensive, score: 10, total: 10, pct: 100, date: 2026-06-05}]
+    phase_scores: {p1: 94, p2: 100, p3: 80, p4: 100}
+    weak_topics: []
+  monitoring-audit:
+    sessions_count: 4
+    modes_completed: [learn-and-test, scenario-practice, mini-exam:design, mini-exam:comprehensive]
+    last_studied: 2026-06-05
+    current_phase: 5
+    completed: true
+    exams: [{scope: design, score: 7, total: 10, pct: 70, date: 2026-06-05}, {scope: comprehensive, score: 10, total: 10, pct: 100, date: 2026-06-05}]
+    phase_scores: {p1: 65, p2: 86, p3: 70, p4: 100}
+    weak_topics: []
 ---
 
 # AWS CSA (SAA-C03) — Study Progress
@@ -342,3 +354,43 @@ domains:
 - Scenarios: 8 (standard-vs-fifo-queue, dead-letter-queue-design, sns-fanout-pattern, message-filtering, shard-capacity-planning, kinesis-vs-sqs-decision, real-time-etl-to-s3-redshift, mq-migration-from-on-premises)
 - Missed: none — perfect score
 - Output: study-sessions/260604-1554-integration-messaging-scenario-practice.md
+
+### 2026-06-05 08:57 | Integration & Messaging | Mini Exam: Design (Phase 3)
+- Score: 8/10 (80%)
+- Missed: s3-sns-eventbridge-fanout (EventBridge supports multiple Lambda targets per rule with independent failure isolation — valid alternative to SNS fan-out), sqs-asg-scaling-backlog-per-instance (backlog-per-instance custom metric is AWS-recommended for SQS+ASG scaling; visibility timeout must exceed max job duration)
+- Output: study-sessions/260605-0857-integration-messaging-mini-exam-design.md
+
+### 2026-06-05 09:24 | Integration & Messaging | Mini Exam: Comprehensive Final (Phase 4)
+- Score: 6/10 (60%) — FAILED (below 80% threshold)
+- Missed: kinesis-shard-capacity-planning (must check BOTH data MB/s and records/s limits, take higher), kinesis-data-firehose-redshift-staging (Firehose→Redshift auto-stages in S3, one stream serves both), step-functions-orchestration (Step Functions provides per-step retry for multi-step workflows, SQS doesn't solve atomic orchestration), sqs-dynamodb-throttling-retry-storm (DLQ isolates but doesn't resolve root cause — prefer auto-scaling + visibility timeout)
+- Strong: sqs-visibility-timeout (2/2), sns-message-filtering, s3-sns-eventbridge-fanout, sqs-asg-scaling-backlog-per-instance, amazon-mq-migration
+- Output: study-sessions/260605-0924-integration-messaging-mini-exam-comprehensive.md
+
+### 2026-06-05 10:06 | Integration & Messaging | Mini Exam: Comprehensive Final (Phase 4 Retry)
+- Score: 10/10 (100%) — PASSED (improved from 60%)
+- Weak topic review before retry: kinesis-shard-capacity-planning, kinesis-data-firehose-redshift-staging, step-functions-orchestration, sqs-dynamodb-throttling-retry-storm
+- Missed: none — perfect score
+- Mastered from previous miss: all 4 weak topics
+- Output: study-sessions/260605-1006-integration-messaging-mini-exam-comprehensive-retry.md
+
+### 2026-06-05 10:16 | Monitoring & Audit | Learn and Test (Phase 1)
+- Score: 11/17 (65%) — All 7 sections complete
+- Covered: cloudwatch, cloudwatch-logs, cloudwatch-alarms, cloudwatch-unified-agent, cloudwatch-insights-family, eventbridge, cloudtrail, aws-config, config-remediation, cross-service-security-pattern
+- Missed: cloudwatch-unified-agent (RAM not default metric), cloudtrail-vs-config (who vs what), config-remediation-pattern, ssm-parameter-store-config, createexporttask-delay, high-resolution-alarm-cost
+- Output: study-sessions/260605-1016-monitoring-audit-learn-and-test.md
+
+### 2026-06-05 15:38 | Monitoring & Audit | Scenario Practice (Phase 2)
+- Score: 6/7 (86%)
+- Scenarios: 7 (custom-metrics-and-alarms, composite-alarms, management-vs-data-events, multi-account-trail, compliance-rules-and-remediation, event-driven-automation, log-analysis-and-anomaly-detection)
+- Missed: cloudtrail-multi-account-trail (Organization Trail auto-applies to all member accounts; CW Logs Insights ≠ audit trail)
+- Output: study-sessions/260605-1538-monitoring-audit-scenario-practice.md
+
+### 2026-06-05 16:42 | Monitoring & Audit | Mini Exam: Design (Phase 3)
+- Score: 7/10 (70%)
+- Missed: cloudwatch-anomaly-detection (CW Anomaly Detection = ML baselines, not CloudTrail Insights), cloudtrail-eventbridge-region-detection (detect API calls in regions via CloudTrail+EventBridge, not Config), aws-config-vs-cloudtrail (Config = before/after config values, CloudTrail = who called API)
+- Output: study-sessions/260605-1642-monitoring-audit-mini-exam-design.md
+
+### 2026-06-05 16:58 | Monitoring & Audit | Mini Exam: Comprehensive Final (Phase 4)
+- Score: 10/10 (100%) — PASSED
+- Missed: none — perfect score. All P3 weak topics mastered.
+- Output: study-sessions/260605-1658-monitoring-audit-mini-exam-comprehensive.md

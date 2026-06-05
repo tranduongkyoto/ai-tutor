@@ -32,6 +32,8 @@ domains:
         score: {correct count}
         total: {question count}
         scope: {concepts|scenarios|design|comprehensive|general}
+        time_minutes: {elapsed minutes}
+        time_limit_minutes: {time limit = total × 3}
         missed_topics: [{list of topic slugs from incorrect answers}]
     weak_topics: {update — see weak topic rules below}
 ```
@@ -90,6 +92,7 @@ For **mini-exam** sessions:
 ```
 ### {YYYY-MM-DD} {HH:MM} | {Domain Name} | Mini Exam
 - Score: {score}/{total} ({percentage}%)
+- Time: {elapsed} min / {limit} min
 - Missed: {comma-separated missed topics, or "none"}
 - Output: study-sessions/{filename}
 ```
@@ -98,6 +101,7 @@ For **learn-and-test** sessions:
 ```
 ### {YYYY-MM-DD} {HH:MM} | {Domain Name} | Learn and Test
 - Score: {score}/{total} ({percentage}%)
+- Time: {elapsed} min / {limit} min
 - Missed: {comma-separated missed topics, or "none"}
 - Output: study-sessions/{filename}
 ```
@@ -106,6 +110,7 @@ For **scenario-practice** sessions:
 ```
 ### {YYYY-MM-DD} {HH:MM} | {Domain Name} | Scenario Practice
 - Score: {score}/{total} ({percentage}%)
+- Time: {elapsed} min / {limit} min
 - Missed: {comma-separated missed topics, or "none"}
 - Output: study-sessions/{filename}
 ```
@@ -121,6 +126,7 @@ For **keyword-drill**:
 ```
 ### {YYYY-MM-DD} {HH:MM} | Cross-Domain | Keyword Drill
 - Score: {score}/{total} ({pct}%)
+- Time: {elapsed} min / {limit} min
 - Missed: {pattern short-ids}
 - Output: study-sessions/{filename}
 ```

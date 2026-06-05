@@ -201,6 +201,7 @@ Quiz results are interleaved within each section (not in a separate `## Quiz Res
 # {Domain} — Learn and Test (Phase 1) [PARTIAL]
 **Date:** {YYYY-MM-DD HH:MM}
 **Score:** {running_correct}/{running_total} ({pct}%) — Sections 1-{N} complete, Section {N+1}+ pending
+**Time:** {elapsed_minutes} min / {time_limit_minutes} min
 
 ---
 
@@ -308,6 +309,7 @@ Scenarios are written with full content in Phase A. User answers are added inlin
 # {Domain} — Scenario Practice (Phase 2) [PARTIAL]
 **Date:** {YYYY-MM-DD HH:MM}
 **Score:** {running_correct}/{running_total} ({pct}%) — Scenarios 1-{N} complete, Scenario {N+1}+ pending
+**Time:** {elapsed_minutes} min / {time_limit_minutes} min
 
 ---
 

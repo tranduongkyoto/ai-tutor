@@ -19,7 +19,9 @@ Full-length SAA-C03 mock exam: 65 questions, all domains, timed.
 ## Question Generation
 
 1. Record start time: `date +%s`
-2. Generate all 65 questions following exam domain weights
+2. Calculate time limit: `time_limit_minutes = 130` (matches real SAA-C03 exam: 130 min for 65 questions = 2 min each)
+   Display: `⏱ Time limit: 130 min (real SAA-C03 exam time)`
+3. Generate all 65 questions following exam domain weights
 3. Mix question types: ~80% single-select, ~20% multi-select (select TWO)
 4. Difficulty: 20% easy, 40% medium, 40% hard
 5. Include cross-domain questions (~30% of total)
@@ -38,18 +40,21 @@ Block {B}/13 — Questions {start}-{end} of 65
 
 **Per question within block:** Follow standard quiz-flow (Step 1: text, Step 2: AskUserQuestion, Step 3: feedback)
 
-**Block end:** Show running score
+**Block end:** Show running score with timer
 ```
 Block {B} complete: {block_correct}/5
 Running total: {total_correct}/{questions_done} ({pct}%)
 Target: ≥72% (47/65)
+⏱ {elapsed_min} min / 130 min limit — {remaining_min} min remaining
 ```
 
 ## Timer
 
 - Record `date +%s` at start and after each block
 - Show elapsed time at each block boundary
-- At end, show total time vs 130-minute target
+- Time limit: 130 min (matches real SAA-C03 exam). Advisory — do not force-stop.
+- If elapsed exceeds 130 min, show `⚠️ TIME'S UP` warning but allow continuation
+- At end, show total time vs 130-minute limit
 
 ## Post-Exam Analysis
 
@@ -61,7 +66,7 @@ MOCK EXAM RESULTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Score: {correct}/65 ({pct}%)
-Time: {elapsed} min (target: 130 min)
+Time: {elapsed} min / 130 min limit {within_limit ? "✓" : "⚠️ over limit"}
 Result: {PASS ≥72% | BORDERLINE 65-71% | FAIL <65%}
 
 By Exam Domain:
