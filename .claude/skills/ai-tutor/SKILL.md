@@ -64,11 +64,10 @@ Phase 4: FINAL EXAM    → mini-exam:comprehensive  (full domain exam — all to
 
 When suggesting the next domain in follow-up menus, use tier-based priority order instead of alphabetical:
 
-| Tier | Domains | Min Phases | Rationale |
-|------|---------|-----------|-----------|
-| 1 (Core) | compute, networking, storage, security-identity | All 4 | ~60% of exam weight |
-| 2 (High) | load-balancing-scaling, databases, serverless, integration-messaging, dns, monitoring-audit | P1-P2 | Solid learn + scenario coverage |
-| 3 (Coverage) | data-analytics, dr-architecture | P1 | Minimum viable, avoid zero on exam |
+| Tier | Domains | Min Phases | Weight | Rationale |
+|------|---------|-----------|--------|-----------|
+| 1 (Core) | compute, networking, storage, security-identity, dr-architecture | All 4 | 65% (12.5% each + DR 15%) | Foundation + DR heavily tested (~16-20% of real exam) |
+| 2 (High) | load-balancing-scaling, databases, serverless, integration-messaging, dns, monitoring-audit, data-analytics | P1-P2 | 35% (5% each) | Solid learn + scenario coverage |
 
 **Domain recommendation logic** (for Step 5 follow-up menu):
 1. Suggest next unstudied domain from highest incomplete tier (Tier 1 first)

@@ -1,7 +1,7 @@
 ---
 started: 2026-05-11
-last_session: 2026-06-05
-total_sessions: 59
+last_session: 2026-06-06
+total_sessions: 60
 domains:
   security-identity:
     sessions_count: 6
@@ -92,6 +92,13 @@ domains:
     exams: [{scope: design, score: 7, total: 10, pct: 70, date: 2026-06-05}, {scope: comprehensive, score: 10, total: 10, pct: 100, date: 2026-06-05}]
     phase_scores: {p1: 65, p2: 86, p3: 70, p4: 100}
     weak_topics: []
+  data-analytics:
+    sessions_count: 1
+    modes_completed: [learn-and-test]
+    last_studied: 2026-06-06
+    current_phase: 2
+    phase_scores: {p1: 82}
+    weak_topics: [redshift-vs-athena, serverless-analytics-pattern, redshift-enhanced-vpc-routing]
 ---
 
 # AWS CSA (SAA-C03) — Study Progress
@@ -394,3 +401,9 @@ domains:
 - Score: 10/10 (100%) — PASSED
 - Missed: none — perfect score. All P3 weak topics mastered.
 - Output: study-sessions/260605-1658-monitoring-audit-mini-exam-comprehensive.md
+
+### 2026-06-06 09:03 | Data & Analytics | Learn and Test (Phase 1)
+- Score: 14/17 (82%)
+- Time: 139 min / 51 min
+- Missed: redshift-vs-athena (Redshift for complex PB-scale joins, not Athena), serverless-analytics-pattern (serverless stack for variable/idle workloads), redshift-enhanced-vpc-routing (Enhanced VPC Routing forces COPY/UNLOAD through VPC)
+- Output: study-sessions/260606-0903-data-analytics-learn-and-test.md

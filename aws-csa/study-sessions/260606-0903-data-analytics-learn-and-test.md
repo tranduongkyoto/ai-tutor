@@ -1,7 +1,7 @@
-# Data & Analytics — Learn and Test (Phase 1) [PARTIAL]
+# Data & Analytics — Learn and Test (Phase 1)
 **Date:** 2026-06-06 09:03
-**Score:** 4/5 (80%) — Sections 1-2 complete, Section 3+ pending
-**Time:** pending
+**Score:** 14/17 (82%) — All 7 sections complete
+**Time:** 139 min / 51 min ⚠️ over limit
 
 ---
 
@@ -266,6 +266,19 @@ ASCII: S3/RDS/DynamoDB → Glue Crawler → Data Catalog → used by Athena / Re
 - **MSK → analytics**: MSK consumers include Glue Streaming ETL (Spark), Lambda, and Apache Flink
 - **Kinesis Firehose → S3 delivery**: near real-time delivery (~1 min batches) with optional format conversion (Parquet/ORC) and compression
 
+### Quiz: Section 3
+**Q6** ✓ — opensearch-cloudwatch-integration
+CloudWatch Logs → real-time delivery to OpenSearch. Which pattern?
+A) Subscription Filter → Firehose → OpenSearch B) Subscription Filter → Lambda → OpenSearch C) S3 Export → Glue ETL → OpenSearch D) EventBridge → Step Functions → OpenSearch
+💡 Hint: Which intermediary provides immediate event-by-event processing?
+**Your answer: B** — Correct. Real-time = Lambda. Firehose is near real-time (~1 min batches).
+
+**Q7** ✓ — athena-cost-optimization (multi-select)
+Athena queries on CSV are slow and expensive. Which TWO actions reduce cost 30-90%?
+A) Convert CSV to Parquet via Glue B) Enable Redshift Spectrum C) Partition S3 by date D) Migrate to OpenSearch
+💡 Hint: Two Athena-specific optimizations — one reduces data per file, one reduces files scanned.
+**Your answer: A, C** — Correct. Parquet = columnar (read only needed columns). Partitioning = scan only relevant date ranges.
+
 ---
 
 ## Section 4: Architectural Patterns
@@ -344,6 +357,25 @@ Data in S3? → Yes → Complex queries? → Simple: Athena / Complex + cluster:
 Data in S3? → No  → Streaming? → Real-time: Flink / Near RT: Firehose / Batch: Glue ETL
 ```
 
+### Quiz: Section 4
+**Q8** ✓ — redshift-spectrum
+Company with existing Redshift needs to query archived S3 data without loading. Which approach?
+A) Athena separate B) Redshift Spectrum C) Glue ETL load into Redshift D) EMR Spark
+💡 Hint: Leverage existing Redshift cluster to query S3 in-place.
+**Your answer: B** — Correct. Spectrum extends Redshift queries to S3 without loading data.
+
+**Q9** ✗ — serverless-analytics-pattern
+Startup with variable query volumes (idle days then bursts). Cost-effective pattern for S3 CSV data?
+A) Redshift Provisioned + Reserved B) Kinesis + Flink streaming C) Serverless: Glue → Athena → QuickSight D) DynamoDB + OpenSearch
+💡 Hint: Which pattern has zero idle cost?
+**Your answer: B** — Incorrect. Correct: C. Serverless stack (Athena $5/TB + QuickSight per-session) = zero idle cost. Kinesis+Flink is for continuous real-time streaming, not ad-hoc analytics.
+
+**Q10** ✓ — glue-job-bookmarks
+CSV→Parquet ETL needs to skip already-processed files. Which Glue feature?
+A) Data Catalog B) Job Bookmarks C) DataBrew D) Glue Studio
+💡 Hint: Feature for incremental ETL loads — tracking what's processed.
+**Your answer: B** — Correct. Glue Job Bookmarks track processed data for incremental loads.
+
 ---
 
 ## Section 5: Cost Implications
@@ -374,6 +406,19 @@ Data in S3? → No  → Streaming? → Real-time: Flink / Near RT: Firehose / Ba
 7. **Serverless options**: Athena, Redshift Serverless, MSK Serverless, QuickSight — pay only for use
 8. **Glue Job Bookmarks**: avoid re-processing already-processed data
 9. **Redshift Spectrum**: query S3 cold data without loading = no additional Redshift storage cost
+
+### Quiz: Section 5
+**Q11** ✓ — athena-parquet-cost
+500 GB CSV daily at $5/TB = $2.50/day. After converting to Parquet (90% reduction), new cost?
+A) $2.50/day B) $0.25/day C) $1.25/day D) $0.00/day
+💡 Hint: Athena charges per TB scanned — Parquet reduces amount read.
+**Your answer: B** — Correct. 90% reduction: 500 GB × 10% = 50 GB → $0.25/day.
+
+**Q12** ✓ — emr-pricing-optimization
+EMR cluster runs 4 hours daily. Master/Core must be reliable, Task Nodes tolerate interruption. Best pricing?
+A) On-Demand all B) Reserved Master/Core + Spot Task C) Spot all D) Savings Plans Master + On-Demand Core + Reserved Task
+💡 Hint: Which nodes store data vs only compute?
+**Your answer: B** — Correct. Reserved for Master/Core (store data, need reliability). Spot for Task (no data, fault-tolerant).
 
 ---
 
@@ -421,6 +466,19 @@ Data in S3? → No  → Streaming? → Real-time: Flink / Near RT: Firehose / Ba
 │  └──────────────────────────────────────────┘ │
 └──────────────────────────────────────────────┘
 ```
+
+### Quiz: Section 6
+**Q13** ✓ — lake-formation-column-security
+Healthcare data lake needs PHI column restrictions across Athena/Redshift/EMR. Which service?
+A) IAM + S3 bucket policies B) Lake Formation fine-grained permissions C) QuickSight CLS D) Glue Catalog resource policies
+💡 Hint: Governance layer on top of data lake with centralized permissions.
+**Your answer: B** — Correct. Lake Formation provides centralized row/column-level security across analytics services.
+
+**Q14** ✗ — redshift-enhanced-vpc-routing
+Redshift COPY from S3 goes over public internet. How to force VPC routing?
+A) SSE-KMS on S3 B) VPC Gateway Endpoint for S3 C) Enhanced VPC Routing on Redshift D) NAT Gateway
+💡 Hint: Redshift cluster-level setting for data loading path.
+**Your answer: B** — Incorrect. Correct: C. Enhanced VPC Routing is the Redshift cluster setting that forces COPY/UNLOAD through VPC. VPC endpoints provide private S3 connectivity but don't control Redshift's routing behavior.
 
 ---
 
@@ -500,3 +558,22 @@ ASCII Keyword Map:
 - **EMR** for Hadoop/Spark big data — Spot only on Task Nodes
 - **Flink** for real-time stream processing — KDS/MSK sources only
 - **ML services** are keyword-driven on the exam — match signal to service
+
+### Quiz: Section 7
+**Q15** ✓ — flink-firehose-trap
+Architecture uses Firehose as Flink source. What's the issue?
+A) Flink only Java/Scala B) Flink doesn't read from Firehose C) Firehose too fast D) Flink requires EMR
+💡 Hint: Most commonly tested Flink constraint.
+**Your answer: B** — Correct. Flink reads from KDS and MSK only — never Firehose.
+
+**Q16** ✓ — redshift-postgresql-trap
+Colleague says Redshift is "PostgreSQL-based" so it can replace transactional PostgreSQL. What's the trap?
+A) OLAP not OLTP B) Different query language C) Only queries S3 D) Deprecated
+💡 Hint: Exam uses "PostgreSQL-based" to make Redshift sound general-purpose.
+**Your answer: A** — Correct. Redshift is OLAP (analytical), not OLTP (transactional).
+
+**Q17** ✓ — textract-comprehend-ml
+Extract data from scanned claim forms + analyze sentiment for fraud. Which ML services?
+A) Kendra + Lex B) Textract + Comprehend C) Rekognition + Transcribe D) SageMaker + Personalize
+💡 Hint: One for OCR extraction, one for text sentiment analysis.
+**Your answer: B** — Correct. Textract for document extraction, Comprehend for sentiment analysis.

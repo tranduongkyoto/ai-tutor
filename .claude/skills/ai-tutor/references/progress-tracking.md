@@ -194,20 +194,31 @@ recency = 100                           if days_since <= 7
 
 ### Overall Readiness (Exam-Weight-Adjusted)
 
-Weighted by SAA-C03 exam coverage per tier. Each domain within a tier shares equal weight.
+Weighted by SAA-C03 real exam coverage. Derived from exam guide domain mapping
+and community frequency reports (researched 2026-06-06).
 
 ```
-Tier weights (from SKILL.md):
-  Tier 1 (60%): compute, networking, storage, security-identity        → 15% each
+Domain weights (exam-aligned):
+  Tier 1 (65%): compute 12.5%, networking 12.5%, storage 12.5%,
+                security-identity 12.5%, dr-architecture 15%
   Tier 2 (35%): load-balancing-scaling, databases, serverless,
-                integration-messaging, dns, monitoring-audit           → 5.83% each
-  Tier 3  (5%): data-analytics, dr-architecture                       → 2.5% each
+                integration-messaging, dns, monitoring-audit,
+                data-analytics                                         → 5% each
 
-overall = Σ (domain_readiness × domain_tier_weight)
+overall = Σ (domain_readiness × domain_weight)
 ```
+
+Rationale:
+- **dr-architecture in Tier 1 (15%)**: DR strategies map heavily to Domain 2 (Resilient 26%)
+  + cross-domain in Domains 1/3/4. ~10-13 questions out of 65. CloudFormation,
+  Well-Architected, RPO/RTO trade-offs are primary exam focus areas.
+- **data-analytics in Tier 2 (5%)**: Athena/Redshift/Glue appear as options in Domain 3
+  (High-Performing) and Domain 4 (Cost-Optimized). ~4-5 questions. ML services at
+  awareness level only.
+
 - Domains never studied have readiness = 0
-- Tier 1 domains contribute more to overall readiness (matches real exam weight)
-- Example: 3 Tier-1 domains at ~90% readiness → overall ≈ 41% (not 23% as with equal weighting)
+- Tier 1 domains contribute 65% of overall readiness
+- Example: 4 original Tier-1 domains at ~90% → overall ≈ 45% (DR gap drags it down)
 
 ### Status Thresholds
 
