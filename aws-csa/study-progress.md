@@ -1,8 +1,15 @@
 ---
 started: 2026-05-11
-last_session: 2026-06-06
-total_sessions: 60
+last_session: 2026-06-08
+total_sessions: 61
 domains:
+  dr-architecture:
+    sessions_count: 1
+    modes_completed: [learn-and-test]
+    last_studied: 2026-06-08
+    current_phase: 2
+    phase_scores: {p1: 94}
+    weak_topics: [ip-blocking-cloudfront]
   security-identity:
     sessions_count: 6
     modes_completed: [concept-mapper, mini-exam:concepts, scenario-generator, mini-exam:scenarios, mini-exam:design, mini-exam:comprehensive]
@@ -407,3 +414,9 @@ domains:
 - Time: 139 min / 51 min
 - Missed: redshift-vs-athena (Redshift for complex PB-scale joins, not Athena), serverless-analytics-pattern (serverless stack for variable/idle workloads), redshift-enhanced-vpc-routing (Enhanced VPC Routing forces COPY/UNLOAD through VPC)
 - Output: study-sessions/260606-0903-data-analytics-learn-and-test.md
+
+### 2026-06-08 | DR & Architecture | Learn and Test (Phase 1) — Resumed
+- Score: 16/17 (94%) — All 7 sections complete (resumed from Section 5)
+- Covered: dr-strategies, drs, mgn, dms, sct, aws-backup, vault-lock, beanstalk, cloudformation, batch, hpc, classic-architectures, well-architected, security-group-chaining, ip-blocking, cost-optimization, migration-paths
+- Missed: ip-blocking-cloudfront (NACL sees CloudFront IPs, not client IPs — use WAF on CloudFront)
+- Output: study-sessions/260606-1149-dr-architecture-learn-and-test.md

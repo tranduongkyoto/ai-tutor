@@ -1,7 +1,7 @@
-# DR & Architecture — Learn and Test (Phase 1) [PARTIAL]
-**Date:** 2026-06-06 11:49
-**Score:** 9/10 (90%) — Sections 1-4 complete, Section 5+ pending
-**Time:** pending
+# DR & Architecture — Learn and Test (Phase 1)
+**Date:** 2026-06-06 11:49 (resumed 2026-06-08)
+**Score:** 16/17 (94%) — All 7 sections complete
+**Time:** ~26 min (Sections 5-7 quiz: ~26 min / 21 min limit)
 
 ---
 
@@ -401,6 +401,19 @@ A) Two EC2 + NLB B) ASG + EBS lifecycle hooks + Lambda C) DRS D) S3 + CW restart
 6. **DRS staging instances**: use smallest viable instance type — only scale on actual failover
 7. **Instance Scheduler**: auto start/stop non-production EC2/RDS on schedule — up to 70% savings
 
+### Quiz: Section 5
+**Q11** ✓ — dr-cost-optimization
+Warm Standby DR with ASG at min capacity — reduce ongoing cost of always-running instances.
+A) Spot Instances B) Reserved Instances / Savings Plans C) Switch to Pilot Light D) On-Demand + Instance Scheduler
+💡 Hint: Which pricing model rewards commitment for continuously running instances.
+**Your answer: B** — Correct. Warm Standby requires always-on instances — Reserved/Savings Plans provide up to 72% savings.
+
+**Q12** ✓ — dms-cost-optimization
+Minimize DMS replication instance cost for MySQL → Aurora MySQL migration.
+A) DMS Multi-AZ B) SCT to reduce time C) Right-size instance, skip Multi-AZ for non-prod D) AWS Backup instead
+💡 Hint: DMS charges by instance hours — size and availability tier affect cost.
+**Your answer: C** — Correct. Right-size instance + Multi-AZ only for production directly reduces DMS cost.
+
 ---
 
 ## Section 6: Security Considerations
@@ -443,6 +456,25 @@ A) Two EC2 + NLB B) ASG + EBS lifecycle hooks + Lambda C) DRS D) S3 + CW restart
 - Defense in depth: perimeter (NACL) → network (SG) → identity (IAM) → data (encryption)
 - Encryption everywhere: at rest (KMS) + in transit (TLS/SSL)
 - Automate security: AWS Config rules, GuardDuty, automated remediation
+
+### Quiz: Section 6
+**Q13** ✓ — backup-vault-lock
+Compliance: no one including root can delete RDS backups for 7 years.
+A) S3 Object Lock B) Backup Vault Lock C) IAM deny policy D) KMS key deletion protection
+💡 Hint: WORM for AWS Backup vaults blocking even highest-privilege users.
+**Your answer: B** — Correct. Backup Vault Lock = WORM enforcement; even root can't delete.
+
+**Q14** ✓ — security-group-chaining
+3-tier app: ALB public, EC2 private, RDS data subnet — best practice SG config.
+A) EC2 from 0.0.0.0/0 B) EC2 from ALB SG, RDS from EC2 SG C) RDS from 0.0.0.0/0 D) ALB from VPC CIDR
+💡 Hint: Each tier accepts traffic only from the tier directly above.
+**Your answer: B** — Correct. Perfect chaining: ALB→EC2 SG→RDS SG, each layer trusts only the one above.
+
+**Q15** ✓ — cloudformation-service-role
+Developers invoke CF only, no direct EC2/RDS creation — least privilege.
+A) AdminAccess + SCPs B) CF Service Role + cloudformation:* + iam:PassRole C) Full EC2/RDS AZ-restricted D) Config auto-terminate
+💡 Hint: CF assumes a role with elevated permissions; user has minimal permissions.
+**Your answer: B** — Correct. Service Role holds resource permissions; devs only need cloudformation:* + iam:PassRole.
 
 ---
 
@@ -507,6 +539,19 @@ ASCII Keyword Map:
 6. **"Continuous replication WITH failback"**: DRS, NOT MGN (MGN is cutover only)
 7. **"Session data for web app"**: ElastiCache (primary choice) or DynamoDB — NOT cookies (4 KB limit)
 8. **"Worker tier scales on queue depth"**: Beanstalk Worker Tier + SQS — NOT Web Server Tier
+
+### Quiz: Section 7
+**Q16** ✓ — rds-aurora-migration
+Migrate RDS MySQL → Aurora MySQL, fastest zero-downtime approach.
+A) Snapshot restore B) Aurora Read Replica promote at lag=0 C) mysqldump D) DMS + SCT
+💡 Hint: Which approach keeps source running with near-zero cutover.
+**Your answer: B** — Correct. Aurora Read Replica catches up continuously; promote at lag=0 for seconds-long cutover.
+
+**Q17** ✓ — batch-spot-optimization
+2-4 hour Docker batch jobs, fault-tolerant, lowest cost compute.
+A) Lambda containers B) ECS Fargate On-Demand C) AWS Batch + Spot D) Beanstalk Worker + Reserved
+💡 Hint: No time limit Docker + 90% discount for interruptible workloads.
+**Your answer: C** — Correct. Batch runs Docker with no time limit; Spot provides up to 90% savings for restartable jobs.
 
 ### Key Takeaways
 - **DR strategies** are ordered by cost/speed: Backup & Restore → Pilot Light → Warm Standby → Multi-Site
