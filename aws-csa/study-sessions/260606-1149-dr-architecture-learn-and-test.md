@@ -1,6 +1,6 @@
 # DR & Architecture — Learn and Test (Phase 1) [PARTIAL]
 **Date:** 2026-06-06 11:49
-**Score:** 0/0 (0%) — Section 1+ pending
+**Score:** 9/10 (90%) — Sections 1-4 complete, Section 5+ pending
 **Time:** pending
 
 ---
@@ -112,6 +112,25 @@
 - **Well-Architected Tool**: free review against 6 pillars
 - **Trusted Advisor**: Cost, Performance, Security, Fault Tolerance, Service Limits, Operational Excellence; full checks require Business/Enterprise support
 
+### Quiz: Section 1
+**Q1** ✓ — dr-strategies
+A company runs an on-premises Oracle database and web application. They need a DR strategy that keeps the database continuously replicated to AWS but minimizes cost by not running compute resources until a disaster occurs. What DR strategy should they use?
+A) Backup and Restore B) Pilot Light C) Warm Standby D) Multi-Site Active-Active
+💡 Hint: Think about which strategy keeps the critical data layer always running but saves cost by stopping compute until needed.
+**Your answer: B** — Correct. Pilot Light keeps the core DB running with continuous replication; compute stays stopped until disaster.
+
+**Q2** ✓ — drs-vs-mgn
+A company needs DR for their on-premises servers to AWS with continuous block-level replication and ability to fail back. Which AWS service?
+A) AWS MGN B) AWS DMS C) AWS DRS D) AWS Backup
+💡 Hint: Consider which service supports both continuous replication AND returning to the original environment.
+**Your answer: C** — Correct. DRS provides continuous block-level replication with failover and failback. MGN has no failback.
+
+**Q3** ✓ — backup-vault-lock
+A healthcare company must ensure AWS backups cannot be deleted by anyone — including root — for compliance. Which feature?
+A) S3 Object Lock B) Backup Vault Lock C) IAM deny policy D) KMS key deletion protection
+💡 Hint: Think about WORM protection specifically for AWS Backup vaults blocking even the most privileged user.
+**Your answer: B** — Correct. Backup Vault Lock provides WORM enforcement; even root cannot delete backups.
+
 ---
 
 ## Section 2: Real-World Use Cases
@@ -155,6 +174,22 @@ A small dev team wants to deploy a Node.js web app with auto-scaling, load balan
 ### Use Case 10: Ransomware Protection (DRS)
 A company needs protection against ransomware with the ability to failover AND failback.
 → **AWS Elastic Disaster Recovery (DRS)**: continuous block-level replication, sub-second RPO, failover in minutes, supports failback to original environment after cleanup.
+
+### Quiz: Section 2
+**Q4** ✓ — dr-strategy-selection
+E-commerce company needs DR environment already running at reduced capacity, scale to full production within minutes.
+A) Backup & Restore B) Pilot Light C) Warm Standby D) DRS
+**Your answer: C** — Correct. Warm Standby runs full system at reduced capacity; scale ASG on disaster.
+
+**Q5** ✓ — migration-services
+Migrate on-prem MySQL to Aurora MySQL — same engine family. Which tools?
+A) DMS + SCT B) DMS only C) MGN D) AWS Backup
+**Your answer: B** — Correct. Homogeneous migration — SCT not needed for same-engine.
+
+**Q6** ✓ — beanstalk-tiers
+Background job processing from SQS queue, 5-10 min per job, managed infrastructure.
+A) Beanstalk Web Server B) Beanstalk Worker Tier C) Lambda + SQS D) ECS Fargate + SQS
+**Your answer: B** — Correct. Worker Tier pulls from SQS, scales on queue depth, fully managed.
 
 ---
 
@@ -222,6 +257,17 @@ ASCII: On-Prem → DRS (block replication) → EC2
 | Application | ElastiCache (Redis/Memcached) | Session data, DB query cache |
 | DynamoDB | DAX | In-memory DynamoDB read cache |
 | Static assets | S3 + CloudFront | Origin for static files |
+
+### Quiz: Section 3
+**Q7** ✓ — cross-domain-dr-database
+Mission-critical app across two regions, DB replication < 1s lag, region-level promotion.
+A) RDS cross-region replicas B) Aurora Global Database C) DynamoDB Global Tables D) RDS Multi-AZ
+**Your answer: B** — Correct. Aurora Global Database provides < 1s cross-region replication with promotion.
+
+**Q8** ✗ — ip-blocking-cloudfront
+Block specific IPs when CloudFront is in front of ALB.
+A) NACL deny rule B) ALB SG deny C) WAF on CloudFront D) Route 53 deny
+**Your answer: A** — Incorrect. Correct: C. NACL sees CloudFront IPs, not client IPs. WAF on CloudFront inspects actual client IP.
 
 ---
 
@@ -309,6 +355,17 @@ graph TD
 ASCII: Budget? → Lowest: Backup&Restore | Some → DB only running: Pilot Light
        Full system → Near-zero RTO? → No: Warm Standby | Yes: Multi-Site
 ```
+
+### Quiz: Section 4
+**Q9** ✓ — stateful-app-design
+Shopping cart data with ASG behind ALB, survive instance failure. Session management approach?
+A) ALB sticky sessions B) Cookie session_id + ElastiCache C) Cart in cookies D) EBS Multi-Attach
+**Your answer: B** — Correct. Decouple session from instances; ElastiCache survives instance failure.
+
+**Q10** ✓ — ha-ec2-pattern
+Single EC2 HA across AZs with persistent EBS data surviving instance replacement.
+A) Two EC2 + NLB B) ASG + EBS lifecycle hooks + Lambda C) DRS D) S3 + CW restart
+**Your answer: B** — Correct. ASG lifecycle hooks trigger Lambda to snapshot/restore EBS across AZ failover.
 
 ---
 
