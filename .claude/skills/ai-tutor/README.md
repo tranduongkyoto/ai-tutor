@@ -7,11 +7,12 @@ Interactive study companion for AWS SAA-C03 certification. Uses 31 PDF course se
 ```
 /ai-tutor                                    # Interactive menu
 /ai-tutor aws-csa compute concept-mapper     # Direct mode
+/ai-tutor practice-test                      # Udemy practice test
 /ai-tutor progress                           # View dashboard
 /ai-tutor refresh compute                    # Re-extract PDF cache
 ```
 
-## 6 Study Modes
+## 7 Study Modes + Practice Tests
 
 | Mode | What It Does |
 |------|-------------|
@@ -22,6 +23,7 @@ Interactive study companion for AWS SAA-C03 certification. Uses 31 PDF course se
 | **hands-on-lab** | Progressive lab exercises (basic → enterprise) with CLI commands |
 | **architecture-reviewer** | Evaluates your architecture against Well-Architected Framework |
 | **exam-strategy** | Personalized study plan and exam day strategy |
+| **practice-test** | Udemy practice tests (6 tests × 65 Qs) with answer tracking, domain filter, redo wrong, weakness report |
 
 ## 12 Domains
 

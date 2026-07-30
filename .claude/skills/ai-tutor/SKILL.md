@@ -34,6 +34,7 @@ Parse `ARGUMENTS` to determine the action:
 | `refresh cheat-sheet` | Re-extract cheat sheet PDF cache (Load: `references/pdf-extractor.md` § Cheat Sheet Extraction). **Stop after refresh.** |
 | `keyword-drill` | Start keyword pattern drill (no domain needed) |
 | `mock-exam` | Start full mock exam (requires ≥8/12 domain caches) |
+| `practice-test` | Start Udemy practice test (Load: `references/practice-test-flow.md`). Interactive test from `practice-exam/` questions. |
 | `guided <domain>` | Start/resume guided study path for domain |
 | `free <domain> <mode>` | Direct mode execution (skip guided path) |
 | `<domain>` | Start/resume guided study path for domain |
@@ -59,6 +60,7 @@ Phase 4: FINAL EXAM    → mini-exam:comprehensive  (full domain exam — all to
 - `exam-strategy-coach` — exam day strategy and study planning (no domain needed)
 - `keyword-drill` — quick-fire exam keyword → service mapping drill (no domain needed)
 - `mock-exam` — full 65-question timed SAA-C03 mock exam (no domain needed, requires ≥8 domain caches)
+- `practice-test` — Udemy practice test with answer tracking, domain filter, redo wrong, weakness report (no domain needed)
 
 ## Recommended Study Order (Hybrid Plan)
 
@@ -137,6 +139,7 @@ Use `AskUserQuestion`:
  9. exam-strategy-coach     — Exam day strategy and study planning (no domain needed)
 10. keyword-drill            — Quick-fire exam keyword → service mapping drill (no domain needed)
 11. mock-exam                — Full 65-question timed SAA-C03 mock exam (no domain needed, requires ≥8 domain caches)
+12. practice-test            — Udemy practice test with answer tracking, redo wrong, weakness report (no domain needed)
 ```
 
 Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `hands-on-lab`.
@@ -173,6 +176,7 @@ Default shown options: `concept-mapper`, `mini-exam`, `scenario-generator`, `han
      Do NOT load caches for unstudied domains.
 5. **If mode is keyword-drill**: Skip domain cache. Load `references/keyword-patterns.md` + cheat sheet cache (step 4). No domain selection needed.
 6. **If mode is mock-exam**: Load ALL available domain caches + cheat sheet cache + `references/mock-exam-flow.md`. No domain selection needed. Prerequisite: ≥8/12 domain caches must exist.
+8. **If mode is practice-test**: Load `references/practice-test-flow.md`. No domain cache needed — questions come from `practice-exam/practice-test-{N}-questions.md`. No domain selection needed (handled inside the flow).
 7. **If mode is domain-less** (weak-spot-analyzer, exam-strategy-coach): Skip cache, proceed with progress data only
 
 ## Step 3: Execute Mode
@@ -192,6 +196,7 @@ Load `references/prompt-templates.md` for the selected mode's template.
 | `exam-strategy-coach` | study-progress.md + timeline | Yes (AskUserQuestion) |
 | `keyword-drill` | keyword-patterns.md + cheat-sheet cache | Yes (AskUserQuestion) |
 | `mock-exam` | All domain caches + cheat-sheet + mock-exam-flow.md | Yes (AskUserQuestion, batched) |
+| `practice-test` | practice-exam/practice-test-{N}-questions.md + progress file | Yes (AskUserQuestion + typed input) |
 
 **learn-and-test section-by-section flow:** This mode writes full content (all 7 sections with diagrams) to the session file first, then teaches and quizzes one section at a time. Per section: output content to terminal → quiz with hints → save quiz results inline in the .md file → next section. Supports resume — if interrupted, detects `[PARTIAL]` in the session file and picks up at the next unquizzed section.
 
@@ -281,10 +286,12 @@ Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
          /ai-tutor free [domain] [mode]  — free mode, any mode
          /ai-tutor keyword-drill         — keyword pattern drill
          /ai-tutor mock-exam             — full 65-question mock exam
+         /ai-tutor practice-test         — Udemy practice test (6 tests, 65 Qs each)
          /ai-tutor progress              — view dashboard
          /ai-tutor refresh <domain>      — refresh PDF cache
          /ai-tutor refresh cheat-sheet   — refresh cheat sheet cache
   Example: /ai-tutor compute
            /ai-tutor free storage mini-exam
            /ai-tutor keyword-drill
+           /ai-tutor practice-test
   ```
