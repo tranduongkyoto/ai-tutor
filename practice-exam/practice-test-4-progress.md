@@ -40,34 +40,32 @@
 6. **IAM auth to RDS** — generates short-lived tokens (not SSM credential rotation)
 7. **SSL for data-in-transit** — SSL encrypts network data; IAM auth is authentication only
 
-## Design High-Performing Architectures — In Progress
+## Design High-Performing Architectures — In Progress (Restart)
 
 | Q# | Orig# | Topic | Your | Correct | Result |
 |----|-------|-------|------|---------|--------|
-| 1 | 1 | Transit Gateway + ECMP for VPN throughput | B | A | Wrong |
-| 2 | 10 | Tape Gateway for tape backup workflow | B | B | Correct |
+| 1 | 1 | Transit Gateway + ECMP for VPN throughput | D | A | Wrong |
+| 2 | 10 | Tape Gateway for tape backup workflow | C | B | Wrong |
 | 3 | 11 | Real-time analytics pipeline | A | A | Correct |
 | 4 | 17 | EFS mount targets per AZ | A | A | Correct |
 | 5 | 18 | CloudFormation for RDS best practices | D | D | Correct |
-| 6 | 22 | Flash sale 10x dynamic content | D | C | Wrong |
-| 7 | 27 | Geoproximity routing (dynamic geo area) | B | D | Wrong |
+| 6 | 22 | Flash sale 10x dynamic content | C | C | Correct (redo) |
+| 7 | 27 | Geoproximity routing (dynamic geo area) | D | D | Correct (redo) |
 | 8 | 34 | Neptune for graph queries | B | B | Correct |
 | 9 | 37 | Amazon MQ for MQTT protocol | A | A | Correct |
-| 10 | 42 | Transit Gateway as central hub | A | C | Wrong |
-| 11 | 44 | Global Accelerator for multi-region ALBs | A | A | Correct |
-| 12 | 46 | DMS as S3→Kinesis bridge | C | B | Wrong |
+| 10 | 42 | Transit Gateway as central hub | C | C | Correct (redo) |
+| 11 | 44 | Global Accelerator for multi-region ALBs | B | A | Wrong |
+| 12 | 46 | DMS as S3→Kinesis bridge | A | B | Wrong |
 | 13 | 51 | Cluster placement group for HPC | C | C | Correct |
-| 14 | 53 | DynamoDB on-demand for unpredictable spikes | B | D | Wrong |
-| 15 | 55 | Aurora I/O-Optimized storage | C | B | Wrong |
+| 14 | 53 | DynamoDB on-demand for unpredictable spikes | D | D | Correct (redo) |
+| 15 | 55 | Aurora I/O-Optimized storage | B | B | Correct (redo) |
 | 16 | 57 | DynamoDB DAX for hot partition | A | A | Correct |
 
 **Resume from: Q17/20** (Orig #58 — Lambda serverless best practices, select three)
+**Restart score so far: 12/16 (75%)** — improved from 9/16 (56%)
 
-### Weak Areas (so far) — High-Performing
-1. **Transit Gateway + ECMP** — aggregates VPN bandwidth across multiple tunnels
-2. **Dynamic content scaling** — ASG for compute, not CloudFront (CDN caches poorly for dynamic)
-3. **Geoproximity routing** — uses bias to expand/shrink geographic routing area
-4. **Transit Gateway** — managed central hub (not VPC peering mesh)
-5. **DMS S3→Kinesis** — DMS supports S3 as source + Kinesis as target for streaming
-6. **DynamoDB on-demand** — instant scaling for unpredictable spikes (auto-scaling too slow)
-7. **Aurora I/O-Optimized** — Aurora's own storage type; doesn't use EBS volume types
+### Weak Areas (restart) — High-Performing
+1. **Transit Gateway + ECMP** — aggregates VPN bandwidth across multiple tunnels (still missed)
+2. **Tape Gateway** — preserves tape backup workflows; DataSync requires workflow change
+3. **Global Accelerator** — provides 2 static anycast IPs for multi-region ALB whitelisting
+4. **DMS S3→Kinesis** — DMS natively supports S3 as source + Kinesis as target (still missed)
