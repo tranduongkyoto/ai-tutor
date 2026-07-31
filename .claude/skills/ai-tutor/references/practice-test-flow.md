@@ -147,9 +147,10 @@ F. {full option text}    ← only if present
   Use `AskUserQuestion`: "Your answer?" — Options: `A`, `B`, `C`, `D` (add `E`, `F` if question has more options) — `multiSelect: false`
 
 - **Multi-choice** (2+ correct answers, question says "Select two/three"):
-  Do NOT use AskUserQuestion. Instead, ask user to type their answer directly:
-  `Type your answer (e.g., AC or A,C):`
-  Parse response: accept `AC`, `A,C`, `A C`, `A, C`, case-insensitive.
+  **CRITICAL: Do NOT use AskUserQuestion for multi-choice. Do NOT show any pre-built answer combinations. Do NOT show example answers or format hints like "e.g., BCD" or "e.g., B,C,D" — these leak possible answer combinations.**
+  Simply output this text and STOP (the user will type their answer in chat):
+  `Type your answer:`
+  Parse the user's response: accept any format — `BCD`, `B,C,D`, `B C D`, `B, C, D`, case-insensitive.
 
 **Step 4c — Feedback (TEXT ONLY, same turn):**
 
@@ -233,6 +234,6 @@ When user selects "Redo wrong answers":
 
 - **Question text contains code/JSON/policy**: print verbatim inside markdown code block
 - **Answer has only letters (truncated options in .md)**: print whatever text exists, even if short
-- **User types invalid answer for multi-choice**: ask again, show accepted format
+- **User types invalid answer for multi-choice**: ask again with just `Type your answer:` — no format examples
 - **Redo with 0 wrong answers**: show "No wrong answers to redo! Score: {score}/65 ({pct}%)"
 - **Mixed scope resume**: if user previously did "all" and now selects a domain, show that domain's status and offer redo or skip
