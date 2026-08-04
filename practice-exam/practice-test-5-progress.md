@@ -14,17 +14,17 @@
 |----|-------|-------|------|---------|--------|
 | 1 | 1 | Site-to-Site VPN encrypted connectivity | C | C | Correct |
 | 2 | 3 | Gateway VPC endpoint for S3 | D | D | Correct |
-| 3 | 7 | CloudFront OAC + ACM us-east-1 | A, B | A, C | Wrong |
+| 3 | 7 | CloudFront OAC + ACM us-east-1 | A, B | A, C | Correct (redo) |
 | 4 | 8 | Transit Gateway full mesh VPCs | D | D | Correct |
 | 5 | 11 | Site-to-Site VPN fastest encrypted | A | A | Correct |
 | 6 | 14 | S3 Object Lock Compliance Mode WORM | B | B | Correct |
 | 7 | 20 | PrivateLink for SaaS private access | A | A | Correct |
 | 8 | 28 | RDS SG inbound rule for app servers | C | C | Correct |
 | 9 | 32 | WAF + CloudFront for SQLi/XSS | B | B | Correct |
-| 10 | 34 | IAM Access Analyzer external sharing | D | A | Wrong |
+| 10 | 34 | IAM Access Analyzer external sharing | D | A | Correct (redo) |
 | 11 | 36 | WAF geo match + IP set exception | C, D | C, D | Correct |
 | 12 | 40 | WAF on CloudFront for EC2 apps | B | B | Correct |
-| 13 | 46 | Transfer Family EFS POSIX SFTP | C | A | Wrong |
+| 13 | 46 | Transfer Family EFS POSIX SFTP | C | A | Wrong (redo) |
 | 14 | 48 | Glacier Vault Lock compliance | B | B | Correct |
 | 15 | 50 | EBS encryption capabilities | B, C, F | B, C, F | Correct |
 | 16 | 52 | S3 Bucket Keys reduce KMS cost | B | B | Correct |
@@ -42,24 +42,24 @@
 | Q# | Orig# | Topic | Your | Correct | Result |
 |----|-------|-------|------|---------|--------|
 | 1 | 2 | EBS Provisioned IOPS for high IOPS DB | A | A | Correct |
-| 2 | 4 | EBS Fast Snapshot Restore for clones | C | A | Wrong |
+| 2 | 4 | EBS Fast Snapshot Restore for clones | C | A | Correct (redo) |
 | 3 | 6 | DMS Serverless auto-scaling replication | B | B | Correct |
 | 4 | 12 | S3 event + Lambda thumbnail | D | D | Correct |
-| 5 | 21 | DynamoDB global tables multi-Region | A | D | Wrong |
+| 5 | 21 | DynamoDB global tables multi-Region | A | D | Correct (redo) |
 | 6 | 23 | Kinesis batch messages reduce cost | C | C | Correct |
-| 7 | 24 | DataSync migrate + File Gateway ongoing | A | C | Wrong |
+| 7 | 24 | DataSync migrate + File Gateway ongoing | A | C | Correct (redo) |
 | 8 | 26 | EC2 Instance Connect temp key | C | C | Correct |
 | 9 | 27 | S3TA + CloudFront for remote uploads | A, C | A, C | Correct |
-| 10 | 30 | KDS multi-consumer vs Firehose | B | C | Wrong |
+| 10 | 30 | KDS multi-consumer vs Firehose | B | C | Correct (redo) |
 | 11 | 33 | KDS Enhanced Fanout for consumers | D | D | Correct |
-| 12 | 35 | Instance Store + S3 + Glacier tiers | B | A | Wrong |
-| 13 | 37 | API GW + SQS + Comprehend sentiment | C | D | Wrong |
+| 12 | 35 | Instance Store + S3 + Glacier tiers | B | A | Correct (redo) |
+| 13 | 37 | API GW + SQS + Comprehend sentiment | C | D | Correct (redo) |
 | 14 | 42 | CloudWatch Logs agent for ASG logs | B | B | Correct |
-| 15 | 43 | Redis geospatial caching | D | A | Wrong |
-| 16 | 44 | Reserved + Spot for SQS processing | C | D | Wrong |
+| 15 | 43 | Redis geospatial caching | D | A | Correct (redo) |
+| 16 | 44 | Reserved + Spot for SQS processing | C | D | Wrong (redo) |
 | 17 | 45 | Global Accelerator cross-Region failover | D | D | Correct |
 | 18 | 51 | DynamoDB global tables + provisioned AS | D | D | Correct |
-| 19 | 54 | Transcribe + Athena ad-hoc SQL | A | D | Wrong |
+| 19 | 54 | Transcribe + Athena ad-hoc SQL | A | D | Correct (redo) |
 | 20 | 61 | ElastiCache session management | C | C | Correct |
 | 21 | 64 | NLB TCP/UDP + Global Accelerator | B, D | B, D | Correct |
 
@@ -79,7 +79,7 @@
 | Q# | Orig# | Topic | Your | Correct | Result |
 |----|-------|-------|------|---------|--------|
 | 1 | 5 | SSM Automation + Maintenance Windows | B, E | B, E | Correct |
-| 2 | 9 | EC2 detailed monitoring 1-min | A | B | Wrong |
+| 2 | 9 | EC2 detailed monitoring 1-min | A | B | Correct (redo) |
 | 3 | 10 | EFS + AWS Backup cross-Region | D | D | Correct |
 | 4 | 13 | ASG+ALB + Aurora read replicas | C, D | C, D | Correct |
 | 5 | 15 | Recycle Bin snapshot retention | C | C | Correct |
@@ -88,7 +88,7 @@
 | 8 | 25 | RDS cross-Region backup + replicas | B, E | B, E | Correct |
 | 9 | 31 | SQS dead-letter queue failures | D | D | Correct |
 | 10 | 38 | RDS Multi-AZ CNAME failover | D | D | Correct |
-| 11 | 39 | Aurora reader endpoint offload | C, E | C | Wrong |
+| 11 | 39 | Aurora reader endpoint offload | C, E | C | Correct (redo) |
 | 12 | 41 | Route 53 active-passive failover | C | C | Correct |
 | 13 | 47 | ASG min=4 across 2 AZs for HA | A | A | Correct |
 | 14 | 49 | ASG + Spot + ALB for stateless app | C | C | Correct |
@@ -104,10 +104,10 @@
 
 | Q# | Orig# | Topic | Your | Correct | Result |
 |----|-------|-------|------|---------|--------|
-| 1 | 17 | S3 File Gateway on-prem cache | A | C | Wrong |
+| 1 | 17 | S3 File Gateway on-prem cache | A | C | Correct (redo) |
 | 2 | 19 | Instance Store temp high IOPS | A | A | Correct |
-| 3 | 22 | DX egress cheaper than internet | C | A | Wrong |
-| 4 | 29 | CloudWatch EC2 Reboot alarm action | A | D | Wrong |
+| 3 | 22 | DX egress cheaper than internet | C | A | Correct (redo) |
+| 4 | 29 | CloudWatch EC2 Reboot alarm action | A | D | Correct (redo) |
 | 5 | 53 | Athena SQL on S3 data lake | B | B | Correct |
 | 6 | 55 | Global Accelerator for global API | A | A | Correct |
 | 7 | 58 | S3 Standard-IA immediate access | B | B | Correct |
@@ -131,3 +131,32 @@
 | Design High-Performing Architectures | 12/21 | 57% |
 | Design Resilient Architectures | 14/16 | 88% |
 | Design Cost-Optimized Architectures | 7/10 | 70% |
+
+## Redo Results
+
+**Redo Score: 15/17 (88%)**
+**Date:** 2026-08-04
+
+| # | Orig# | Topic | Domain | Redo Result |
+|---|-------|-------|--------|-------------|
+| 1 | 7 | CloudFront OAC + ACM us-east-1 | Secure | Correct |
+| 2 | 34 | IAM Access Analyzer external sharing | Secure | Correct |
+| 3 | 46 | Transfer Family EFS POSIX SFTP | Secure | Wrong |
+| 4 | 4 | EBS Fast Snapshot Restore | HP | Correct |
+| 5 | 21 | DynamoDB global tables multi-Region | HP | Correct |
+| 6 | 24 | DataSync migrate + File Gateway ongoing | HP | Correct |
+| 7 | 30 | KDS multi-consumer vs Firehose | HP | Correct |
+| 8 | 35 | Instance Store + S3 + Glacier tiers | HP | Correct |
+| 9 | 37 | API GW + SQS + Comprehend sentiment | HP | Correct |
+| 10 | 43 | Redis geospatial caching | HP | Correct |
+| 11 | 44 | Reserved + Spot for SQS processing | HP | Wrong |
+| 12 | 54 | Transcribe + Athena ad-hoc SQL | HP | Correct |
+| 13 | 9 | EC2 detailed monitoring 1-min | Resilient | Correct |
+| 14 | 39 | Aurora reader endpoint offload | Resilient | Correct |
+| 15 | 17 | S3 File Gateway on-prem cache | Cost | Correct |
+| 16 | 22 | DX egress cheaper than internet | Cost | Correct |
+| 17 | 29 | CloudWatch EC2 Reboot alarm action | Cost | Correct |
+
+### Still Weak (wrong on redo)
+1. **Transfer Family + EFS POSIX (Q46)** — SFTP with POSIX file-level access + high IOPS = EFS (not S3, not FSx Lustre). EFS preserves Linux user model. FSx Lustre is HPC-grade overkill.
+2. **Reserved + Spot for SQS (Q44)** — SQS workloads are Spot-friendly (interrupted messages return to queue). But need Reserved baseline for "no downtime" guarantee. Spot-only = risk of zero capacity.

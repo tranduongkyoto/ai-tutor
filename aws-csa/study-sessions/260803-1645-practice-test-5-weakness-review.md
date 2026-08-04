@@ -6,6 +6,26 @@
 
 ---
 
+## Pattern 0: CloudFront Architecture (1 error)
+
+### 0.1 CloudFront OAC + ACM Certificate Region
+
+| Component | Rule |
+|-----------|------|
+| **ACM certificate for CloudFront** | Must be in **us-east-1** regardless of S3 bucket Region |
+| **Origin Access Control (OAC)** | Current best practice for CloudFront→S3. Supports **uploads (PUT/POST)** unlike legacy OAI |
+| **S3 static website endpoint** | Does NOT support HTTPS. Cannot be used as CloudFront origin for secure uploads |
+| **Origin Access Identity (OAI)** | Legacy. Does NOT support uploads, only GET requests |
+
+**Decision tree for CloudFront + S3:**
+1. Need HTTPS with custom domain? → ACM cert in **us-east-1**
+2. Need uploads through CloudFront? → **OAC** (not OAI, not static website endpoint)
+3. Need read-only CDN? → OAC or OAI both work (prefer OAC)
+
+**Your mistake (Q7):** Picked B (S3 static website endpoint) instead of C (OAC). Static website endpoint doesn't support HTTPS and isn't designed for uploads. OAC is the upload-capable, HTTPS-compatible origin access method.
+
+---
+
 ## Pattern 1: Confusing Similar AWS Services (9 errors)
 
 The biggest error pattern — picking a service that sounds right but serves a different purpose.
