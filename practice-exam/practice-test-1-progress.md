@@ -41,7 +41,7 @@
 | 49 | Secure | Root user: strong password + MFA | Correct | A, E | A, E | Correct |
 | 62 | Secure | PrivateLink NLB cross-account RDS | Wrong | B | B | Correct |
 
-### Design High-Performing — Retake: In Progress (23/24 answered, 17 correct)
+### Design High-Performing — Retake: 17/24 (71%) vs Original: 11/24 (45%)
 
 | Q# | Domain | Topic | Original | Retake | Correct | Result |
 |----|--------|-------|----------|--------|---------|--------|
@@ -68,4 +68,51 @@
 | 58 | HP | sc1 + st1 cannot be boot volumes | Wrong | A, E | A, E | Correct |
 | 63 | HP | Target tracking ASG at 50% CPU | Correct | A | A | Correct |
 | 64 | HP | S3 custom prefixes for throughput | Correct | D | D | Correct |
-| 65 | HP | ASG rebalance + unhealthy terminate | Wrong | — | B, E | Pending |
+| 65 | HP | ASG rebalance + unhealthy terminate | Wrong | A, B | B, E | Wrong |
+
+### Design Resilient — Retake: 11/13 (85%) vs Original: 7/13 (53%)
+
+| Q# | Domain | Topic | Original | Retake | Correct | Result |
+|----|--------|-------|----------|--------|---------|--------|
+| 6 | Resilient | Glue DataBrew code-free profiling | Wrong | D | D | Correct |
+| 9 | Resilient | ALB path-based routing | Correct | A | A | Correct |
+| 12 | Resilient | SQS + Lambda + DynamoDB serverless | Correct | D | D | Correct |
+| 16 | Resilient | ASG scheduled action desired=10 | Correct | A | A | Correct |
+| 22 | Resilient | Lambda concurrency quota | Correct | A | A | Correct |
+| 26 | Resilient | RDS Custom for Oracle multi-AZ | Correct | B | B | Correct |
+| 32 | Resilient | S3 versioning + MFA delete | Wrong | C, D | B, C | Wrong |
+| 43 | Resilient | ASG Standby + suspend ReplaceUnhealthy | Wrong | C, E | C, E | Correct |
+| 48 | Resilient | Multi-AZ sync + read replica async | Wrong | C | A | Wrong |
+| 53 | Resilient | CloudWatch metric filter CloudTrail | Correct | A | A | Correct |
+| 55 | Resilient | SQS FIFO exactly-once processing | Wrong | C | C | Correct |
+| 59 | Resilient | SQS FIFO batch=4 for 1000 msg/s | Correct | B | B | Correct |
+| 60 | Resilient | ALB content-based routing + ASG | Wrong | C | C | Correct |
+
+### Design Cost-Optimized — Retake: 10/11 (91%) vs Original: 8/11 (72%)
+
+| Q# | Domain | Topic | Original | Retake | Correct | Result |
+|----|--------|-------|----------|--------|---------|--------|
+| 7 | Cost | S3 One Zone-IA recreatable assets | Wrong | B | B | Correct |
+| 13 | Cost | File Gateway NFS + S3 lifecycle | Correct | D | B | Wrong |
+| 19 | Cost | Spot instances interruptible 60min | Correct | A | A | Correct |
+| 23 | Cost | S3 Standard-IA for infrequent ms access | Correct | B | B | Correct |
+| 28 | Cost | EFS cross-account resource policy | Correct | B | B | Correct |
+| 31 | Cost | ECS EC2=EC2+EBS, Fargate=vCPU+mem | Correct | C | C | Correct |
+| 35 | Cost | S3 Standard for heavy 24hr access | Wrong | C | C | Correct |
+| 50 | Cost | S3 < EFS < EBS storage cost order | Wrong | B | B | Correct |
+| 54 | Cost | DAX + CloudFront caching | Correct | C | C | Correct |
+| 56 | Cost | S3TA + multipart for upload speed | Correct | B, D | B, D | Correct |
+| 61 | Cost | Invalid S3 lifecycle transitions | Correct | C, D | C, D | Correct |
+
+## Retake Summary
+
+**Retake TOTAL: 55/65 (85%) — PASS ✓**
+**Original: 36/65 (55%) — FAIL**
+**Improvement: +30 points**
+
+| Domain | Original | Retake | Change |
+|--------|----------|--------|--------|
+| Design Secure Architectures | 10/17 (58%) | 17/17 (100%) | +42pts |
+| Design High-Performing | 11/24 (45%) | 17/24 (71%) | +26pts |
+| Design Resilient | 7/13 (53%) | 11/13 (85%) | +32pts |
+| Design Cost-Optimized | 8/11 (72%) | 10/11 (91%) | +19pts |
