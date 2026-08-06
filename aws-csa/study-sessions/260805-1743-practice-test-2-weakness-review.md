@@ -1,207 +1,231 @@
-# Practice Test 2 — Weakness Review
+# Practice Test 2 Retake — Weakness Review
 
 **Original:** 38/65 (58%) — FAIL
 **Retake:** 51/65 (78%) — PASS
 **Improvement:** +20 points
-**Date:** 2026-08-05
-**Still wrong on retake:** 14 questions (7 Secure, 2 HP, 2 Resilient, 3 Cost)
+**Date:** 2026-08-05 (review corrected 2026-08-06)
+**Still wrong on retake:** 14 questions (8 Secure, 2 HP, 2 Resilient, 2 Cost)
+**Note:** Retake uses different questions than original (Udemy randomizes). Questions from `retake-test-2-questions.md`.
 
 ---
 
-## Pattern 1: Security Group Chaining (1 error)
+## Pattern 1: EFS Performance Modes (1 error)
 
-### Q44 — ALB + EC2 + RDS Security Group Chain
-
-The classic 3-tier security group pattern:
-
-```
-Internet → ALB (SG: inbound 443 from 0.0.0.0/0)
-              → EC2 (SG: inbound from ALB SG)
-                  → RDS (SG: inbound from EC2 SG)
-```
-
-| Layer | Inbound Rule Source |
-|-------|-------------------|
-| ALB SG | `0.0.0.0/0` on port 443 (HTTPS) |
-| EC2 SG | ALB security group on app port |
-| RDS SG | EC2 security group on DB port |
-
-**Key:** Each layer's SG references the PREVIOUS layer's SG — never direct IP or `0.0.0.0/0` for internal tiers.
-
----
-
-## Pattern 2: WAF vs Security Groups for IP Blocking (1 error)
-
-### Q8 — Block Malicious IPs on CloudFront
-
-| Service | Can Block IPs? | Works With |
-|---------|---------------|------------|
-| **AWS WAF IP match** | Yes — IP set rules | CloudFront, ALB, API Gateway |
-| **Security Groups** | Yes — deny rules | EC2, ALB (but NOT CloudFront) |
-| **NACLs** | Yes — subnet level | VPC subnets only |
-
-**Key:** CloudFront sits outside the VPC — security groups and NACLs don't apply. Use **WAF IP match condition** on CloudFront.
-
----
-
-## Pattern 3: SCP for Organizational Guardrails (1 error)
-
-### Q12 — Prevent Developers from Disabling CloudTrail
-
-| Tool | Scope | Use When |
-|------|-------|----------|
-| **SCP (Service Control Policy)** | All accounts in OU | "Prevent changes" across all accounts in an organization |
-| **IAM Policy** | Single account/user | Per-user or per-role permissions |
-| **AWS Config Rule** | Detective (after the fact) | "Detect non-compliance" — doesn't prevent |
-
-**Key:** "Prohibit changes to CloudTrail across all accounts" = **SCP attached to OU**. IAM policies can be overridden per-account; SCPs cannot.
-
----
-
-## Pattern 4: IAM Policy Interpretation (1 error)
-
-### Q25 — Reading IAM Policy Conditions
-
-Common IAM condition keys:
-| Condition Key | Tests |
-|--------------|-------|
-| `aws:SourceIp` | IP address of API caller |
-| `aws:RequestedRegion` | Region the API call targets |
-| `aws:PrincipalTag` | Tag on the calling principal |
-| `ec2:ResourceTag` | Tag on the EC2 resource |
-
-**Key:** `"Condition": {"IpAddress": {"aws:SourceIp": "x.x.x.x/x"}}` restricts API calls to specific source IPs. Read conditions carefully — they narrow WHICH requests are allowed/denied.
-
----
-
-## Pattern 5: EFS Performance Modes (1 error)
-
-### Q7 — EFS Max I/O vs General Purpose
+### Q7 — EFS Max I/O for Big Data
 
 | Mode | Throughput | Latency | Use When |
 |------|-----------|---------|----------|
 | **General Purpose** | Lower | Lower latency | Most workloads, web serving |
-| **Max I/O** | Higher (parallel) | Higher latency | Big data, HPC, many clients |
+| **Max I/O** | Higher (parallel) | Higher latency | Big data, HPC, many parallel clients |
+| **Bursting** | Scales with size | Variable | Default throughput mode |
+| **Provisioned** | Fixed throughput | Configurable | Known throughput needs |
 
-**Key:** "Improve performance" + "big data" + "many parallel workflows" = **Max I/O mode**.
-
----
-
-## Pattern 6: FSx for Windows File Server (1 error)
-
-### Q40 — SMB Protocol for Windows Workloads
-
-| Service | Protocol | Use When |
-|---------|----------|----------|
-| **FSx for Windows** | SMB | Windows workstations, AD integration |
-| **FSx for Lustre** | POSIX | HPC, ML, Linux |
-| **EFS** | NFS | Linux EC2/ECS/Lambda |
-| **File Gateway** | NFS/SMB | On-prem → S3 hybrid |
-
-**Key:** "Windows" + "SMB" + "Active Directory" = **FSx for Windows File Server**.
+**Key:** "Big data" + "improve performance" + "parallel processing" = **Max I/O mode**.
 
 ---
 
-## Pattern 7: EC2 Purchasing Mix (1 error)
+## Pattern 2: RDS Encrypted Snapshot Sharing (1 error)
 
-### Q43 — Reserved + Spot for Mixed Workloads
+### Q8 — Share RDS Database Cross-Account
 
-| Workload Pattern | Purchasing Strategy |
-|-----------------|-------------------|
-| Steady baseline (always running) | **Reserved Instances** |
-| Flexible, interruptible spikes | **Spot Instances** |
-| Short-term, can't be interrupted | **On-Demand** |
-| 70 always-on + 30 flexible | **70 Reserved + 30 Spot** |
+To share an RDS database with an external account:
+1. Create an **encrypted snapshot** of the database
+2. **Share the snapshot** with the auditor's AWS account
+3. Grant the auditor **access to the KMS key** used for encryption
 
-**Key:** Match purchasing to workload pattern. "100 instances, 70% steady + 30% flexible" = 70 RI + 30 Spot.
+**Key:** RDS snapshots can be shared cross-account. If encrypted with KMS, the recipient needs KMS key access too. Don't export to text/S3 (insecure, manual). Don't use read replicas (ongoing access, not a copy).
 
 ---
 
-## Pattern 8: ASG Termination Policy (1 error)
+## Pattern 3: AWS Transfer Family for SFTP (1 error)
 
-### Q45 — Which Instance Gets Terminated During Scale-In?
+### Q12 — Legacy Vendors Need SFTP to S3
 
-ASG default termination policy order:
-1. Select the AZ with the most instances
-2. Within that AZ, select the instance with the **oldest launch configuration/template**
-3. If tied, select the instance **closest to the next billing hour**
+| Protocol Needed | AWS Service |
+|----------------|-------------|
+| **SFTP** (legacy vendors) | **AWS Transfer Family** (fully managed SFTP → S3) |
+| REST API | Direct S3 API |
+| NFS | File Gateway or EFS |
+| SMB | FSx for Windows |
 
-**Key:** ASG always tries to balance AZs first, then uses launch config age, then billing hour proximity.
+For vendor access control:
+- **IAM roles per vendor** mapped to specific S3 prefixes
+- **Transfer Family identity provider** integration (Cognito or custom) for federation
 
----
-
-## Pattern 9: RDS Read Replica Data Transfer Costs (1 error)
-
-### Q48 — Cross-Region Read Replica Charges
-
-| Transfer Type | Cost |
-|--------------|------|
-| Same Region, same AZ | Free |
-| Same Region, cross-AZ | ~$0.01/GB |
-| **Cross-Region** | **Data transfer charges apply** |
-
-**Key:** Cross-Region read replica replication incurs data transfer charges. Same-Region does not.
+**Key:** "Legacy SFTP" + "fully managed" + "direct to S3" = **Transfer Family with SFTP**. Don't build custom SFTP on EC2.
 
 ---
 
-## Pattern 10: S3 Access Points (1 error)
+## Pattern 4: KMS Multi-Region Keys for S3 CRR (1 error)
 
-### Q54 — Per-Service Access Control for Shared S3 Bucket
+### Q25 — Same Encryption Key Across Regions
 
-| Tool | Use When |
-|------|----------|
-| **S3 Access Points** | Multiple services/teams need different access to same bucket |
-| **Bucket Policy** | Single access pattern for the whole bucket |
-| **IAM Policy** | Per-user/role access control |
+| KMS Key Type | Cross-Region? | Same Key? |
+|-------------|--------------|-----------|
+| **Single-Region key** | No — key stays in one Region | N/A |
+| **Multi-Region key** | Yes — replicated across Regions | Same key material |
 
-**Key:** "Multiple analytics services, each needing different access to shared bucket" = **S3 Access Points** with individual access point policies.
+For S3 Cross-Region Replication with "same key in both Regions":
+1. Create a **new bucket** with **KMS multi-Region key** enabled
+2. Enable replication to destination Region
+3. Copy existing data into the new bucket
 
----
-
-## Pattern 11: Lambda Cross-Account S3 Access (1 error)
-
-### Q55 — Lambda in Account A Accessing S3 in Account B
-
-Two requirements for cross-account Lambda→S3:
-1. **Lambda execution role** in Account A must have S3 permissions
-2. **S3 bucket policy** in Account B must trust Account A's Lambda role
-
-**Key:** The Lambda execution role's trust policy must allow `sts:AssumeRole`, and the S3 bucket policy must grant access to that role's ARN.
+**Key:** You can't convert a single-Region KMS key to multi-Region. Must create new key + new bucket. "Same key in both Regions" = multi-Region key.
 
 ---
 
-## Pattern 12: SSE-C vs SSE-KMS vs SSE-S3 (1 error)
+## Pattern 5: S3 Access Points (1 error)
 
-### Q60 — Customer Provides and Manages Keys
+### Q28 — Per-Service Prefix Access Control
 
-| | SSE-S3 | SSE-KMS | SSE-C |
-|--|--------|---------|-------|
-| **Who manages key?** | AWS | AWS KMS (you control) | **You provide per-request** |
-| **Key stored by AWS?** | Yes | Yes (in KMS) | **No** |
-| **Audit trail?** | No | Yes (CloudTrail) | No |
-| **Use when** | Default, simplest | Audit + rotation needed | **Full key control, customer manages** |
+| Approach | Scalability | Maintenance |
+|----------|------------|-------------|
+| Single bucket policy with all ARNs | Low — grows unwieldy | High |
+| IAM inline policies per user | Low — manual | High |
+| **S3 Access Points per service** | **High — add service = add access point** | **Low** |
+| Macie classification | Detective, not preventive | N/A |
 
-**Key:** "Customer provides and manages their own encryption keys" = **SSE-C**. "Audit trail" = SSE-KMS.
+**Key:** "Multiple services, each needs own prefix, scalable" = **S3 Access Points**. Each access point has its own policy scoped to a prefix.
 
 ---
 
-## Pattern 13: RDS Multi-AZ Engine Upgrade (1 error)
+## Pattern 6: ASG Health Check Grace Period (1 error)
 
-### Q61 — Multi-AZ Database Engine Upgrade Behavior
+### Q40 — ASG Not Terminating Unhealthy Instance
 
-Multi-AZ upgrade process:
-1. Upgrade **standby** first
-2. Promote standby to primary (brief failover)
-3. Upgrade old primary (now new standby)
+Common reasons ASG won't terminate an unhealthy instance:
+1. **Health check grace period not expired** — ASG waits this period after instance launch before checking health
+2. Instance is in **Standby** state
+3. **ReplaceUnhealthy** process is suspended
+4. Instance is protected with **scale-in protection**
 
-**Key:** Engine-level upgrades trigger a brief downtime/failover. OS maintenance is similar but can use maintenance windows.
+**Key:** New instances get a grace period (default 300s). During this period, ASG ignores unhealthy status to allow app startup time.
+
+---
+
+## Pattern 7: RAM Shared VPC vs Transit Gateway vs VPC Peering (1 error)
+
+### Q43 — Cheapest Cross-Account Private Connectivity
+
+| Solution | Cost | Complexity |
+|----------|------|-----------|
+| **RAM shared subnets** | **Free** (sharing is free) | Low |
+| VPC Peering | Low (per-GB data transfer) | Medium (N×N connections) |
+| Transit Gateway | ~$0.05/hr + per-GB | Medium (hub-spoke) |
+| PrivateLink | Per-endpoint + per-GB | Low per-service |
+
+**Key:** "CHEAPEST" cross-account private connectivity = **RAM shared VPC subnets**. Instances in shared subnets communicate directly — no data transfer charges, no gateway costs.
+
+---
+
+## Pattern 8: Spot Fleet vs Spot Instances (1 error)
+
+### Q44 — Monthly 2hr Batch Across Various Server Sizes
+
+| | Spot Instances | Spot Fleet |
+|--|---------------|------------|
+| **Instance types** | Single type per request | **Multiple types, sizes** |
+| **Availability** | Single pool | **Multiple pools** (better availability) |
+| **Server failures** | Manual handling | **Built-in diversification** |
+
+**Key:** "Multiple servers of various sizes" + "withstand server failures" = **Spot Fleet** (not individual Spot Instances). Spot Fleet spreads across instance types and AZs for resilience.
+
+---
+
+## Pattern 9: SSE-C for Customer-Managed On-Prem Keys (1 error)
+
+### Q45 — Encryption Key Stored On-Premises
+
+| | SSE-S3 | SSE-KMS | SSE-C | Client-Side |
+|--|--------|---------|-------|-------------|
+| **Key location** | AWS | AWS KMS | **Customer provides per-request** | Customer |
+| **Encryption done by** | AWS | AWS | **AWS (server-side)** | Client |
+| **Key stored by AWS?** | Yes | Yes (KMS) | **No** | No |
+
+**Key:** "Key on-premises" + "offload encryption to S3" = **SSE-C**. Customer sends key with each request, AWS encrypts server-side, doesn't store the key. Client-side encryption doesn't offload encryption to S3.
+
+---
+
+## Pattern 10: Shared Services VPC (1 error)
+
+### Q48 — Reduce Admin + Cost for Shared Services
+
+| Pattern | Use When |
+|---------|----------|
+| **Shared Services VPC** | Central services (DNS, AD, monitoring) accessed by all spoke VPCs via Transit Gateway |
+| Transit VPC | Legacy pattern (replaced by Transit Gateway) |
+| Full mesh peering | Small number of VPCs, no central services |
+
+**Key:** Hub-and-spoke with Transit Gateway already exists → add a **shared services VPC** for common resources. Reduces duplication across accounts.
+
+---
+
+## Pattern 11: Global Accelerator for NLB Endpoints (1 error)
+
+### Q54 — Global Video Platform with NLBs, High Latency
+
+| Solution | Protocol | Caching | Failover |
+|----------|----------|---------|----------|
+| Route 53 latency routing | DNS-based | No | DNS TTL dependent |
+| CloudFront | HTTP/HTTPS | Yes | Origin failover |
+| **Global Accelerator** | **TCP/UDP** | **No** | **Seconds (health check)** |
+
+**Key:** "NLBs in multiple Regions" + "reduce latency" + "keep existing NLBs" = **Global Accelerator**. Routes traffic through AWS edge network to nearest healthy NLB. CloudFront can't sit in front of NLBs efficiently for non-HTTP traffic.
+
+---
+
+## Pattern 12: ASG Default Termination Policy (1 error)
+
+### Q55 — Which Instance Gets Terminated?
+
+Default termination policy order:
+1. Select AZ with **most instances**
+2. Find instance with **oldest launch configuration** (NOT launch template)
+3. If tied, select **closest to next billing hour**
+
+| Instance | Attribute | Terminated? |
+|----------|-----------|-------------|
+| A | Oldest launch **template** | No |
+| **B** | **Oldest launch configuration** | **Yes ✅** |
+| C | Newest launch config | No |
+| D | Closest to billing hour | No (only tiebreaker) |
+
+**Key:** Launch **configuration** (legacy) is checked BEFORE launch **template**. Instance B = oldest launch config → terminated first.
+
+---
+
+## Pattern 13: API Gateway Resource Policy for IP Restriction (1 error)
+
+### Q60 — API Accessible Only from Trusted IPs
+
+| Approach | Works? | Why |
+|----------|--------|-----|
+| Security Group on API Gateway | **No** | API Gateway doesn't have SGs |
+| NACL on subnet | **No** | API Gateway isn't in a VPC subnet (regional API) |
+| **Resource Policy with IP deny** | **Yes** | API Gateway resource policies support IP conditions |
+
+**Key:** API Gateway access control = **resource policy** (not SGs, not NACLs). Use `"Condition": {"NotIpAddress": {"aws:SourceIp": [...]}}` to deny all except trusted IPs.
+
+---
+
+## Pattern 14: Global Accelerator for Blue-Green (1 error)
+
+### Q61 — Blue-Green with DNS-Caching Mobile Clients
+
+| Approach | DNS Caching Issue? |
+|----------|-------------------|
+| Route 53 weighted routing | **Yes** — mobile clients cache DNS, slow to shift |
+| ELB traffic distribution | Single Region only |
+| **Global Accelerator** | **No** — uses static IPs, traffic shift is instant at network layer |
+
+**Key:** "DNS caching" on mobile phones = Route 53 weighted routing won't shift traffic fast enough. **Global Accelerator** uses static anycast IPs — traffic percentage changes take effect immediately, regardless of client DNS caching.
 
 ---
 
 ## Summary: Top 5 Areas to Drill
 
-1. **Security group chaining** — each tier references the previous tier's SG, not direct IPs
-2. **WAF for CloudFront** — SGs and NACLs don't work with CloudFront; WAF does
-3. **EFS Max I/O** — big data parallel workloads need Max I/O mode
-4. **S3 Access Points** — per-service access control for shared buckets
-5. **SSE-C vs SSE-KMS** — "customer manages keys" = SSE-C; "audit trail" = SSE-KMS
+1. **Global Accelerator** — for NLB endpoints, UDP, blue-green without DNS caching issues, static IPs
+2. **S3 Access Points** — per-service prefix access at scale
+3. **SSE-C** — "key stored on-prem" + "offload encryption to S3"
+4. **RAM shared VPC** — cheapest cross-account connectivity (free)
+5. **ASG termination policy** — oldest launch CONFIGURATION (not template), then billing hour

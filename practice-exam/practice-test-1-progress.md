@@ -116,3 +116,23 @@
 | Design High-Performing | 11/24 (45%) | 17/24 (71%) | +26pts |
 | Design Resilient | 7/13 (53%) | 11/13 (85%) | +32pts |
 | Design Cost-Optimized | 8/11 (72%) | 10/11 (91%) | +19pts |
+
+## Redo of Retake Wrong — 2026-08-06
+
+**Redo Score: 11/11 (100%)**
+
+| # | Q# | Domain | Topic | Redo Result |
+|---|-----|--------|-------|-------------|
+| 1 | 8 | HP | Instance Store high random I/O | Correct |
+| 2 | 20 | HP | Global Accelerator UDP + custom DNS | Correct |
+| 3 | 33 | HP | Kinesis Analytics real-time API | Correct |
+| 4 | 38 | HP | Direct Connect + VPN encrypted dedicated | Correct |
+| 5 | 42 | HP | ECS Fargate long-running serverless | Correct |
+| 6 | 46 | HP | CloudFront custom origin to on-prem | Correct |
+| 7 | 57 | HP | SQS async + RDS Proxy connection pool | Correct |
+| 8 | 65 | HP | ASG rebalance launch-first, unhealthy terminate-first | Correct |
+| 9 | 32 | Resilient | S3 versioning + MFA delete | Correct |
+| 10 | 48 | Resilient | Multi-AZ=sync, Read replica=async | Correct |
+| 11 | 13 | Cost | File Gateway NFS + S3 lifecycle | Correct |
+
+All 11 previously wrong questions now mastered.
