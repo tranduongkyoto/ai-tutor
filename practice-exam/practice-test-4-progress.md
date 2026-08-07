@@ -172,3 +172,10 @@
 10. **Lambda best practices** — Layers for reuse, Lambda supports container images up to 10GB
 11. **Cross-region Multi-AZ** — doesn't exist for RDS; Multi-AZ is single-region
 12. **Deletion protection** — prevents table deletion; PITR recovers data but doesn't prevent deletion
+
+## Redo Wrong Answers (2026-08-07)
+
+**Score: 15/15 (100%)** — All retake misses now corrected
+
+Reviewed all 15 wrong answers from retake. Every concept verified and locked in.
+Key repeat-miss concepts now solid: Warm Standby vs Pilot Light, Geoproximity bias, EventBridge SaaS, Transit Gateway hub.
