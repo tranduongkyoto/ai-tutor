@@ -134,3 +134,32 @@
 **Priority study areas:**
 1. High-Performing (50%) — Global Accelerator, DataSync, StackSets, tenancy, NLB routing, API Gateway HTTP API
 2. Secure (58%) — IAM instance profiles, SCPs, VPC sharing, Shield Advanced, NAT placement, FSx for ONTAP
+
+## Retake — 2026-08-06
+
+**Retake Score: 54/65 (83%) — PASS ✓**
+**Improvement: +22 points (61% → 83%)**
+**Note:** Retake uses different questions than original (Udemy randomizes).
+
+| Domain | Original | Retake | Change |
+|--------|----------|--------|--------|
+| Design Secure Architectures | 11/19 (58%) | 17/19 (89%) | +31pts |
+| Design High-Performing Architectures | 12/24 (50%) | 20/25 (80%) | +30pts |
+| Design Resilient Architectures | 10/13 (77%) | 10/13 (76%) | -1pt |
+| Design Cost-Optimized Architectures | 6/8 (75%) | 7/8 (87%) | +12pts |
+
+### Wrong on Retake (11 questions — from retake HTML, different questions than original)
+
+| Q# | Domain | Topic |
+|----|--------|-------|
+| 8 | HP | DataSync for multi-service migration (S3+EFS+FSx) |
+| 11 | HP | ECS Auto Scaling on service CPU metric |
+| 17 | HP | S3 Transfer Acceleration for global uploads |
+| 24 | Secure | SSE-S3 auto-generates unique key per object |
+| 26 | Resilient | EC2 recovery retains public IPv4 + instance ID |
+| 28 | Secure | IGW ID invalid as security group source |
+| 34 | Resilient | Internet Gateway makes subnet public |
+| 42 | Cost | Zone apex Alias record (not CNAME) |
+| 46 | HP | Cloud Directory + Managed Microsoft AD |
+| 56 | Resilient | CloudWatch alarm EC2 recovery action |
+| 57 | HP | NAT instance = EC2 (bastion, SG, port forwarding) |
