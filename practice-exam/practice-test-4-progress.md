@@ -6,10 +6,10 @@
 
 | Domain | Questions | Score | Status |
 |--------|-----------|-------|--------|
-| Design Secure Architectures | 15 | 8/15 (53%) | Done |
-| Design High-Performing Architectures | 20 | 14/20 (70%) | Done |
-| Design Resilient Architectures | 19 | 12/19 (63%) | Done |
-| Design Cost-Optimized Architectures | 11 | 6/11 (55%) | Done |
+| Design Secure Architectures | 15 | 8/15 (53%) → 11/15 (73%) | Done (retake) |
+| Design High-Performing Architectures | 20 | 14/20 (70%) → 17/20 (85%) | Done (retake) |
+| Design Resilient Architectures | 19 | 12/19 (63%) → 14/19 (74%) | Done (retake) |
+| Design Cost-Optimized Architectures | 11 | 6/11 (55%) → 8/11 (73%) | Done (retake) |
 
 ## Design Secure Architectures — 8/15 (53%)
 
@@ -141,8 +141,34 @@
 | Design Cost-Optimized Architectures | 6/11 | 55% | ✗ |
 | **TOTAL** | **40/65** | **62%** | **FAIL** |
 
-### Priority Study Areas
-1. **Secure Architectures (53%)** — S3 cross-account policies, IAM Identity Center, Object Lock, SG referencing, IAM auth to RDS, SSL vs IAM
-2. **Cost-Optimized (55%)** — API Gateway caching, S3 lifecycle rules, EFS throughput modes, Spot Instances, Storage Gateway cached vs stored
-3. **Resilient (63%)** — CloudFront field-level encryption, Warm Standby vs Pilot Light, K8s Cluster Autoscaler, EventBridge SaaS, S3 Batch Replication
-4. **High-Performing (70%)** — Transit Gateway ECMP, Tape Gateway, Global Accelerator static IPs, DMS S3→Kinesis, Lambda containers
+## Retake Summary (2026-08-07)
+
+**TOTAL: 50/65 (77%) — PASS** (improved from 62%)
+
+| Domain | Original | Retake | Change |
+|--------|----------|--------|--------|
+| Design Secure Architectures | 8/15 (53%) | 11/15 (73%) | +20% |
+| Design High-Performing Architectures | 14/20 (70%) | 17/20 (85%) | +15% |
+| Design Resilient Architectures | 12/19 (63%) | 14/19 (74%) | +11% |
+| Design Cost-Optimized Architectures | 6/11 (55%) | 8/11 (73%) | +18% |
+| **TOTAL** | **40/65 (62%)** | **50/65 (77%)** | **+15%** |
+
+### Repeat Misses (missed both attempts)
+1. **Warm Standby vs Pilot Light** — scaled-down FULL env = Warm Standby; core only = Pilot Light
+2. **Geoproximity routing** — "dynamically alter geographic area size" = bias value in geoproximity
+3. **EventBridge for SaaS** — native third-party SaaS integration; SQS is point-to-point
+4. **Transit Gateway as hub** — central hub for VPCs + on-prem; VPC peering not transitive
+
+### New Misses (retake only)
+1. **Kinesis Analytics for real-time** — Athena is batch, not real-time SQL
+2. **Object Lock Compliance + Glacier Vault Lock** — Governance mode is overridable
+3. **S3 bucket policy CIDR interpretation** — IpAddress + NotIpAddress = allow range except one IP
+4. **EFS burst throughput** — General Purpose + Standard + burst mode for sporadic bursts
+5. **Golden AMI + User Data** — Beanstalk deployment caching doesn't exist
+6. **NLB static IPs** — for firewall whitelisting; ALB IPs are dynamic
+7. **SSL for data-in-transit** — IAM auth is authentication, not encryption
+8. **DynamoDB on-demand** — for unpredictable quick spikes; auto-scaling takes minutes
+9. **DAX vs ElastiCache** — DAX is API-compatible, minimal refactoring
+10. **Lambda best practices** — Layers for reuse, Lambda supports container images up to 10GB
+11. **Cross-region Multi-AZ** — doesn't exist for RDS; Multi-AZ is single-region
+12. **Deletion protection** — prevents table deletion; PITR recovers data but doesn't prevent deletion

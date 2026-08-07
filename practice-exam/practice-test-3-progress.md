@@ -163,3 +163,21 @@
 | 46 | HP | Cloud Directory + Managed Microsoft AD |
 | 56 | Resilient | CloudWatch alarm EC2 recovery action |
 | 57 | HP | NAT instance = EC2 (bastion, SG, port forwarding) |
+
+### Redo Retake Wrong — 2026-08-07
+
+**Score: 11/11 (100%) — All retake weak spots cleared ✓**
+
+| Q# | Domain | Topic | Result |
+|----|--------|-------|--------|
+| 1 | HP | DataSync for multi-service migration | Correct |
+| 2 | HP | ECS Auto Scaling on service CPU metric | Correct |
+| 3 | HP | S3 Transfer Acceleration for global uploads | Correct |
+| 4 | Secure | SSE-S3 auto-generates unique key per object | Correct |
+| 5 | Resilient | EC2 recovery retains public IPv4 + instance ID | Correct |
+| 6 | Secure | IGW ID invalid as security group source | Correct |
+| 7 | Resilient | Internet Gateway performs NAT for public instances | Correct |
+| 8 | Cost | Zone apex Alias record (not CNAME) | Correct |
+| 9 | HP | Managed Microsoft AD for trust + directory-aware workloads | Correct |
+| 10 | Resilient | CloudWatch alarm EC2 recovery (EBS only) | Correct |
+| 11 | HP | NAT instance = EC2 (bastion, SG, port forwarding) | Correct |
