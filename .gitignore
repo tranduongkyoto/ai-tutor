@@ -157,3 +157,7 @@ coverage/
 /logs/*
 **/generated/
 geojson
+######################
+# Certificates
+######################
+cert/
