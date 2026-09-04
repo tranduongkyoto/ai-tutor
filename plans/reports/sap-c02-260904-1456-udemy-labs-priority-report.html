@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS SAP-C02 — Udemy Labs Priority Report</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --orange: #fb923c;
+    --red: #f87171;
+    --purple: #a78bfa;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+  .stat-card .number {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+  .stat-card .label {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+  .section {
+    margin-bottom: 2.5rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-header h2 {
+    font-size: 1.3rem;
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .badge-high { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+  .badge-medium { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
+  .badge-maarek { background: rgba(56,189,248,0.15); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); }
+  .badge-domain {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: rgba(167,139,250,0.15);
+    color: var(--purple);
+    border: 1px solid rgba(167,139,250,0.2);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: rgba(51,65,85,0.5);
+    padding: 0.8rem 1rem;
+    text-align: left;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  td {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  tr:hover td { background: rgba(56,189,248,0.05); }
+  .lab-title { font-weight: 600; }
+  .lab-id { color: var(--muted); font-size: 0.8rem; }
+  .time { color: var(--green); font-weight: 500; font-size: 0.85rem; }
+  .tasks-list {
+    list-style: none;
+    margin-top: 0.4rem;
+  }
+  .tasks-list li {
+    font-size: 0.8rem;
+    color: var(--muted);
+    padding: 0.15rem 0;
+  }
+  .tasks-list li::before {
+    content: "→ ";
+    color: var(--accent);
+  }
+  .checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--green);
+    cursor: pointer;
+  }
+  .recommendation {
+    background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(167,139,250,0.1));
+    border: 1px solid rgba(56,189,248,0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .recommendation h3 {
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .recommendation p { color: var(--muted); font-size: 0.9rem; }
+  .recommendation strong { color: var(--text); }
+  .overlap-tag {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    background: rgba(74,222,128,0.15);
+    color: var(--green);
+    border: 1px solid rgba(74,222,128,0.2);
+    margin-left: 0.3rem;
+  }
+  .footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  @media (max-width: 768px) {
+    body { padding: 1rem; }
+    h1 { font-size: 1.4rem; }
+    td, th { padding: 0.5rem; font-size: 0.8rem; }
+    .tasks-list { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<h1>AWS SAP-C02 — Udemy Labs Priority Report</h1>
+<p class="subtitle">53 total AWS labs → 31 relevant for SAP-C02 → 11 by Stéphane Maarek</p>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="number" style="color:var(--red)">17</div>
+    <div class="label">High Priority Labs</div>
+  </div>
+  <div class="stat-card">
+    <div class="number" style="color:var(--yellow)">14</div>
+    <div class="label">Medium Priority Labs</div>
+  </div>
+  <div class="stat-card">
+    <div class="number" style="color:var(--accent)">11</div>
+    <div class="label">Maarek Labs</div>
+  </div>
+  <div class="stat-card">
+    <div class="number" style="color:var(--green)">~30h</div>
+    <div class="label">Est. Total Time</div>
+  </div>
+</div>
+
+<div class="recommendation">
+  <h3>💡 Study Recommendation</h3>
+  <p>Labs are <strong>nice-to-have, not essential</strong> for SAP-C02. The exam is 100% multiple-choice architectural judgment — no console access. <strong>Practice questions deliver 3x more score improvement per hour.</strong> Only do labs if you score &lt;60% on practice tests and can't understand WHY an answer is correct. If doing labs, prioritize the <strong>11 Maarek labs</strong> — they map directly to his course content.</p>
+</div>
+
+<!-- HIGH PRIORITY -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-high">High</span>
+    <h2>High Priority — Core SAP-C02 Topics</h2>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:30px">✓</th>
+        <th>Lab</th>
+        <th style="width:120px">SAP Domain</th>
+        <th style="width:80px">Time</th>
+        <th style="width:60px">Author</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Design and Implement Gateway VPC Endpoints <span class="lab-id">#354</span></div>
+          <ul class="tasks-list">
+            <li>Create VPC Gateway Endpoint for S3</li>
+            <li>Create custom endpoint policies for Gateway Endpoints</li>
+            <li>Create custom S3 Bucket policies for VPC Endpoint connections</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Networking</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Create a Custom Amazon VPC with Public and Private Subnets <span class="lab-id">#244</span></div>
+          <ul class="tasks-list">
+            <li>Create custom VPC with IPv4 CIDR block</li>
+            <li>Create public and private subnets</li>
+            <li>Configure VPC route tables</li>
+            <li>Launch EC2 in public/private subnets, test connectivity</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Networking</span></td>
+        <td class="time">60-90m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Configuring Traffic Mirroring in AWS VPC <span class="lab-id">#3238</span></div>
+          <ul class="tasks-list">
+            <li>Set up architecture for VPC traffic mirroring</li>
+            <li>Configure monitoring instance to receive VPC traffic</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Networking / Security</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Active-Passive Failover Using Route53 Failover Routing Policy <span class="lab-id">#3316</span></div>
+          <ul class="tasks-list">
+            <li>Create Route53 Failover Routing Policy</li>
+            <li>Create Custom Route53 Health Checks</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">DR / HA</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Distribute Traffic Using Route53 Weighted Routing Policy <span class="lab-id">#3314</span></div>
+          <ul class="tasks-list">
+            <li>Create Route53 Weighted Routing Policy</li>
+            <li>Distribute Traffic across Servers</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">DR / HA</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Build and Monitor a Resilient System (EC2, RDS Multi-AZ, CloudWatch, SNS) <span class="lab-id">#240</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Provision RDS in Multi-AZ for HA and failover</li>
+            <li>Set up monitoring of EC2 and RDS</li>
+            <li>Configure auto-recovery of EC2 and EBS</li>
+            <li>Create CloudWatch events for SNS notifications</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">DR / HA</span></td>
+        <td class="time">90-120m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Implement Automated Recovery Processes to Meet RPO/RTO Using Amazon RDS <span class="lab-id">#3486</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Create RDS in primary location + cross-region read replica</li>
+            <li>Create parameters in Systems Manager Parameter Store</li>
+            <li>Set up Lambda to monitor primary DB and initiate RTO</li>
+            <li>Configure RDS event subscriptions and simulate failure</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">DR / Migration</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Horizontal Scaling of EC2 with ASG + ALB <span class="lab-id">#176</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Create Application Load Balancer</li>
+            <li>Define Launch Templates for EC2</li>
+            <li>Configure Auto Scaling groups with launch templates</li>
+            <li>Demonstrate horizontal scaling</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Compute / HA</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Automatic Scaling and Load Balancing with EC2 and ALB <span class="lab-id">#226</span></div>
+          <ul class="tasks-list">
+            <li>Deploy web app on EC2 behind ELB with auto scaling</li>
+            <li>Demonstrate elasticity and high availability</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Compute / HA</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Implement Lifecycle Hooks on an Auto Scaling EC2 Deployment <span class="lab-id">#2934</span></div>
+          <ul class="tasks-list">
+            <li>Create launch template for ASG</li>
+            <li>Configure EC2 lifecycle hooks to trigger Lambda</li>
+            <li>Implement Lambda to copy logs from EC2 to S3</li>
+            <li>Configure SSM documents</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Compute</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Fanout Architecture Using SNS and SQS <span class="lab-id">#3318</span></div>
+          <ul class="tasks-list">
+            <li>Configure SNS to send messages to multiple endpoints</li>
+            <li>Integrate SQS Queues with SNS</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Decoupling</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Create a Decoupled Backend Architecture Using Lambda, SQS and DynamoDB <span class="lab-id">#230</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Create SQS standard queue</li>
+            <li>Develop Lambda to process orders into DynamoDB</li>
+            <li>Configure SQS Event Source to trigger Lambda</li>
+            <li>Demonstrate decoupled backend</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Serverless / Decoupling</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Build a Network Monitoring Solution Using VPC Flow Logs and CloudWatch <span class="lab-id">#276</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Configure VPC Flow Logs for network interfaces</li>
+            <li>Set up Flow Logs ingestion into CloudWatch</li>
+            <li>Create CloudWatch filter/alarm for SNS notifications</li>
+            <li>Analyze VPC Flow Logs using Athena and S3</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td class="time">90-120m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Design a Solution to Audit, Monitor, and Analyze Logs and Metrics <span class="lab-id">#3452</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Create CloudTrail trail to audit infrastructure events</li>
+            <li>Capture CloudTrail data via CloudWatch Logs + Metric Filter</li>
+            <li>Create CloudWatch alarm for server provisioning + SNS</li>
+            <li>Test alarm by triggering unexpected provisioning</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Improve Application Security Posture by Automating Security Controls <span class="lab-id">#3640</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Configure CloudTrail trail → CloudWatch Logs</li>
+            <li>Create KMS encrypted RDS and EC2 EBS volume</li>
+            <li>Create CloudWatch metric filter/alarm for unencrypted RDS</li>
+            <li>Create unencrypted RDS and check SNS notifications</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Security</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Define Cloud Infrastructure Using AWS CloudFormation <span class="lab-id">#3344</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Create IAM roles for CloudFormation deployment</li>
+            <li>Create CloudFormation stack template</li>
+            <li>Define CloudFormation StackSets for multi-Region</li>
+            <li>Upgrade EC2 instances via CloudFormation</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">IaC / Migration</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Automate Provisioning of AWS Resources using CloudFormation <span class="lab-id">#336</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Create CloudFormation template for resource provisioning</li>
+            <li>Leverage CloudFormation parameters</li>
+            <li>Set up resource governance using change sets</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">IaC</span></td>
+        <td class="time">60-90m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MEDIUM PRIORITY -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-medium">Medium</span>
+    <h2>Medium Priority — Supporting SAP-C02 Topics</h2>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:30px">✓</th>
+        <th>Lab</th>
+        <th style="width:120px">SAP Domain</th>
+        <th style="width:80px">Time</th>
+        <th style="width:60px">Author</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Stream and Analyze Log Data with Kinesis Firehose, Lambda, S3, Glue, and Athena <span class="lab-id">#274</span></div>
+          <ul class="tasks-list">
+            <li>Build system to stream and analyze log data in near-real-time</li>
+            <li>Devise SQL queries to test the system</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Data Analytics</span></td>
+        <td class="time">120-180m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Real-Time Data Processing using Python with Kinesis, Lambda & DynamoDB <span class="lab-id">#3560</span></div>
+          <ul class="tasks-list">
+            <li>Setup Lambda to write data into Kinesis Data Streams</li>
+            <li>Setup Lambda to process data from Kinesis in real-time</li>
+            <li>Use DynamoDB for storing processed data</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Streaming</span></td>
+        <td class="time">120-150m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Analyze E-Commerce Clickstream Data with Amazon Athena <span class="lab-id">#238</span></div>
+          <ul class="tasks-list">
+            <li>Build serverless system to analyze S3 data lake using SQL</li>
+            <li>Devise SQL queries to analyze raw clickstream data</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Analytics</span></td>
+        <td class="time">90-180m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Transform E-Commerce Clickstream Data Using AWS Glue <span class="lab-id">#236</span></div>
+          <ul class="tasks-list">
+            <li>Build cloud-based system to transform data</li>
+            <li>Devise system to transform incoming data on schedule</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">ETL</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Build a Cloud-native Web App (API Gateway, Aurora, RDS Proxy) <span class="lab-id">#320</span></div>
+          <ul class="tasks-list">
+            <li>Build serverless app with S3, API Gateway, Lambda, Aurora, RDS Proxy, Secrets Manager</li>
+            <li>Build RESTful API using API Gateway HTTP API</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Serverless</span></td>
+        <td class="time">120-180m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Building Private REST API with Lambda and API Gateway <span class="lab-id">#296</span></div>
+          <ul class="tasks-list">
+            <li>Build private REST API with serverless approach</li>
+            <li>Integrate API Gateway, Lambda, and DynamoDB</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Serverless</span></td>
+        <td class="time">90-180m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Building Serverless Workflow to Process Files Uploaded to S3 <span class="lab-id">#218</span></div>
+          <ul class="tasks-list">
+            <li>Build serverless solution: S3 → SQS → Lambda → DynamoDB</li>
+            <li>Practice Lambda interacting with multiple services</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Serverless</span></td>
+        <td class="time">90-180m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Ingest Sales Data in Real-Time to RDS using S3, Lambda, and RDS <span class="lab-id">#224</span></div>
+          <ul class="tasks-list">
+            <li>Build code to ingest and store data using Lambda + Python</li>
+            <li>Devise automated processes for ingesting sales data</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Data Ingestion</span></td>
+        <td class="time">120-180m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Build Automated Solutions using AWS Systems Manager <span class="lab-id">#3342</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Create IAM role for Systems Manager</li>
+            <li>Create CloudFormation template for infra</li>
+            <li>Manage inventory with SSM Inventory</li>
+            <li>Automate patching with SSM Patch Manager</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Operations</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Automate Load Balancer and VPC creation using CloudFormation <span class="lab-id">#332</span></div>
+        </td>
+        <td><span class="badge-domain">IaC</span></td>
+        <td class="time">90-180m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Troubleshoot and Secure Your AWS Network Infrastructure <span class="lab-id">#2856</span></div>
+          <ul class="tasks-list">
+            <li>Identify and resolve common security issues</li>
+            <li>Troubleshoot connectivity in AWS network infra</li>
+            <li>Understand VPC, Security Groups, and NACL</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Networking</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Implement Automated EBS Backup with Lambda <span class="lab-id">#3378</span></div>
+          <ul class="tasks-list">
+            <li>Design and deploy a Lambda function</li>
+            <li>Implement automated EBS snapshots</li>
+            <li>Implement encryption for all EBS snapshots</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Operations</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Traffic Shifting Using AWS Lambda <span class="lab-id">#3128</span></div>
+          <ul class="tasks-list">
+            <li>Create multiple versions in Lambda</li>
+            <li>Route traffic using weighted alias</li>
+            <li>Route traffic using function URLs</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Deployment</span></td>
+        <td class="time">60-120m</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td>
+          <div class="lab-title">Monitoring AWS Resources using CloudWatch Dashboards and Widgets <span class="lab-id">#326</span> <span class="overlap-tag">Maarek</span></div>
+          <ul class="tasks-list">
+            <li>Create CloudWatch Dashboard for EC2 health</li>
+            <li>Create CloudWatch Widgets for instance metrics</li>
+            <li>Generate synthetic load for performance bottlenecks</li>
+            <li>Create CloudWatch alarm for SNS notifications</li>
+          </ul>
+        </td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td class="time">90-120m</td>
+        <td style="color:var(--accent)">Maarek</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MAAREK LABS SUMMARY -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge badge-maarek">Maarek</span>
+    <h2>All 11 Stéphane Maarek Labs (English)</h2>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:30px">#</th>
+        <th>Lab</th>
+        <th style="width:120px">SAP Domain</th>
+        <th style="width:80px">Time</th>
+        <th style="width:80px">Priority</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td class="lab-title">Horizontal Scaling EC2 with ASG + ALB <span class="lab-id">#176</span></td>
+        <td><span class="badge-domain">Compute / HA</span></td>
+        <td class="time">60-120m</td>
+        <td><span class="badge badge-high">High</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td class="lab-title">Build & Monitor Resilient System (EC2, RDS Multi-AZ) <span class="lab-id">#240</span></td>
+        <td><span class="badge-domain">DR / HA</span></td>
+        <td class="time">90-120m</td>
+        <td><span class="badge badge-high">High</span></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td class="lab-title">Decoupled Backend (Lambda, SQS, DynamoDB) <span class="lab-id">#230</span></td>
+        <td><span class="badge-domain">Serverless</span></td>
+        <td class="time">60-120m</td>
+        <td><span class="badge badge-high">High</span></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td class="lab-title">VPC Flow Logs + CloudWatch Monitoring <span class="lab-id">#276</span></td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td class="time">90-120m</td>
+        <td><span class="badge badge-high">High</span></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td class="lab-title">CloudWatch Dashboards and Widgets <span class="lab-id">#326</span></td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td class="time">90-120m</td>
+        <td><span class="badge badge-medium">Medium</span></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td class="lab-title">Automate Provisioning with CloudFormation <span class="lab-id">#336</span></td>
+        <td><span class="badge-domain">IaC</span></td>
+        <td class="time">60-90m</td>
+        <td><span class="badge badge-high">High</span></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td class="lab-title">Define Infrastructure with CloudFormation (StackSets) <span class="lab-id">#3344</span></td>
+        <td><span class="badge-domain">IaC / Migration</span></td>
+        <td class="time">60-120m</td>
+        <td><span class="badge badge-high">High</span></td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td class="lab-title">Build Automated Solutions with Systems Manager <span class="lab-id">#3342</span></td>
+        <td><span class="badge-domain">Operations</span></td>
+        <td class="time">60-120m</td>
+        <td><span class="badge badge-medium">Medium</span></td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td class="lab-title">Audit, Monitor, Analyze Logs (CloudTrail + CloudWatch) <span class="lab-id">#3452</span></td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td class="time">60-120m</td>
+        <td><span class="badge badge-high">High</span></td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td class="lab-title">Automated RPO/RTO Recovery with RDS <span class="lab-id">#3486</span></td>
+        <td><span class="badge-domain">DR / Migration</span></td>
+        <td class="time">60-120m</td>
+        <td><span class="badge badge-high">High</span></td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td class="lab-title">Security Controls & Data Protection (KMS, CloudTrail) <span class="lab-id">#3640</span></td>
+        <td><span class="badge-domain">Security</span></td>
+        <td class="time">60-120m</td>
+        <td><span class="badge badge-high">High</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="footer">
+  Generated Sep 4, 2026 — AWS SAP-C02 Udemy Labs Priority Report<br>
+  Data source: viettel.udemy.com API • 53 total AWS labs • 31 SAP-relevant • 11 by Stéphane Maarek
+</div>
+
+<script>
+document.querySelectorAll('.checkbox').forEach(cb => {
+  cb.addEventListener('change', function() {
+    const row = this.closest('tr');
+    row.style.opacity = this.checked ? '0.4' : '1';
+    row.style.textDecoration = this.checked ? 'line-through' : 'none';
+  });
+});
+</script>
+
+</body>
+</html>
