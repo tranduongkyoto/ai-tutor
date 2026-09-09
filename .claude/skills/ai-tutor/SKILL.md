@@ -1,20 +1,37 @@
 ---
 name: ai-tutor
 description: "Interactive AWS certification tutor with guided study paths, quizzes, and progress tracking"
-argument-hint: "[domain] [mode] | guided [domain] | free [domain] [mode] | progress | refresh <domain>"
+argument-hint: "[sap] [domain] [mode] | practice-test [sap] | guided [domain] | free [domain] [mode] | progress | refresh <domain>"
 metadata:
   author: user
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # AI Tutor - AWS Certification Study Companion
 
 Interactive tutor for AWS certification prep using PDF course materials, guided 4-phase study paths per domain, interactive quizzes, and progress tracking.
 
+Supports: **SAA-C03** (Associate) and **SAP-C02** (Professional).
+
+## Cert Selection
+
+Detect cert from arguments:
+- `sap`, `SAP`, `SAP-C02`, `professional` → load `certs/aws-sap/domains.md`
+- Default (no cert keyword) → load `certs/aws-csa/domains.md` (SAA-C03)
+- `practice-test sap` → SAP practice tests from `practice-exam/sap/`
+
+SAP-specific notes:
+- SAP has 4 domains (not 12), 75 questions (not 65), 180 minutes (not 130)
+- SAP pass threshold: 80% on practice tests (vs 72% for SAA)
+- SAP practice tests are in `practice-exam/sap/practice_test_{N}.md`
+- SAP study pipeline & labs defined in `certs/aws-sap/domains.md`
+- SAP questions have detailed `**Explanation:**` sections — show AFTER user answers
+
 ## Data Locations (project root relative)
 
 All mutable user data lives in the **project root**, NOT inside `.claude/skills/ai-tutor/`:
 
+### SAA-C03 (Associate)
 | Type | Path | Purpose |
 |------|------|---------|
 | Progress | `aws-csa/study-progress.md` | Single source of truth for all study state |
@@ -22,19 +39,31 @@ All mutable user data lives in the **project root**, NOT inside `.claude/skills/
 | Cache | `.claude/skills/ai-tutor/cache/aws-csa-{domain}.md` | Derived PDF extraction (regeneratable) |
 | Cert defs | `.claude/skills/ai-tutor/certs/aws-csa/domains.md` | Static domain/topic definitions |
 
+### SAP-C02 (Professional)
+| Type | Path | Purpose |
+|------|------|---------|
+| Progress | `aws-sap/study-progress.md` | SAP study state |
+| Sessions | `aws-sap/study-sessions/{timestamp}-{domain}-{mode}.md` | SAP session files |
+| Practice tests | `practice-exam/sap/practice_test_{N}.md` | 3 tests (30q + 75q + 75q) |
+| Practice progress | `practice-exam/sap/practice_test_{N}_progress.md` | Per-test progress tracking |
+| Cert defs | `.claude/skills/ai-tutor/certs/aws-sap/domains.md` | SAP domains, labs, pipeline |
+| Pipeline report | `plans/reports/sap-c02-260909-1014-study-pipeline-timeline-report.md` | Full study timeline |
+
 ## Argument Parsing
 
 Parse `ARGUMENTS` to determine the action:
 
 | Pattern | Action |
 |---------|--------|
-| _(empty)_ | Show domain selection → guided mode (default) |
+| _(empty)_ | Show domain selection → guided mode (default, SAA) |
+| `sap` | Show SAP domain selection → guided mode |
+| `sap practice-test` or `practice-test sap` | Start SAP practice test (Load: `references/practice-test-flow.md` with SAP cert) |
 | `progress` | Show progress dashboard (Load: `references/progress-tracking.md`). **Stop after displaying.** |
 | `refresh <domain>` | Re-extract PDF cache for domain (Load: `references/pdf-extractor.md`). **Stop after refresh.** |
 | `refresh cheat-sheet` | Re-extract cheat sheet PDF cache (Load: `references/pdf-extractor.md` § Cheat Sheet Extraction). **Stop after refresh.** |
 | `keyword-drill` | Start keyword pattern drill (no domain needed) |
 | `mock-exam` | Start full mock exam (requires ≥8/12 domain caches) |
-| `practice-test` | Start Udemy practice test (Load: `references/practice-test-flow.md`). Interactive test from `practice-exam/` questions. |
+| `practice-test` | Start SAA practice test (Load: `references/practice-test-flow.md`). Interactive test from `practice-exam/` questions. |
 | `guided <domain>` | Start/resume guided study path for domain |
 | `free <domain> <mode>` | Direct mode execution (skip guided path) |
 | `<domain>` | Start/resume guided study path for domain |
@@ -282,16 +311,18 @@ Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
 - **Mock exam with <8 domain caches**: Show "Only {N}/12 domains cached. Study at least 8 domains before attempting a mock exam. Missing: {list}. Use `/ai-tutor {domain}` to start studying."
 - **Invalid args**: Show usage:
   ```
-  Usage: /ai-tutor [domain]              — guided study path (default)
-         /ai-tutor free [domain] [mode]  — free mode, any mode
-         /ai-tutor keyword-drill         — keyword pattern drill
-         /ai-tutor mock-exam             — full 65-question mock exam
-         /ai-tutor practice-test         — Udemy practice test (6 tests, 65 Qs each)
-         /ai-tutor progress              — view dashboard
-         /ai-tutor refresh <domain>      — refresh PDF cache
-         /ai-tutor refresh cheat-sheet   — refresh cheat sheet cache
+  Usage: /ai-tutor [domain]              — guided study path, SAA (default)
+         /ai-tutor sap                  — guided study path, SAP-C02
+         /ai-tutor sap practice-test    — SAP practice test (3 tests: 30q + 75q + 75q)
+         /ai-tutor practice-test        — SAA practice test (6 tests, 65 Qs each)
+         /ai-tutor free [domain] [mode] — free mode, any mode
+         /ai-tutor keyword-drill        — keyword pattern drill
+         /ai-tutor mock-exam            — full 65-question mock exam (SAA)
+         /ai-tutor progress             — view dashboard
+         /ai-tutor refresh <domain>     — refresh PDF cache
+         /ai-tutor refresh cheat-sheet  — refresh cheat sheet cache
   Example: /ai-tutor compute
+           /ai-tutor sap practice-test
            /ai-tutor free storage mini-exam
-           /ai-tutor keyword-drill
            /ai-tutor practice-test
   ```

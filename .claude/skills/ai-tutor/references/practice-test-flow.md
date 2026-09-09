@@ -1,10 +1,54 @@
 # Practice Test Flow
 
-Interactive Udemy practice test mode. Reads pre-extracted questions from `practice-exam/practice-test-{N}-questions.md`, presents them one at a time, tracks answers, and generates weakness reports.
+Interactive Udemy practice test mode. Reads pre-extracted questions, presents them one at a time, tracks answers, and generates weakness reports.
 
 ## Data Source
 
+### Cert Detection
+
+Determine which cert to use based on invocation context:
+- If user specifies `sap` or the cert context is `aws-sap`: use SAP paths below
+- Default: use SAA paths
+
+### SAA (SAA-C03) — Default
 Questions are in `practice-exam/practice-test-{N}-questions.md` (N = 1-6, 65 questions each).
+Progress files: `practice-exam/practice-test-{N}-progress.md`
+
+### SAP (SAP-C02)
+Questions are in `practice-exam/sap/practice_test_{N}.md` (N = 1-3).
+- Test 1: 30 questions (mini test)
+- Test 2: 75 questions (full test)
+- Test 3: 75 questions (full test)
+Progress files: `practice-exam/sap/practice_test_{N}_progress.md`
+SAP domains (4): Organizational Complexity, New Solutions, Continuous Improvement, Migration & Modernization
+SAP pass threshold: 80% (vs SAA 72%)
+SAP exam format: 75 questions / 180 minutes
+
+### SAP Question Format (parse from .md)
+
+SAP practice tests use a different format than SAA:
+
+```markdown
+## Question {num}
+
+{question text}
+
+A. {option text} **(Correct)**
+B. {option text}
+C. {option text}
+D. {option text}
+
+**Explanation:**
+{detailed explanation text}
+```
+
+SAP parse rules:
+- Question number: from `## Question {N}` header
+- No explicit Domain line — infer domain from question content using the 4 SAP domains
+- Options: lines starting with `A.` through `F.`. The correct answer has `**(Correct)**` marker
+- Multi-choice: question says "Select two/three" — multiple options marked `**(Correct)**`
+- Explanation: everything after `**Explanation:**` until next `---` separator
+- Show explanation AFTER user answers (not before)
 
 ### Question Format (parse from .md)
 
@@ -72,8 +116,9 @@ Path: `practice-exam/practice-test-{N}-progress.md`
 
 Show available tests with completion status (check which progress files exist):
 
+### SAA Tests
 ```
-📝 Udemy Practice Tests (65 questions each):
+📝 Udemy Practice Tests — SAA-C03 (65 questions each):
  1. Practice Test #1  {status}
  2. Practice Test #2  {status}
  3. Practice Test #3  {status}
@@ -82,7 +127,15 @@ Show available tests with completion status (check which progress files exist):
  6. Practice Test #6  {status}
 ```
 
-Status values: `— Not started`, `— In Progress (Q{n}/65)`, `— Complete: {score}/65 ({pct}%)`
+### SAP Tests
+```
+📝 Udemy Practice Tests — SAP-C02:
+ 1. Practice Test #1  (30 questions)  {status}
+ 2. Practice Test #2  (75 questions)  {status}
+ 3. Practice Test #3  (75 questions)  {status}
+```
+
+Status values: `— Not started`, `— In Progress (Q{n}/{total})`, `— Complete: {score}/{total} ({pct}%)`
 
 Use `AskUserQuestion`: "Which practice test?" — Options: show 4 tests prioritizing incomplete/not-started ones. User can type number via "Other".
 
@@ -90,21 +143,37 @@ Use `AskUserQuestion`: "Which practice test?" — Options: show 4 tests prioriti
 
 After selecting a test, show domain breakdown for that test:
 
+### SAA Domain Breakdown
 ```
-📊 Practice Test #{N} — Domain Breakdown:
+📊 Practice Test #{N} — SAA-C03 Domain Breakdown:
  1. Design Secure Architectures         — {count} questions
  2. Design High-Performing Architectures — {count} questions
  3. Design Resilient Architectures       — {count} questions
  4. Design Cost-Optimized Architectures  — {count} questions
 ```
 
+### SAP Domain Breakdown
+```
+📊 Practice Test #{N} — SAP-C02 Domain Breakdown:
+ 1. Organizational Complexity (26%)      — {count} questions
+ 2. Design New Solutions (29%)           — {count} questions
+ 3. Continuous Improvement (25%)         — {count} questions
+ 4. Migration & Modernization (20%)      — {count} questions
+```
+
+Note: SAP questions don't have explicit domain tags. Infer domain from question content:
+- Organizations/SCPs/multi-account/IAM federation → Organizational Complexity
+- DR/HA/serverless/networking/new architectures → New Solutions
+- Cost/monitoring/automation/performance → Continuous Improvement
+- Migration/hybrid/DataSync/DMS/Snowball → Migration & Modernization
+
 Use `AskUserQuestion`: "What scope?" — Options:
-- `All domains (65 questions)` (Recommended for first attempt)
-- `Design Secure Architectures`
-- `Design High-Performing Architectures`
+- `All domains ({total} questions)` (Recommended for first attempt)
+- Domain option 1 (highest weight or weakest)
+- Domain option 2
 - `Redo wrong answers only` (only if progress file exists with wrong answers)
 
-User can type domain name or "Design Resilient" / "Design Cost-Optimized" via "Other".
+User can type domain name via "Other".
 
 ## Step 3: Resume Detection
 
@@ -190,11 +259,12 @@ Rules:
 
 ## Step 6: Test Completion — Full Report
 
-When all 65 questions (or all in scope) are answered:
+When all questions in scope are answered:
 
+### SAA Results Format
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PRACTICE TEST #{N} — RESULTS
+PRACTICE TEST #{N} — SAA-C03 RESULTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Score: {correct}/65 ({pct}%)
@@ -205,7 +275,29 @@ By Domain:
   Design High-Performing Architectures: {n}/{total} ({pct}%) {✓/✗}
   Design Resilient Architectures:       {n}/{total} ({pct}%) {✓/✗}
   Design Cost-Optimized Architectures:  {n}/{total} ({pct}%) {✓/✗}
+```
 
+### SAP Results Format
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRACTICE TEST #{N} — SAP-C02 RESULTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Score: {correct}/{total} ({pct}%)
+Result: {PASS ≥80% | BORDERLINE 70-79% | FAIL <70%}
+
+By Domain:
+  Organizational Complexity (26%):      {n}/{total} ({pct}%) {✓/✗}
+  Design New Solutions (29%):           {n}/{total} ({pct}%) {✓/✗}
+  Continuous Improvement (25%):         {n}/{total} ({pct}%) {✓/✗}
+  Migration & Modernization (20%):      {n}/{total} ({pct}%) {✓/✗}
+
+Recommended Labs (for weakest domain):
+  {lab recommendations from certs/aws-sap/domains.md Labs section}
+```
+
+### Common (both certs)
+```
 Weakest Domain: {domain} ({pct}%)
 Priority Study Areas:
   1. {domain} ({pct}%) — {key topics to review}
