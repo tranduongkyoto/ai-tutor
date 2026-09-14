@@ -322,6 +322,83 @@ When user selects "Redo wrong answers":
 3. Track redo results separately — update the Result column: `Wrong → Correct (redo)` or keep `Wrong`
 4. After redo complete, show updated score
 
+## Chapter Drill Mode (SAP only)
+
+Triggered by `/ai-tutor sap chapter-drill <chapter-name>`.
+
+### How it works
+
+1. **Load mapping:** Read `certs/aws-sap/chapter-question-map.md`
+2. **Find chapter:** Match the user's chapter name to a section (fuzzy match: "security" matches "security", "vpc" matches "vpc", "identity" matches "identity-federation", etc.)
+3. **Collect questions:** Parse the comma-separated `T{N}:Q{num}` references for that chapter
+4. **Load questions:** Read each referenced question from `practice-exam/sap/practice_test_{N}.md`
+5. **Randomize order:** Shuffle the questions so repeated drills feel fresh
+6. **Quiz:** Present questions using the same Step 4 loop (show question, collect answer, give feedback with explanation)
+7. **Track results:** Save to `practice-exam/sap/chapter_drill_progress.md`
+
+### Chapter Name Aliases
+
+| User input | Maps to |
+|------------|---------|
+| identity, federation, iam | identity-federation |
+| security, kms, waf, encryption | security |
+| compute, ec2, asg, alb, elb | compute-load-balancing |
+| storage, s3, ebs, efs, fsx | storage |
+| cache, caching, redis, cloudfront | caching |
+| database, rds, aurora, dynamodb | databases |
+| sqs, sns, kinesis, api-gateway, messaging | service-communication |
+| data, athena, glue, redshift, emr | data-engineering |
+| monitoring, cloudwatch, cloudtrail, xray | monitoring |
+| deploy, cloudformation, ssm, opsworks | deployment-instance-management |
+| cost, pricing, budget, reserved | cost-control |
+| migration, datasync, dms, mgn, hybrid | migrations |
+| vpc, networking, subnet, endpoint, direct-connect | vpc |
+| ml, sagemaker, machine-learning | machine-learning |
+
+### Progress File Format
+
+Path: `practice-exam/sap/chapter_drill_progress.md`
+
+```markdown
+# SAP-C02 Chapter Drill Progress
+
+## {chapter-name} — {date}
+Score: {correct}/{total} ({pct}%)
+
+| Q Ref | Topic | Your | Correct | Result |
+|-------|-------|------|---------|--------|
+| T1:Q6 | SCP deny effect | B | A | Wrong |
+| T2:Q38 | Cross-account role | C | C | Correct |
+
+### Weak Areas
+1. **{concept}** — {what to remember}
+```
+
+### Completion Report
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHAPTER DRILL: {Chapter Name}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Score: {correct}/{total} ({pct}%)
+Result: {STRONG ≥80% | OK 60-79% | WEAK <60% — review chapter}
+
+Weak areas:
+  1. {concept} — {fact to remember}
+  2. {concept} — {fact to remember}
+
+Next: Study {next-priority-chapter} or redo wrong answers
+```
+
+### Follow-Up
+
+Use `AskUserQuestion`:
+- `Redo wrong answers` — re-quiz wrong ones only
+- `Drill next chapter` — auto-suggest next chapter per priority order from chapter-question-map.md summary
+- `Full practice test` — switch to regular practice test mode
+- `Done`
+
 ## Edge Cases
 
 - **Question text contains code/JSON/policy**: print verbatim inside markdown code block

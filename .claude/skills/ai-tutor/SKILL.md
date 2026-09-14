@@ -58,6 +58,7 @@ Parse `ARGUMENTS` to determine the action:
 | _(empty)_ | Show domain selection → guided mode (default, SAA) |
 | `sap` | Show SAP domain selection → guided mode |
 | `sap practice-test` or `practice-test sap` | Start SAP practice test (Load: `references/practice-test-flow.md` with SAP cert) |
+| `sap chapter-drill <chapter>` | Quiz real practice questions for a specific course chapter (Load: `certs/aws-sap/chapter-question-map.md` + `references/practice-test-flow.md`) |
 | `progress` | Show progress dashboard (Load: `references/progress-tracking.md`). **Stop after displaying.** |
 | `refresh <domain>` | Re-extract PDF cache for domain (Load: `references/pdf-extractor.md`). **Stop after refresh.** |
 | `refresh cheat-sheet` | Re-extract cheat sheet PDF cache (Load: `references/pdf-extractor.md` § Cheat Sheet Extraction). **Stop after refresh.** |
@@ -323,6 +324,7 @@ Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
          /ai-tutor refresh cheat-sheet  — refresh cheat sheet cache
   Example: /ai-tutor compute
            /ai-tutor sap practice-test
+           /ai-tutor sap chapter-drill security
            /ai-tutor free storage mini-exam
            /ai-tutor practice-test
   ```
