@@ -201,6 +201,10 @@
     <div class="label">Maarek Labs</div>
   </div>
   <div class="stat-card">
+    <div class="number" style="color:var(--orange)">21</div>
+    <div class="label">Low Priority Labs</div>
+  </div>
+  <div class="stat-card">
     <div class="number" style="color:var(--green)">~30h</div>
     <div class="label">Est. Total Time</div>
   </div>
@@ -780,9 +784,201 @@
   </table>
 </div>
 
+<!-- LOW PRIORITY -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge" style="background:rgba(251,146,60,0.15);color:var(--orange);border:1px solid rgba(251,146,60,0.3)">Low</span>
+    <h2>Low Priority — Skip for SAP (21 Labs)</h2>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:30px">✓</th>
+        <th>Lab</th>
+        <th style="width:120px">Category</th>
+        <th style="width:80px">Time</th>
+        <th style="width:160px">Why Low Priority</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">CI Pipeline: CodeCommit + CodeBuild + CodePipeline <span class="lab-id">#288</span></div></td>
+        <td><span class="badge-domain">DevOps / CI</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">DOP-C02 cert, not SAP</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">CD Pipeline: CodeCommit + CodeDeploy + CodePipeline <span class="lab-id">#270</span></div></td>
+        <td><span class="badge-domain">DevOps / CD</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">DOP-C02 cert, not SAP</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">DevSecOps: CodeCommit + CodeBuild + Secrets Manager <span class="lab-id">#2986</span></div></td>
+        <td><span class="badge-domain">DevOps / Security</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">CI/CD troubleshooting, not architecture</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">DevSecOps Pipeline: CloudFormation + IAC Multi-Env <span class="lab-id">#3450</span></div></td>
+        <td><span class="badge-domain">DevOps / IaC</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">CF covered by #336 + #3344</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Deploying App in Elastic Beanstalk using EB CLI + .ebextensions <span class="lab-id">#344</span></div></td>
+        <td><span class="badge-domain">DevOps / EB</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">EB CLI rarely tested on SAP</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">EB Rolling Update Deployment Policy <span class="lab-id">#286</span></div></td>
+        <td><span class="badge-domain">DevOps / EB</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">EB deployment policies = DOP topic</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Notification Pipeline: CF + EC2 + EventBridge + Lambda <span class="lab-id">#3090</span></div></td>
+        <td><span class="badge-domain">DevOps / Events</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">EventBridge niche, lifecycle hooks covered by #2934</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Deploy Web App on Tomcat + Termination Protection <span class="lab-id">#4062</span></div></td>
+        <td><span class="badge-domain">DevOps / Deploy</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">Tomcat deployment not SAP-relevant</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">SSL/PKI Management for Tomcat on EC2 <span class="lab-id">#3960</span></div></td>
+        <td><span class="badge-domain">DevOps / Security</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">Manual SSL config, SAP uses ACM</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Comprehensive Logging: CW + Config + CloudTrail <span class="lab-id">#3072</span></div></td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">Overlaps with #3452 (Maarek), adds Config</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">EC2 Logging to CloudWatch Agent <span class="lab-id">#3230</span></div></td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">CW agent config = operations, not architecture</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Troubleshoot CloudWatch Agent on EC2 <span class="lab-id">#3006</span></div></td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">Agent troubleshooting = SysOps topic</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">CloudWatch Logging + Alerts + Dashboards <span class="lab-id">#2902</span></div></td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">Covered by #326 + #3452 (Maarek)</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Lambda Timeout: Detect, Debug, Prevent <span class="lab-id">#3062</span></div></td>
+        <td><span class="badge-domain">Serverless</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">Lambda debugging = developer topic</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Host-Based IDS (HIDS) on EC2 <span class="lab-id">#3042</span></div></td>
+        <td><span class="badge-domain">Security</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">HIDS not tested on SAP, use GuardDuty/Inspector</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Static Vulnerability Assessment (Android APK) <span class="lab-id">#4030</span></div></td>
+        <td><span class="badge-domain">Security</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">Android security, not AWS architecture</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Code Coverage Analysis with SonarQube on EC2 <span class="lab-id">#4028</span></div></td>
+        <td><span class="badge-domain">Security</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">Code quality tooling, not architecture</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Migrate Node+PostgreSQL to Beanstalk+RDS <span class="lab-id">#3289</span></div></td>
+        <td><span class="badge-domain">Migration</span></td>
+        <td class="time">90-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">EB migration, SAP tests DMS/MGN/DataSync</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">Migrate E-commerce Microservice to EC2 + MySQL RDS <span class="lab-id">#3027</span></div></td>
+        <td><span class="badge-domain">Migration</span></td>
+        <td class="time">90-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">Flask+MySQL migration, not SAP architecture</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">XGBoost House Forecasting on EC2 + API Gateway <span class="lab-id">#3298</span></div></td>
+        <td><span class="badge-domain">ML / Data Science</span></td>
+        <td class="time">90-150m</td>
+        <td style="color:var(--muted);font-size:0.8rem">ML model deployment, 0 SAP questions</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title">PySpark Streaming + Kinesis + Athena (Mobile Coverage) <span class="lab-id">#3605</span></div></td>
+        <td><span class="badge-domain">ML / Data Science</span></td>
+        <td class="time">60-120m</td>
+        <td style="color:var(--muted);font-size:0.8rem">PySpark/EMR deep dive, 0 SAP questions</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- JAPANESE DUPLICATE -->
+<div class="section">
+  <div class="section-header">
+    <span class="badge" style="background:rgba(148,163,184,0.15);color:var(--muted);border:1px solid rgba(148,163,184,0.3)">Skip</span>
+    <h2>Japanese Duplicate (1 Lab)</h2>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Lab</th>
+        <th style="width:120px">Category</th>
+        <th style="width:160px">Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><div class="lab-title">[Japanese] VPC Flow Logs + CloudWatch Monitoring <span class="lab-id">#4779</span></div></td>
+        <td><span class="badge-domain">Monitoring</span></td>
+        <td style="color:var(--muted);font-size:0.8rem">Japanese version of #276 (Maarek)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 <div class="footer">
-  Generated Sep 4, 2026 — AWS SAP-C02 Udemy Labs Priority Report<br>
-  Data source: viettel.udemy.com API • 53 total AWS labs • 31 SAP-relevant • 11 by Stéphane Maarek
+  Updated Sep 14, 2026 — AWS SAP-C02 Udemy Labs Priority Report<br>
+  Data source: viettel.udemy.com API • 53 total AWS labs (17 High + 14 Medium + 21 Low + 1 JP duplicate) • 11 by Stéphane Maarek
 </div>
 
 <script>
