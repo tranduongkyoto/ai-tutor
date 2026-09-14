@@ -77,3 +77,98 @@ T1:Q2, T1:Q12, T1:Q24, T1:Q25, T1:Q26, T1:Q29, T2:Q4, T2:Q13, T2:Q17, T2:Q31, T2
 | cost-control | 2 | LOW |
 | machine-learning | 0 | — |
 | other-services | 0 | — |
+
+## Lab → Chapter Mapping (31 High + Medium + Maarek Labs)
+
+(M) = Maarek lab. Must = recommended. Opt = optional (do if chapter-drill score <60%).
+
+### identity-federation — 0 labs
+(no matching lab)
+
+### security — 2 labs
+- Must: #3640 Security Controls + KMS + Data Protection (M)
+- Opt: #3042 Host-Based IDS on EC2
+
+### compute-load-balancing — 4 labs
+- Must: #176 ASG + ALB Horizontal Scaling (M) — DONE
+- Must: #2934 ASG Lifecycle Hooks + Lambda + SSM
+- Opt: #244 Custom VPC Public/Private Subnets — DONE
+- Opt: #226 Auto Scaling + ALB
+
+### storage — 0 labs
+(theory-heavy chapter, no lab adds significant value)
+
+### caching — 0 labs
+(Redis vs Memcached = memorization, no lab needed)
+
+### databases — 3 labs
+- Must: #240 RDS Multi-AZ + CloudWatch + SNS (M)
+- Must: #320 API Gateway + Aurora + RDS Proxy + Secrets Manager
+- Opt: #3289 Migrate Node+PostgreSQL to EB+RDS
+
+### service-communication — 5 labs
+- Must: #230 Lambda + SQS + DynamoDB Decoupled Backend (M)
+- Must: #3318 SNS + SQS Fanout Architecture
+- Must: #3560 Kinesis + Lambda + DynamoDB Real-Time Streaming
+- Opt: #218 S3 → SQS → Lambda → DynamoDB Serverless Workflow
+- Opt: #296 Private REST API (Lambda + API Gateway)
+
+### data-engineering — 3 labs
+- Opt: #274 Kinesis Firehose → S3 → Glue → Athena
+- Opt: #238 Athena Clickstream Analysis
+- Opt: #236 Glue ETL Transform
+
+### monitoring — 5 labs
+- Must: #3452 CloudTrail + CloudWatch Audit (M)
+- Must: #276 VPC Flow Logs + CloudWatch (M)
+- Opt: #326 CloudWatch Dashboards & Widgets (M)
+- Opt: #3072 Comprehensive Logging (CW + Config + CloudTrail)
+- Opt: #3006 Troubleshoot CloudWatch Agent
+
+### deployment-instance-management — 5 labs
+- Must: #3344 CloudFormation StackSets Multi-Region (M)
+- Must: #336 CloudFormation Provisioning + Change Sets (M)
+- Opt: #3342 Systems Manager Automation (M)
+- Opt: #332 CloudFormation Load Balancer + VPC
+- Opt: #3128 Lambda Traffic Shifting (versions + weighted alias)
+
+### cost-control — 0 labs
+(pure theory, no lab helps)
+
+### migrations — 2 labs
+- Must: #3486 RPO/RTO Recovery with RDS Cross-Region (M)
+- Opt: #3378 Automated EBS Backup + Encryption
+
+### vpc — 5 labs
+- Must: #354 Gateway VPC Endpoints + Endpoint Policies
+- Must: #2856 Troubleshoot & Secure AWS Network (SG vs NACL)
+- Opt: #3316 Route53 Active-Passive Failover Routing
+- Opt: #3314 Route53 Weighted Routing
+- Opt: #3238 VPC Traffic Mirroring
+
+### machine-learning — 0 labs
+(0 practice questions, skip)
+
+### other-services — 0 labs
+(0 practice questions, skip)
+
+## Lab Summary by Chapter
+
+| Chapter | Must-Do | Optional | Total |
+|---------|---------|----------|-------|
+| identity-federation | 0 | 0 | 0 |
+| security | 1 | 1 | 2 |
+| compute-load-balancing | 2 (1 done) | 2 (1 done) | 4 |
+| storage | 0 | 0 | 0 |
+| caching | 0 | 0 | 0 |
+| databases | 2 | 1 | 3 |
+| service-communication | 3 | 2 | 5 |
+| data-engineering | 0 | 3 | 3 |
+| monitoring | 2 | 3 | 5 |
+| deployment-instance-management | 2 | 3 | 5 |
+| cost-control | 0 | 0 | 0 |
+| migrations | 1 | 1 | 2 |
+| vpc | 2 | 3 | 5 |
+| machine-learning | 0 | 0 | 0 |
+| other-services | 0 | 0 | 0 |
+| **Total** | **15 (2 done)** | **19 (1 done)** | **34** |
