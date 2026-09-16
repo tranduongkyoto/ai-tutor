@@ -47,7 +47,7 @@ All mutable user data lives in the **project root**, NOT inside `.claude/skills/
 | Practice tests | `practice-exam/sap/practice_test_{N}.md` | 3 tests (30q + 75q + 75q) |
 | Practice progress | `practice-exam/sap/practice_test_{N}_progress.md` | Per-test progress tracking |
 | Cert defs | `.claude/skills/ai-tutor/certs/aws-sap/domains.md` | SAP domains, labs, pipeline |
-| Pipeline report | `plans/reports/sap-c02-260909-1014-study-pipeline-timeline-report.md` | Full study timeline |
+| Pipeline report | `.claude/skills/ai-tutor/certs/aws-sap/study-pipeline.md` | Full study timeline |
 
 ## Argument Parsing
 

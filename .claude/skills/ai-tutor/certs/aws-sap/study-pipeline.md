@@ -93,9 +93,9 @@ Based on measured question frequency, study chapters in this order:
 ### Knowledge — Priority Order (14-16h)
 Read/watch in this exact order (highest exam impact first):
 
-1. ~~Identity & Federation~~ (Done 2026-09-11)
-2. **Security** — KMS, WAF, Shield, GuardDuty, Inspector, encryption patterns
-3. **Amazon VPC** — VPC endpoints (gateway vs interface), Direct Connect, Transit Gateway, PrivateLink, NAT
+1. ~~Identity & Federation~~ (Done 2026-09-11, drill 67%)
+2. ~~Security~~ (Done 2026-09-15, drill 77%)
+3. ~~Amazon VPC~~ (Done 2026-09-16, drill 77%)
 4. **Storage** — S3 classes, lifecycle, cross-Region replication, EFS, FSx, Storage Gateway
 5. **Databases** — RDS Multi-AZ, Aurora replicas, DynamoDB, ElastiCache, Redshift Spectrum
 6. **Compute & Load Balancing** — ASG processes, ALB vs NLB, cross-zone LB, placement groups
@@ -237,7 +237,7 @@ At 2h/day = 6 weeks. At 3h/day = 4 weeks.
 
 | # | Lab ID | Title | Domain | Time | Priority |
 |---|--------|-------|--------|------|----------|
-| 1 | 176 | ASG + ALB Horizontal Scaling | Compute/HA | 60-120m | High — DONE |
+| 1 | 176 | ASG + ALB Horizontal Scaling | Compute/HA | 60-120m | DONE |
 | 2 | 240 | EC2, RDS Multi-AZ, CloudWatch, SNS | DR/HA | 90-120m | CRITICAL |
 | 3 | 230 | Lambda + SQS + DynamoDB | Serverless | 60-120m | High |
 | 4 | 276 | VPC Flow Logs + CloudWatch | Monitoring | 90-120m | High |
@@ -247,15 +247,24 @@ At 2h/day = 6 weeks. At 3h/day = 4 weeks.
 | 8 | 3342 | Systems Manager Automation | Operations | 60-120m | Medium |
 | 9 | 3452 | CloudTrail + CloudWatch Audit | Monitoring | 60-120m | High |
 | 10 | 3486 | RPO/RTO Recovery with RDS | DR/Migration | 60-120m | CRITICAL |
-| 11 | 3640 | Security Controls + KMS | Security | 60-120m | High |
+| 11 | 3640 | Security Controls + KMS | Security | 60-120m | DONE |
 
-## Current Progress (as of 2026-09-14)
+## Current Progress (as of 2026-09-16)
 
 | Activity | Status |
 |----------|--------|
-| Course chapter: Identity & Federation | Done |
+| Course chapter: Identity & Federation | Done — drill 8/12 (67%) |
+| Course chapter: Security | Done — drill 10/13 (77%) |
+| Course chapter: VPC | Done — drill 23/30 (77%) |
+| Practice Test 1 (30q) | Done |
+| Practice Test 2 (75q) | Not started |
+| Practice Test 3 (75q) | Not started |
 | Lab #176 (ASG + ALB) | Done |
 | Lab #244 (Custom VPC) | Done |
-| Practice Test 1 | In Progress (Q3/30, 0/3) |
-| Course chapters remaining | 17/18 |
-| Labs remaining | 9/11 Maarek labs |
+| Lab #3640 (Security + KMS) | Done |
+| Lab #2934 (ASG Lifecycle Hooks) | Done |
+| Lab #2856 (SG vs NACL) | Done |
+| Course chapters remaining | 12/~15 |
+| Labs remaining | 6/11 Maarek labs |
+| Chapter drill questions | 58 answered |
+| Phase | 1 — Foundation (in progress) |
