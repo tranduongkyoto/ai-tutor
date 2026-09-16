@@ -1,7 +1,7 @@
 ---
 certification: SAP-C02
 started: 2026-09-04
-last_updated: 2026-09-15
+last_updated: 2026-09-16
 current_phase: 1
 ---
 
@@ -14,11 +14,12 @@ current_phase: 1
 |---------|--------|-------|------|
 | Identity & Federation | Done | 8/15 (53%) | 2026-09-15 |
 | Security | Done | 10/13 (77%) | 2026-09-15 |
+| VPC | Done | 23/30 (77%) | 2026-09-16 |
 
 ### Practice Tests
 | Test | Questions | Score | Status |
 |------|-----------|-------|--------|
-| Test #1 (30q) | 3/30 | 0/3 (0%) | In Progress — paused Q3 |
+| Test #1 (30q) | 30/30 | —/30 | Done |
 | Test #2 (75q) | — | — | Not started |
 | Test #3 (75q) | — | — | Not started |
 
@@ -29,6 +30,7 @@ current_phase: 1
 | #244 | Custom VPC with Public/Private Subnets | Networking | Done | 2026-09-11 |
 | #3640 | Security Controls + KMS + Data Protection | Security | Done | 2026-09-15 |
 | #2934 | ASG Lifecycle Hooks + Lambda + SSM | Compute | Done | 2026-09-15 |
+| #2856 | Troubleshoot & Secure AWS Network (SG vs NACL) | VPC | Done | 2026-09-16 |
 
 ## Phase 2: Deep Practice (Week 3-4) — NOT STARTED
 
@@ -42,9 +44,9 @@ current_phase: 1
 
 | Metric | Value |
 |--------|-------|
-| Course chapters read | 2/~30 |
-| Practice test questions | 3/180 |
-| Chapter drill questions | 28/28 (security 10/13, identity 8/15) |
-| Labs completed | 4/11 (Maarek) |
+| Course chapters read | 3/~30 |
+| Practice test questions | 30/180 |
+| Chapter drill questions | 58/58 (security 10/13, identity 8/15, vpc 23/30) |
+| Labs completed | 5/11 (Maarek) |
 | Current phase | 1 — Foundation |
-| Weak areas | External ID direction, Orgs all-features vs billing, ABAC session tags, PowerUser vs Admin, cross-account CodePipeline direction |
+| Weak areas | Public VIF for VPN-over-DX (×3), PrivateLink for isolated cross-VPC, can't move EC2 between subnets, Fn::Cidr vs Custom Resource, DX alone not encrypted |
