@@ -101,21 +101,65 @@ Score: 23/30 (77%)
 8. **Minimum subnet CIDR is /28** — AWS doesn't allow /29 or smaller
 9. **DX alone is not encrypted** — DX + VPN combo needed for encrypted + low-latency + high-throughput; VPN alone lacks throughput guarantees
 
-## storage — 2026-09-17 (IN PROGRESS: 5/51 answered, resume from T1:Q16)
-Score so far: 3/5 (60%)
+## storage — 2026-09-17 (40 core questions, 13 non-core skipped)
+Score: 25/40 (63%)
 
 | Q Ref | Topic | Your | Correct | Result |
 |-------|-------|------|---------|--------|
-| T1:Q3 | FSx Multi-AZ failover test + monitoring (throughput, not ENI) | C,B | D,E | Wrong |
+| T1:Q3 | FSx Multi-AZ failover test + monitoring | C,B | D,E | Wrong |
 | T1:Q7 | VOD storage (S3 Intelligent-Tiering + CloudFront) | B | B | Correct |
-| T1:Q9 | CloudFront S3 HTTP 307 (24h propagation + Regional endpoint) | A,B | A,D | Wrong |
-| T1:Q10 | On-prem NAS to S3 (DataSync + Lambda + Step Functions + Batch) | C | C | Correct |
-| T1:Q15 | Storage Gateway cache stale (RefreshCache, not ResetCache) | C | C | Correct |
+| T1:Q9 | CloudFront S3 HTTP 307 (24h propagation) | A,B | A,D | Wrong |
+| T1:Q10 | On-prem NAS to S3 (DataSync + Lambda + Step Functions) | C | C | Correct |
+| T1:Q15 | Storage Gateway cache stale (RefreshCache) | C | C | Correct |
+| T1:Q16 | DataSync + DX private VIF + PrivateLink for EFS | A | A | Correct |
+| T1:Q17 | S3 Object Ownership (enforced = permanent ownership) | C,A | D,E | Wrong |
+| T1:Q22 | Track S3 upload IP (CloudTrail data events + server access logs) | B,A | B,C | Wrong |
+| T2:Q2 | S3 vs EFS vs EBS cost comparison | B | B | Correct |
+| T2:Q5 | Video processing dedup (S3 trigger → Lambda → SQS → ASG) | D | D | Correct |
+| T2:Q7 | S3 access points + VPC endpoint + bucket policy | D,C,A | A,D,E | Wrong |
+| T2:Q11 | Global S3 access (CloudFront + S3 Transfer Acceleration) | B,E | B,E | Correct |
+| T2:Q12 | Bulk migration + ongoing access (DataSync + File Gateway) | B | B | Correct |
+| T2:Q13 | S3 VPC endpoint restrict access | A | A | Correct |
+| T2:Q26 | DataSync supports S3 + EFS + FSx | D | D | Correct |
+| T2:Q27 | Global serverless (edge-optimized API GW + S3 Transfer Accel) | A,C | C,D | Wrong |
+| T2:Q30 | S3 Byte Range Fetch + S3 Select ScanRange | A,E | A,C | Wrong |
+| T2:Q41 | POSIX shared (EFS) + >1M IOPS block (Instance Store) | C,E | C,E | Correct |
+| T2:Q44 | S3TA no acceleration = no charge + inbound free | B | B | Correct |
+| T2:Q56 | Detect public S3 objects (CloudTrail + EventBridge + SNS) | A,C | C,E | Wrong |
+| T2:Q61 | Volume Gateway Cached vs Stored | C | C | Correct |
+| T2:Q63 | CRR S3 Standard (not IA) → lifecycle to Glacier (30-day min) | C | D | Wrong |
+| T2:Q67 | EFS on-prem + EC2 via Direct Connect (NAS replacement) | A | A | Correct |
+| T2:Q68 | gp2 IOPS = 3/GB, add 1TB = +3000 IOPS | D | B | Wrong |
+| T2:Q70 | S3 upload speed (multipart + Transfer Acceleration) | A,C | C,D | Wrong |
+| T2:Q73 | Glacier Vault Lock for compliance (WORM) | C | C | Correct |
+| T3:Q3 | Cold Redshift data → S3 Standard-IA + Athena | C,D | C,D | Correct |
+| T3:Q4 | Glacier gzip CSV query (restore to S3 + S3 Select) | A | C | Wrong |
+| T3:Q11 | File Gateway private S3 (Gateway + Interface endpoints) | A,B | B,D | Wrong |
+| T3:Q15 | S3 Interface endpoint (private IP + on-prem + cross-Region) | A | A | Correct |
+| T3:Q27 | S3→SQS SSE (customer-managed KMS key for S3 principal) | D | A | Wrong |
+| T3:Q31 | S3 >5000 req/s (customer-specific prefixes) | D | D | Correct |
+| T3:Q34 | S3 + Athena (Parquet + Hive date partitioning) | A,B | A,B | Correct |
+| T3:Q35 | Glacier Instant Retrieval (2x/yr) + Deep Archive (10yr) | B | B | Correct |
+| T3:Q41 | S3 RTC prefix replication + S3 event notification (not EventBridge) | C | B | Wrong |
+| T3:Q48 | Single bucket + IAM ${aws:username} prefix isolation | B | B | Correct |
+| T3:Q49 | Lifecycle: prefix /images → IA at 45d, all → Glacier at 180d | A,B | A,B | Correct |
+| T3:Q50 | FSx Single-AZ → Multi-AZ (new FSx + DataSync, can't convert) | C | A | Wrong |
+| T3:Q53 | 24h staging data = S3 Standard (no min duration, no retrieval fee) | C | C | Correct |
+| T3:Q73 | Australia slow uploads (multipart + S3 Transfer Acceleration) | D | D | Correct |
 
-### Remaining questions (resume from here)
-T1:Q16, T1:Q17, T1:Q22, T2:Q2, T2:Q5, T2:Q7, T2:Q11, T2:Q12, T2:Q13, T2:Q26, T2:Q27, T2:Q30, T2:Q35, T2:Q41, T2:Q44, T2:Q52, T2:Q54, T2:Q56, T2:Q61, T2:Q62, T2:Q63, T2:Q67, T2:Q68, T2:Q70, T2:Q72, T2:Q73, T3:Q3, T3:Q4, T3:Q11, T3:Q15, T3:Q27, T3:Q29, T3:Q31, T3:Q34, T3:Q35, T3:Q41, T3:Q42, T3:Q47, T3:Q48, T3:Q49, T3:Q50, T3:Q53, T3:Q62, T3:Q72, T3:Q73, T3:Q75
-
-### Weak Areas (so far)
-1. **FSx failover test** — modify THROUGHPUT CAPACITY to trigger failover; NEVER modify ENIs (permanent loss of connection)
-2. **FSx monitoring** — CloudWatch for metrics, CloudTrail for API calls only, CloudWatch Logs + Firehose for file access auditing
-3. **S3 HTTP 307** — new bucket takes 24h to propagate; use Regional endpoint (s3.us-west-2.amazonaws.com) instead of default s3.amazonaws.com
+### Weak Areas — Storage
+1. **FSx failover test** — modify THROUGHPUT CAPACITY to trigger failover; NEVER modify ENIs
+2. **S3 HTTP 307** — new bucket takes 24h to propagate; use Regional endpoint
+3. **S3 Object Ownership** — enforced mode = permanent ownership even after re-enabling ACLs; old ACL permissions ARE restored
+4. **S3 server access logging** — captures IP addresses for uploads (not CloudWatch Logs)
+5. **S3 access points** — single data lake VPC + access point per bucket + gateway endpoint + bucket policy deny
+6. **Edge-optimized API Gateway** — for global latency, not Global Accelerator (which can't front CloudFront/S3)
+7. **S3 Select vs Athena** — S3 Select cheaper for simple queries on known files; Athena for complex analytics
+8. **S3 Standard-IA 30-day minimum** — don't use as CRR target when lifecycle transitions immediately
+9. **gp2 IOPS formula** — 3 IOPS per GB; increase volume size to cheaply add IOPS
+10. **Global Accelerator ≠ S3** — GA endpoints are ALB/NLB/EC2/EIP only; S3 uses Transfer Acceleration
+11. **Glacier Select** — only works on UNCOMPRESSED CSV; gzip requires restore to S3 first
+12. **S3 VPC endpoints** — S3 supports BOTH Gateway and Interface endpoints; Private VIF is DX only
+13. **KMS key types** — AWS-managed keys can't have policy modified; use customer-managed for cross-service access
+14. **S3 replication events** — go to S3 event notifications only, NOT EventBridge
+15. **FSx deployment type** — immutable after creation; must create new Multi-AZ + DataSync migrate

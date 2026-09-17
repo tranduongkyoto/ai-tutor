@@ -2,6 +2,7 @@
 
 Auto-generated 2026-09-14 from keyword analysis of 180 practice questions.
 Updated 2026-09-16: removed misplaced questions found during chapter drills.
+Updated 2026-09-17: removed 10 non-storage questions from storage chapter found during storage drill.
 Questions may appear under multiple chapters when topics overlap.
 
 ## How to use
@@ -25,8 +26,9 @@ T1:Q6, T1:Q20, T1:Q25, T1:Q30, T2:Q6, T2:Q14, T2:Q18, T2:Q34, T3:Q16, T3:Q29, T3
 T1:Q5, T1:Q11, T1:Q21, T1:Q27, T1:Q29, T2:Q6, T2:Q15, T2:Q16, T2:Q19, T2:Q24, T2:Q28, T2:Q29, T2:Q34, T2:Q41, T2:Q66, T2:Q67, T2:Q71, T2:Q75, T3:Q17, T3:Q19, T3:Q23, T3:Q24, T3:Q25, T3:Q26, T3:Q30, T3:Q45, T3:Q54, T3:Q55, T3:Q56, T3:Q59, T3:Q60, T3:Q63, T3:Q65, T3:Q70, T3:Q71, T3:Q72
 <!-- Added: T2:Q75 (Lambda concurrency), T3:Q17 (API Gateway throttle). Removed: T3:Q57 (Route53 health checks/dns) -->
 
-### storage (51 questions)
-T1:Q3, T1:Q7, T1:Q9, T1:Q10, T1:Q15, T1:Q16, T1:Q17, T1:Q22, T2:Q2, T2:Q5, T2:Q7, T2:Q11, T2:Q12, T2:Q13, T2:Q26, T2:Q27, T2:Q30, T2:Q35, T2:Q41, T2:Q44, T2:Q52, T2:Q54, T2:Q56, T2:Q61, T2:Q62, T2:Q63, T2:Q67, T2:Q68, T2:Q70, T2:Q72, T2:Q73, T3:Q3, T3:Q4, T3:Q11, T3:Q15, T3:Q27, T3:Q29, T3:Q31, T3:Q34, T3:Q35, T3:Q41, T3:Q42, T3:Q47, T3:Q48, T3:Q49, T3:Q50, T3:Q53, T3:Q62, T3:Q72, T3:Q73, T3:Q75
+### storage (40 questions)
+T1:Q3, T1:Q7, T1:Q9, T1:Q10, T1:Q15, T1:Q16, T1:Q17, T1:Q22, T2:Q2, T2:Q5, T2:Q7, T2:Q11, T2:Q12, T2:Q13, T2:Q26, T2:Q27, T2:Q30, T2:Q41, T2:Q44, T2:Q56, T2:Q61, T2:Q63, T2:Q67, T2:Q68, T2:Q70, T2:Q73, T3:Q3, T3:Q4, T3:Q11, T3:Q15, T3:Q27, T3:Q31, T3:Q34, T3:Q35, T3:Q41, T3:Q48, T3:Q49, T3:Q50, T3:Q53, T3:Q73
+<!-- Removed: T2:Q35 (Snowball migration), T2:Q52 (RDS replication/databases), T2:Q54 (Snowball migration), T2:Q62 (WAF logging/monitoring), T2:Q72 (DX transfer/vpc), T3:Q29 (Redshift audit/security), T3:Q42 (ElastiCache/caching), T3:Q47 (MediaConvert streaming), T3:Q62 (WAF logging/monitoring), T3:Q72 (legacy migration), T3:Q75 (CloudTrail security/monitoring) -->
 
 ### caching (12 questions)
 T2:Q3, T2:Q20, T2:Q25, T2:Q27, T2:Q37, T2:Q45, T2:Q50, T3:Q12, T3:Q23, T3:Q42, T3:Q47, T3:Q69
@@ -52,8 +54,9 @@ T2:Q20, T2:Q59, T3:Q13, T3:Q22, T3:Q30
 ### cost-control (2 questions)
 T2:Q19, T2:Q44
 
-### migrations (4 questions)
-T2:Q49, T3:Q7, T3:Q10, T3:Q36
+### migrations (7 questions)
+T2:Q35, T2:Q49, T2:Q54, T3:Q7, T3:Q10, T3:Q36, T3:Q72
+<!-- Added: T2:Q35 (Snowball 9PB), T2:Q54 (Snowball 200TB), T3:Q72 (legacy 90TB migration) from storage chapter -->
 
 ### vpc (30 questions)
 T1:Q2, T1:Q12, T1:Q24, T1:Q25, T1:Q26, T2:Q4, T2:Q13, T2:Q17, T2:Q31, T2:Q32, T2:Q42, T2:Q51, T2:Q55, T2:Q57, T2:Q64, T2:Q72, T3:Q1, T3:Q5, T3:Q8, T3:Q9, T3:Q11, T3:Q14, T3:Q20, T3:Q21, T3:Q25, T3:Q28, T3:Q46, T3:Q52, T3:Q61, T3:Q70
@@ -69,25 +72,28 @@ T1:Q2, T1:Q12, T1:Q24, T1:Q25, T1:Q26, T2:Q4, T2:Q13, T2:Q17, T2:Q31, T2:Q32, T2
 
 | Chapter | Questions | Exam Priority |
 |---------|-----------|---------------|
-| storage | 51 | CRITICAL |
+| storage | 40 | CRITICAL |
 | compute-load-balancing | 36 | CRITICAL |
 | vpc | 30 | CRITICAL |
 | databases | 27 | HIGH |
 | monitoring | 25 | HIGH |
 | service-communication | 22 | HIGH |
 | identity-federation | 12 | HIGH |
-| caching | 12 | MEDIUM |
 | security | 13 | MEDIUM |
+| caching | 12 | MEDIUM |
+| migrations | 7 | LOW |
 | data-engineering | 5 | LOW |
 | deployment-instance-management | 5 | LOW |
-| migrations | 4 | LOW |
 | cost-control | 2 | LOW |
 | machine-learning | 0 | — |
 | other-services | 0 | — |
 
-Note: 4 orphan questions not assigned to any chapter after cleanup:
+Note: 3 orphan questions not assigned to any chapter after cleanup:
 T3:Q40 (Route53 failover health checks), T3:Q57 (Route53 health check config),
 T3:Q64 (Global Accelerator). These are DNS/networking topics not covered by existing chapters.
+Note: T2:Q52 (RDS replication) already in databases, T2:Q62/T3:Q62 (WAF logging) already in monitoring,
+T2:Q72 (DX transfer) already in vpc, T3:Q29 (Redshift audit) already in security,
+T3:Q42 (ElastiCache) already in caching, T3:Q75 (CloudTrail) already in monitoring.
 
 ## Lab → Chapter Mapping (31 High + Medium + Maarek Labs)
 
