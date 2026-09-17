@@ -210,6 +210,7 @@ F. {full option text}    ← only if present
 ```
 
 **CRITICAL: Never reveal the correct answer. Strip all `**(CORRECT)**` markers from options.**
+**CRITICAL: Print question and option text VERBATIM from the source .md file. Do NOT summarize, condense, paraphrase, shorten, or reformat with arrows (→). SAP questions are long by design — copy the full paragraphs exactly.**
 
 **Step 4b — Collect answer:**
 
@@ -337,6 +338,7 @@ Triggered by `/ai-tutor sap chapter-drill <chapter-name>`.
 4. **Load questions:** Read each referenced question from `practice-exam/sap/practice_test_{N}.md`
 5. **Randomize order:** Shuffle the questions so repeated drills feel fresh
 6. **Quiz:** Present questions using the same Step 4 loop (show question, collect answer, give feedback with explanation). Accumulate results in memory — do NOT write progress file between questions.
+   **CRITICAL — Verbatim questions:** Print question text and ALL option text EXACTLY as written in the practice test source file. Do NOT summarize, condense, paraphrase, or use arrow notation (→). Copy-paste the full paragraphs. The practice test questions are designed to test reading comprehension of lengthy scenario descriptions — summarizing defeats the purpose.
 7. **Track results:** Write ALL accumulated results to `practice-exam/sap/chapter_drill_progress.md` only AFTER the drill completes (all questions answered) or when user explicitly types `save`. This ensures instant question transitions with no file I/O delay.
 
 ### Chapter Name Aliases

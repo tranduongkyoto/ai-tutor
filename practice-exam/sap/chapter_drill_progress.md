@@ -100,3 +100,22 @@ Score: 23/30 (77%)
 7. **Multiple DCs need separate DX connections** — one DX per data center from different service providers for max resiliency. Can't share one DX across multiple distant DCs
 8. **Minimum subnet CIDR is /28** — AWS doesn't allow /29 or smaller
 9. **DX alone is not encrypted** — DX + VPN combo needed for encrypted + low-latency + high-throughput; VPN alone lacks throughput guarantees
+
+## storage — 2026-09-17 (IN PROGRESS: 5/51 answered, resume from T1:Q16)
+Score so far: 3/5 (60%)
+
+| Q Ref | Topic | Your | Correct | Result |
+|-------|-------|------|---------|--------|
+| T1:Q3 | FSx Multi-AZ failover test + monitoring (throughput, not ENI) | C,B | D,E | Wrong |
+| T1:Q7 | VOD storage (S3 Intelligent-Tiering + CloudFront) | B | B | Correct |
+| T1:Q9 | CloudFront S3 HTTP 307 (24h propagation + Regional endpoint) | A,B | A,D | Wrong |
+| T1:Q10 | On-prem NAS to S3 (DataSync + Lambda + Step Functions + Batch) | C | C | Correct |
+| T1:Q15 | Storage Gateway cache stale (RefreshCache, not ResetCache) | C | C | Correct |
+
+### Remaining questions (resume from here)
+T1:Q16, T1:Q17, T1:Q22, T2:Q2, T2:Q5, T2:Q7, T2:Q11, T2:Q12, T2:Q13, T2:Q26, T2:Q27, T2:Q30, T2:Q35, T2:Q41, T2:Q44, T2:Q52, T2:Q54, T2:Q56, T2:Q61, T2:Q62, T2:Q63, T2:Q67, T2:Q68, T2:Q70, T2:Q72, T2:Q73, T3:Q3, T3:Q4, T3:Q11, T3:Q15, T3:Q27, T3:Q29, T3:Q31, T3:Q34, T3:Q35, T3:Q41, T3:Q42, T3:Q47, T3:Q48, T3:Q49, T3:Q50, T3:Q53, T3:Q62, T3:Q72, T3:Q73, T3:Q75
+
+### Weak Areas (so far)
+1. **FSx failover test** — modify THROUGHPUT CAPACITY to trigger failover; NEVER modify ENIs (permanent loss of connection)
+2. **FSx monitoring** — CloudWatch for metrics, CloudTrail for API calls only, CloudWatch Logs + Firehose for file access auditing
+3. **S3 HTTP 307** — new bucket takes 24h to propagate; use Regional endpoint (s3.us-west-2.amazonaws.com) instead of default s3.amazonaws.com
