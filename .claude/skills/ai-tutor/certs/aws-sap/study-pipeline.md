@@ -1,222 +1,197 @@
 # AWS SAP-C02 Study Pipeline & Timeline
 
-**Generated:** 2026-09-09 | **Updated:** 2026-09-14 (data-driven priority from 180 practice questions)
+**Generated:** 2026-09-09 | **Updated:** 2026-09-18 (combined analysis: Udemy 180q + Tutorials Dojo 391q = 571 questions)
 **Target:** Pass SAP-C02 with 80%+ on practice tests
 
-## Data-Driven Analysis (180 Questions)
+## Data-Driven Analysis (571 Questions: Udemy 180 + TD 391)
 
-### Practice Test Domain Distribution (actual measured)
+### Practice Test Sources
 
-| Domain | Official Weight | Test 1 (30q) | Test 2 (75q) | Test 3 (75q) | Avg Actual |
-|--------|----------------|-------------|-------------|-------------|------------|
-| Design New Solutions | 29% | 43.3% (13q) | 38.7% (29q) | 40.0% (30q) | **40%** |
-| Organizational Complexity | 26% | 23.3% (7q) | 33.3% (25q) | 33.3% (25q) | **32%** |
-| Migration & Modernization | 20% | 10.0% (3q) | 17.3% (13q) | 12.0% (9q) | **14%** |
-| Continuous Improvement | 25% | 16.7% (5q) | 5.3% (4q) | 5.3% (4q) | **7%** |
+| Source | Tests | Questions | Difficulty | Strengths |
+|--------|-------|-----------|------------|-----------|
+| Udemy Maarek | 3 (30+75+75) | 180 | 6/10 | Deep S3/VPC/DX, good explanations |
+| Tutorials Dojo | 6 (75x5+16) | 391 | 8/10 | Broader services, realistic scenarios, domain tags |
+| **Combined** | **9** | **571** | | **Best coverage for exam prep** |
 
-**Key insight:** "New Solutions" and "Org Complexity" dominate the actual questions (72% combined), far exceeding official weights. Continuous Improvement is underrepresented in Maarek's tests — supplement with other sources.
+### Service Frequency (Combined 571q)
 
-### Top 15 Services by Question Frequency
+| Rank | Service | Udemy | TD | Combined | Priority |
+|------|---------|-------|-----|----------|----------|
+| 1 | S3 | 1201 | 2181 | 3382 | CRITICAL |
+| 2 | EC2 | 495 | 1963 | 2458 | CRITICAL |
+| 3 | IAM/STS | 156 | 1048 | 1204 | CRITICAL |
+| 4 | VPC | 839 | 1033 | 1872 | CRITICAL |
+| 5 | Lambda | 367 | 984 | 1351 | CRITICAL |
+| 6 | RDS/Aurora | 278 | 1083 | 1361 | CRITICAL |
+| 7 | DynamoDB | 152 | 483 | 635 | HIGH |
+| 8 | CloudFront | 191 | 788 | 979 | HIGH |
+| 9 | **Systems Manager** | 43 | **326** | 369 | **HIGH (was P3)** |
+| 10 | CloudWatch | 182 | 316 | 498 | HIGH |
+| 11 | **AWS Config** | ~20 | **250** | 270 | **HIGH (was unranked)** |
+| 12 | SQS | 142 | 296 | 438 | HIGH |
+| 13 | Organizations/SCP | 110 | 428 | 538 | CRITICAL |
+| 14 | Direct Connect | 170 | 258 | 428 | HIGH |
+| 15 | **ECS/EKS/Fargate** | 65 | **446** | 511 | **HIGH (was P3)** |
+| 16 | CloudFormation | 82 | 362 | 444 | HIGH |
+| 17 | **Reserved/Savings** | 2 | **158** | 160 | **HIGH (was missing)** |
+| 18 | Kinesis | 248 | 138 | 386 | HIGH |
+| 19 | KMS | 118 | 166 | 284 | HIGH |
+| 20 | **Cognito** | ~5 | **88** | 93 | **MEDIUM (was unranked)** |
 
-| Rank | Service | Questions | Priority |
-|------|---------|-----------|----------|
-| 1 | S3 | 78 | CRITICAL |
-| 2 | EC2 | 66 | CRITICAL |
-| 3 | VPC | 44 | CRITICAL |
-| 4 | Lambda | 38 | HIGH |
-| 5 | RDS | 38 | HIGH |
-| 6 | NAT Gateway | 45 | HIGH |
-| 7 | CloudWatch | 23 | HIGH |
-| 8 | Kinesis | 21 | HIGH |
-| 9 | Auto Scaling | 23 | HIGH |
-| 10 | IAM/STS | 69 | CRITICAL |
-| 11 | Direct Connect | 18 | HIGH |
-| 12 | CloudFront | 17 | MEDIUM |
-| 13 | DynamoDB | 14 | MEDIUM |
-| 14 | Route 53 | 13 | MEDIUM |
-| 15 | API Gateway | 13 | MEDIUM |
+### Biggest Udemy Blind Spots (filled by TD)
 
-### Top Topics by Frequency
+| Service | Udemy | TD | Gap Factor | Action |
+|---------|-------|-----|-----------|--------|
+| Reserved/Savings Plans | 2 | 158 | 79x | Study cost optimization chapter |
+| AWS Config | ~20 | 250 | 12x | Add to monitoring chapter |
+| Cognito | ~5 | 88 | 18x | Add to identity chapter |
+| Systems Manager | 43 | 326 | 7.6x | Expand deployment chapter |
+| ECS/EKS/Fargate | 65 | 446 | 6.9x | Expand compute chapter |
+| Step Functions | ~10 | 69 | 6.9x | Add to service-communication |
+| Service Catalog | 0 | 49 | new | Add to identity chapter |
+| Control Tower | 0 | 31 | new | Add to identity chapter |
 
-| Topic | Questions | Exam Impact |
-|-------|-----------|-------------|
-| DR/Failover/RPO/RTO | 61+ | CRITICAL — appears in ~34% of all questions |
-| Cost optimization | 43 | HIGH — in ~24% of questions |
-| On-premises/hybrid | 33 | HIGH — in ~18% |
-| Migration | 17 | HIGH |
-| Real-time/streaming | 15 | MEDIUM |
-| Serverless | 13 | MEDIUM |
-| Security groups/NACLs | 21 | MEDIUM |
-| Multi-AZ | 11 | MEDIUM |
+## Course Chapter Priority (Revised with Combined Udemy+TD Data)
 
-## Course Chapter Priority (Maarek v38 Slides — 18 chapters)
+Based on combined 571-question frequency analysis. Priorities updated from Udemy-only analysis.
 
-Based on measured question frequency, study chapters in this order:
-
-| Priority | Chapter | Exam Impact | Est. Time |
-|----------|---------|-------------|-----------|
-| P1 | **Identity & Federation** | IAM/STS in 69 questions (38%) | 2h |
-| P1 | **Security** | KMS/WAF/GuardDuty/encryption in 30+ questions | 2h |
-| P1 | **Amazon VPC** | VPC endpoints, Direct Connect, NAT in 60+ questions | 2h |
-| P1 | **Databases** | RDS/Aurora/DynamoDB/ElastiCache in 50+ questions | 1.5h |
-| P1 | **Storage** | S3/EFS/FSx/Storage Gateway in 78+ questions | 1.5h |
-| P2 | **Compute & Load Balancing** | EC2/ASG/ALB in 66+ questions | 1.5h |
-| P2 | **Migrations** | DataSync/DMS/MGN/Snowball in 33+ questions | 1.5h |
-| P2 | **Service Communication** | SQS/SNS/Kinesis/API Gateway in 40+ questions | 1h |
-| P2 | **Cost Control** | RI/Spot/Savings Plans in 43 questions | 1h |
-| P3 | **Monitoring** | CloudWatch/CloudTrail/X-Ray in 23+ questions | 1h |
-| P3 | **Data Engineering** | Athena/Redshift/Glue/EMR in 20+ questions | 1h |
-| P3 | **Caching** | ElastiCache/DAX/CloudFront in 17+ questions | 0.5h |
-| P3 | **Deployment & Instance Management** | CodeDeploy/SSM/Beanstalk | 1h |
-| P4 | **Machine Learning** | Low frequency in practice tests | 0.5h |
-| P4 | **Other Services** | Niche services | 0.5h |
-| — | **Exam Preparation** | Review/tips | 0.5h |
+| Priority | Chapter | Combined Evidence | Change | Status |
+|----------|---------|-------------------|--------|--------|
+| P1 | **Identity & Federation** | IAM 1204 + Orgs 538 + Cognito 93 + Control Tower 31 | same | DONE (53%) |
+| P1 | **Security** | KMS 284 + WAF 233 + Macie 44 | same | DONE (77%) |
+| P1 | **Amazon VPC** | VPC 1872 + DX 428 + TGW 122 | same | DONE (77%) |
+| P1 | **Storage** | S3 3382 + EFS 311 + FSx 199 + Glacier 214 | same | DONE (63%) |
+| P1 | **Databases** | RDS 1361 + DynamoDB 635 + Redshift 392 | same | DONE (73%) |
+| **P1** | **Compute & Load Balancing** | EC2 2458 + ECS/EKS/Fargate 511 + Lambda 1351 | **P2→P1** | NOT STARTED |
+| **P2** | **Monitoring + Config + SSM** | CW 498 + Config 270 + SSM 369 | **P3→P2** | NOT STARTED |
+| P2 | **Service Communication** | SQS 438 + SNS 261 + Step Functions 69 | same | NOT STARTED |
+| **P2** | **Cost Control** | Reserved/Savings 160 + cost mentions 200+ | **scope expanded** | NOT STARTED |
+| P2 | **Migrations** | DMS + DataSync + MGN + Snow | same | NOT STARTED |
+| **P2** | **Deployment & Instance Mgmt** | CloudFormation 444 + CodePipeline 70 | **P3→P2** | NOT STARTED |
+| P3 | **Caching** | ElastiCache 123 + CloudFront 979 | same | NOT STARTED |
+| P3 | **Data Engineering** | Athena 119 + Glue + EMR | same | NOT STARTED |
 
 **Total course time (1.5-2x speed): ~18h**
 
 ## Resources Available
 
-| Resource | Content |
-|----------|---------|
-| Maarek video course (Udemy) | 21h video + slides v38 (18 chapters) |
-| Maarek Practice Exams (Udemy) | 3 tests: 30q + 75q + 75q = 180 questions |
-| Maarek Hands-on Labs (Udemy) | 11 English labs (60-120m each) |
-| Additional Udemy AWS Labs | 42 more labs (31 SAP-relevant) |
-| Tutorials Dojo (recommended buy) | 300+ questions (~$15) |
-| ExamCert (free) | 600+ free questions |
-| AWS Skill Builder (free) | 20 official practice questions |
+| Resource | Content | Status |
+|----------|---------|--------|
+| Maarek video course (Udemy) | 21h video + slides v38 (18 chapters) | In use |
+| Maarek Practice Exams (Udemy) | 3 tests: 30q + 75q + 75q = 180 questions | Chapter drills done (5/13 chapters) |
+| Maarek Hands-on Labs (Udemy) | 11 English labs (60-120m each) | 5/11 done |
+| Additional Udemy AWS Labs | 42 more labs (31 SAP-relevant) | Selective |
+| **Tutorials Dojo** | **6 sets: 75q x5 + 16q = 391 questions** | **NEW — chapter-drill ready** |
+| ExamCert (free) | 600+ free questions | Not started |
+| AWS Skill Builder (free) | 20 official practice questions | Not started |
 
-## Phase 1: Foundation (Week 1-2)
+## Phase 1: Foundation — DONE (Week 1-3)
 
-**Goal:** Cover P1+P2 chapters, take diagnostic test
+**Goal:** Cover P1 chapters via Udemy chapter drills
 
-### Knowledge — Priority Order (14-16h)
-Read/watch in this exact order (highest exam impact first):
+### Knowledge + Udemy Chapter Drills (completed)
+1. ~~Identity & Federation~~ (Done 2026-09-15, drill 8/15 = 53%)
+2. ~~Security~~ (Done 2026-09-15, drill 10/13 = 77%)
+3. ~~Amazon VPC~~ (Done 2026-09-16, drill 23/30 = 77%)
+4. ~~Storage~~ (Done 2026-09-17, drill 25/40 = 63%)
+5. ~~Databases~~ (Done 2026-09-18, drill 19/26 = 73%)
 
-1. ~~Identity & Federation~~ (Done 2026-09-11, drill 67%)
-2. ~~Security~~ (Done 2026-09-15, drill 77%)
-3. ~~Amazon VPC~~ (Done 2026-09-16, drill 77%)
-4. **Storage** — S3 classes, lifecycle, cross-Region replication, EFS, FSx, Storage Gateway
-5. **Databases** — RDS Multi-AZ, Aurora replicas, DynamoDB, ElastiCache, Redshift Spectrum
-6. **Compute & Load Balancing** — ASG processes, ALB vs NLB, cross-zone LB, placement groups
-7. **Migrations** — 6 Rs, DataSync, DMS, MGN, Snowball, hybrid architectures
-8. **Service Communication** — SQS (DLQ, visibility timeout, message timers), SNS fanout, Kinesis enhanced fanout
+**Result:** 5 critical chapters done, 85/124 correct (69%), 39 wrong answers tracked.
 
-### Practice Test (5h)
-- Take Practice Test 1 (30q) cold — no prep, time yourself
-- Score it, categorize every wrong answer by domain
-- Read detailed explanations for ALL wrong answers
-- Study relevant slides sections for weak topics only
+### Labs Done
+- ~~Lab #176~~ — ASG + ALB (Done)
+- ~~Lab #244~~ — Custom VPC (Done)
+- ~~Lab #2934~~ — ASG Lifecycle Hooks (Done)
+- ~~Lab #3640~~ — Security + KMS (Done)
+- ~~Lab #2856~~ — SG vs NACL (Done)
 
-### Labs (0-4h, only if score <60%)
-- ~~Lab #176~~ — ASG + ALB Horizontal Scaling (Done 2026-09-11)
-- ~~Lab #244~~ — Custom VPC with Public/Private Subnets (Done 2026-09-11)
+## Phase 2: TD Chapter Drills (Current — Week 4-5)
 
-## Phase 2: Deep Practice (Week 3-4)
+**Goal:** Drill all chapters with TD questions (broader coverage, harder questions)
 
-**Goal:** Identify and fill domain-specific gaps + cover P3 chapters
+### TD Chapter Drills — Priority Order
+Use `/ai-tutor sap chapter-drill <chapter> dojo` for each:
 
-### Knowledge (6-8h) — P3 chapters + targeted review
-9. **Cost Control** — Reserved Instances, Savings Plans, Spot, Budgets actions, Cost Explorer
-10. **Monitoring** — CloudWatch vs CloudTrail (key distinction!), VPC Flow Logs, Config rules
-11. **Data Engineering** — Athena partitioning, Glue ETL, Redshift Spectrum, Kinesis Firehose
-12. **Caching** — ElastiCache Redis vs Memcached, DAX, CloudFront behaviors
-13. **Deployment & Instance Management** — CodeDeploy, SAM traffic shifting, SSM
+| Order | Chapter | TD Questions | Focus (TD fills Udemy gaps) |
+|-------|---------|-------------|---------------------------|
+| 1 | **compute-load-balancing** | 98 | ECS/EKS/Fargate (511 mentions), Lambda patterns |
+| 2 | **databases** | 74 | Aurora Global, DynamoDB patterns, Redshift |
+| 3 | **monitoring** | 33 | **SSM (326), Config (250)** — biggest Udemy gaps |
+| 4 | **storage** | 94 | Broader S3/EFS scenarios |
+| 5 | **service-communication** | 24 | Step Functions, EventBridge patterns |
+| 6 | **identity-federation** | 45 | Cognito, Control Tower, Service Catalog |
+| 7 | **vpc** | 52 | Transit Gateway, more DX patterns |
+| 8 | **deployment-instance-mgmt** | 10 | CloudFormation StackSets, CodePipeline |
+| 9 | **cost-control** | 5 | **Reserved/Savings Plans** — critical gap |
+| 10 | **migrations** | 16 | DMS, MGN, hybrid patterns |
+| 11 | **security** | 24 | Macie, Inspector v2 |
+| 12 | **caching** | 11 | ElastiCache patterns |
+| 13 | **data-engineering** | 3 | Athena/Glue |
 
-### Practice Tests (8h)
-- Take Practice Test 2 (75q) timed at 180min
-- Categorize errors by domain, compare to Test 1 weak areas
-- Take Practice Test 3 (75q) timed at 180min
-- Track domain error progression
+### Redo Udemy Wrong Answers (39 wrong)
+After TD drills, redo wrong answers from Phase 1:
+- identity-federation: 7 wrong (53% → target 80%)
+- storage: 15 wrong
+- vpc: 8 wrong
+- databases: 7 wrong
+- security: 3 wrong
 
-### Domain Error Tracker
-
-| Domain (weight) | Test 1 | Test 2 | Test 3 | Status |
-|-----------------|--------|--------|--------|--------|
-| Organizational Complexity (26%) | 0/3* | _/_ | _/_ | *only 3q attempted |
-| Design New Solutions (29%) | _/_ | _/_ | _/_ | |
-| Continuous Improvement (25%) | _/_ | _/_ | _/_ | |
-| Migration & Modernization (20%) | _/_ | _/_ | _/_ | |
-
-### Labs (4-8h, pick based on 2 weakest domains)
-
-**If weak on DR/HA (most likely — 34% of questions):**
-- Lab #240 — EC2, RDS Multi-AZ, CloudWatch, SNS (Maarek)
-- Lab #3486 — RPO/RTO Recovery with RDS (Maarek)
-- Lab #3316 — Route53 Failover Routing
-
-**If weak on Networking/VPC (second highest):**
-- Lab #354 — Gateway VPC Endpoints
-- Lab #276 — VPC Flow Logs + CloudWatch (Maarek)
-- Lab #3238 — VPC Traffic Mirroring
-
-**If weak on Serverless/Decoupling:**
+### Labs (pick based on weak areas)
+- Lab #240 — RDS Multi-AZ + CloudWatch + SNS (Maarek)
 - Lab #230 — Lambda + SQS + DynamoDB (Maarek)
-- Lab #3318 — SNS + SQS Fanout
-
-**If weak on Security/Monitoring:**
-- Lab #3640 — Security Controls + KMS (Maarek)
 - Lab #3452 — CloudTrail + CloudWatch Audit (Maarek)
-
-**If weak on IaC/Migration:**
 - Lab #3344 — CloudFormation StackSets (Maarek)
-- Lab #3342 — Systems Manager Automation (Maarek)
 
-## Phase 3: Volume Drilling (Week 5)
+## Phase 3: Timed Mock Exams (Week 6)
 
-**Goal:** Expose to different question styles, build speed
+**Goal:** Build exam speed, simulate real conditions
 
-### Practice Tests (16h)
-- Get new question source (Tutorials Dojo 300q or ExamCert free 600q)
-- Do 4 full-length exams (75q x 4 = 300q)
-- Review WRONG answers only (time saver)
-- Track score progression: A -> B -> C -> D
-- Target: improving trend, 75%+ by Exam D
-- **Note:** Maarek tests underrepresent Continuous Improvement (7% vs 25% official). Supplement with Tutorials Dojo for better coverage of cost/monitoring questions.
+### TD Full Tests (timed, 180min each)
+| Order | Test | Questions | Why This Order |
+|-------|------|-----------|----------------|
+| 1 | TD Set 5 | 75q | Best domain balance (24% Org, 24% Migration) |
+| 2 | TD Set 1 | 75q | Second most balanced |
+| 3 | TD Set 2 | 75q | Higher multi-choice (24%) |
+| 4 | Udemy Test 2 | 75q | Timed retake |
+| 5 | Udemy Test 3 | 75q | Timed retake |
+
+Target: 75%+ by test 3, 80%+ by test 5.
 
 ### Knowledge (0h)
-- No new learning — only review explanations of wrong answers
+- No new learning — only review wrong answer explanations
 
-### Labs (0h)
-- No labs this week — pure exam drilling
+## Phase 4: Final Prep (Week 7)
 
-## Phase 4: Final Prep (Week 6)
-
-**Goal:** Verify readiness, close remaining gaps
+**Goal:** Close all gaps, verify readiness
 
 ### Day 1-2: Wrong Answer Marathon
-- Compile ALL wrong answers from every test
-- Re-do them as a custom "wrong answers only" set
-- Study remaining pattern gaps
+- Compile ALL wrong from Udemy + TD (est. ~150 wrong)
+- Re-quiz as custom set
+- Study weak pattern notes
 
-### Day 3-4: Redo Maarek Tests
-- Retake Test 1 (30q) -> verify 85%+
-- Retake Test 2 (75q) -> verify 80%+
-- Retake Test 3 (75q) -> verify 80%+
+### Day 3-4: Final Mock Exams
+- TD Set 3 (75q) timed — target 80%+
+- TD Set 4 (75q) timed — target 80%+
+- TD Set 6 (16q) bonus
 
-### Day 5: Exam Day Simulation
-- Take fresh 75q exam, strict 180min timer
-- No breaks, no notes — simulate real conditions
-- Score >= 80%? -> Schedule real exam
-- Score < 75%? -> Repeat Phase 3 for 1 more week
+### Day 5: Exam Simulation
+- Fresh 75q, strict 180min, no breaks
+- Score >= 80% → schedule real exam
+- Score < 75% → repeat Phase 3 for 1 more week
 
-### Day 6: Optional Confidence Labs
-- Lab #326 — CloudWatch Dashboards (Maarek)
-- Lab #336 — CloudFormation Provisioning (Maarek)
+### Day 6-7: REST + schedule exam
 
-### Day 7: REST + schedule exam for next morning
+## Time Budget Summary (Revised)
 
-## Time Budget Summary
+| Phase | Knowledge | Practice Drills | Labs | Total |
+|-------|-----------|----------------|------|-------|
+| 1. Foundation — DONE | 14h | 5h (Udemy 124q) | 5 labs | 24h |
+| 2. TD Chapter Drills (current) | 0h | 12h (TD 489q) | 4 labs | 16h |
+| 3. Timed Mocks | 0h | 10h (5x 75q) | 0h | 10h |
+| 4. Final Prep | 4h | 8h (wrong redo + final) | 0h | 12h |
+| **Total** | **18h** | **35h** | **~9 labs** | **62h** |
 
-| Phase | Knowledge | Practice Tests | Labs | Total |
-|-------|-----------|---------------|------|-------|
-| 1. Foundation (Wk 1-2) | 14-16h | 5h | 0-4h | 19-25h |
-| 2. Deep Practice (Wk 3-4) | 6-8h | 8h | 4-8h | 18-24h |
-| 3. Volume Drilling (Wk 5) | 0h | 16h | 0h | 16h |
-| 4. Final Prep (Wk 6) | 4h | 8h | 0-4h | 12-16h |
-| **Total** | **24-28h** | **37h** | **4-16h** | **65-81h** |
-
-At 2h/day = 6 weeks. At 3h/day = 4 weeks.
+At 2h/day = 4.5 weeks remaining. At 3h/day = 3 weeks remaining.
 
 ## Exam Day Tactics
 
@@ -249,22 +224,25 @@ At 2h/day = 6 weeks. At 3h/day = 4 weeks.
 | 10 | 3486 | RPO/RTO Recovery with RDS | DR/Migration | 60-120m | CRITICAL |
 | 11 | 3640 | Security Controls + KMS | Security | 60-120m | DONE |
 
-## Current Progress (as of 2026-09-16)
+## Current Progress (as of 2026-09-18)
 
 | Activity | Status |
 |----------|--------|
-| Course chapter: Identity & Federation | Done — drill 8/12 (67%) |
-| Course chapter: Security | Done — drill 10/13 (77%) |
-| Course chapter: VPC | Done — drill 23/30 (77%) |
-| Practice Test 1 (30q) | Done |
-| Practice Test 2 (75q) | Not started |
-| Practice Test 3 (75q) | Not started |
+| **Phase 1 — Udemy Chapter Drills** | **DONE** |
+| Udemy: Identity & Federation | Done — drill 8/15 (53%) |
+| Udemy: Security | Done — drill 10/13 (77%) |
+| Udemy: VPC | Done — drill 23/30 (77%) |
+| Udemy: Storage | Done — drill 25/40 (63%) |
+| Udemy: Databases | Done — drill 19/26 (73%) |
+| Udemy questions answered | 124 (39 wrong) |
+| **Phase 2 — TD Chapter Drills** | **CURRENT** |
+| TD questions available | 391 (mapped to 13 chapters) |
+| TD questions answered | 0 |
+| **Labs** | 5/11 Maarek labs done |
 | Lab #176 (ASG + ALB) | Done |
 | Lab #244 (Custom VPC) | Done |
-| Lab #3640 (Security + KMS) | Done |
 | Lab #2934 (ASG Lifecycle Hooks) | Done |
+| Lab #3640 (Security + KMS) | Done |
 | Lab #2856 (SG vs NACL) | Done |
-| Course chapters remaining | 12/~15 |
-| Labs remaining | 6/11 Maarek labs |
-| Chapter drill questions | 58 answered |
-| Phase | 1 — Foundation (in progress) |
+| **Overall accuracy** | 85/124 (69%) — trending up |
+| **Estimated time to exam** | 3-4.5 weeks |
