@@ -1,7 +1,7 @@
 ---
 certification: SAP-C02
 started: 2026-09-04
-last_updated: 2026-09-16
+last_updated: 2026-09-18
 current_phase: 1
 ---
 
@@ -15,6 +15,8 @@ current_phase: 1
 | Identity & Federation | Done | 8/15 (53%) | 2026-09-15 |
 | Security | Done | 10/13 (77%) | 2026-09-15 |
 | VPC | Done | 23/30 (77%) | 2026-09-16 |
+| Storage | Done | 25/40 (63%) | 2026-09-17 |
+| Databases | Done | 19/26 (73%) | 2026-09-18 |
 
 ### Practice Tests
 | Test | Questions | Score | Status |
@@ -44,9 +46,9 @@ current_phase: 1
 
 | Metric | Value |
 |--------|-------|
-| Course chapters read | 3/~30 |
+| Course chapters read | 5/~30 |
 | Practice test questions | 30/180 |
-| Chapter drill questions | 58/58 (security 10/13, identity 8/15, vpc 23/30) |
+| Chapter drill questions | 103/124 (security 10/13, identity 8/15, vpc 23/30, storage 25/40, databases 19/26) |
 | Labs completed | 5/11 (Maarek) |
 | Current phase | 1 — Foundation |
-| Weak areas | Public VIF for VPN-over-DX (×3), PrivateLink for isolated cross-VPC, can't move EC2 between subnets, Fn::Cidr vs Custom Resource, DX alone not encrypted |
+| Weak areas | Public VIF for VPN-over-DX (×3), PrivateLink for isolated cross-VPC, can't move EC2 between subnets, Fn::Cidr vs Custom Resource, DX alone not encrypted, Aurora vs RDS reliability, Redshift Spectrum vs Athena, DynamoDB 400KB limit + drop table, DMS prerequisites |

@@ -163,3 +163,46 @@ Score: 25/40 (63%)
 13. **KMS key types** — AWS-managed keys can't have policy modified; use customer-managed for cross-service access
 14. **S3 replication events** — go to S3 event notifications only, NOT EventBridge
 15. **FSx deployment type** — immutable after creation; must create new Multi-AZ + DataSync migrate
+
+## databases — 2026-09-18
+Score: 19/26 (73%) — skipped T3:Q56 (Elastic Beanstalk, not database-core)
+
+| Q Ref | Topic | Your | Correct | Result |
+|-------|-------|------|---------|--------|
+| T1:Q8 | RDS to Redshift streaming (DMS) | D | D | Correct |
+| T1:Q11 | MySQL migration (Aurora + Redis replication group) | C | A | Wrong |
+| T1:Q12 | EC2↔RDS SG least privilege (outbound EC2 + inbound DB) | E,B | B,E | Correct |
+| T1:Q14 | Multi-tenant DynamoDB cost allocation (CW Logs + Cost Explorer) | B | D | Wrong |
+| T1:Q18 | RDS PostgreSQL DR (cross-Region replicas + automated backups) | A,C | A,C | Correct |
+| T2:Q8 | Redshift historical data in S3 (Redshift Spectrum) | B | C | Wrong |
+| T2:Q10 | RDS vs Aurora Multi-AZ + Read Replicas (sync/async/promotion) | C,E,F | C,E,F | Correct |
+| T2:Q18 | Redshift KMS cross-Region snapshots (grant in dest Region) | D | B | Wrong |
+| T2:Q21 | Serverless sensor ingest (SQS → Lambda → DynamoDB) | C | C | Correct |
+| T2:Q24 | Aurora Auto Scaling + ALB routing (Replicas + Round Robin) | A,D | A,D | Correct |
+| T2:Q36 | RDS DR plan (snapshots shareable + cross-Region + RTO def) | F,D,E | B,E,F | Wrong |
+| T2:Q37 | Gaming leaderboard in-memory (ElastiCache Redis + DynamoDB DAX) | B,E | B,E | Correct |
+| T2:Q38 | SAML + PowerUserAccess + deny RDS except us-east-1 | D | D | Correct |
+| T2:Q39 | Global relational DB (Aurora Global Database) | B | B | Correct |
+| T2:Q48 | Semi-structured event viz (Firehose → OpenSearch → Kibana) | D | D | Correct |
+| T2:Q49 | DMS migration validation (DMS data validation) | B | B | Correct |
+| T2:Q52 | Multi-AZ sync vs Read Replica async | D | D | Correct |
+| T2:Q53 | Analytics offload cost-optimal (same-Region Read Replica) | A | A | Correct |
+| T2:Q65 | DynamoDB anomaly detection (Streams → Lambda → KDS → KDA) | A | A | Correct |
+| T2:Q69 | Redshift DR (CFN StackSet + cross-Region snapshot copy) | A | A | Correct |
+| T3:Q3 | Cold Redshift data (S3 Standard-IA + Athena) | C,D | C,D | Correct |
+| T3:Q12 | Reporting offload (Read Replica, not Multi-AZ standby) | C | C | Correct |
+| T3:Q36 | DMS to Redshift (same Region + SG inbound rules) | A,D | C,D | Wrong |
+| T3:Q44 | DynamoDB cost optimization (drop table + SQS buffer writes) | C,E | D,E | Wrong |
+| T3:Q50 | FSx Single-AZ → Multi-AZ (new FSx + DataSync) | A | A | Correct |
+| T3:Q51 | KCL checkpointing (DynamoDB only + separate table per app) | B,D | B,D | Correct |
+
+### Weak Areas — Databases
+1. **Aurora vs RDS for reliability** — Aurora MySQL (5x throughput, 6-way replication) > RDS MySQL Multi-AZ; Redis with replication > Memcached (no replication) for session HA
+2. **Multi-tenant DynamoDB billing** — cost allocation tags are resource-level, not per-request; use structured CW Logs + Cost Explorer API proportional allocation
+3. **Redshift Spectrum vs Athena** — Spectrum queries S3 FROM Redshift (can JOIN with Redshift tables); Athena is standalone S3 query engine (can't cross-reference Redshift)
+4. **Redshift cross-Region snapshots** — snapshot copy grant in DESTINATION Region + KMS key in DESTINATION Region + configure in SOURCE Region; no "cross-Region replication" for Redshift
+5. **RDS snapshot sharing** — only MANUAL snapshots shareable (up to 20 accounts); AUTOMATED snapshots cannot be shared directly
+6. **Read Replica promotion is manual** — unlike Multi-AZ automatic failover; cross-Region failover requires manual promotion + app reconfiguration
+7. **DMS to Redshift prerequisites** — same account + same Region; add replication instance IP to Redshift SG inbound; DMS auto-creates IAM only via console (not CLI/API)
+8. **DynamoDB bulk delete** — drop entire table >> delete items one-by-one (avoids double throughput for scan+delete); max item size = 400 KB
+9. **DynamoDB write buffering** — SQS queue smooths write peaks → lower provisioned WCU
