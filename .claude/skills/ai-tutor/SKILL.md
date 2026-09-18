@@ -44,7 +44,8 @@ All mutable user data lives in the **project root**, NOT inside `.claude/skills/
 |------|------|---------|
 | Progress | `aws-sap/study-progress.md` | SAP study state |
 | Sessions | `aws-sap/study-sessions/{timestamp}-{domain}-{mode}.md` | SAP session files |
-| Practice tests | `practice-exam/sap/practice_test_{N}.md` | 3 tests (30q + 75q + 75q) |
+| Practice tests (Udemy) | `practice-exam/sap/practice_test_{N}.md` | 3 tests (30q + 75q + 75q) |
+| Practice tests (TD) | `practice-exam/sap/SAP-Review-Mode-Set-{N}.md` | 6 sets (75q x5 + 16q) = 391q |
 | Practice progress | `practice-exam/sap/practice_test_{N}_progress.md` | Per-test progress tracking |
 | Cert defs | `.claude/skills/ai-tutor/certs/aws-sap/domains.md` | SAP domains, labs, pipeline |
 | Pipeline report | `.claude/skills/ai-tutor/certs/aws-sap/study-pipeline.md` | Full study timeline |
@@ -58,7 +59,8 @@ Parse `ARGUMENTS` to determine the action:
 | _(empty)_ | Show domain selection → guided mode (default, SAA) |
 | `sap` | Show SAP domain selection → guided mode |
 | `sap practice-test` or `practice-test sap` | Start SAP practice test (Load: `references/practice-test-flow.md` with SAP cert) |
-| `sap chapter-drill <chapter>` | Quiz real practice questions for a specific course chapter (Load: `certs/aws-sap/chapter-question-map.md` + `references/practice-test-flow.md`) |
+| `sap chapter-drill <chapter>` | Quiz Udemy practice questions for a chapter (Load: `certs/aws-sap/chapter-question-map.md` + `references/practice-test-flow.md`) |
+| `sap chapter-drill <chapter> dojo` | Quiz Tutorials Dojo questions for a chapter (Load: `certs/aws-sap/chapter-question-map-td.md` + `references/practice-test-flow.md`) |
 | `progress` | Show progress dashboard (Load: `references/progress-tracking.md`). **Stop after displaying.** |
 | `refresh <domain>` | Re-extract PDF cache for domain (Load: `references/pdf-extractor.md`). **Stop after refresh.** |
 | `refresh cheat-sheet` | Re-extract cheat sheet PDF cache (Load: `references/pdf-extractor.md` § Cheat Sheet Extraction). **Stop after refresh.** |
@@ -325,6 +327,7 @@ Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
   Example: /ai-tutor compute
            /ai-tutor sap practice-test
            /ai-tutor sap chapter-drill security
+           /ai-tutor sap chapter-drill storage dojo
            /ai-tutor free storage mini-exam
            /ai-tutor practice-test
   ```

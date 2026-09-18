@@ -328,18 +328,64 @@ When user selects "Redo wrong answers":
 
 ## Chapter Drill Mode (SAP only)
 
-Triggered by `/ai-tutor sap chapter-drill <chapter-name>`.
+Triggered by `/ai-tutor sap chapter-drill <chapter-name> [source]`.
+
+### Source Selection
+
+| Argument | Source | Map File | Question Files |
+|----------|--------|----------|----------------|
+| (default) or `udemy` | Udemy Maarek | `certs/aws-sap/chapter-question-map.md` | `practice-exam/sap/practice_test_{N}.md` (T1-T3) |
+| `dojo` or `td` | Tutorials Dojo | `certs/aws-sap/chapter-question-map-td.md` | `practice-exam/sap/SAP-Review-Mode-Set-{N}.md` (TD1-TD6) |
+
+Examples:
+- `/ai-tutor sap chapter-drill storage` → Udemy storage questions (default)
+- `/ai-tutor sap chapter-drill storage dojo` → TD storage questions
 
 ### How it works
 
-1. **Load mapping:** Read `certs/aws-sap/chapter-question-map.md`
+1. **Load mapping:** Read the chapter-question-map file for the selected source (see table above)
 2. **Find chapter:** Match the user's chapter name to a section (fuzzy match: "security" matches "security", "vpc" matches "vpc", "identity" matches "identity-federation", etc.)
-3. **Collect questions:** Parse the comma-separated `T{N}:Q{num}` references for that chapter
-4. **Load questions:** Read each referenced question from `practice-exam/sap/practice_test_{N}.md`
+3. **Collect questions:** Parse the comma-separated question references for that chapter
+   - Udemy format: `T{N}:Q{num}` (e.g. T1:Q5 = practice_test_1.md, Question 5)
+   - TD format: `TD{N}:Q{num}` (e.g. TD3:Q42 = SAP-Review-Mode-Set-3.md, Question 42)
+4. **Load questions:** Read each referenced question from the appropriate source file
+   - TD files are large (400-500KB). Use offset reading: `grep -n "^## Question {num}$"` to find line number, then read ~80 lines from that offset to get question + options + explanation
 5. **Randomize order:** Shuffle the questions so repeated drills feel fresh
 6. **Quiz:** Present questions using the same Step 4 loop (show question, collect answer, give feedback with explanation). Accumulate results in memory — do NOT write progress file between questions.
    **CRITICAL — Verbatim questions:** Print question text and ALL option text EXACTLY as written in the practice test source file. Do NOT summarize, condense, paraphrase, or use arrow notation (→). Copy-paste the full paragraphs. The practice test questions are designed to test reading comprehension of lengthy scenario descriptions — summarizing defeats the purpose.
-7. **Track results:** Write ALL accumulated results to `practice-exam/sap/chapter_drill_progress.md` only AFTER the drill completes (all questions answered) or when user explicitly types `save`. This ensures instant question transitions with no file I/O delay.
+7. **Track results:** Write ALL accumulated results to `practice-exam/sap/chapter_drill_progress.md` only AFTER the drill completes (all questions answered) or when user explicitly types `save`. This ensures instant question transitions with no file I/O delay. Tag source in the section header: `## {chapter} (dojo) — {date}` or `## {chapter} — {date}` for Udemy.
+
+### TD Question Format (parse from SAP-Review-Mode-Set-{N}.md)
+
+TD questions use a different format than Udemy:
+
+```markdown
+## Question {num}
+
+**Category:** CSAP – {domain name}
+
+{question text}
+
+- A. {option text}
+- **B. {option text}** ✅
+- C. {option text}
+- D. {option text}
+
+### Explanation
+
+{detailed explanation text with correct/incorrect analysis}
+
+---
+```
+
+TD parse rules:
+- Question number: from `## Question {N}` header
+- Category/Domain: from `**Category:** CSAP – {text}` line
+- Options: lines starting with `- A.` through `- F.`. The correct answer has `**` bold markers AND/OR `✅` marker
+- Multi-choice: question says "Select two/three" or "(Choose 2/3 answers)"
+- Explanation: everything after `### Explanation` until next `---` separator
+- Show explanation AFTER user answers (not before)
+- Strip `**` bold markers and `✅` from options when presenting to user
 
 ### Chapter Name Aliases
 
