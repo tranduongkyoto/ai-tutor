@@ -206,3 +206,29 @@ Score: 19/26 (73%) — skipped T3:Q56 (Elastic Beanstalk, not database-core)
 7. **DMS to Redshift prerequisites** — same account + same Region; add replication instance IP to Redshift SG inbound; DMS auto-creates IAM only via console (not CLI/API)
 8. **DynamoDB bulk delete** — drop entire table >> delete items one-by-one (avoids double throughput for scan+delete); max item size = 400 KB
 9. **DynamoDB write buffering** — SQS queue smooths write peaks → lower provisioned WCU
+
+## compute-load-balancing (dojo) — 2026-09-21 (11 of 20 answered, paused; skipped 2 non-core: TD2:Q22, TD1:Q60)
+Score: 7.5/11 (68%)
+
+| Q Ref | Topic | Your | Correct | Result |
+|-------|-------|------|---------|--------|
+| TD1:Q33 | ECS awsvpc network mode + SG on tasks + IAM roles | A | A | Correct |
+| TD1:Q25 | NAT instance failure 50% → use NAT Gateway | A | A | Correct |
+| TD1:Q16 | ASG suspend Terminate process for troubleshooting | C | A | Wrong |
+| TD1:Q9 | Aurora auto-scale storage + ASG + Reserved EC2 | C | C | Correct |
+| TD1:Q52 | Spot Fleet diversified allocation + Auto Scaling | C | C | Correct |
+| TD1:Q21 | EFS mount + SSM patched AMI + CodeDeploy | C | C | Correct |
+| TD1:Q57 | Lambda cost: migrate MySQL to RDS + API GW caching | C | A | Wrong |
+| TD1:Q14 | S3 CRR + SQS + ASG for scalable storage/compute | D | D | Correct |
+| TD2:Q4 | API GW + Lambda + Cognito + DynamoDB + S3 presigned | D | D | Correct |
+| TD2:Q11 | Kinesis batch + DynamoDB WCU increase | A,D | B,D | Partial |
+| TD1:Q30 | Compute Savings Plans + Spot for EKS peak | — | — | Not answered |
+
+### Weak Areas — Compute & Load Balancing (partial)
+1. **ASG suspend vs EC2 termination protection** — EC2 termination protection does NOT prevent ASG from terminating; must suspend ASG "Terminate" process
+2. **API Gateway caching vs CloudFront** — API caching is built into API Gateway (correct); CloudFront in front of API GW is unnecessary overhead
+3. **Kinesis for Lambda throttling** — Kinesis data stream batches requests, reducing Lambda concurrency (TooManyRequestsException); increasing Lambda memory alone doesn't fix concurrency limits
+
+### Remaining questions (resume from here)
+TD1:Q30, TD1:Q24, TD1:Q35, TD1:Q49, TD1:Q61, TD1:Q68, TD1:Q69, TD2:Q23, TD2:Q31
+Total remaining: 9 questions
