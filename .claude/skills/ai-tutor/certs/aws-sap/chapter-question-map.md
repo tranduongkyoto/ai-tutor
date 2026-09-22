@@ -103,14 +103,14 @@ T3:Q42 (ElastiCache) already in caching, T3:Q75 (CloudTrail) already in monitori
 (no matching lab)
 
 ### security — 2 labs
-- Must: #3640 Security Controls + KMS + Data Protection (M) — DONE
-- Opt: #3042 Host-Based IDS on EC2
+- Must: [#3640](https://viettel.udemy.com/labs/improve-application-security-posture-by-automating-security-controls-and-data-protection-2/overview/) Security Controls + KMS + Data Protection (M) — DONE
+- Opt: [#3042](https://viettel.udemy.com/labs/implement-host-based-security-to-safeguard-ec2-instances-from-security-threats/overview/) Host-Based IDS on EC2
 
 ### compute-load-balancing — 4 labs
-- Must: #176 ASG + ALB Horizontal Scaling (M) — DONE
-- Must: #2934 ASG Lifecycle Hooks + Lambda + SSM — DONE
-- Opt: #244 Custom VPC Public/Private Subnets — DONE
-- Opt: #226 Auto Scaling + ALB
+- Must: [#176](https://viettel.udemy.com/labs/horizontal-scaling-of-ec2-instances-using-an-auto-scaling-group-with-an-application-load-balancer-8/overview/) ASG + ALB Horizontal Scaling (M) — DONE
+- Must: [#2934](https://viettel.udemy.com/labs/implement-lifecycle-hooks-on-an-auto-scaling-ec2-deployment/overview/) ASG Lifecycle Hooks + Lambda + SSM — DONE
+- Opt: [#244](https://viettel.udemy.com/labs/create-a-custom-amazon-vpc-with-public-and-private-subnets/overview/) Custom VPC Public/Private Subnets — DONE
+- Opt: [#226](https://viettel.udemy.com/labs/automatic-scaling-and-load-balancing-with-ec2-and-alb/overview/) Auto Scaling + ALB
 
 ### storage — 0 labs
 (theory-heavy chapter, no lab adds significant value)
@@ -119,49 +119,49 @@ T3:Q42 (ElastiCache) already in caching, T3:Q75 (CloudTrail) already in monitori
 (Redis vs Memcached = memorization, no lab needed)
 
 ### databases — 3 labs
-- Must: #240 RDS Multi-AZ + CloudWatch + SNS (M)
-- Must: #320 API Gateway + Aurora + RDS Proxy + Secrets Manager
-- Opt: #3289 Migrate Node+PostgreSQL to EB+RDS
+- Must: [#240](https://viettel.udemy.com/labs/build-and-monitor-a-resilient-system-architecture-using-ec2-rds-multi-az-cloudwatch-and-sns/overview/) RDS Multi-AZ + CloudWatch + SNS (M)
+- Must: [#320](https://viettel.udemy.com/labs/build-a-cloud-native-web-app-to-manage-product-reviews-using-api-gateway-aurora-and-rds-proxy/overview/) API Gateway + Aurora + RDS Proxy + Secrets Manager
+- Opt: [#3289](https://viettel.udemy.com/labs/migrate-a-nodejs-postgresql-application-to-aws/overview/) Migrate Node+PostgreSQL to EB+RDS
 
 ### service-communication — 5 labs
-- Must: #230 Lambda + SQS + DynamoDB Decoupled Backend (M)
-- Must: #3318 SNS + SQS Fanout Architecture
-- Must: #3560 Kinesis + Lambda + DynamoDB Real-Time Streaming
-- Opt: #218 S3 → SQS → Lambda → DynamoDB Serverless Workflow
-- Opt: #296 Private REST API (Lambda + API Gateway)
+- Must: [#230](https://viettel.udemy.com/labs/create-a-decoupled-backend-architecture-using-lambda-sqs-and-dynamodb-2/overview/) Lambda + SQS + DynamoDB Decoupled Backend (M)
+- Must: [#3318](https://viettel.udemy.com/labs/fanout-architecture-using-sns-and-sqs/overview/) SNS + SQS Fanout Architecture
+- Must: [#3560](https://viettel.udemy.com/labs/real-time-data-processing-using-python-with-kinesis-lambda-dynamodb/overview/) Kinesis + Lambda + DynamoDB Real-Time Streaming
+- Opt: [#218](https://viettel.udemy.com/labs/building-serverless-workflow-to-process-files-uploaded-to-amazon-s3-2/overview/) S3 → SQS → Lambda → DynamoDB Serverless Workflow
+- Opt: [#296](https://viettel.udemy.com/labs/building-private-rest-api-with-aws-lambda-and-amazon-api-gateway-2/overview/) Private REST API (Lambda + API Gateway)
 
 ### data-engineering — 3 labs
-- Opt: #274 Kinesis Firehose → S3 → Glue → Athena
-- Opt: #238 Athena Clickstream Analysis
-- Opt: #236 Glue ETL Transform
+- Opt: [#274](https://viettel.udemy.com/labs/stream-and-analyze-log-data-with-kinesis-firehose-lambda-s3-glue-and-athena/overview/) Kinesis Firehose → S3 → Glue → Athena
+- Opt: [#238](https://viettel.udemy.com/labs/analyze-e-commerce-clickstream-data-with-amazon-athena/overview/) Athena Clickstream Analysis
+- Opt: [#236](https://viettel.udemy.com/labs/transform-e-commerce-clickstream-data-for-analysis-using-aws-glue/overview/) Glue ETL Transform
 
 ### monitoring — 5 labs
-- Must: #3452 CloudTrail + CloudWatch Audit (M)
-- Must: #276 VPC Flow Logs + CloudWatch (M)
-- Opt: #326 CloudWatch Dashboards & Widgets (M)
-- Opt: #3072 Comprehensive Logging (CW + Config + CloudTrail)
-- Opt: #3006 Troubleshoot CloudWatch Agent
+- Must: [#3452](https://viettel.udemy.com/labs/design-a-solution-to-audit-monitor-and-analyze-logs-and-metrics-for-detecting-issues/overview/) CloudTrail + CloudWatch Audit (M)
+- Must: [#276](https://viettel.udemy.com/labs/build-a-network-monitoring-solution-using-aws-vpc-flow-logs-and-cloudwatch-2/overview/) VPC Flow Logs + CloudWatch (M)
+- Opt: [#326](https://viettel.udemy.com/labs/monitoring-aws-resources-using-cloudwatch-dashboards-and-widgets/overview/) CloudWatch Dashboards & Widgets (M)
+- Opt: [#3072](https://viettel.udemy.com/labs/design-and-implement-a-comprehensive-logging-solution-on-aws/overview/) Comprehensive Logging (CW + Config + CloudTrail)
+- Opt: [#3006](https://viettel.udemy.com/labs/troubleshooting-cloudwatch-agent-on-ec2/overview/) Troubleshoot CloudWatch Agent
 
 ### deployment-instance-management — 5 labs
-- Must: #3344 CloudFormation StackSets Multi-Region (M)
-- Must: #336 CloudFormation Provisioning + Change Sets (M)
-- Opt: #3342 Systems Manager Automation (M)
-- Opt: #332 CloudFormation Load Balancer + VPC
-- Opt: #3128 Lambda Traffic Shifting (versions + weighted alias)
+- Must: [#3344](https://viettel.udemy.com/labs/define-cloud-infrastructure-and-reusable-components-using-aws-cloudformation/overview/) CloudFormation StackSets Multi-Region (M)
+- Must: [#336](https://viettel.udemy.com/labs/automate-provisioning-of-aws-resources-using-cloudformation/overview/) CloudFormation Provisioning + Change Sets (M)
+- Opt: [#3342](https://viettel.udemy.com/labs/build-automated-solutions-in-large-scale-environments-using-aws-systems-manager/overview/) Systems Manager Automation (M)
+- Opt: [#332](https://viettel.udemy.com/labs/automate-load-balancer-and-vpc-creation-using-cloudformation/overview/) CloudFormation Load Balancer + VPC
+- Opt: [#3128](https://viettel.udemy.com/labs/traffic-shifting-using-aws-lambda/overview/) Lambda Traffic Shifting (versions + weighted alias)
 
 ### cost-control — 0 labs
 (pure theory, no lab helps)
 
 ### migrations — 2 labs
-- Must: #3486 RPO/RTO Recovery with RDS Cross-Region (M)
-- Opt: #3378 Automated EBS Backup + Encryption
+- Must: [#3486](https://viettel.udemy.com/labs/implement-automated-recovery-processes-to-meet-rporto-requirements-using-amazon-rds/overview/) RPO/RTO Recovery with RDS Cross-Region (M)
+- Opt: [#3378](https://viettel.udemy.com/labs/implement-automated-data-backup-and-enhanced-security-in-abc-corps-aws-infrastructure/overview/) Automated EBS Backup + Encryption
 
 ### vpc — 5 labs
-- Must: #354 Gateway VPC Endpoints + Endpoint Policies
-- Must: #2856 Troubleshoot & Secure AWS Network (SG vs NACL) — DONE
-- Opt: #3316 Route53 Active-Passive Failover Routing
-- Opt: #3314 Route53 Weighted Routing
-- Opt: #3238 VPC Traffic Mirroring
+- Must: [#354](https://viettel.udemy.com/labs/design-and-implement-gateway-vpc-endpoints/overview/) Gateway VPC Endpoints + Endpoint Policies
+- Must: [#2856](https://viettel.udemy.com/labs/troubleshoot-and-secure-your-aws-network-infrastructure/overview/) Troubleshoot & Secure AWS Network (SG vs NACL) — DONE
+- Opt: [#3316](https://viettel.udemy.com/labs/active-passive-failover-using-route53-failover-routing-policy/overview/) Route53 Active-Passive Failover Routing
+- Opt: [#3314](https://viettel.udemy.com/labs/distribute-traffic-using-route53-weighted-routing-policy/overview/) Route53 Weighted Routing
+- Opt: [#3238](https://viettel.udemy.com/labs/configuring-traffic-mirroring-in-aws-vpc/overview/) VPC Traffic Mirroring
 
 ### machine-learning — 0 labs
 (0 practice questions, skip)
