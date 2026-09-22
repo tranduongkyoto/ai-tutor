@@ -207,8 +207,8 @@ Score: 19/26 (73%) — skipped T3:Q56 (Elastic Beanstalk, not database-core)
 8. **DynamoDB bulk delete** — drop entire table >> delete items one-by-one (avoids double throughput for scan+delete); max item size = 400 KB
 9. **DynamoDB write buffering** — SQS queue smooths write peaks → lower provisioned WCU
 
-## compute-load-balancing (dojo) — 2026-09-21 (11 of 20 answered, paused; skipped 2 non-core: TD2:Q22, TD1:Q60)
-Score: 7.5/11 (68%)
+## compute-load-balancing (dojo) — 2026-09-21/22 (20 core questions)
+Score: 13/20 (65%)
 
 | Q Ref | Topic | Your | Correct | Result |
 |-------|-------|------|---------|--------|
@@ -222,13 +222,53 @@ Score: 7.5/11 (68%)
 | TD1:Q14 | S3 CRR + SQS + ASG for scalable storage/compute | D | D | Correct |
 | TD2:Q4 | API GW + Lambda + Cognito + DynamoDB + S3 presigned | D | D | Correct |
 | TD2:Q11 | Kinesis batch + DynamoDB WCU increase | A,D | B,D | Partial |
-| TD1:Q30 | Compute Savings Plans + Spot for EKS peak | — | — | Not answered |
+| TD1:Q30 | Compute Savings Plans + Spot for EKS peak | C | B | Wrong |
+| TD1:Q24 | SSM Patch Manager + AWS Config AMI compliance | C,D | B,D | Partial |
+| TD1:Q35 | SSM Parameter Store + CodeDeploy + IAM Service Role | C | C | Correct |
+| TD1:Q49 | CloudFormation + ASG + Aurora retain + ALB | B | D | Wrong |
+| TD1:Q61 | ECS Fargate secrets (Secrets Manager vs Parameter Store) | B | C | Wrong |
+| TD1:Q68 | DDoS mitigation (CloudFront + ALB + WAF + Auto Scaling) | D,E | D,E | Correct |
+| TD1:Q69 | ECS Anywhere for hybrid on-prem + Fargate cluster | B | D | Wrong |
+| TD2:Q31 | Lambda@Edge User-Agent parsing for device-specific content | D | A | Wrong |
+| TD2:Q34 | ALB AZ association (AZ not receiving traffic) | C | C | Correct |
+| TD2:Q46 | ASG min 5/max 30 + 5 Reserved Instances (cost-optimize) | C | C | Correct |
 
-### Weak Areas — Compute & Load Balancing (partial)
+### Weak Areas — Compute & Load Balancing
 1. **ASG suspend vs EC2 termination protection** — EC2 termination protection does NOT prevent ASG from terminating; must suspend ASG "Terminate" process
 2. **API Gateway caching vs CloudFront** — API caching is built into API Gateway (correct); CloudFront in front of API GW is unnecessary overhead
 3. **Kinesis for Lambda throttling** — Kinesis data stream batches requests, reducing Lambda concurrency (TooManyRequestsException); increasing Lambda memory alone doesn't fix concurrency limits
+4. **Compute vs EC2 Instance Savings Plans** — Compute SP = flexible across instance families (good for EKS); EC2 Instance SP = locked to family but higher discount. Spot for peak surges
+5. **SSM Patch Manager vs GuardDuty** — Patch Manager = patching; GuardDuty = threat detection; Config = compliance rules (AMI approval)
+6. **NLB vs ALB for web apps** — NLB = Layer 4 (TCP), no HTTP routing; ALB = Layer 7 (HTTP/HTTPS), path/header routing. Web apps need ALB
+7. **Secrets Manager vs Parameter Store** — "lifecycle management + key rotation" = Secrets Manager; "config + secrets store" = Parameter Store
+8. **ECS Anywhere vs Outposts** — ECS Anywhere = register on-prem in same ECS cluster as Fargate (lightweight); Outposts = expensive hardware, no Fargate support
+9. **Lambda@Edge vs CloudFront User-Agent caching** — Lambda@Edge parses headers per-request; caching by User-Agent has terrible hit ratio (thousands of values). Route 53 cannot route by HTTP headers
+10. **CloudFormation DeletionPolicy** — "retain" keeps resource on stack delete (fast recovery); "snapshot" requires restore time
+11. **ASG right-sizing** — match min capacity to actual baseline utilization (20% of 25 = ~5), not the current instance count. RI only for baseline
 
-### Remaining questions (resume from here)
-TD1:Q30, TD1:Q24, TD1:Q35, TD1:Q49, TD1:Q61, TD1:Q68, TD1:Q69, TD2:Q23, TD2:Q31
-Total remaining: 9 questions
+## monitoring (dojo) — 2026-09-22 (14 core questions across 2 sessions; 19 non-core skipped)
+Score: 11.5/14 (82%)
+
+| Q Ref | Topic | Your | Correct | Result |
+|-------|-------|------|---------|--------|
+| TD1:Q2 | CloudWatch AWS/Usage + SERVICE_QUOTA() for quota monitoring | A | B | Wrong |
+| TD1:Q12 | Unified CloudWatch agent + Logs Insights for EC2 logs | D | D | Correct |
+| TD1:Q44 | CloudWatch agent on-prem + metric filter + alarm + SNS | D | D | Correct |
+| TD1:Q74 | Resource-based policy cross-account + AWS Config audit | D | D | Correct |
+| TD2:Q20 | NACL/SG for connectivity + AWS Config for history tracking | A,B | A,B | Correct |
+| TD2:Q60 | CloudTrail logging + IAM read-only user for auditor | B | B | Correct |
+| TD2:Q65 | CloudWatch StatusCheckFailed_System + EC2 recovery action | C | C | Correct |
+| TD3:Q34 | CodeDeploy Canary + X-Ray active tracing for Lambda | B | B | Correct |
+| TD3:Q41 | Inspector CVE + EventBridge 30-day cron + SSM Automation | A,B | B,D | Partial |
+| TD4:Q16 | CloudTrail + IAM Access Analyzer for least-privilege audit | A,D | B,D | Partial |
+| TD4:Q31 | CloudTrail object-level + EventBridge + Lambda (S3 public) | C | C | Correct |
+| TD4:Q44 | EventBridge CreateUser pattern + Step Functions + SNS | A,E,F | D,E,F | Partial |
+| TD5:Q44 | CloudTrail organizational trail in management account | B | B | Correct |
+| TD5:Q45 | Config rule + SCP tag enforcement + Config aggregator | A,D,E | A,D,E | Correct |
+
+### Weak Areas — Monitoring
+1. **CloudWatch SERVICE_QUOTA()** — use AWS/Usage namespace + SERVICE_QUOTA(metricId) math for quota monitoring; Container Insights is for performance, not quota tracking
+2. **Inspector vs Config vs SSM for CVE** — Inspector = CVE scanning; Config = configuration compliance only; SSM Agent alone can't run CVE scans. EventBridge cron for scheduled scans
+3. **CloudTrail cannot send to SNS directly** — CloudTrail only logs events; EventBridge matches patterns and routes to SNS/Lambda/Step Functions
+4. **IAM Access Analyzer needs CloudTrail trail first** — Access Analyzer reads CloudTrail logs to generate least-privilege policies; Audit Manager is for compliance frameworks (SOC2, PCI), not permissions
+5. **EventBridge is the event router** — CloudTrail logs → EventBridge pattern match → target (SNS/Lambda/Step Functions). Never CloudTrail → SNS direct
