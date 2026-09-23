@@ -272,3 +272,23 @@ Score: 11.5/14 (82%)
 3. **CloudTrail cannot send to SNS directly** — CloudTrail only logs events; EventBridge matches patterns and routes to SNS/Lambda/Step Functions
 4. **IAM Access Analyzer needs CloudTrail trail first** — Access Analyzer reads CloudTrail logs to generate least-privilege policies; Audit Manager is for compliance frameworks (SOC2, PCI), not permissions
 5. **EventBridge is the event router** — CloudTrail logs → EventBridge pattern match → target (SNS/Lambda/Step Functions). Never CloudTrail → SNS direct
+
+## service-communication (dojo) — 2026-09-23 (8 core questions; skipped 2 non-core: TD2:Q22 VPC, TD2:Q12 mobile push)
+Score: 7.5/8 (94%)
+
+| Q Ref | Topic | Your | Correct | Result |
+|-------|-------|------|---------|--------|
+| TD1:Q15 | SQS maxReceiveCount=1 too low → increase to 10 | B | B | Correct |
+| TD2:Q25 | SQS buffer + Cognito + DynamoDB for scalable e-commerce | A | A | Correct |
+| TD2:Q27 | Kinesis Producer Library + Direct Connect + WebSocket API | C,B,A | B,C,F | Partial |
+| TD2:Q30 | Kinesis Data Streams for real-time clickstream analytics | C | C | Correct |
+| TD2:Q32 | CloudFormation Fn::GetAtt SNS→SQS ARN subscription | A | A | Correct |
+| TD2:Q36 | SQS queue depth + Spot ASG + Glacier for archival | C | C | Correct |
+| TD2:Q73 | IoT Core Basic Ingest + Firehose + Lambda enrichment | B | B | Correct |
+| TD1:Q7 | Kinesis Data Streams for IoT real-time biometric data | — | C | Skipped (presented but not asked) |
+
+### Weak Areas — Service Communication
+1. **Kinesis Producer Library vs Consumer Library** — KPL = put data INTO streams; KCL = read data FROM streams. EC2 pulling from Kafka and sending to Kinesis = PRODUCER (KPL), not Consumer (KCL)
+
+### Remaining (14 more questions)
+TD3:Q5, TD3:Q29, TD3:Q54, TD3:Q65, TD4:Q8, TD4:Q11, TD4:Q13, TD4:Q44, TD4:Q55, TD4:Q69, TD5:Q18, TD5:Q47, TD5:Q52, TD6:Q2
