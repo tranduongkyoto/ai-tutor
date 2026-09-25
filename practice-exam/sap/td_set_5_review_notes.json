@@ -1,0 +1,511 @@
+{
+  "title": "TD Set 5",
+  "analysis_file": "td_set_5_analysis.md",
+  "wrong_review_file": "td_set_5_review.md",
+  "wrong": {
+    "groups": {
+      "A": "DIY over managed service",
+      "B": "Multi-account governance",
+      "C": "DR / Route 53",
+      "D": "Migration",
+      "E": "Serverless + DB",
+      "F": "Networking / S3 / perf"
+    },
+    "questions": {
+      "1": {
+        "group": "A",
+        "keywords": "mask + remove/merge fields + JSON = ETL; every 15 min batch; 'easily expandable'",
+        "trap": "Lambda→SQS→Fargate = self-built ETL; every new field = code change + redeploy",
+        "rule": "ETL + expandable/least overhead → Glue crawler + classifier + Glue ETL job. Data Exchange never transforms."
+      },
+      "8": {
+        "group": "A",
+        "keywords": "weekly CSV; avg memory; RECOMMENDED config; cost savings; least dev overhead",
+        "trap": "Lambda Insights = monitoring only, no recommendations/savings",
+        "rule": "Right-sizing recommendations + savings → Compute Optimizer (ExportLambdaFunctionRecommendations → S3)."
+      },
+      "10": {
+        "group": "A",
+        "keywords": "SFTP; keep Elastic IP; partner IP allowlist via SG; HA; minimize management",
+        "trap": "Public Transfer Family endpoint can't attach EIP/SG",
+        "rule": "Transfer Family VPC endpoint, internet-facing → attach EIP + security group; S3 as storage."
+      },
+      "14": {
+        "group": "A",
+        "keywords": "40-min transcode; idle 35%; HA + scalable + reduce management; most cost-effective",
+        "trap": "EC2 ASG polling SQS still = managing EC2; Lambda max 15 min",
+        "rule": "Long job (>15 min), event-driven → container on Fargate, Lambda calls ECS RunTask."
+      },
+      "35": {
+        "group": "A",
+        "keywords": "Lambda timeout on long videos; never time out again; no servers to manage",
+        "trap": "SQS + EC2 ASG = managing EC2",
+        "rule": "Lambda timeout → containerize (ECR) + Fargate task started by Lambda. Both picks = one solution."
+      },
+      "28": {
+        "group": "A",
+        "keywords": "hybrid Linux+Windows; different patch tools; consolidated patch status",
+        "trap": "Config = config compliance, not patch operations",
+        "rule": "Patching + patch compliance (EC2 + on-prem) → SSM managed nodes + Patch Manager."
+      },
+      "38": {
+        "group": "A",
+        "keywords": "thousands of accounts; standardized VPC; auto-deploy to NEW accounts",
+        "trap": "Self-managed stack sets in member accounts",
+        "rule": "Org-wide CFN → StackSets trusted access + service-managed permissions in mgmt account + automatic deployment."
+      },
+      "51": {
+        "group": "A",
+        "keywords": "rotate SSH keys on fleet managed by SSM Fleet Manager",
+        "trap": "Downloaded .pem = PRIVATE key; authorized_keys needs PUBLIC key",
+        "rule": "Key rotation → new key pair, extract public key, push via SSM Run Command (AWS-RunShellScript)."
+      },
+      "68": {
+        "group": "A",
+        "keywords": "QA members create own environments from CFN templates; no broad permissions",
+        "trap": "Elastic Beanstalk = convert templates, grants broad perms",
+        "rule": "Self-service provisioning with least privilege → Service Catalog product + launch constraint."
+      },
+      "72": {
+        "group": "A",
+        "keywords": "MP4 → HLS; cost-effective; HA; global remote viewers",
+        "trap": "Jenkins + EC2 + EBS = DIY, low HA",
+        "rule": "Video transcoding → Elemental MediaConvert + S3 + CloudFront."
+      },
+      "73": {
+        "group": "A",
+        "keywords": "webhooks; migrate to serverless; most operationally efficient",
+        "trap": "Fargate + HTTP API + ALB = over-engineered",
+        "rule": "Simple HTTPS endpoint for a function → Lambda Function URL."
+      },
+      "24": {
+        "group": "A",
+        "keywords": "WorkSpaces; restrict to HQ + satellite offices; new office soon; operational efficiency",
+        "trap": "Windows Firewall in custom image = per-WorkSpace management",
+        "rule": "Restrict WorkSpaces by source network → WorkSpaces IP access control groups."
+      },
+      "16": {
+        "group": "B",
+        "keywords": "hundreds of accounts; OU per team; team lead sees charges across OU accounts",
+        "trap": "RAM cannot generate CUR",
+        "rule": "Org-wide cost breakdown → CUR from management account + QuickSight dashboard."
+      },
+      "29": {
+        "group": "B",
+        "keywords": "bill analytics division by tag 'expenseUnit: analytics'",
+        "trap": "Resource Groups ≠ billing tool",
+        "rule": "Cost by tag → activate user-defined cost allocation tag in mgmt account + CUR tag breakdown."
+      },
+      "19": {
+        "group": "B",
+        "keywords": "critical SGs must not be modified; only PROD OU",
+        "trap": "aws:SourceIp condition doesn't target specific resources",
+        "rule": "Protect specific resources → tag them + SCP deny with aws:ResourceTag condition, attach to OU."
+      },
+      "31": {
+        "group": "B",
+        "keywords": "IDENTIFY instances missing tag AND PREVENT creation; org-wide list",
+        "trap": "Security Hub / Inspector don't check tags",
+        "rule": "Prevent → SCP deny RunInstances w/o tag; Detect → Config rule; org-wide list → Config aggregator."
+      },
+      "67": {
+        "group": "B",
+        "keywords": "central shared VPC; Customers OU create resources but not manage",
+        "trap": "SCP not needed — shared-VPC participants can't modify VPC anyway",
+        "rule": "VPC sharing → enable RAM sharing with Organizations + RAM share subnets to OU principal."
+      },
+      "18": {
+        "group": "B",
+        "keywords": "staging account frequently re-provisioned; connect to TGW in IT ops account",
+        "trap": "VPC endpoint per application doesn't scale",
+        "rule": "Cross-account TGW → share TGW via RAM + auto-accept attachments."
+      },
+      "54": {
+        "group": "B",
+        "keywords": "existing on-prem AD; group/role-based access; manage identities in one place",
+        "trap": "Import users into AWS Managed AD = duplicate identity store",
+        "rule": "Existing IdP → IAM Identity Center + SAML 2.0 + SCIM auto-provisioning + ABAC."
+      },
+      "36": {
+        "group": "B",
+        "keywords": "move Lambda + Aurora to another account, same org + Region; least downtime",
+        "trap": "Snapshot share + restore = slower",
+        "rule": "Aurora cross-account copy fast → share cluster via RAM + Aurora clone."
+      },
+      "62": {
+        "group": "B",
+        "keywords": "virtual appliances; scale dynamically; centralized networking account via TGW",
+        "trap": "Direct Connect = on-prem link, not appliance scaling",
+        "rule": "Scalable 3rd-party appliances → Gateway Load Balancer (+ PrivateLink endpoint) + ASG launch template."
+      },
+      "9": {
+        "group": "C",
+        "keywords": "multi-Region DR; RDS MySQL; RTO 30 min; RPO 1 h; Route 53",
+        "trap": "Snapshot/S3 restore > 30 min",
+        "rule": "RTO < ~1 h → cross-Region read replica + automated promotion + Route 53 failover record."
+      },
+      "61": {
+        "group": "C",
+        "keywords": "RTO ≤ 30 min; secondary ASG capacity 0; read replica in DR Region",
+        "trap": "Weighted routing ≠ failover",
+        "rule": "Pilot light → Route 53 failover policy + Lambda scales ASG + promotes replica."
+      },
+      "42": {
+        "group": "C",
+        "keywords": "serve from CLOSEST Region (fastest); fail over if unavailable",
+        "trap": "Geolocation = location, not latency",
+        "rule": "Fastest + failover → latency alias record + Evaluate Target Health (+ health checks)."
+      },
+      "20": {
+        "group": "C",
+        "keywords": "DR with minimal data loss + analytics slowing primary",
+        "trap": "Migrate to DynamoDB = massive rework",
+        "rule": "DR + read offload → cross-Region read replica (analysts query it) + copied AMIs."
+      },
+      "57": {
+        "group": "C",
+        "keywords": "single DX + private VIF; add redundancy; new VPC in another Region",
+        "trap": "One private VIF can't reach VGWs in 2 Regions",
+        "rule": "Multi-Region over DX → 2nd DX connection + Direct Connect Gateway + VIF per connection."
+      },
+      "4": {
+        "group": "D",
+        "keywords": "VMware → EC2; preserve software stacks + configuration",
+        "trap": "SSM + Image Builder builds NEW AMI, doesn't preserve VM",
+        "rule": "Lift VM as-is → VM Import/Export (export OVF → S3 → import-image)."
+      },
+      "32": {
+        "group": "D",
+        "keywords": "on-prem Windows file server; data needed by servers in AWS; Direct Connect",
+        "trap": "File Gateway stores data in S3, not a Windows file system in AWS",
+        "rule": "Windows files in AWS → FSx for Windows + DataSync scheduled replication."
+      },
+      "33": {
+        "group": "D",
+        "keywords": "hundreds of Hyper-V servers; processes, CPU/memory, network dependencies",
+        "trap": "CloudWatch agent / Glue+Athena ≠ migration discovery",
+        "rule": "Migration discovery + assessment → AWS Transform discovery tool + assessment job + reports."
+      },
+      "63": {
+        "group": "D",
+        "keywords": "assess TCO before migrating K8s + DBs",
+        "trap": "Application Discovery Service = inventory/dependencies, not TCO",
+        "rule": "TCO / business case → Migration Evaluator (Collector + Quick Insights)."
+      },
+      "49": {
+        "group": "D",
+        "keywords": "18 apps; mostly idle except weekly/quarter-end; <1–3 GiB; most cost-effective",
+        "trap": "RIs sized to ASG max = paying for idle capacity",
+        "rule": "Many small intermittent apps → containerize, ECS on EC2 cluster (bin-packing) + scale on memory."
+      },
+      "55": {
+        "group": "D",
+        "keywords": "event-driven SERVERLESS; real-time analytics; streamline data flows",
+        "trap": "Aurora/Redshift provisioned ≠ serverless",
+        "rule": "'Serverless' in question → pick serverless variants: Aurora Serverless, Redshift Serverless, EventBridge."
+      },
+      "74": {
+        "group": "D",
+        "keywords": "legacy app SMTP port 25 no TLS → SES",
+        "trap": "IAM role doesn't work for SMTP interface",
+        "rule": "App speaking SMTP → SES SMTP credentials + SES SMTP endpoint + port 587 STARTTLS."
+      },
+      "5": {
+        "group": "E",
+        "keywords": "SNS → many Lambdas → RDS; CPU high; slow/lost updates at peak",
+        "trap": "SNS retry policy doesn't reduce DB load",
+        "rule": "Lambda overwhelming RDS → RDS Proxy + SQS queue per Lambda to buffer."
+      },
+      "58": {
+        "group": "E",
+        "keywords": "Lambda + Aurora; many idle DB connections at high demand",
+        "trap": "API Gateway endpoint type/rate limits irrelevant",
+        "rule": "Connection storm → init DB connection outside handler (reuse) + RDS Proxy."
+      },
+      "30": {
+        "group": "E",
+        "keywords": "Fargate can't reach Aurora; DB_HOST env var; password in Secrets Manager",
+        "trap": "SG direction reversed (inbound on Fargate SG)",
+        "rule": "Fix = cluster endpoint in DB_HOST + DB SG inbound from Fargate:3306 + secret via ValueFrom."
+      },
+      "13": {
+        "group": "E",
+        "keywords": "stateful LAMP on EC2 + Aurora; both tiers auto-scale",
+        "trap": "Aurora can't auto-scale writers; NLB = L4 no HTTP stickiness",
+        "rule": "Aurora Auto Scaling = READ replicas only; stateful web tier → ALB + sticky sessions + ASG."
+      },
+      "12": {
+        "group": "F",
+        "keywords": "S3 origin in EU; NA users slow; LEAST latency",
+        "trap": "Global Accelerator can't front S3; S3TA doesn't move data (REPEAT)",
+        "rule": "Move data close → S3 CRR to us-east-1 + Lambda@Edge switches origin for NA users."
+      },
+      "22": {
+        "group": "F",
+        "keywords": "only 'master' satellite prefix; replicated within 30 min; monitor",
+        "trap": "Transfer Acceleration ≠ replication speed (REPEAT)",
+        "rule": "Replication SLA → prefix-filtered replication rule + S3 Replication Time Control (15 min) + metrics."
+      },
+      "23": {
+        "group": "F",
+        "keywords": "Lake Formation data lake; only approved networks; no public internet",
+        "trap": "NAT Gateway = internet path (REPEAT)",
+        "rule": "Private + network-restricted S3 → Gateway endpoint + S3 access point + bucket policy s3:DataAccessPointArn."
+      },
+      "69": {
+        "group": "F",
+        "keywords": "expose services to other AWS customers; stay off internet",
+        "trap": "ALB cannot back a VPC endpoint service",
+        "rule": "PrivateLink endpoint service → Network Load Balancer (or GWLB), never ALB."
+      },
+      "21": {
+        "group": "F",
+        "keywords": "release times pre-set; ECS on EC2; S3 in same Region via NAT; reduce cost",
+        "trap": "Intelligent-Tiering doesn't address NAT/scaling cost",
+        "rule": "Known schedule → scheduled scaling; S3 via NAT → free Gateway VPC endpoint."
+      },
+      "15": {
+        "group": "F",
+        "keywords": "browsing vs checkout load imbalance; JWT; CloudFront already in front",
+        "trap": "API Gateway + Lambda authorizer adds latency/complexity",
+        "rule": "Independent scaling → separate ECS services; lightweight edge routing on JWT → CloudFront Functions."
+      },
+      "48": {
+        "group": "F",
+        "keywords": "OpenSearch read-only after 1 wk; delete index after 3 mo; keep full audit copy",
+        "trap": "S3 IA pricier than Deep Archive for rarely-read audit copy",
+        "rule": "OpenSearch tiering → UltraWarm + ISM to cold; audit archive → S3 Glacier Deep Archive."
+      }
+    }
+  },
+  "right": {
+    "groups": {
+      "A": "Managed service / operations",
+      "B": "Multi-account governance & identity",
+      "C": "DR",
+      "D": "Migration",
+      "E": "Serverless + DB",
+      "F": "Networking / S3 / perf"
+    },
+    "questions": {
+      "2": {
+        "group": "D",
+        "keywords": "migrate web app + PostgreSQL; high traffic peaks; scale seamlessly; low overhead",
+        "watch": "Shared file storage for web tier",
+        "rule": "Replatform web app → Elastic Beanstalk (ALB + ASG) + EFS for shared files + managed DB."
+      },
+      "3": {
+        "group": "F",
+        "keywords": "global users upload PDFs to S3; Regional API GW; slow for distant users",
+        "watch": "Transfer Acceleration = uploads to S3; edge-optimized = API latency",
+        "rule": "Global uploads → S3 Transfer Acceleration; global API callers → edge-optimized endpoint."
+      },
+      "6": {
+        "group": "F",
+        "keywords": "DX + Transit Gateway + DX Gateway; on-prem reach VPCs",
+        "watch": "Allowed prefixes must cover VPC CIDRs",
+        "rule": "DX Gateway ↔ TGW → advertise allowed prefixes = VPC CIDR (same or wider)."
+      },
+      "7": {
+        "group": "F",
+        "keywords": "multi-account VPCs via TGW; dev↔dev, prod↔prod, no dev↔prod",
+        "watch": "Default TGW route table connects everything",
+        "rule": "Segmentation on TGW → separate route tables per environment, disable default association/propagation."
+      },
+      "11": {
+        "group": "A",
+        "keywords": "thousands of EC2 incl. high-memory; analyze efficiency; act on recommendations",
+        "watch": "Memory metrics need CloudWatch agent — Compute Optimizer alone sees CPU only. ⚠️ Missed same service in Q8",
+        "rule": "Right-sizing → Compute Optimizer (opt-in, ≥12h data) + CloudWatch agent for memory."
+      },
+      "17": {
+        "group": "F",
+        "keywords": "FSx for Windows Single-AZ must become Multi-AZ",
+        "watch": "Deployment type is immutable",
+        "rule": "FSx Single-AZ → Multi-AZ: new Multi-AZ file system + DataSync copy + repoint apps."
+      },
+      "25": {
+        "group": "A",
+        "keywords": "Managed Blockchain; patient PII; transparent + immutable; private entities",
+        "watch": "Never store raw PII on-chain (immutable = can't delete)",
+        "rule": "Blockchain + PII → hash on-chain, PII off-chain (DynamoDB)."
+      },
+      "26": {
+        "group": "B",
+        "keywords": "hundreds of accounts, many Regions; S3 usage trends; 6 months history",
+        "watch": "Free metrics keep only 14 days — need advanced metrics",
+        "rule": "Org-wide S3 usage/cost insight → S3 Storage Lens (org dashboard + advanced metrics)."
+      },
+      "27": {
+        "group": "F",
+        "keywords": "CloudFront → ALB; intermittent 502; show custom error page",
+        "watch": "Error page must live outside the failing origin",
+        "rule": "Custom error page → S3 origin (OAC) + CloudFront custom error response."
+      },
+      "34": {
+        "group": "E",
+        "keywords": "single EC2 unresponsive at peak; read-heavy PostgreSQL; minimal dev effort",
+        "watch": "Read-heavy → replicas, not bigger instance",
+        "rule": "Reliability → ASG + ELB; read scaling → Aurora + Aurora Replicas."
+      },
+      "37": {
+        "group": "F",
+        "keywords": "VPC flow logs gzip text in S3; Redshift Spectrum queries slow/costly",
+        "watch": "Columnar + partitioned = less data scanned",
+        "rule": "Query-heavy logs → Parquet output + hourly partitions."
+      },
+      "39": {
+        "group": "A",
+        "keywords": "framework install 15–20 min in user data; faster deployment",
+        "watch": "Don't keep installing at boot",
+        "rule": "Slow boot bootstrap → golden AMI (SSM Automation AWS-CreateImage / Image Builder)."
+      },
+      "40": {
+        "group": "E",
+        "keywords": "API GW + Lambda + RDS MySQL; high invocations, connections, CPU",
+        "watch": "⚠️ Same fix you missed in Q5/Q58 (RDS Proxy)",
+        "rule": "Connection pressure → RDS Proxy; read load → ElastiCache for Redis."
+      },
+      "41": {
+        "group": "B",
+        "keywords": "multiple accounts, more added later; log API activity everywhere",
+        "watch": "Per-account trails miss new accounts",
+        "rule": "Org-wide auditing → organization trail in management account."
+      },
+      "43": {
+        "group": "B",
+        "keywords": "only supervisory roles run IAM actions across ALL accounts; minimal admin",
+        "watch": "IAM policies per account = high admin",
+        "rule": "Org-wide guardrail → SCP at root OU denying IAM actions for non-supervisory principals."
+      },
+      "44": {
+        "group": "B",
+        "keywords": "each OU views detailed cost breakdown of member accounts",
+        "watch": "⚠️ Same concept you MISSED in Q16 (picked RAM there) — review both together",
+        "rule": "Org cost breakdown → CUR in management account → S3 → QuickSight dashboard."
+      },
+      "45": {
+        "group": "B",
+        "keywords": "CFN role in Account A assumed by EC2 in Account B; access denied",
+        "watch": "Fix is the TRUST policy in the role owner's account",
+        "rule": "Cross-account AssumeRole → role's trust policy in A names B's instance role ARN (+ B allows sts:AssumeRole)."
+      },
+      "46": {
+        "group": "D",
+        "keywords": "VMware VMs; preserve software/config; SMB log/backup share",
+        "watch": "⚠️ Same services you missed in Q4 (VM Import) and Q32 (FSx+DataSync)",
+        "rule": "Lift VM as-is → VM Import/Export; SMB share → FSx for Windows + DataSync."
+      },
+      "47": {
+        "group": "D",
+        "keywords": "SQL Server Always On → heterogeneous migration; managed services",
+        "watch": "Heterogeneous = schema conversion first",
+        "rule": "Heterogeneous DB migration → AWS SCT (schema) + DMS (data) to RDS."
+      },
+      "50": {
+        "group": "E",
+        "keywords": "EC2 fleet polls SQS, stores .json on EFS; optimize cost",
+        "watch": "EFS costlier than S3 for object output",
+        "rule": "SQS worker fleet → Lambda triggered by SQS; object output → S3 not EFS."
+      },
+      "52": {
+        "group": "D",
+        "keywords": "virtualized Ubuntu + Windows; actual usage + dependencies",
+        "watch": "⚠️ Same service you missed in Q33 (AWS Transform discovery)",
+        "rule": "Discovery + dependency mapping → AWS Transform discovery tool + migration planning."
+      },
+      "53": {
+        "group": "C",
+        "keywords": "Aurora PostgreSQL; cross-Region DR; RPO < 1 minute",
+        "watch": "Snapshots/cross-Region replicas can't guarantee sub-minute RPO",
+        "rule": "RPO < 1 min cross-Region Aurora → Aurora Global Database (+ CFN to provision DR infra)."
+      },
+      "56": {
+        "group": "E",
+        "keywords": "Lambda must reach Neptune in private subnets + DynamoDB",
+        "watch": "Lambda in VPC loses internet → endpoint or NAT",
+        "rule": "Lambda to VPC resource → Lambda in private subnets + SG rule; DynamoDB via gateway endpoint or NAT."
+      },
+      "59": {
+        "group": "A",
+        "keywords": ".NET monolith; uneven resource use; domain in Route 53; scale per function",
+        "watch": "Keep the domain — custom domain on API Gateway",
+        "rule": "Split monolith by function → Lambda per component + API Gateway + custom domain."
+      },
+      "60": {
+        "group": "A",
+        "keywords": "custom SFTP on EC2 + cron to S3; reduce management",
+        "watch": "⚠️ Same service you missed in Q10 (VPC endpoint + EIP detail)",
+        "rule": "SFTP to S3 → AWS Transfer Family; point Route 53 record at server endpoint."
+      },
+      "64": {
+        "group": "E",
+        "keywords": "containerized .NET; HA SQL Server; connection string not in container",
+        "watch": "Secrets never in image",
+        "rule": "HA SQL Server → RDS Multi-AZ; creds → Secrets Manager injected into Fargate task."
+      },
+      "65": {
+        "group": "A",
+        "keywords": "GitHub + CodePipeline; test feature branch separately",
+        "watch": "Don't mix test artifacts with prod pipeline",
+        "rule": "Branch-based testing → separate pipeline per branch + CodeBuild tests + separate test account."
+      },
+      "66": {
+        "group": "A",
+        "keywords": "ASG replaces unhealthy instances; logs sent every 5 min get lost",
+        "watch": "Default result CONTINUE so termination isn't blocked",
+        "rule": "Save data before termination → lifecycle hook EC2_INSTANCE_TERMINATING + SSM Automation."
+      },
+      "70": {
+        "group": "B",
+        "keywords": "GitHub Actions; replace static IAM user keys",
+        "watch": "No long-lived access keys",
+        "rule": "CI/CD from GitHub → IAM OIDC identity provider + role trusting sts:AssumeRoleWithWebIdentity."
+      },
+      "71": {
+        "group": "B",
+        "keywords": "Managed AD integrated with on-prem AD; VPN from anywhere; MFA",
+        "watch": "Site-to-Site VPN ≠ remote user VPN",
+        "rule": "Remote users + AD + MFA → AWS Client VPN with AD Connector + MFA."
+      },
+      "75": {
+        "group": "B",
+        "keywords": "department heads: alert when spend exceeds threshold + monthly reports",
+        "watch": "Alerts = Budgets, reporting = Cost Explorer",
+        "rule": "Per-account spend alerts → AWS Budgets (filters per account) in mgmt account + Cost Explorer reports."
+      }
+    },
+    "inconsistent": [
+      [
+        "Q44",
+        "Q16",
+        "CUR in management account + QuickSight"
+      ],
+      [
+        "Q60",
+        "Q10",
+        "AWS Transfer Family for SFTP"
+      ],
+      [
+        "Q52",
+        "Q33",
+        "AWS Transform discovery"
+      ],
+      [
+        "Q46",
+        "Q4, Q32",
+        "VM Import/Export + FSx for Windows + DataSync"
+      ],
+      [
+        "Q40",
+        "Q5, Q58",
+        "RDS Proxy for Lambda connection pressure"
+      ],
+      [
+        "Q11",
+        "Q8",
+        "Compute Optimizer"
+      ]
+    ]
+  }
+}
