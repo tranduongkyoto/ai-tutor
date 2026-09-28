@@ -1,7 +1,7 @@
 ---
 name: ai-tutor
 description: "Interactive AWS certification tutor with guided study paths, quizzes, and progress tracking"
-argument-hint: "[sap] [domain] [mode] | practice-test [sap] | sap test-review <result-file> [--vi] | guided [domain] | free [domain] [mode] | progress | refresh <domain>"
+argument-hint: "[sap] [domain] [mode] | practice-test [sap] | sap test-review <result-file> [--vi] | sap review-set <N> | guided [domain] | free [domain] [mode] | progress | refresh <domain>"
 metadata:
   author: user
   version: "2.2.0"
@@ -48,6 +48,7 @@ All mutable user data lives in the **project root**, NOT inside `.claude/skills/
 | Practice tests (TD) | `practice-exam/sap/SAP-Review-Mode-Set-{N}.md` | 6 sets (75q x5 + 16q) = 391q |
 | Practice progress | `practice-exam/sap/practice_test_{N}_progress.md` | Per-test progress tracking |
 | TD timed results | `practice-exam/sap/TD_SAP_Timed_Set{N}_Full.md` | Exported TD timed test (shuffled order) — input to `test-review` |
+| TD review-mode results | `practice-exam/sap/td_review_set_{N}_session.json` → `TD_SAP_Review_Set{N}_Full.md` | `review-set` session state, then an export in the timed-export format (input to `test-review`) |
 | Test review | `practice-exam/sap/td_set_{n}_{analysis.md,review.md,review_correct.md,review_notes.json}` | Output of `test-review` (see `references/test-review-flow.md`) |
 | Review scripts | `.claude/skills/ai-tutor/scripts/*.py` | Build/verify review files, merge Vietnamese sections |
 | Cert defs | `.claude/skills/ai-tutor/certs/aws-sap/domains.md` | SAP domains, labs, pipeline |
@@ -66,6 +67,7 @@ Parse `ARGUMENTS` to determine the action:
 | `sap chapter-drill <chapter> dojo` | Quiz Tutorials Dojo questions for a chapter (Load: `certs/aws-sap/chapter-question-map-td.md` + `references/practice-test-flow.md`) |
 | `sap test-review <result-file> [--vi]` | Analyze a TD timed-test export → analysis + wrong/correct review files + redo tracker (Load: `references/test-review-flow.md`). `--vi` adds Vietnamese deep-dive per question (Load: `references/vietnamese-explanation-style.md`) |
 | `sap test-review <set> redo <group>[,<group>]` | Redo a review group's questions, record tracker pass (Load: `references/test-review-flow.md` § Redo sessions) |
+| `sap review-set <N>` | Full TD set in review mode, in blocks of 25 (answer 25 with no feedback, then review), with resume support. Exports in the timed-export format for `test-review`. Only TD1, TD2 and TD5; TD3, TD4 and TD6 stay timed-only (Load: `references/review-set-flow.md`) |
 | `progress` | Show progress dashboard (Load: `references/progress-tracking.md`). **Stop after displaying.** |
 | `refresh <domain>` | Re-extract PDF cache for domain (Load: `references/pdf-extractor.md`). **Stop after refresh.** |
 | `refresh cheat-sheet` | Re-extract cheat sheet PDF cache (Load: `references/pdf-extractor.md` § Cheat Sheet Extraction). **Stop after refresh.** |
@@ -323,6 +325,7 @@ Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
          /ai-tutor sap                  — guided study path, SAP-C02
          /ai-tutor sap practice-test    — SAP practice test (3 tests: 30q + 75q + 75q)
          /ai-tutor sap test-review <result-file> [--vi] — review a TD timed test (Vietnamese deep-dive with --vi)
+         /ai-tutor sap review-set <N>   — TD set in review mode, blocks of 25 (TD1/TD2/TD5)
          /ai-tutor practice-test        — SAA practice test (6 tests, 65 Qs each)
          /ai-tutor free [domain] [mode] — free mode, any mode
          /ai-tutor keyword-drill        — keyword pattern drill
@@ -335,6 +338,7 @@ Recommended: Start {next_unstudied_domain} or run weak-spot-analyzer
            /ai-tutor sap chapter-drill security
            /ai-tutor sap chapter-drill storage dojo
            /ai-tutor sap test-review practice-exam/sap/TD_SAP_Timed_Set3_Full.md --vi
+           /ai-tutor sap review-set 1
            /ai-tutor free storage mini-exam
            /ai-tutor practice-test
   ```
