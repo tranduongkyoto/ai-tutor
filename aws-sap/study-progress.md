@@ -58,11 +58,15 @@ Note: drill scores give 0.5 partial credit on multi-select; timed tests do not.
 | Udemy Test #1 (30q) | 2026-09-10 | 0/3 (paused Q3) | All 30 Qs later covered via chapter drills |
 | Udemy Test #2, #3 (75q) | — | — | Covered via drills only; timed retake planned week 6–7 |
 | **TD Set 5 (75q, timed)** | **2026-09-25** | **31/75 (41.3%) ❌** | Finished within 180 min. Analysis: `practice-exam/sap/td_set_5_analysis.md` |
-| TD Set 1, 2 (75q, review mode) | — | — | Planned next (see Plan). Blocks of 25, multi-select all-or-nothing |
+| **TD Set 1 (75q, review mode)** | **2026-09-28** | **46/75 (61.3%) ❌ gate 70%** | Unseen 29/54 (54%), seen 17/21 (81%). Blocks 16/17/13. Export: `practice-exam/sap/TD_SAP_Review_Set1_Full.md` |
+| TD Set 2 (75q, review mode) | — | — | Next. Blocks of 25, multi-select all-or-nothing |
 | TD Set 3, 4, 6 | — | — | **Reserved — keep clean** for timed checkpoints |
 
 TD Set 5 domains: Migration 27.8% · New Solutions 36.4% · Org Complexity 50.0% · Continuous Improvement 52.9%.
 Multi-select 5/21 (24%) vs single 26/54 (48%).
+
+TD Set 1 domains: Migration 66.7% · New Solutions 53.6% · Org Complexity 84.6% · Continuous Improvement 56.0%.
+Multi-select 4/8 (50%) vs single 42/67 (63%).
 
 ### TD Set 5 wrong-answer redo (tracker: `practice-exam/sap/td_set_5_review.md`)
 | Groups | Pass 1 | Pass 2 due | Pass 3 due |
@@ -75,7 +79,7 @@ Multi-select 5/21 (24%) vs single 26/54 (48%).
 ### TD question usage (for keeping mocks clean)
 | Set | Seen | Status |
 |---|---|---|
-| TD1 | 21 in drills | Review-mode full set (next) |
+| TD1 | all 75 (review mode, 09-28) | Drill pool / redo |
 | TD2 | 14 in drills | Review-mode full set (after TD1) |
 | TD5 | all 75 (timed) | Drill pool / redo |
 | TD3, TD4 | 2–3 in drills | **Reserved timed mock** |
