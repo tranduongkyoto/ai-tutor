@@ -1,7 +1,7 @@
 ---
 certification: SAP-C02
 started: 2026-09-04
-last_updated: 2026-09-25
+last_updated: 2026-09-28
 current_phase: 2
 schedule: ~3h/day, 5 days/week (~15h/week)
 deadline: none
@@ -58,19 +58,28 @@ Note: drill scores give 0.5 partial credit on multi-select; timed tests do not.
 | Udemy Test #1 (30q) | 2026-09-10 | 0/3 (paused Q3) | All 30 Qs later covered via chapter drills |
 | Udemy Test #2, #3 (75q) | — | — | Covered via drills only; timed retake planned week 6–7 |
 | **TD Set 5 (75q, timed)** | **2026-09-25** | **31/75 (41.3%) ❌** | Finished within 180 min. Analysis: `practice-exam/sap/td_set_5_analysis.md` |
-| TD Set 3, 4, 6 | — | — | **Reserved — keep clean** for checkpoints |
+| TD Set 1, 2 (75q, review mode) | — | — | Planned next (see Plan). Blocks of 25, multi-select all-or-nothing |
+| TD Set 3, 4, 6 | — | — | **Reserved — keep clean** for timed checkpoints |
 
 TD Set 5 domains: Migration 27.8% · New Solutions 36.4% · Org Complexity 50.0% · Continuous Improvement 52.9%.
 Multi-select 5/21 (24%) vs single 26/54 (48%).
 
+### TD Set 5 wrong-answer redo (tracker: `practice-exam/sap/td_set_5_review.md`)
+| Groups | Pass 1 | Pass 2 due | Pass 3 due |
+|---|---|---|---|
+| A + B (21) | 09-25 — 20/21 (miss Q18) | 09-28 – 09-29 | ~10-02 |
+| C + D (12) | 09-26 — 12/12 | 09-29 – 09-30 | ~10-03 |
+| E + F (11) | 09-27 — 10/11 (miss Q48) | 09-30 – 10-01 | ~10-04 |
+| **Total** | **42/44 (95%)** | | |
+
 ### TD question usage (for keeping mocks clean)
 | Set | Seen | Status |
 |---|---|---|
-| TD1 | 21 in drills | Drill pool |
-| TD2 | 14 in drills | Drill pool |
+| TD1 | 21 in drills | Review-mode full set (next) |
+| TD2 | 14 in drills | Review-mode full set (after TD1) |
 | TD5 | all 75 (timed) | Drill pool / redo |
-| TD3, TD4 | 2–3 in drills | **Reserved mock** |
-| TD6 | 0 | **Reserved mock** |
+| TD3, TD4 | 2–3 in drills | **Reserved timed mock** |
+| TD6 | 0 | **Reserved timed mock** |
 
 ## Forecast (updated 2026-09-25, after TD Set 5)
 
@@ -82,16 +91,37 @@ Multi-select 5/21 (24%) vs single 26/54 (48%).
 
 Assumes ~+8–10 pts per 2 weeks at 15h/week. Book exam only when 2 clean TD sets ≥78%.
 
-### Plan
-| Week | Focus | Checkpoint |
-|---|---|---|
-| 1 (Sep 25–Oct 1) | Redo 44 Set 5 wrong answers + multi-select technique + migrations chapter | — |
-| 2 (Oct 2–8) | Multi-account governance (RAM, StackSets, SCP conditions, Service Catalog, Identity Center, billing) | — |
-| 3 (Oct 9–15) | DR/Route 53, DX, PrivateLink/GWLB, RDS Proxy + redo all wrong answers | **TD Set 3 timed → 55–60%** |
-| 4–5 | Weak domains from Set 3 + unstarted chapters (caching, deployment, cost, data-eng) | **TD Set 4 timed (~Oct 29) → 68–72%** |
-| 6–7 | Wrong-answer marathon + Set 6 + Udemy #2/#3 timed retakes | 2 tests ≥78% → **book exam** |
+### Plan (revised 2026-09-28 — full-set review mode replaces topic-by-topic chapter drills)
 
-Drill pool: Udemy + TD Sets 1, 2, 5 only.
+Why: chapter drills pre-announce the topic; the Set 5 gap (drill 70.5% → timed 41.3%) is largely topic
+identification in a mixed set. Full mixed sets in review mode train that, and the test → review → redo loop
+already took Set 5 wrong answers to 42/44 on Pass 1.
+
+| Step | Dates (est.) | Focus | Gate |
+|---|---|---|---|
+| 1 | Sep 28 – Oct 1 | Set 5 redo Pass 2 (A+B, C+D, E+F) + **TD Set 1 review mode** → review wrong + right answers | — |
+| 2 | Oct 2 – Oct 5 | Set 5 redo Pass 3 + **TD Set 2 review mode** → review wrong + right answers | — |
+| 3 | by Oct 5 | Check scores: if **migration still <50%** in Set 1/2 → migrations chapter drill (dojo) first | Gate: **TD1 and TD2 each ≥70%** |
+| 4 | ~Oct 5–8 | **TD Set 3 timed** (first clean checkpoint) → `test-review` + redo passes | Target ≥65% |
+| 5 | ~2 weeks later | Weak domains from Set 3 + **TD Set 4 timed** → review + redo | Target ≥72% |
+| 6 | then | Wrong-answer marathon + **TD Set 6 timed** + Udemy #2/#3 timed retakes | 2 clean tests ≥78% → **book exam** |
+
+If TD1/TD2 < 70%: redo their wrong answers (Pass 1–2), drill the weakest domains, then continue to TD Set 3
+anyway by ~Oct 12. Don't do review mode on Set 3.
+
+**Review-mode rules** (`/ai-tutor sap review-set <N>`, flow: `references/review-set-flow.md`):
+- **Blocks of 25**: answer 25 questions with no feedback, then review all 25, then the next block. Question order is shuffled.
+- Multi-select is **all-or-nothing** (no 0.5 partial credit), the same as the timed test.
+- Questions already seen in drills (TD1: 21, TD2: 14) are answered and **scored like any other question**. The unseen-only score is shown for information.
+- No confidence tags and no keyword step.
+- After each set, run the `test-review` flow on `TD_SAP_Review_Set{N}_Full.md` (analysis + review files + redo tracker).
+
+**Keep running alongside:** spaced redo of all wrong answers (Pass 2 at 3–4 days, Pass 3 at ~1 week).
+It takes about 30 min per group.
+
+**Time:** each review-mode set takes about 2.5h to answer plus 2–3h to review, so ~5–6h per set.
+
+Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 
 ## Phase 3: Timed Mocks — NOT STARTED
 ## Phase 4: Final Prep — NOT STARTED
