@@ -44,8 +44,10 @@ python3 $S/review_set_session.py status --set {n}
 ```bash
 python3 $S/review_set_session.py show --set {n} --block {b}
 ```
+Ask **one question at a time**. Never batch several questions into one message or one `AskUserQuestion` call.
 For each question in the block:
-1. Print the question and **all options verbatim** (same rule as practice tests: no summarizing).
+1. Print the question and **all options verbatim** (same rule as practice tests: no summarizing). The picker's
+   question field is just `Q{pos}`, because the full text is already printed above it.
 2. Collect the answer:
    - Single-choice with ≤4 options: `AskUserQuestion`, with each option's full text in its description.
    - Multi-select, or more than 4 options: typed answer. State "Select {k}" and give no example format.

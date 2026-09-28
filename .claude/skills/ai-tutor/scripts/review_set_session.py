@@ -26,7 +26,7 @@ from pathlib import Path
 BLOCK = 25
 RESERVED_SETS = {3, 4, 6}  # timed checkpoints only (aws-sap/study-progress.md)
 QUESTION_SPLIT = re.compile(r"^## Question (\d+)\s*$", re.M)
-OPTION_LINE = re.compile(r"^- (\*\*)?([A-G])\. (.*?)\s*$", re.M)
+OPTION_START = re.compile(r"^- (\*\*)?([A-G])\. ", re.M)  # option text may span lines (numbered steps)
 CATEGORY = re.compile(r"^\*\*Category:\*\* CSAP – (.+?)\s*$", re.M)
 JUNK_LINES = {"Correct", "Incorrect"}
 
@@ -68,14 +68,15 @@ def parse_source(path: Path) -> dict:
             raise ValueError(f"Q{n}: missing ### Explanation")
         body, explanation = block.split("### Explanation", 1)
         cat = CATEGORY.search(body)
-        first_opt = OPTION_LINE.search(body)
-        if not (cat and first_opt):
+        starts = list(OPTION_START.finditer(body))
+        if not (cat and starts):
             raise ValueError(f"Q{n}: missing category or options")
-        stem = body[cat.end():first_opt.start()].strip()
+        stem = body[cat.end():starts[0].start()].strip()
         options, correct = [], []
-        for m in OPTION_LINE.finditer(body):
-            options.append((m.group(2), _clean_option(m.group(3))))
-            if m.group(1) or "✅" in m.group(3):
+        for m, nxt in zip(starts, starts[1:] + [None]):
+            raw = body[m.end():nxt.start() if nxt else len(body)].strip()
+            options.append((m.group(2), _clean_option(raw)))
+            if m.group(1) or "✅" in raw:
                 correct.append(m.group(2))
         if not correct:
             raise ValueError(f"Q{n}: no correct option marked")
@@ -258,7 +259,8 @@ def cmd_export(s: Session, args):
         correct = q.answer.split(", ")
         for letter, text in q.options:
             tags = (" 👈 *(bạn chọn)*" if letter in picked else "") + (" ✅" if letter in correct else "")
-            lines.append(f"- **{letter}.** {text}{tags}")
+            flat = " ".join(ln.strip() for ln in text.splitlines())  # export parser reads one line per option
+            lines.append(f"- **{letter}.** {flat}{tags}")
         lines += ["", f"> **Bạn chọn:** {', '.join(picked)}  ", f"> **Đáp án đúng:** {q.answer}  ",
                   f"> **Kết quả:** {'✅ Đúng' if ok else '❌ Sai'}", "", "### Giải thích", "", q.explanation, "", "---", ""]
     out = s.base / f"TD_SAP_Review_Set{s.set_no}_Full.md"
