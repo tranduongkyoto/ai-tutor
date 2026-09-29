@@ -82,7 +82,8 @@ Multi-select 4/8 (50%) vs single 42/67 (63%).
 | A + B (8) — networking/DNS, security | 09-29 — 8/8 | 10-02 – 10-03 | ~10-06 |
 | C + D (7) — ops/patching, governance | 09-29 — 7/7 | 10-02 – 10-03 | ~10-06 |
 | E (4) — resilience/DR | 09-29 — 4/4 | 10-02 – 10-03 | ~10-06 |
-| F + G (10) — serverless, migration | — | | |
+| F + G (10) — serverless, migration | 09-29 — 10/10 | 10-02 – 10-03 | ~10-06 |
+| **Total** | **29/29 (100%)** | | |
 
 ### TD question usage (for keeping mocks clean)
 | Set | Seen | Status |
