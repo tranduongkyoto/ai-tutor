@@ -58,7 +58,7 @@ Note: drill scores give 0.5 partial credit on multi-select; timed tests do not.
 | Udemy Test #1 (30q) | 2026-09-10 | 0/3 (paused Q3) | All 30 Qs later covered via chapter drills |
 | Udemy Test #2, #3 (75q) | — | — | Covered via drills only; timed retake planned week 6–7 |
 | **TD Set 5 (75q, timed)** | **2026-09-25** | **31/75 (41.3%) ❌** | Finished within 180 min. Analysis: `practice-exam/sap/td_set_5_analysis.md` |
-| **TD Set 1 (75q, review mode)** | **2026-09-28** | **46/75 (61.3%) ❌ gate 70%** | Unseen 29/54 (54%), seen 17/21 (81%). Blocks 16/17/13. Export: `practice-exam/sap/TD_SAP_Review_Set1_Full.md` |
+| **TD Set 1 (75q, review mode)** | **2026-09-28** | **46/75 (61.3%) ❌ gate 70%** | Unseen 29/54 (54%), seen 17/21 (81%). Blocks 16/17/13. Analysis: `practice-exam/sap/td_set_1_analysis.md` |
 | TD Set 2 (75q, review mode) | — | — | Next. Blocks of 25, multi-select all-or-nothing |
 | TD Set 3, 4, 6 | — | — | **Reserved — keep clean** for timed checkpoints |
 
@@ -75,6 +75,14 @@ Multi-select 4/8 (50%) vs single 42/67 (63%).
 | C + D (12) | 09-26 — 12/12 | 09-29 – 09-30 | ~10-03 |
 | E + F (11) | 09-27 — 10/11 (miss Q48) | 09-30 – 10-01 | ~10-04 |
 | **Total** | **42/44 (95%)** | | |
+
+### TD Set 1 wrong-answer redo (tracker: `practice-exam/sap/td_set_1_review.md`)
+| Groups | Pass 1 | Pass 2 due | Pass 3 due |
+|---|---|---|---|
+| A + B (8) — networking/DNS, security | 09-29 — 8/8 | 10-02 – 10-03 | ~10-06 |
+| C + D (7) — ops/patching, governance | 09-29 — 7/7 | 10-02 – 10-03 | ~10-06 |
+| E (4) — resilience/DR | 09-29 — 4/4 | 10-02 – 10-03 | ~10-06 |
+| F + G (10) — serverless, migration | — | | |
 
 ### TD question usage (for keeping mocks clean)
 | Set | Seen | Status |
@@ -150,11 +158,17 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 4. **DR / Route 53** (5) — cross-Region replica + auto-promote, failover vs weighted, latency + Evaluate Target Health, DX Gateway
 5. **Multi-select** — 13/16 misses had 1 correct pick; second pick must complete the same solution
 
+### From TD Set 1 (29 wrong)
+1. **Ops: patching/compliance/troubleshooting** — patch groups + Maintenance Windows, tag by environment, Config `approved-amis-by-id`, suspend ASG Terminate
+2. **Serverless & app cost patterns** (6) — API Gateway caching, Cognito/web identity federation, S3+CloudFront for reports, AWS Batch, Connect + Lex
+3. **Hybrid networking & DNS** — public VIF for VPN, VPN as DX backup, cross-account PHZ association, NAT GW placement
+4. Same wrong pick as drill on TD1 Q57/Q16/Q61 (= Set 1 Q64/Q73/Q74) → wrong belief, not a guess
+
 ### Repeat misses (drill + Set 5)
 - Global Accelerator can't front S3
 - S3 access point + gateway endpoint + bucket policy
 - S3 RTC with prefix replication rule
-- Secrets Manager with ECS (`ValueFrom`)
+- Secrets Manager with ECS (`ValueFrom`) — **missed again in TD1 (Q74)**
 
 ### From chapter drills
-Public VIF for VPN-over-DX (×3), PrivateLink for isolated cross-VPC, can't move EC2 between subnets, Fn::Cidr vs Custom Resource, DX alone not encrypted, Aurora vs RDS reliability, Redshift Spectrum vs Athena, Redshift cross-Region snapshot grant (×2), DynamoDB 400KB + drop table, DMS prerequisites, SCPs + all-features mode, Compute vs EC2 Instance Savings Plans, KPL vs KCL
+Public VIF for VPN-over-DX (×4, incl. TD1 Q36), PrivateLink for isolated cross-VPC, can't move EC2 between subnets, Fn::Cidr vs Custom Resource, DX alone not encrypted, Aurora vs RDS reliability, Redshift Spectrum vs Athena, Redshift cross-Region snapshot grant (×2), DynamoDB 400KB + drop table, DMS prerequisites, SCPs + all-features mode, Compute vs EC2 Instance Savings Plans, KPL vs KCL
