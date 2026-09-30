@@ -1,7 +1,7 @@
 ---
 certification: SAP-C02
 started: 2026-09-04
-last_updated: 2026-09-28
+last_updated: 2026-09-30
 current_phase: 2
 schedule: ~3h/day, 5 days/week (~15h/week)
 deadline: none
@@ -71,10 +71,10 @@ Multi-select 4/8 (50%) vs single 42/67 (63%).
 ### TD Set 5 wrong-answer redo (tracker: `practice-exam/sap/td_set_5_review.md`)
 | Groups | Pass 1 | Pass 2 due | Pass 3 due |
 |---|---|---|---|
-| A + B (21) | 09-25 — 20/21 (miss Q18) | 09-28 – 09-29 | ~10-02 |
-| C + D (12) | 09-26 — 12/12 | 09-29 – 09-30 | ~10-03 |
-| E + F (11) | 09-27 — 10/11 (miss Q48) | 09-30 – 10-01 | ~10-04 |
-| **Total** | **42/44 (95%)** | | |
+| A + B (21) | 09-25 — 20/21 (miss Q18) | 09-30 — 20/21 (miss Q29) | ~10-07 |
+| C + D (12) | 09-26 — 12/12 | 09-30 — 12/12 | ~10-07 |
+| E + F (11) | 09-27 — 10/11 (miss Q48) | 09-30 — 9/11 (miss Q21, Q48 🔁) | ~10-07 |
+| **Total** | **42/44 (95%)** | **41/44 (93%)** | |
 
 ### TD Set 1 wrong-answer redo (tracker: `practice-exam/sap/td_set_1_review.md`)
 | Groups | Pass 1 | Pass 2 due | Pass 3 due |
@@ -169,6 +169,9 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 - Global Accelerator can't front S3
 - S3 access point + gateway endpoint + bucket policy
 - S3 RTC with prefix replication rule
+- Cost allocation tags: activate in the **management account** (Set 5 Q29, missed Pass 2)
+- OpenSearch storage tiers: keep hot data nodes (fewer) + UltraWarm + cold; ingest needs hot nodes (Set 5 Q48, missed Pass 1 + 2)
+- S3 traffic via NAT → S3 gateway endpoint; "availability not compromised" rules out Spot (Set 5 Q21, missed Pass 2)
 - Secrets Manager with ECS (`ValueFrom`) — **missed again in TD1 (Q74)**
 
 ### From chapter drills
