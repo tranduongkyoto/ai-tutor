@@ -1,7 +1,7 @@
 ---
 certification: SAP-C02
 started: 2026-09-04
-last_updated: 2026-09-30
+last_updated: 2026-10-02
 current_phase: 2
 schedule: ~3h/day, 5 days/week (~15h/week)
 deadline: none
@@ -59,7 +59,7 @@ Note: drill scores give 0.5 partial credit on multi-select; timed tests do not.
 | Udemy Test #2, #3 (75q) | — | — | Covered via drills only; timed retake planned week 6–7 |
 | **TD Set 5 (75q, timed)** | **2026-09-25** | **31/75 (41.3%) ❌** | Finished within 180 min. Analysis: `practice-exam/sap/td_set_5_analysis.md` |
 | **TD Set 1 (75q, review mode)** | **2026-09-28** | **46/75 (61.3%) ❌ gate 70%** | Unseen 29/54 (54%), seen 17/21 (81%). Blocks 16/17/13. Analysis: `practice-exam/sap/td_set_1_analysis.md` |
-| TD Set 2 (75q, review mode) | — | — | Next. Blocks of 25, multi-select all-or-nothing |
+| **TD Set 2 (75q, review mode)** | **2026-09-30 – 10-01** | **43/75 (57.3%) ❌ gate 70%** | Unseen 30/61 (49%), seen 13/14 (93%). Blocks 14/11/18. Analysis: `practice-exam/sap/td_set_2_analysis.md` |
 | TD Set 3, 4, 6 | — | — | **Reserved — keep clean** for timed checkpoints |
 
 TD Set 5 domains: Migration 27.8% · New Solutions 36.4% · Org Complexity 50.0% · Continuous Improvement 52.9%.
@@ -67,6 +67,9 @@ Multi-select 5/21 (24%) vs single 26/54 (48%).
 
 TD Set 1 domains: Migration 66.7% · New Solutions 53.6% · Org Complexity 84.6% · Continuous Improvement 56.0%.
 Multi-select 4/8 (50%) vs single 42/67 (63%).
+
+TD Set 2 domains: Migration 85.7% · Continuous Improvement 73.1% · New Solutions 50.0% · Org Complexity 25.0% 🔴.
+Multi-select 10/18 (56%) vs single 33/57 (58%); 7 multi misses had ≥1 correct pick.
 
 ### TD Set 5 wrong-answer redo (tracker: `practice-exam/sap/td_set_5_review.md`)
 | Groups | Pass 1 | Pass 2 due | Pass 3 due |
@@ -85,11 +88,22 @@ Multi-select 4/8 (50%) vs single 42/67 (63%).
 | F + G (10) — serverless, migration | 09-29 — 10/10 | 10-02 – 10-03 | ~10-06 |
 | **Total** | **29/29 (100%)** | | |
 
+### TD Set 2 wrong-answer redo (tracker: `practice-exam/sap/td_set_2_review.md`)
+| Groups | Pass 1 | Pass 2 due | Pass 3 due |
+|---|---|---|---|
+| A (9) — identity, access, federation | 10-02 — 9/9 | 10-05 – 10-06 | ~10-09 |
+| B (4) — edge/data protection | 10-02 — 4/4 | 10-05 – 10-06 | ~10-09 |
+| F (3) — storage/migration | 10-02 — 3/3 | 10-05 – 10-06 | ~10-09 |
+| C (6) — DR/HA | 10-02 — 6/6 | 10-05 – 10-06 | ~10-09 |
+| D (4) — networking | 10-02 — 4/4 | 10-05 – 10-06 | ~10-09 |
+| E (6) — service fit | 10-02 — 6/6 | 10-05 – 10-06 | ~10-09 |
+| **Total** | **32/32 (100%)** | | |
+
 ### TD question usage (for keeping mocks clean)
 | Set | Seen | Status |
 |---|---|---|
 | TD1 | all 75 (review mode, 09-28) | Drill pool / redo |
-| TD2 | 14 in drills | Review-mode full set (after TD1) |
+| TD2 | all 75 (review mode, 09-30 – 10-01) | Drill pool / redo |
 | TD5 | all 75 (timed) | Drill pool / redo |
 | TD3, TD4 | 2–3 in drills | **Reserved timed mock** |
 | TD6 | 0 | **Reserved timed mock** |
@@ -158,6 +172,13 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 3. **Migration tooling** (7) — VM Import, AWS Transform, Migration Evaluator, FSx + DataSync, SES SMTP credentials
 4. **DR / Route 53** (5) — cross-Region replica + auto-promote, failover vs weighted, latency + Evaluate Target Health, DX Gateway
 5. **Multi-select** — 13/16 misses had 1 correct pick; second pick must complete the same solution
+
+### From TD Set 2 (32 wrong) — Org Complexity 25%
+1. **Identity & federation** — SAML → AssumeRoleWithSAML/Identity Center (not WebIdentity), External ID for 3rd party, LDAP identity broker, cross-account role lives in the *target* account
+2. **SCP vs IAM** — SCPs only set guardrails, never grant access (Q66, Q75)
+3. **DR/HA terms** — warm standby (RTO minutes) vs pilot light, Multi-AZ ≠ DR, RDS has no Oracle RAC/RMAN
+4. **Service confusion** — Translate vs Transcribe, Storage Gateway cached vs stored, sc1 vs st1 vs io1, SSE-S3 vs SSE-KMS, S3 versioning null IDs
+5. **Lambda concurrency** — reserved concurrency to isolate a function (not a separate account)
 
 ### From TD Set 1 (29 wrong)
 1. **Ops: patching/compliance/troubleshooting** — patch groups + Maintenance Windows, tag by environment, Config `approved-amis-by-id`, suspend ASG Terminate

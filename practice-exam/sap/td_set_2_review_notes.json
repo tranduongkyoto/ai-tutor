@@ -1,0 +1,516 @@
+{
+  "title": "TD Set 2",
+  "analysis_file": "td_set_2_analysis.md",
+  "wrong_review_file": "td_set_2_review.md",
+  "wrong": {
+    "groups": {
+      "A": "Identity, access & federation",
+      "B": "Edge & data protection",
+      "C": "DR / HA / database resilience",
+      "D": "Networking",
+      "E": "Service fit (serverless, data, app design)",
+      "F": "Storage, migration & ops"
+    },
+    "questions": {
+      "2": {
+        "group": "A",
+        "keywords": "junior engineer terminated prod EC2; only architects may stop/terminate (Select TWO)",
+        "trap": "MFA is an extra login factor — it does not prevent an authorized user from terminating",
+        "rule": "Prevent destructive actions → remove the permission or tag-based IAM Deny. MFA ≠ authorization."
+      },
+      "15": {
+        "group": "A",
+        "keywords": "CloudFormation 3-tier, DynamoDB, no exposed API credentials",
+        "trap": "Storing the role ARN in Parameter Store adds nothing — the instance profile already binds the role",
+        "rule": "EC2 → AWS service access = IAM role via instance profile. Nothing else needed."
+      },
+      "26": {
+        "group": "A",
+        "keywords": "🔁 CloudFormation; DB password rotated every 60 days; MOST secure",
+        "trap": "Ref on a Secrets Manager secret returns its ARN, not the password; UserData exposes it",
+        "rule": "Secret into a CFN property → dynamic reference {{resolve:secretsmanager:...}}; app reads Secrets Manager at runtime."
+      },
+      "28": {
+        "group": "A",
+        "keywords": "portal authenticates against on-prem LDAP; per-user S3 buckets (Select TWO)",
+        "trap": "Picked D (right) + E: Direct Connect Gateway / Transit VPC is networking, not authentication",
+        "rule": "LDAP → custom identity broker → STS (GetFederationToken / AssumeRole) → temporary credentials."
+      },
+      "31": {
+        "group": "A",
+        "keywords": "on-prem users already signed in to corporate SAML IdP; no separate IAM users",
+        "trap": "AssumeRoleWithWebIdentity is for web identity providers (Google, Facebook), not SAML",
+        "rule": "Corporate SAML IdP → IAM Identity Center / AssumeRoleWithSAML. Social login → WebIdentity / Cognito."
+      },
+      "41": {
+        "group": "A",
+        "keywords": "third-party account in another Organization; least privilege via API/CLI",
+        "trap": "Role + AssumeRole works but without External ID is open to the confused-deputy problem",
+        "rule": "Third party assumes your role → trust policy with sts:ExternalId condition."
+      },
+      "62": {
+        "group": "A",
+        "keywords": "admins in management account must stop/terminate resources in Dev and Test accounts",
+        "trap": "Permissions are not inherited from the management account; the role must carry its own admin policy",
+        "rule": "Cross-account role lives in the TARGET account (Dev/Test) with its own permissions and trusts the management account."
+      },
+      "66": {
+        "group": "A",
+        "keywords": "🔁 only the cybersecurity team may access the ACM certificate; DevOps manages EC2",
+        "trap": "An SCP never grants access to a team — it only limits what IAM can allow in an account",
+        "rule": "Grant/limit access for a team → IAM policy. SCP = account-level guardrail. Terminate SSL on the ELB."
+      },
+      "75": {
+        "group": "A",
+        "keywords": "🔁 only the owning business unit may terminate its resources in shared prod account",
+        "trap": "'SCP that allows access' is never correct — SCPs only filter permissions",
+        "rule": "Resource-level terminate permission → IAM role in prod account (tag/owner conditions) assumed cross-account by the OU's accounts."
+      },
+      "1": {
+        "group": "B",
+        "keywords": "ALB + 2 EC2; add HTTPS; most cost-effective and easiest",
+        "trap": "Private certificate needs ACM Private CA → monthly fee",
+        "rule": "Public site on ALB/CloudFront/API GW → free public ACM certificate. Cannot export ACM public certs to EC2."
+      },
+      "37": {
+        "group": "B",
+        "keywords": "L3/L4 DDoS notification + SQLi/XSS protection (Select TWO)",
+        "trap": "Picked B (right) + A: CloudFront cache hit ratio does not block L7 attacks",
+        "rule": "L3/L4 DDoS + alerts → Shield Advanced; SQLi/XSS → WAF."
+      },
+      "44": {
+        "group": "B",
+        "keywords": "only one specific client may access files; S3 behind CloudFront (Select TWO)",
+        "trap": "Picked A (right) + D: OAC forces CloudFront path but anyone with the CloudFront URL still gets in",
+        "rule": "Restrict to a specific client → signed URLs (CloudFront or S3 pre-signed) + block direct S3 access."
+      },
+      "49": {
+        "group": "B",
+        "keywords": "how SSE-S3 works",
+        "trap": "'You manage KMS keys' describes SSE-KMS, not SSE-S3",
+        "rule": "SSE-S3: unique key per object, encrypted by AWS-managed rotated root key. SSE-KMS: your KMS key. SSE-C: you supply key."
+      },
+      "7": {
+        "group": "C",
+        "keywords": "Oracle RAC; automate OS patching + scheduled backups; least effort",
+        "trap": "RDS (and Aurora) do not support Oracle RAC",
+        "rule": "Oracle RAC → EC2 + Data Lifecycle Manager snapshots + SSM Patch Manager."
+      },
+      "9": {
+        "group": "C",
+        "keywords": "RTO 5 minutes, RPO 1 hour, ≥250 miles away, minimal cost",
+        "trap": "Pilot light needs CloudFormation to build web/app tiers after disaster → exceeds 5 min",
+        "rule": "RTO hours → backup/restore; tens of min → pilot light; minutes → warm standby; ~0 → multi-site."
+      },
+      "14": {
+        "group": "C",
+        "keywords": "RTO < 2h, RPO 10 min, disaster resilient (Select TWO)",
+        "trap": "Picked D (right) + B: synchronous Multi-AZ replication is HA, not a backup and not Region-safe",
+        "rule": "Multi-AZ = availability. DR = backups + logs (or replica) in another Region."
+      },
+      "23": {
+        "group": "C",
+        "keywords": "1,000 TB on one mount; POSIX block storage; users read portions during backup",
+        "trap": "Stored volumes keep full data on-prem (max 512 TB per TD)",
+        "rule": "Data too large for on-prem, hot subset local → Volume Gateway cached volumes. Full local low-latency copy → stored volumes."
+      },
+      "45": {
+        "group": "C",
+        "keywords": "DR with best RTO; static content on Storage Gateway volume",
+        "trap": "Running Storage Gateway on EC2 and attaching via iSCSI adds a layer; restoring to EBS is faster",
+        "rule": "Recover Volume Gateway data in AWS → restore its snapshot to an EBS volume and attach."
+      },
+      "68": {
+        "group": "C",
+        "keywords": "Oracle; stay available on DB failure; writes 24/7",
+        "trap": "RMAN is backup (and not user-run on RDS); read replicas can't take writes; RAC unsupported on RDS",
+        "rule": "DB high availability with continuous writes → RDS Multi-AZ."
+      },
+      "17": {
+        "group": "D",
+        "keywords": "improve availability and load balancing of web tier (Select TWO)",
+        "trap": "Picked B (right) + C: CloudFront origin cannot be a private IP address",
+        "rule": "ALB behind Route 53 ALIAS record; Route 53 multivalue answer = DNS-level health-checked load balancing."
+      },
+      "18": {
+        "group": "D",
+        "keywords": "allow only package-update URLs outbound; deny all else",
+        "trap": "NACLs and security groups filter IP/port, never URLs",
+        "rule": "URL/domain-based egress filtering → forward web proxy (or AWS Network Firewall)."
+      },
+      "27": {
+        "group": "D",
+        "keywords": "PrivateLink → NLB → EC2 logging service; clients can't submit logs (Select TWO)",
+        "trap": "Picked D (right) + E: instance SG must allow the NLB, not the clients' IP block",
+        "rule": "Endpoint → NLB → instances: open SGs and NACLs hop by hop (NLB SG from endpoint subnet; instance SG from NLB)."
+      },
+      "34": {
+        "group": "D",
+        "keywords": "thousands of accounts; central controlled egress; accounts edit own route tables",
+        "trap": "Transit VPC + VPN doesn't scale; peering limits; shared VPC participants can't edit route tables",
+        "rule": "Central egress/inspection at scale → shared Transit Gateway + GWLB-fronted firewalls in a central VPC."
+      },
+      "3": {
+        "group": "E",
+        "keywords": "blog entries updated in first 3 months, quiet after 6; CloudFront load time",
+        "trap": "Price-class split distributions don't improve load time",
+        "rule": "Content with age-dependent change rate → partition the origin (by month) so cache behaviors/TTLs differ."
+      },
+      "24": {
+        "group": "E",
+        "keywords": "500 IoT sensors every 10s; enrich; in S3 within 20 min; most cost-effective",
+        "trap": "Step Functions per data point = expensive + complex. (You answered this same question correctly in the chapter drill — a regression, not a repeat miss.)",
+        "rule": "Stream → transform → S3 with minutes of latency → IoT rule → Data Firehose + Lambda transform (buffered)."
+      },
+      "32": {
+        "group": "E",
+        "keywords": "SageMaker model at factory; works without internet; call on-prem Linux API",
+        "trap": "SageMaker Edge Manager on cameras doesn't provide the local server runtime to call the API",
+        "rule": "Offline edge ML inference on a local server → IoT Greengrass (+ Greengrass components)."
+      },
+      "38": {
+        "group": "E",
+        "keywords": "replace email order workflow; serverless; least overhead",
+        "trap": "Lambda polling SQS every 5 min + Pinpoint doesn't track order state",
+        "rule": "Multi-step workflow with state → Step Functions + DynamoDB."
+      },
+      "50": {
+        "group": "E",
+        "keywords": "call recordings; automate transcription; reduce storage cost",
+        "trap": "Amazon Translate translates text — it doesn't transcribe audio; EC2 ASG adds overhead",
+        "rule": "Speech→text = Transcribe; text→language = Translate; text→speech = Polly."
+      },
+      "59": {
+        "group": "E",
+        "keywords": "Lambda must not affect other functions' concurrency; LEAST development effort",
+        "trap": "Separate account + SQS works but is far more work",
+        "rule": "Isolate a function's concurrency → reserved concurrency on that function."
+      },
+      "43": {
+        "group": "F",
+        "keywords": "DB to RDS + app to Elastic Beanstalk; most cost-effective strategy",
+        "trap": "Rehost = lift-and-shift to EC2 unchanged",
+        "rule": "Move to managed platforms (RDS, Beanstalk) without code rewrite → Replatform."
+      },
+      "56": {
+        "group": "F",
+        "keywords": "versioning enabled after 4 files existed; later updates (Select TWO)",
+        "trap": "Version IDs are never '1'; pre-existing objects keep null",
+        "rule": "Objects existing before versioning → version ID null; new versions → random alphanumeric IDs."
+      },
+      "67": {
+        "group": "F",
+        "keywords": "infrequently accessed historical data; most cost-effective, throughput-oriented",
+        "trap": "io1 = most expensive SSD",
+        "rule": "High IOPS → io1/io2; frequent throughput → st1; infrequent + cheapest → sc1."
+      }
+    }
+  },
+  "right": {
+    "groups": {
+      "A": "Identity, access & federation",
+      "B": "Edge & data protection",
+      "C": "DR / HA / database resilience",
+      "D": "Networking",
+      "E": "Service fit (serverless, data, app design)",
+      "F": "Storage, migration & ops"
+    },
+    "questions": {
+      "5": {
+        "group": "A",
+        "keywords": "self-service SageMaker notebooks; hide complexity; preconfigured KMS key",
+        "watch": "Proton is for platform templates, not end-user self-service",
+        "rule": "Governed self-service launch → Service Catalog portfolio of CloudFormation products."
+      },
+      "19": {
+        "group": "A",
+        "keywords": "Identity Center group; each scientist only own files; monthly access reports (Select TWO)",
+        "watch": "Server access logs lack IAM identity detail; ⚠️ resource-level IAM conditions also decide Q75",
+        "rule": "Per-user prefix → ${aws:PrincipalTag/...} policy; who accessed what → CloudTrail data events + Athena."
+      },
+      "22": {
+        "group": "A",
+        "keywords": "existing Windows AD passwords for AWS SSO",
+        "watch": "Cognito is for customer-facing apps",
+        "rule": "Extend on-prem AD → AWS Managed Microsoft AD with trust relationship."
+      },
+      "35": {
+        "group": "A",
+        "keywords": "auditor needs log access",
+        "watch": "Never call AWS to grant access",
+        "rule": "CloudTrail + least-privilege read-only IAM identity for the auditor."
+      },
+      "55": {
+        "group": "A",
+        "keywords": "millions of mobile users; most secure S3 access",
+        "watch": "Never embed long-term access keys in an app",
+        "rule": "Mobile clients → temporary STS credentials (AssumeRole / Cognito)."
+      },
+      "57": {
+        "group": "A",
+        "keywords": "SAML federation works for admin but not other users (Select THREE)",
+        "watch": "⚠️ Same SAML family you missed in Q31 — AssumeRoleWithSAML, not WebIdentity",
+        "rule": "Check AssumeRoleWithSAML params, role trust policy principal = SAML provider, role mapping in assertions."
+      },
+      "72": {
+        "group": "A",
+        "keywords": "EC2 watermarks photos then uploads to S3 securely",
+        "watch": "⚠️ Q15: the instance profile alone is enough",
+        "rule": "EC2 → S3 access = IAM role; credentials from instance metadata (not userdata)."
+      },
+      "6": {
+        "group": "B",
+        "keywords": "viral signups; static content by device type; EC2 CPU high",
+        "watch": "CloudFront can't natively route on full User-Agent logic",
+        "rule": "Offload static to S3 + CloudFront; Lambda@Edge to vary content by device."
+      },
+      "42": {
+        "group": "B",
+        "keywords": "replay attacks on Volume Gateway iSCSI",
+        "watch": "CHAP for NFS is wrong — CHAP applies to iSCSI",
+        "rule": "Secure iSCSI targets → CHAP authentication."
+      },
+      "53": {
+        "group": "B",
+        "keywords": "static (S3) + dynamic (ALB) only via CloudFront (Select TWO)",
+        "watch": "⚠️ Q44: OAC enforces the CloudFront path, not a specific client",
+        "rule": "S3 origin → OAC; ALB origin → CloudFront custom header checked by WAF on the ALB."
+      },
+      "54": {
+        "group": "B",
+        "keywords": "SSL key always secure; logs decrypted by few users",
+        "watch": "Ephemeral volumes lose logs",
+        "rule": "Key never leaves → CloudHSM with TCP LB; logs → private S3 with SSE."
+      },
+      "65": {
+        "group": "B",
+        "keywords": "HTTPS viewer↔CloudFront with custom domain; higher cache hit ratio (Select TWO)",
+        "watch": "⚠️ Q1: public ACM certs are free; import third-party certs into ACM, not S3",
+        "rule": "ACM certificate + long Cache-Control max-age."
+      },
+      "69": {
+        "group": "B",
+        "keywords": "files only accessible through CloudFront",
+        "watch": "Distribution ID is not a valid S3 principal",
+        "rule": "S3 origin locked to CloudFront → Origin Access Control + bucket policy."
+      },
+      "10": {
+        "group": "C",
+        "keywords": "5M readers; durable, HA, scalable news site (Select TWO)",
+        "watch": "RAID 0 has no redundancy",
+        "rule": "RDS Multi-AZ + read replicas, S3 for media, CloudFront."
+      },
+      "11": {
+        "group": "C",
+        "keywords": "what happens during RDS Multi-AZ failover",
+        "watch": "IP address does not move",
+        "rule": "Multi-AZ failover flips the DB endpoint CNAME to the standby."
+      },
+      "13": {
+        "group": "C",
+        "keywords": "issue tracker; steady state; OLTP; HA + fault tolerant",
+        "watch": "Spot for a steady-state HA tier is risky",
+        "rule": "Multi-AZ ASG + ELB + CloudFront + RDS Multi-AZ."
+      },
+      "29": {
+        "group": "C",
+        "keywords": "RDS down on AZ issue; photos retrievable immediately; PII discovery",
+        "watch": "Inspector ≠ PII; Glacier Deep Archive isn't immediate",
+        "rule": "Macie for PII; S3 IA after 1 month; RDS Multi-AZ for AZ failure."
+      },
+      "46": {
+        "group": "C",
+        "keywords": "us-east-1 passive DR site",
+        "watch": "An ALB can't span Regions",
+        "rule": "Separate ALB+ASG per Region + Route 53 failover routing."
+      },
+      "48": {
+        "group": "C",
+        "keywords": "unpredictable traffic; HA and auto scaling all tiers",
+        "watch": "Stateful instances break scaling",
+        "rule": "Stateless tiers + ElastiCache for state + RDS Multi-AZ with read replicas."
+      },
+      "63": {
+        "group": "C",
+        "keywords": "keep same IP after hardware failure; auto recovery",
+        "watch": "Stop/start may change host and private IP behavior; reboot doesn't move hosts",
+        "rule": "StatusCheckFailed_System alarm → EC2 recover action (keeps IPs, metadata)."
+      },
+      "39": {
+        "group": "D",
+        "keywords": "resolve both VPC endpoints and AD domain FQDN (Select TWO)",
+        "watch": "Inbound endpoint is for on-prem → AWS queries",
+        "rule": "Route 53 Resolver outbound endpoint + forwarding rule to AD DNS; keep AmazonProvidedDNS."
+      },
+      "51": {
+        "group": "D",
+        "keywords": "two subnets can't talk; track SG changes (Select TWO)",
+        "watch": "Route 53 doesn't route between subnets",
+        "rule": "Fix NACL + SG; AWS Config for configuration history."
+      },
+      "52": {
+        "group": "D",
+        "keywords": "VPC-B and VPC-C overlap; VPC-A needs one host in B",
+        "watch": "Overlapping CIDRs need a more specific route",
+        "rule": "Longest-prefix match: /32 route to VPC-B host, /16 to VPC-C."
+      },
+      "61": {
+        "group": "D",
+        "keywords": "instances in one AZ get no traffic",
+        "watch": "ASG spans AZs fine",
+        "rule": "ALB must have that AZ (subnet) enabled."
+      },
+      "71": {
+        "group": "D",
+        "keywords": "NAT instance keeps failing; least effort",
+        "watch": "Egress-only IGW is for IPv6",
+        "rule": "Replace NAT instances with NAT Gateway (per AZ)."
+      },
+      "8": {
+        "group": "E",
+        "keywords": "IaC versions, stage, revert; global CDN",
+        "watch": "CloudWatch is not a CDN",
+        "rule": "CloudFormation + CloudFront."
+      },
+      "12": {
+        "group": "E",
+        "keywords": "sale surge; social login; simple queue for checkout",
+        "watch": "Lex is a chatbot, not auth",
+        "rule": "Cognito + SQS buffer + DynamoDB behind ELB/CloudFront."
+      },
+      "20": {
+        "group": "E",
+        "keywords": "photo processing jobs; minimize cost; archive",
+        "watch": "SNS isn't a work queue",
+        "rule": "SQS depth-scaled Spot ASG workers + Glacier for archive."
+      },
+      "21": {
+        "group": "E",
+        "keywords": "read a CFN SNS subscription snippet",
+        "watch": "GetAtt references an existing logical resource",
+        "rule": "Fn::GetAtt Queue.Arn subscribes the SQS queue to the SNS topic."
+      },
+      "30": {
+        "group": "E",
+        "keywords": "stateless app; CPU spikes; cost over 3 years",
+        "watch": "All-Spot for consistent response time is risky",
+        "rule": "ASG min 5/max 30 + Reserved Instances for the baseline."
+      },
+      "40": {
+        "group": "E",
+        "keywords": "50 TB scanned files + search; >3 years; cost-effective",
+        "watch": "S3 has no native full-text search",
+        "rule": "S3 storage + OpenSearch Service + Beanstalk."
+      },
+      "47": {
+        "group": "E",
+        "keywords": "on-prem Kafka → near-real-time web app; consistent network (Select THREE)",
+        "watch": "KCL consumes; KPL produces",
+        "rule": "EC2 KPL into Kinesis + Direct Connect + Lambda + WebSocket API @connections."
+      },
+      "58": {
+        "group": "E",
+        "keywords": "TooManyRequests + ProvisionedThroughputExceeded (Select TWO)",
+        "watch": "⚠️ Q24: stream ingestion → Kinesis/Firehose batching",
+        "rule": "Batch via Kinesis + raise DynamoDB WCU."
+      },
+      "64": {
+        "group": "E",
+        "keywords": "stateless REST, authenticated, lowest cost",
+        "watch": "ElastiCache isn't a durable metadata store",
+        "rule": "API Gateway + Lambda + Cognito + DynamoDB + S3 presigned URLs."
+      },
+      "70": {
+        "group": "E",
+        "keywords": "clickstream real-time layout changes",
+        "watch": "SQS/EMR are not real time",
+        "rule": "Kinesis + Kinesis consumers."
+      },
+      "73": {
+        "group": "E",
+        "keywords": "location-based push to millions; <1 min; cheap",
+        "watch": "Device Farm is a testing service",
+        "rule": "SQS + workers + DynamoDB + SNS Mobile Push."
+      },
+      "74": {
+        "group": "E",
+        "keywords": "IoT devices stopped updating DynamoDB",
+        "watch": "Device Defender is security auditing",
+        "rule": "Device health/connectivity → IoT Device Management."
+      },
+      "4": {
+        "group": "F",
+        "keywords": "150 VMs, 40 TB, 12 Mbps, 3 months; some mission-critical",
+        "watch": "DX takes weeks and costs more",
+        "rule": "MGN for critical VMs + offline bulk transfer + VM Import for the rest."
+      },
+      "16": {
+        "group": "F",
+        "keywords": "keep S3 photos and RDS summaries after stack delete",
+        "watch": "S3 has no Snapshot policy",
+        "rule": "DeletionPolicy: Retain for S3, Snapshot for RDS."
+      },
+      "25": {
+        "group": "F",
+        "keywords": "sync on-prem patch baselines to EC2; schedule; least effort",
+        "watch": "Session Manager isn't patching",
+        "rule": "Patch Manager + SSM Agent + Maintenance Windows."
+      },
+      "33": {
+        "group": "F",
+        "keywords": "European artists slow uploading to us-east-1 bucket",
+        "watch": "CloudFront isn't an upload accelerator for S3 here",
+        "rule": "Long-distance uploads → S3 Transfer Acceleration."
+      },
+      "36": {
+        "group": "F",
+        "keywords": "thousands of servers; outdated docs; estimate migration cost (Select THREE)",
+        "watch": "Inspector/X-Ray aren't discovery tools",
+        "rule": "Transform discovery + assessment jobs + CART readiness."
+      },
+      "60": {
+        "group": "F",
+        "keywords": "Java + MongoDB; no code change; HA",
+        "watch": "DynamoDB/Aurora require code changes",
+        "rule": "Multi-AZ EC2 ASG + DocumentDB across AZs."
+      }
+    },
+    "inconsistent": [
+      [
+        "Q72, Q55",
+        "Q15",
+        "EC2/app access via IAM role / STS temporary credentials"
+      ],
+      [
+        "Q57",
+        "Q31",
+        "SAML federation → AssumeRoleWithSAML"
+      ],
+      [
+        "Q69, Q53",
+        "Q44",
+        "OAC vs signed URLs (path vs specific client)"
+      ],
+      [
+        "Q65",
+        "Q1",
+        "ACM public certificates"
+      ],
+      [
+        "Q11, Q13, Q46",
+        "Q68, Q14",
+        "Multi-AZ = HA, not DR / not RMAN"
+      ],
+      [
+        "Q19",
+        "Q75, Q66",
+        "IAM policies with conditions grant access; SCPs don't"
+      ],
+      [
+        "Q58, Q70",
+        "Q24",
+        "Streaming ingestion (Kinesis / Firehose)"
+      ]
+    ]
+  }
+}
