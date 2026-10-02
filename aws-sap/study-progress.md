@@ -80,13 +80,13 @@ Multi-select 10/18 (56%) vs single 33/57 (58%); 7 multi misses had ≥1 correct 
 | **Total** | **42/44 (95%)** | **41/44 (93%)** | |
 
 ### TD Set 1 wrong-answer redo (tracker: `practice-exam/sap/td_set_1_review.md`)
-| Groups | Pass 1 | Pass 2 due | Pass 3 due |
+| Groups | Pass 1 | Pass 2 | Pass 3 due |
 |---|---|---|---|
-| A + B (8) — networking/DNS, security | 09-29 — 8/8 | 10-02 – 10-03 | ~10-06 |
-| C + D (7) — ops/patching, governance | 09-29 — 7/7 | 10-02 – 10-03 | ~10-06 |
-| E (4) — resilience/DR | 09-29 — 4/4 | 10-02 – 10-03 | ~10-06 |
-| F + G (10) — serverless, migration | 09-29 — 10/10 | 10-02 – 10-03 | ~10-06 |
-| **Total** | **29/29 (100%)** | | |
+| A + B (8) — networking/DNS, security | 09-29 — 8/8 | 10-02 — 8/8 | ~10-06 |
+| C + D (7) — ops/patching, governance | 09-29 — 7/7 | 10-02 — 7/7 | ~10-06 |
+| E (4) — resilience/DR | 09-29 — 4/4 | 10-02 — 2/4 ❌ Q25, Q17 | ~10-06 |
+| F + G (10) — serverless, migration | 09-29 — 10/10 | 10-02 — 8/10 ❌ Q69, Q57 | ~10-06 |
+| **Total** | **29/29 (100%)** | **25/29 (86%)** — misses Q17, Q57 (same pick as before), Q25, Q69 | |
 
 ### TD Set 2 wrong-answer redo (tracker: `practice-exam/sap/td_set_2_review.md`)
 | Groups | Pass 1 | Pass 2 due | Pass 3 due |
@@ -193,7 +193,11 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 - Cost allocation tags: activate in the **management account** (Set 5 Q29, missed Pass 2)
 - OpenSearch storage tiers: keep hot data nodes (fewer) + UltraWarm + cold; ingest needs hot nodes (Set 5 Q48, missed Pass 1 + 2)
 - S3 traffic via NAT → S3 gateway endpoint; "availability not compromised" rules out Spot (Set 5 Q21, missed Pass 2)
-- Secrets Manager with ECS (`ValueFrom`) — **missed again in TD1 (Q74)**
+- Secrets Manager with ECS (`ValueFrom`) — **missed again in TD1 (Q74)** (fixed in TD1 Pass 1 + 2)
+- CloudFront 504 + minimal cost → **origin group failover**, not multi-Region + latency routing (TD1 Q17, same D,E pick, missed Pass 2)
+- Tape library + process the content → **file gateway** (S3) for Rekognition, not tape gateway (TD1 Q57, same B pick, missed Pass 2)
+- RDS MySQL has no single reader endpoint (Aurora only) → offload reads with ElastiCache (TD1 Q25, missed Pass 2)
+- HPC batch + least overhead → **AWS Batch** on Spot + S3, not EKS/EBS sc1 (TD1 Q69, missed Pass 2)
 
 ### From chapter drills
 Public VIF for VPN-over-DX (×4, incl. TD1 Q36), PrivateLink for isolated cross-VPC, can't move EC2 between subnets, Fn::Cidr vs Custom Resource, DX alone not encrypted, Aurora vs RDS reliability, Redshift Spectrum vs Athena, Redshift cross-Region snapshot grant (×2), DynamoDB 400KB + drop table, DMS prerequisites, SCPs + all-features mode, Compute vs EC2 Instance Savings Plans, KPL vs KCL
