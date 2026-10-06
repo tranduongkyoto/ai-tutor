@@ -19,6 +19,12 @@ Below, `S=../../.claude/skills/ai-tutor/scripts` and `SRC=<result-file>`.
 Question numbers = shuffled web order in the export (not Review-Mode numbering). Always read questions
 from the export file, never from `SAP-Review-Mode-Set-{N}.md`.
 
+Two export layouts are parsed by `td_result_parser.py` (auto-detected):
+- `TD_SAP_Timed_Set{N}_Full.md` / `TD_SAP_Review_Set{N}_Full.md` — `## Câu N — ✅/❌` blocks, shuffled web order
+- `TutorialsDojo_SAP_Timed_Mode_Set_{N}.md` — `### Câu N (mục k – <domain>) — ✅/❌` blocks grouped by domain,
+  inline ✅/❌/👉 option markers; domain scores are computed from the per-question tags. Question order is by
+  domain, so per-third accuracy is not a fatigue signal for this layout.
+
 ## Step 1 — Stats
 
 ```bash
