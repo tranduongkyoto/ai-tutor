@@ -1,13 +1,13 @@
 ---
 certification: SAP-C02
 started: 2026-09-04
-last_updated: 2026-10-02
+last_updated: 2026-10-06
 current_phase: 2
-schedule: ~3h/day, 5 days/week (~15h/week)
-deadline: none
+schedule: ~25h+/week sprint until exam (was ~15h/week)
+deadline: 2026-11-16 (last day for SAP-C02; SAP-C03 GA 11-17)
 exam_accommodation: ESL +30 approved (210 min, never expires)
-latest_timed_score: 41.3% (TD Set 5, 2026-09-25)
-target_exam_window: 2026-11-16 to 2026-11-27
+latest_timed_score: 56.0% (TD Set 3, 2026-10-05)
+target_exam_window: 2026-11-10 to 2026-11-13 (SAP-C02, before retirement)
 ---
 
 # AWS SAP-C02 Study Progress
@@ -60,7 +60,8 @@ Note: drill scores give 0.5 partial credit on multi-select; timed tests do not.
 | **TD Set 5 (75q, timed)** | **2026-09-25** | **31/75 (41.3%) ❌** | Finished within 180 min. Analysis: `practice-exam/sap/td_set_5_analysis.md` |
 | **TD Set 1 (75q, review mode)** | **2026-09-28** | **46/75 (61.3%) ❌ gate 70%** | Unseen 29/54 (54%), seen 17/21 (81%). Blocks 16/17/13. Analysis: `practice-exam/sap/td_set_1_analysis.md` |
 | **TD Set 2 (75q, review mode)** | **2026-09-30 – 10-01** | **43/75 (57.3%) ❌ gate 70%** | Unseen 30/61 (49%), seen 13/14 (93%). Blocks 14/11/18. Analysis: `practice-exam/sap/td_set_2_analysis.md` |
-| TD Set 3, 4, 6 | — | — | **Reserved — keep clean** for timed checkpoints |
+| **TD Set 3 (75q, timed)** | **2026-10-05** | **42/75 (56.0%) ❌ target 65%** | +14.7 pts vs TD5 timed. Analysis: `practice-exam/sap/td_set_3_analysis.md` |
+| TD Set 4, 6 | — | — | **Reserved — keep clean** for timed checkpoints |
 
 TD Set 5 domains: Migration 27.8% · New Solutions 36.4% · Org Complexity 50.0% · Continuous Improvement 52.9%.
 Multi-select 5/21 (24%) vs single 26/54 (48%).
@@ -70,6 +71,9 @@ Multi-select 4/8 (50%) vs single 42/67 (63%).
 
 TD Set 2 domains: Migration 85.7% · Continuous Improvement 73.1% · New Solutions 50.0% · Org Complexity 25.0% 🔴.
 Multi-select 10/18 (56%) vs single 33/57 (58%); 7 multi misses had ≥1 correct pick.
+
+TD Set 3 domains: Migration 80.0% · Org Complexity 62.5% · New Solutions 56.5% · Continuous Improvement 51.3% 🔴 (19 of 33 misses).
+Multi-select 6/13 (46%) vs single 36/62 (58%); all 7 multi misses had 1 correct pick.
 
 ### TD Set 5 wrong-answer redo (tracker: `practice-exam/sap/td_set_5_review.md`)
 | Groups | Pass 1 | Pass 2 due | Pass 3 due |
@@ -99,26 +103,54 @@ Multi-select 10/18 (56%) vs single 33/57 (58%); 7 multi misses had ≥1 correct 
 | E (6) — service fit | 10-02 — 6/6 | 10-05 — 6/6 | ~10-09 |
 | **Total** | **32/32 (100%)** | **32/32 (100%)** | |
 
+### TD Set 3 wrong-answer redo (tracker: `practice-exam/sap/td_set_3_review.md`)
+| Groups | Pass 1 | Pass 2 due | Pass 3 due |
+|---|---|---|---|
+| A (9) — overbuilt: simplest/cheapest fix | due 10-06 – 10-07 | ~10-10 | ~10-14 |
+| B (6) — data protection & network access | due 10-06 – 10-07 | ~10-10 | ~10-14 |
+| C (5) — governance, compliance & IAM | due 10-06 – 10-07 | ~10-10 | ~10-14 |
+| D (4) — edge, TLS & API auth | due 10-06 – 10-07 | ~10-10 | ~10-14 |
+| E (6) — service fit & limits | due 10-06 – 10-07 | ~10-10 | ~10-14 |
+| F (3) — HA, hybrid, troubleshooting | due 10-06 – 10-07 | ~10-10 | ~10-14 |
+
 ### TD question usage (for keeping mocks clean)
 | Set | Seen | Status |
 |---|---|---|
 | TD1 | all 75 (review mode, 09-28) | Drill pool / redo |
 | TD2 | all 75 (review mode, 09-30 – 10-01) | Drill pool / redo |
 | TD5 | all 75 (timed) | Drill pool / redo |
-| TD3, TD4 | 2–3 in drills | **Reserved timed mock** |
+| TD3 | all 75 (timed, 10-05) | Drill pool / redo |
+| TD4 | 2–3 in drills | **Reserved timed mock** |
 | TD6 | 0 | **Reserved timed mock** |
 
-## Forecast (updated 2026-09-25, after TD Set 5)
+## Forecast (updated 2026-10-06 — SAP-C02 retires 11-16-2026)
 
-| Scenario | Exam date |
+Source: AWS T&C blog "Certification updates: September 2026" — SAP-C03 registration 10-27, **last SAP-C02 day 11-16**,
+SAP-C03 GA 11-17 (5 domains; adds GenAI/Bedrock AgentCore, FIS/Resilience Hub/ARC, VPC Lattice, Lake Formation, PQC KMS).
+
+**Decision 10-06: sprint for SAP-C02 at 25h+/week, exam 11-10 – 11-13.**
+
+Timed: TD5 41.3% (09-25) → TD3 56.0% (10-05). Needed pace: **~+10 pts / 2 weeks** → ~66% by mid-Oct, ~76% by early Nov.
+
+| Gate | Date | Go | Switch to SAP-C03 |
+|---|---|---|---|
+| TD Set 4 timed | ~10-15 – 10-16 | ≥66% | <62% (62–65%: keep going, re-check 11-02) |
+| Final unseen full test (AWS official practice exam on Skill Builder) | ~11-02 – 11-05 | ≥75% | <70% |
+
+Book the SAP-C02 slot now (slots near 11-16 fill up); check the Pearson VUE reschedule/cancel window when booking.
+
+### Sprint plan (SAP-C02, 10-06 → 11-13)
+
+| Week | Focus |
 |---|---|
-| Optimistic | ~2026-11-09 |
-| **Most likely** | **2026-11-16 – 11-27** |
-| Conservative | early December |
+| 10-06 – 10-12 | **Book exam.** TD3 Pass 1 (all groups) · TD1 + TD5 Pass 3 · TD2 Pass 3 (~10-09) · drill group-A habit (simplest/cheapest fix) via cost-control + caching chapter drills |
+| 10-13 – 10-19 | TD3 Pass 2 · **TD Set 4 timed (gate 1)** → `test-review --vi` + Pass 1 · deployment + migrations chapter drills |
+| 10-20 – 11-02 | TD4 Pass 2 · TD3 Pass 3 · remaining chapter drills (identity, storage, data-eng) · TD6 (16q) timed · Udemy #2/#3 timed retakes |
+| 11-02 – 11-05 | **Official practice exam (gate 2)** → review |
+| 11-06 – 11-12 | Wrong-answer marathon (all 🔁 repeat misses), weak-area rules, light review the day before |
+| **11-10 – 11-13** | **Exam (210 min with ESL +30)** |
 
-Assumes ~+8–10 pts per 2 weeks at 15h/week. Book exam only when 2 clean TD sets ≥78%.
-
-### Plan (revised 2026-09-28 — full-set review mode replaces topic-by-topic chapter drills)
+### Plan (revised 2026-09-28 — superseded 10-06 by the sprint plan above — full-set review mode replaces topic-by-topic chapter drills)
 
 Why: chapter drills pre-announce the topic; the Set 5 gap (drill 70.5% → timed 41.3%) is largely topic
 identification in a mixed set. Full mixed sets in review mode train that, and the test → review → redo loop
@@ -129,7 +161,7 @@ already took Set 5 wrong answers to 42/44 on Pass 1.
 | 1 | Sep 28 – Oct 1 | Set 5 redo Pass 2 (A+B, C+D, E+F) + **TD Set 1 review mode** → review wrong + right answers | — |
 | 2 | Oct 2 – Oct 5 | Set 5 redo Pass 3 + **TD Set 2 review mode** → review wrong + right answers | — |
 | 3 | by Oct 5 | Check scores: if **migration still <50%** in Set 1/2 → migrations chapter drill (dojo) first | Gate: **TD1 and TD2 each ≥70%** |
-| 4 | ~Oct 5–8 | **TD Set 3 timed** (first clean checkpoint) → `test-review` + redo passes | Target ≥65% |
+| 4 | ~Oct 5–8 | **TD Set 3 timed** (first clean checkpoint) → `test-review` + redo passes — **done 10-05: 56.0%** | Target ≥65% ❌ |
 | 5 | ~2 weeks later | Weak domains from Set 3 + **TD Set 4 timed** → review + redo | Target ≥72% |
 | 6 | then | Wrong-answer marathon + **TD Set 6 timed** + Udemy #2/#3 timed retakes | 2 clean tests ≥78% → **book exam** |
 
@@ -159,7 +191,7 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 |--------|-------|
 | Course chapters read | 5/18 (Maarek) |
 | Chapter drill questions | 117/166 correct (70.5%) — Udemy 85/124 (69%), TD 32/42 (76%) |
-| Timed tests | TD Set 5: 41.3% |
+| Timed tests | TD Set 5: 41.3% → TD Set 3: 56.0% |
 | Labs completed | 5/11 (Maarek) |
 | Current phase | 2 — Chapter drills + timed baseline |
 | Hours invested | ~30h |
@@ -172,6 +204,13 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 3. **Migration tooling** (7) — VM Import, AWS Transform, Migration Evaluator, FSx + DataSync, SES SMTP credentials
 4. **DR / Route 53** (5) — cross-Region replica + auto-promote, failover vs weighted, latency + Evaluate Target Health, DX Gateway
 5. **Multi-select** — 13/16 misses had 1 correct pick; second pick must complete the same solution
+
+### From TD Set 3 (33 wrong) — Continuous Improvement 51%
+1. **Overbuilding** (9) — hot standby / Reserved / full migration / DIY broker when the stem says quick, one-off or cost-effective; EMR one-off missed twice (Q20, Q29)
+2. **Data protection & access** (6) — SSE-KMS for own key, KMS EXTERNAL import, S3 Block Public Access, Traffic Mirroring, SG-to-SG
+3. **Edge/TLS** (4) — SNI multi-cert, CloudFront default vs ACM cert, API Gateway AWS_IAM + X-Ray
+4. Repeats on new questions: file gateway + Rekognition (3rd miss), detect-not-block AMIs (TD1 Q12), SCP allow-list, web identity temp creds
+5. Fixed on new questions: External ID, LDAP broker, Storage Gateway → EBS, Redshift snapshot copy grant
 
 ### From TD Set 2 (32 wrong) — Org Complexity 25%
 1. **Identity & federation** — SAML → AssumeRoleWithSAML/Identity Center (not WebIdentity), External ID for 3rd party, LDAP identity broker, cross-account role lives in the *target* account
@@ -195,7 +234,7 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 - S3 traffic via NAT → S3 gateway endpoint; "availability not compromised" rules out Spot (Set 5 Q21, missed Pass 2)
 - Secrets Manager with ECS (`ValueFrom`) — **missed again in TD1 (Q74)** (fixed in TD1 Pass 1 + 2)
 - CloudFront 504 + minimal cost → **origin group failover**, not multi-Region + latency routing (TD1 Q17, same D,E pick, missed Pass 2)
-- Tape library + process the content → **file gateway** (S3) for Rekognition, not tape gateway (TD1 Q57, same B pick, missed Pass 2)
+- Tape library + process the content → **file gateway** (S3) for Rekognition, not tape gateway (TD1 Q57, same B pick, missed Pass 2; **missed again on new TD3 Q14**)
 - RDS MySQL has no single reader endpoint (Aurora only) → offload reads with ElastiCache (TD1 Q25, missed Pass 2)
 - HPC batch + least overhead → **AWS Batch** on Spot + S3, not EKS/EBS sc1 (TD1 Q69, missed Pass 2)
 

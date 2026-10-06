@@ -1,0 +1,532 @@
+{
+  "title": "TD Set 3 (timed)",
+  "analysis_file": "td_set_3_analysis.md",
+  "wrong_review_file": "td_set_3_review.md",
+  "wrong": {
+    "groups": {
+      "A": "Overbuilt — the simplest/cheapest fix wins",
+      "B": "Data protection & network access",
+      "C": "Governance, compliance & IAM",
+      "D": "Edge, TLS & API auth",
+      "E": "Service fit & service limits",
+      "F": "HA, hybrid & troubleshooting"
+    },
+    "questions": {
+      "1": {
+        "group": "E",
+        "keywords": "processing can take up to 30 minutes, most cost-effective",
+        "trap": "Lambda max timeout is 15 minutes — can't process a 30-minute job",
+        "rule": "Job > 15 min → EC2 ASG scaled on SQS queue depth (not Lambda); SQS over Amazon MQ unless JMS/AMQP needed"
+      },
+      "6": {
+        "group": "F",
+        "keywords": "pre-signed URL works from laptop, fails from EC2 Spot portal",
+        "trap": "Enabling versioning does not invalidate pre-signed URLs",
+        "rule": "Pre-signed URL failures → expired URL or the signer's credentials (EC2 should use an IAM role, not ~/.aws/credentials)"
+      },
+      "7": {
+        "group": "D",
+        "keywords": "only authorized IAM users or roles, inspect each request end-to-end, service maps",
+        "trap": "CORS is a browser rule, not authentication; CloudWatch Logs don't give end-to-end traces",
+        "rule": "API Gateway + IAM principals → AWS_IAM authorization (SigV4); latency + service map → X-Ray"
+      },
+      "8": {
+        "group": "F",
+        "keywords": "single point of failure, dual-tunnel VPN between CGW and VGW",
+        "trap": "A VPC can attach only one VGW — a 'second VGW' is impossible",
+        "rule": "VPN HA: VGW is already redundant (2 tunnels); add a second CGW in another data center"
+      },
+      "10": {
+        "group": "D",
+        "keywords": "multiple domains, no re-provisioning when a new domain is added",
+        "trap": "A wildcard cert covers sub-domains of one domain, not different domains",
+        "rule": "Many domains on one ALB → multiple certs on one listener (SNI); or CloudFront with dedicated-IP custom SSL"
+      },
+      "13": {
+        "group": "B",
+        "keywords": "use its own encryption key, periodically rotated, fully managed, Redshift Spectrum",
+        "trap": "SSE-S3 keys are AWS-managed, not the company's; File Gateway adds overhead",
+        "rule": "Own key + rotation on S3 → SSE-KMS; in-transit → bucket policy with aws:SecureTransport"
+      },
+      "14": {
+        "group": "E",
+        "keywords": "🔁 tape library, MAM, catalog of faces, metadata for videos",
+        "trap": "🔁 Third miss on this pattern. SageMaker notebooks don't do recognition; Rekognition does",
+        "rule": "Tape archive + video face/object tagging → File Gateway to S3 + Rekognition (face collection) + Lambda → MAM"
+      },
+      "16": {
+        "group": "A",
+        "keywords": "RTO 30 min, RPO 5 min, cost-effective, stateless web/app tiers",
+        "trap": "🔁 Hot standby is not cost-effective when RTO is 30 min — restoring EC2 snapshots fits",
+        "rule": "Match the DR tier to the RTO: 30 min → backup/restore for stateless tiers + cross-Region read replica for the DB"
+      },
+      "17": {
+        "group": "B",
+        "keywords": "restrict to only the web portal's EC2 instances, not traverse the public Internet",
+        "trap": "NACLs can't reference the gateway prefix list for this; the bucket policy must also check identity",
+        "rule": "S3 via gateway endpoint: endpoint policy (which bucket) + bucket policy (aws:sourceVpce + IAM role) + IAM role on EC2"
+      },
+      "19": {
+        "group": "E",
+        "keywords": "dashboard only accepts email via SMTP, automate",
+        "trap": "SQS can't send email; something must poll it",
+        "rule": "Notify by email → SNS (email subscription); offload batch reads → RDS read replica"
+      },
+      "20": {
+        "group": "A",
+        "keywords": "run once, 48 hours, without sacrificing data integrity",
+        "trap": "Reserved Instances need a 1–3 year term — wrong for a one-off job",
+        "rule": "One-off EMR: On-Demand master + core (hold data), Spot only for task nodes"
+      },
+      "23": {
+        "group": "D",
+        "keywords": "custom domain, end-to-end HTTPS from browser to origin",
+        "trap": "The CloudFront default certificate only works for *.cloudfront.net, not a custom domain",
+        "rule": "Custom domain on CloudFront → ACM cert on CloudFront (us-east-1) + HTTPS to the origin with a matching cert"
+      },
+      "24": {
+        "group": "A",
+        "keywords": "write spikes, erratic behavior, cost-effective, strict RPO",
+        "trap": "DynamoDB with high WCU + EMR cluster = much more cost and overhead than a queue",
+        "rule": "Write bursts to a slow backend → SQS buffer + consumer that flushes to the DB"
+      },
+      "26": {
+        "group": "A",
+        "keywords": "MQTT broker overloaded, sensor data lost, recommended",
+        "trap": "Scaling your own broker (ASG + NLB + EFS) is DIY and costly",
+        "rule": "IoT devices over MQTT → AWS IoT Core endpoint + IoT rule straight to DynamoDB"
+      },
+      "28": {
+        "group": "B",
+        "keywords": "use the company HSMs to generate the key material",
+        "trap": "CloudHSM key store uses AWS CloudHSM, not the company's own on-prem HSMs",
+        "rule": "Key material from your own HSM → KMS key with Origin=EXTERNAL + import key material (BYOK)"
+      },
+      "29": {
+        "group": "A",
+        "keywords": "run only once, 8 hours, most cost-effective",
+        "trap": "Same trap as Q20 in this test — Reserved for a one-off 8-hour job",
+        "rule": "One-off EMR: On-Demand master/core + Spot task nodes; never Reserved for short jobs"
+      },
+      "30": {
+        "group": "A",
+        "keywords": "quickly and cost-effectively, reduce latency, database on-premises",
+        "trap": "Migrating the DB to Aurora is slow and may not even be compatible — not 'quick'",
+        "rule": "'Quick + cheap + reduce read latency' → add ElastiCache in front of the DB"
+      },
+      "32": {
+        "group": "E",
+        "keywords": "near-real-time, durable parallel storage, deliver to a data warehouse",
+        "trap": "S3 first + SQS is batch-ish and needs custom code — not near-real-time",
+        "rule": "Near-real-time ingest + analytics → Kinesis Data Streams + consumers; results → Redshift"
+      },
+      "37": {
+        "group": "B",
+        "keywords": "only private files, no public read/write, MINIMAL effort",
+        "trap": "An SCP works but is far more effort (and SCPs don't target one bucket)",
+        "rule": "Stop public S3 objects with minimal effort → S3 Block Public Access"
+      },
+      "42": {
+        "group": "A",
+        "keywords": "in a few weeks, quickly improve, unpredictable bursts",
+        "trap": "Full migration to AWS (VM Import + RDS) takes too long for a few weeks",
+        "rule": "Short deadline + traffic bursts on on-prem site → CloudFront with a custom origin to offload"
+      },
+      "45": {
+        "group": "B",
+        "keywords": "inspect network payloads, reverse-engineer attacks",
+        "trap": "VPC Flow Logs capture metadata (L3/L4), never packet payloads",
+        "rule": "Need packet contents → VPC Traffic Mirroring on the ENIs to a monitoring appliance"
+      },
+      "48": {
+        "group": "C",
+        "keywords": "CVE assessment, new AMIs, rescan every 30 days",
+        "trap": "AWS Config can't scan the OS for CVEs and the requirement is every 30 days, not continuous",
+        "rule": "CVE scans → Amazon Inspector; periodic re-checks → EventBridge schedule → SSM Automation"
+      },
+      "50": {
+        "group": "D",
+        "keywords": "default CloudFront domain name, HTTPS between viewers and CloudFront",
+        "trap": "A cert on the ELB covers CloudFront→origin, not viewer→CloudFront; self-signed is never for public sites",
+        "rule": "*.cloudfront.net + viewer HTTPS → Viewer Protocol Policy (redirect/HTTPS only) + default CloudFront cert"
+      },
+      "53": {
+        "group": "E",
+        "keywords": "no downtime, maintain full capacity during deployment, stop subsequent deployments on failure",
+        "trap": "All-at-once takes instances out of service — reduces capacity",
+        "rule": "Full capacity during deploy → Elastic Beanstalk Immutable (or blue/green); never All at once / Rolling"
+      },
+      "55": {
+        "group": "B",
+        "keywords": "least-privilege, security group per tier, Aurora port 3306",
+        "trap": "A NACL with the public subnet CIDR opens access to every instance in that subnet",
+        "rule": "App → DB access: SG-to-SG references (EC2 SG outbound to DB SG; DB SG inbound from EC2 SG)"
+      },
+      "57": {
+        "group": "E",
+        "keywords": "🔁 mobile app, social IdPs, store to S3 and DynamoDB directly",
+        "trap": "🔁 The option uses long-term access keys — apps must use temporary STS credentials",
+        "rule": "Mobile/web app + social login → web identity federation (AssumeRoleWithWebIdentity / Cognito) with temporary credentials"
+      },
+      "58": {
+        "group": "F",
+        "keywords": "strict RPO/RTO, highly available, fault-tolerant, single city",
+        "trap": "DynamoDB + an A record (not alias) to the ELB — an ELB has no fixed IP",
+        "rule": "HA web tier → ASG across 3 AZs + ALB + Aurora Replicas; Route 53 Alias record to the ELB"
+      },
+      "60": {
+        "group": "C",
+        "keywords": "🔁 should not be stalled, deployed first before analysis, LEAST impact on development",
+        "trap": "🔁 IAM restriction blocks developers before launch — the stem asks to detect after deployment",
+        "rule": "'Don't block developers' → detect and remediate after launch (Config rule / scheduled Lambda + terminate + SNS)"
+      },
+      "61": {
+        "group": "C",
+        "keywords": "latest OS patches, accessible at any time, LEAST administrative overhead",
+        "trap": "CloudShell is a browser CLI, not a server host; AppStream as bastion adds complexity",
+        "rule": "Keep a Windows server patched with low overhead → EC2 + Systems Manager Patch Manager"
+      },
+      "63": {
+        "group": "A",
+        "keywords": "desktop client applications, MINIMAL change, most cost-effective",
+        "trap": "WorkSpaces = full virtual desktops per user (expensive); self-hosted MySQL on EC2 adds ops",
+        "rule": "Stream desktop apps → AppStream 2.0 (WorkSpaces applications); DB → Aurora; tiers → ASG + ALB"
+      },
+      "71": {
+        "group": "C",
+        "keywords": "create/configure resources, view Organizations info, least privilege",
+        "trap": "AdministratorAccess includes IAM and full Organizations control — far beyond least privilege",
+        "rule": "Developers who need everything except IAM/user management → PowerUserAccess (also allows organizations:Describe*)"
+      },
+      "72": {
+        "group": "A",
+        "keywords": "filesystem reached capacity, solve and prevent it from happening again",
+        "trap": "Creating a new FSx + copying profiles is manual — FSx can grow in place",
+        "rule": "FSx for Windows: increase storage in place (update-file-system); automate with CloudWatch alarm → EventBridge → Lambda"
+      },
+      "75": {
+        "group": "C",
+        "keywords": "SCP allows only cloudtrail:* and iam:*, IAM policy allows s3:*",
+        "trap": "The IAM policy's NotAction Deny doesn't affect S3; the SCP allow list is the blocker",
+        "rule": "SCPs never grant: an allow-list SCP must include every action; missing s3:* blocks CreateBucket even if IAM allows it"
+      }
+    }
+  },
+  "right": {
+    "groups": {
+      "A": "Decouple & cache",
+      "B": "Security & identity",
+      "C": "Governance & ops automation",
+      "D": "DR, HA & multi-Region",
+      "E": "Deployment & CI/CD",
+      "F": "Migration & hybrid",
+      "G": "Service fit & performance"
+    },
+    "questions": {
+      "2": {
+        "group": "F",
+        "keywords": "Oracle RAC One Node, automated backup",
+        "watch": "RDS doesn't support RAC",
+        "rule": "Oracle RAC → EC2 + EBS + Data Lifecycle Manager snapshots"
+      },
+      "3": {
+        "group": "F",
+        "keywords": "tape-based backup processes, archive",
+        "watch": "Contrast Q14 (missed) — tape gateway is for backup, not processing",
+        "rule": "Keep tape backup workflow → Tape Gateway → S3/Glacier"
+      },
+      "4": {
+        "group": "F",
+        "keywords": "TCO analysis before migration",
+        "watch": "Not Migration Hub alone",
+        "rule": "Discover on-prem servers for TCO → Application Discovery Service"
+      },
+      "5": {
+        "group": "F",
+        "keywords": "VM needs on-prem dependencies, private connection",
+        "watch": "DX needs BGP-capable device",
+        "rule": "Direct Connect requirements → BGP + MD5-capable router + DX link"
+      },
+      "9": {
+        "group": "B",
+        "keywords": "encrypt at rest + in transit, customer-provided keys",
+        "watch": "Watch SSE-C headers vs SSE-KMS headers",
+        "rule": "SSE-C → x-amz-server-side-encryption-customer-* headers (HTTPS required)"
+      },
+      "11": {
+        "group": "G",
+        "keywords": "scanned forms, OCR, reduce human effort",
+        "watch": "Rekognition is not document OCR",
+        "rule": "Forms OCR → Textract + Comprehend, orchestrated by Step Functions"
+      },
+      "12": {
+        "group": "G",
+        "keywords": "tightly coupled HPC, maximum performance",
+        "watch": "EFS is not HPC scratch storage",
+        "rule": "HPC → cluster placement group + EFA + FSx for Lustre"
+      },
+      "15": {
+        "group": "D",
+        "keywords": "DB on EC2, second Region, failover",
+        "watch": "Contrast Q16 — here the DB must go cross-Region",
+        "rule": "Cross-Region DR DB → Aurora Global Database + Route 53 failover"
+      },
+      "18": {
+        "group": "B",
+        "keywords": "reduce DDoS attack surface, blast radius",
+        "watch": "Shield Standard alone vs Advanced + WAF",
+        "rule": "DDoS: CloudFront + SG/NACL minimal ports + WAF rate rules + Shield Advanced"
+      },
+      "21": {
+        "group": "A",
+        "keywords": "bursty writes, no change to data model",
+        "watch": "Same idea as Q24 (missed) — SQS buffers writes",
+        "rule": "Spiky writes to RDS → SQS + Lambda consumer"
+      },
+      "22": {
+        "group": "A",
+        "keywords": "growing input files, availability, processing time",
+        "watch": "Don't pick bigger instances; scale out on queue length",
+        "rule": "Batch file processing → S3 for I/O + SQS + ASG on queue depth"
+      },
+      "25": {
+        "group": "G",
+        "keywords": "steady-state + peaks, most cost-effective, HA",
+        "watch": "Not all On-Demand",
+        "rule": "Steady state → Reserved; peaks → Auto Scaling"
+      },
+      "27": {
+        "group": "A",
+        "keywords": "DynamoDB throttled writes, data not lost, MOST cost-effective",
+        "watch": "Raising WCU works but costs more",
+        "rule": "Throttled writes → SQS in front of DynamoDB"
+      },
+      "31": {
+        "group": "E",
+        "keywords": "Lambda traffic in two increments, trace downstream calls",
+        "watch": "Linear = many steps; canary = two",
+        "rule": "Two-step Lambda shift → Canary; tracing → X-Ray active tracing"
+      },
+      "33": {
+        "group": "D",
+        "keywords": "Windows CMS, HA, shared storage, least overhead",
+        "watch": "EFS is Linux-only (NFS)",
+        "rule": "Windows shared storage → FSx for Windows + ASG across 3 AZs"
+      },
+      "34": {
+        "group": "C",
+        "keywords": "all accounts, durable + secure audit logs",
+        "watch": "Per-account trails are more effort",
+        "rule": "Organization trail + one bucket with MFA Delete + encryption"
+      },
+      "35": {
+        "group": "B",
+        "keywords": "external PCI auditor, multiple accounts",
+        "watch": "Never create IAM users with access keys for outsiders",
+        "rule": "Auditor → read-only cross-account role in each account trusting the auditor"
+      },
+      "36": {
+        "group": "G",
+        "keywords": "200 TB shared FS, 72-hour runs, largest cost reduction",
+        "watch": "Not keeping the always-on EC2 file cluster",
+        "rule": "Data in S3 Intelligent-Tiering + lazy-loaded FSx for Lustre per run"
+      },
+      "38": {
+        "group": "D",
+        "keywords": "semi-structured data, Region failure, managed",
+        "watch": "Not RDS cross-Region replica",
+        "rule": "Multi-Region active-active NoSQL → DynamoDB global tables + Fargate per Region"
+      },
+      "39": {
+        "group": "F",
+        "keywords": "NAT instance, long-running DB update fails on timeout",
+        "watch": "NAT gateway sends RST, NAT instance sends FIN",
+        "rule": "NAT instance timeout → FIN; replace with NAT gateway"
+      },
+      "40": {
+        "group": "A",
+        "keywords": "page load < 3 s, global audience, MOST cost-effective",
+        "watch": "Same idea as Q30 (missed) — ElastiCache cuts DB latency",
+        "rule": "Slow pages → ElastiCache for sessions/queries + CloudFront for reusable content"
+      },
+      "41": {
+        "group": "B",
+        "keywords": "SQL injection, bots/scrapers, scalable",
+        "watch": "NACLs/SGs can't inspect L7",
+        "rule": "L7 attacks → AWS WAF rules + Shield Advanced"
+      },
+      "43": {
+        "group": "D",
+        "keywords": "Region outage, short downtime allowed",
+        "watch": "Failover vs latency routing",
+        "rule": "Active-active Regions → latency routing + Evaluate Target Health"
+      },
+      "44": {
+        "group": "A",
+        "keywords": "5 GB file, millions of global downloads",
+        "watch": "Not EC2/EFS behind ALB",
+        "rule": "Large global downloads → S3 + CloudFront + Route 53"
+      },
+      "46": {
+        "group": "E",
+        "keywords": "new AMI per release via UpdateStack, replace instances",
+        "watch": "Not CreationPolicy",
+        "rule": "ASG instance replacement in CloudFormation → UpdatePolicy AutoScalingRollingUpdate"
+      },
+      "47": {
+        "group": "F",
+        "keywords": "employees only, from corporate network or home, not exposed",
+        "watch": "Not public subnet + IP allow list",
+        "rule": "Remote employee access → SSL VPN in public subnet + app in private subnet"
+      },
+      "49": {
+        "group": "G",
+        "keywords": "50 TB, search on a website",
+        "watch": "Not RDS full-text search",
+        "rule": "Search feature → OpenSearch; storage → S3"
+      },
+      "51": {
+        "group": "D",
+        "keywords": "stored volume, make data available on AWS if on-prem fails",
+        "watch": "Fixed TD2 Q45 miss",
+        "rule": "Storage Gateway volume → EBS snapshot → restore to EBS on EC2"
+      },
+      "52": {
+        "group": "B",
+        "keywords": "EC2 app generates pre-signed URLs, access S3 securely",
+        "watch": "Contrast Q6/Q17 — credentials on EC2 come from the instance role",
+        "rule": "EC2 → S3: IAM role, temporary credentials from instance metadata"
+      },
+      "54": {
+        "group": "E",
+        "keywords": "staging, swap, roll back quickly",
+        "watch": "Contrast Q53 (missed) — zero-downtime deploy patterns",
+        "rule": "Elastic Beanstalk blue/green → deploy to staging env + swap CNAMEs"
+      },
+      "56": {
+        "group": "E",
+        "keywords": "deployments caused downtime, preview changes",
+        "watch": "Not manual approvals alone",
+        "rule": "Test stage + CloudFormation change sets + CodeDeploy blue/green"
+      },
+      "59": {
+        "group": "C",
+        "keywords": "cost visibility, enforce tags on future DynamoDB/RDS",
+        "watch": "Contrast Q75 — here the SCP denies untagged creates",
+        "rule": "Tag Editor + cost allocation tags + SCP deny create without tags"
+      },
+      "62": {
+        "group": "A",
+        "keywords": "query strings in different order/case, cache hit ratio",
+        "watch": "Not more TTL or more origins",
+        "rule": "Normalize query strings with Lambda@Edge on viewer request"
+      },
+      "64": {
+        "group": "B",
+        "keywords": "classified data in S3, PII, automated",
+        "watch": "GuardDuty/Inspector don't classify data",
+        "rule": "Find PII in S3 → Macie; who accessed it → CloudTrail data events"
+      },
+      "65": {
+        "group": "D",
+        "keywords": "Redshift + KMS encryption, DR in another Region",
+        "watch": "Fixed repeat drill miss",
+        "rule": "Encrypted Redshift cross-Region → snapshot copy grant in destination Region"
+      },
+      "66": {
+        "group": "C",
+        "keywords": "OS vulnerability, record patch compliance changes",
+        "watch": "Contrast Q61 (missed) — Patch Manager again",
+        "rule": "Patch Manager for patches + AWS Config for compliance history"
+      },
+      "67": {
+        "group": "E",
+        "keywords": "verify results on new DynamoDB entries, minimal changes",
+        "watch": "Not polling with a scheduled job",
+        "rule": "React to new DynamoDB items → DynamoDB Streams → Lambda"
+      },
+      "68": {
+        "group": "C",
+        "keywords": "existing accounts into Organizations, full admin control, LEAST effort",
+        "watch": "Invited accounts don't get OrganizationAccountAccessRole automatically",
+        "rule": "Invite accounts + create OrganizationAccountAccessRole in each"
+      },
+      "69": {
+        "group": "C",
+        "keywords": "Control Tower, centralize compliance/security findings",
+        "watch": "Not Config aggregator alone",
+        "rule": "Centralize findings → Security Hub with a delegated administrator account"
+      },
+      "70": {
+        "group": "C",
+        "keywords": "enforce tags on resource creation across accounts",
+        "watch": "Not Tag Editor (after the fact)",
+        "rule": "Tag on creation → Service Catalog TagOptions/auto-tags + CloudFormation resource tags"
+      },
+      "73": {
+        "group": "B",
+        "keywords": "third-party vendor, discover EC2, confused deputy",
+        "watch": "Fixed TD2 Q41 miss",
+        "rule": "Third party → cross-account role with ExternalId condition"
+      },
+      "74": {
+        "group": "B",
+        "keywords": "on-prem LDAP, same corporate account, not SAML",
+        "watch": "Fixed TD2 Q28 miss",
+        "rule": "LDAP (no SAML) → custom identity broker → STS AssumeRole"
+      }
+    },
+    "inconsistent": [
+      [
+        "Q21, Q22, Q27",
+        "Q24",
+        "SQS as a write buffer in front of a slow/throttled DB"
+      ],
+      [
+        "Q40",
+        "Q30",
+        "ElastiCache to cut DB load and latency"
+      ],
+      [
+        "Q66",
+        "Q61",
+        "Systems Manager Patch Manager for OS patching"
+      ],
+      [
+        "Q3",
+        "Q14",
+        "Storage Gateway type: tape backup → Tape Gateway; process the content → File Gateway"
+      ],
+      [
+        "Q52",
+        "Q17, Q6",
+        "EC2 → S3 access via IAM role (temporary credentials)"
+      ],
+      [
+        "Q73, Q74",
+        "Q57",
+        "Federation/third party → STS temporary credentials, never long-term keys"
+      ],
+      [
+        "Q59",
+        "Q75",
+        "How SCPs behave (deny vs allow-list)"
+      ],
+      [
+        "Q31",
+        "Q7",
+        "X-Ray for end-to-end tracing"
+      ],
+      [
+        "Q54, Q56",
+        "Q53",
+        "Zero-downtime deployment (blue/green, immutable)"
+      ],
+      [
+        "Q15, Q43",
+        "Q16",
+        "Cross-Region DR sized to the RTO"
+      ]
+    ]
+  }
+}
