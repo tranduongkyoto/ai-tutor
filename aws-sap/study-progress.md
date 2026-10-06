@@ -86,18 +86,18 @@ Multi-select 10/18 (56%) vs single 33/57 (58%); 7 multi misses had ≥1 correct 
 | C + D (7) — ops/patching, governance | 09-29 — 7/7 | 10-02 — 7/7 | ~10-06 |
 | E (4) — resilience/DR | 09-29 — 4/4 | 10-02 — 2/4 ❌ Q25, Q17 | ~10-06 |
 | F + G (10) — serverless, migration | 09-29 — 10/10 | 10-02 — 8/10 ❌ Q69, Q57 | ~10-06 |
-| **Total** | **29/29 (100%)** | **25/29 (86%)** — misses Q17, Q57 (same pick as before), Q25, Q69 | |
+| **Total** | **29/29 (100%)** | **25/29 (86%)** — misses Q17, Q57 (same pick as before), Q25, Q69; retry 10-05 — 4/4 | |
 
 ### TD Set 2 wrong-answer redo (tracker: `practice-exam/sap/td_set_2_review.md`)
-| Groups | Pass 1 | Pass 2 due | Pass 3 due |
+| Groups | Pass 1 | Pass 2 | Pass 3 due |
 |---|---|---|---|
-| A (9) — identity, access, federation | 10-02 — 9/9 | 10-05 – 10-06 | ~10-09 |
-| B (4) — edge/data protection | 10-02 — 4/4 | 10-05 – 10-06 | ~10-09 |
-| F (3) — storage/migration | 10-02 — 3/3 | 10-05 – 10-06 | ~10-09 |
-| C (6) — DR/HA | 10-02 — 6/6 | 10-05 – 10-06 | ~10-09 |
-| D (4) — networking | 10-02 — 4/4 | 10-05 – 10-06 | ~10-09 |
-| E (6) — service fit | 10-02 — 6/6 | 10-05 – 10-06 | ~10-09 |
-| **Total** | **32/32 (100%)** | | |
+| A (9) — identity, access, federation | 10-02 — 9/9 | 10-05 — 9/9 | ~10-09 |
+| B (4) — edge/data protection | 10-02 — 4/4 | 10-05 — 4/4 | ~10-09 |
+| F (3) — storage/migration | 10-02 — 3/3 | 10-05 — 3/3 | ~10-09 |
+| C (6) — DR/HA | 10-02 — 6/6 | 10-05 — 6/6 | ~10-09 |
+| D (4) — networking | 10-02 — 4/4 | 10-05 — 4/4 | ~10-09 |
+| E (6) — service fit | 10-02 — 6/6 | 10-05 — 6/6 | ~10-09 |
+| **Total** | **32/32 (100%)** | **32/32 (100%)** | |
 
 ### TD question usage (for keeping mocks clean)
 | Set | Seen | Status |
