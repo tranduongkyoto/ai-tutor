@@ -76,21 +76,21 @@ TD Set 3 domains: Migration 80.0% · Org Complexity 62.5% · New Solutions 56.5%
 Multi-select 6/13 (46%) vs single 36/62 (58%); all 7 multi misses had 1 correct pick.
 
 ### TD Set 5 wrong-answer redo (tracker: `practice-exam/sap/td_set_5_review.md`)
-| Groups | Pass 1 | Pass 2 due | Pass 3 due |
+| Groups | Pass 1 | Pass 2 | Pass 3 |
 |---|---|---|---|
-| A + B (21) | 09-25 — 20/21 (miss Q18) | 09-30 — 20/21 (miss Q29) | ~10-07 |
-| C + D (12) | 09-26 — 12/12 | 09-30 — 12/12 | ~10-07 |
-| E + F (11) | 09-27 — 10/11 (miss Q48) | 09-30 — 9/11 (miss Q21, Q48 🔁) | ~10-07 |
-| **Total** | **42/44 (95%)** | **41/44 (93%)** | |
+| A + B (21) | 09-25 — 20/21 (miss Q18) | 09-30 — 20/21 (miss Q29) | 10-06 — 19/21 ❌ Q10, Q62 |
+| C + D (12) | 09-26 — 12/12 | 09-30 — 12/12 | 10-06 — 11/12 ❌ Q32 |
+| E + F (11) | 09-27 — 10/11 (miss Q48) | 09-30 — 9/11 (miss Q21, Q48 🔁) | 10-06 — 10/11 ❌ Q69 |
+| **Total** | **42/44 (95%)** | **41/44 (93%)** | **40/44 (91%)** — misses Q10, Q62, Q69 (faded), Q32 (same pick as test) |
 
 ### TD Set 1 wrong-answer redo (tracker: `practice-exam/sap/td_set_1_review.md`)
-| Groups | Pass 1 | Pass 2 | Pass 3 due |
+| Groups | Pass 1 | Pass 2 | Pass 3 |
 |---|---|---|---|
-| A + B (8) — networking/DNS, security | 09-29 — 8/8 | 10-02 — 8/8 | ~10-06 |
-| C + D (7) — ops/patching, governance | 09-29 — 7/7 | 10-02 — 7/7 | ~10-06 |
-| E (4) — resilience/DR | 09-29 — 4/4 | 10-02 — 2/4 ❌ Q25, Q17 | ~10-06 |
-| F + G (10) — serverless, migration | 09-29 — 10/10 | 10-02 — 8/10 ❌ Q69, Q57 | ~10-06 |
-| **Total** | **29/29 (100%)** | **25/29 (86%)** — misses Q17, Q57 (same pick as before), Q25, Q69; retry 10-05 — 4/4 | |
+| A + B (8) — networking/DNS, security | 09-29 — 8/8 | 10-02 — 8/8 | 10-06 — 8/8 |
+| C + D (7) — ops/patching, governance | 09-29 — 7/7 | 10-02 — 7/7 | 10-06 — 7/7 |
+| E (4) — resilience/DR | 09-29 — 4/4 | 10-02 — 2/4 ❌ Q25, Q17 | 10-06 — 4/4 |
+| F + G (10) — serverless, migration | 09-29 — 10/10 | 10-02 — 8/10 ❌ Q69, Q57 | 10-06 — 9/10 ❌ Q26 |
+| **Total** | **29/29 (100%)** | **25/29 (86%)** — misses Q17, Q57 (same pick as before), Q25, Q69; retry 10-05 — 4/4 | **28/29 (97%)** — miss Q26 (misread) |
 
 ### TD Set 2 wrong-answer redo (tracker: `practice-exam/sap/td_set_2_review.md`)
 | Groups | Pass 1 | Pass 2 | Pass 3 due |
@@ -238,6 +238,8 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 - Tape library + process the content → **file gateway** (S3) for Rekognition, not tape gateway (TD1 Q57, same B pick, missed Pass 2; **missed again on new TD3 Q14**)
 - RDS MySQL has no single reader endpoint (Aurora only) → offload reads with ElastiCache (TD1 Q25, missed Pass 2)
 - HPC batch + least overhead → **AWS Batch** on Spot + S3, not EKS/EBS sc1 (TD1 Q69, missed Pass 2)
+- Windows servers **in AWS** need SMB files → **FSx for Windows + DataSync**, not File Gateway (on-prem clients) (Set 5 Q32, same D pick, missed Pass 3)
+- PrivateLink endpoint service = **NLB** (or GWLB), never ALB; appliance fleet = **GWLB + ASG** (Set 5 Q69, Q62, missed Pass 3)
 
 ### From chapter drills
 Public VIF for VPN-over-DX (×4, incl. TD1 Q36), PrivateLink for isolated cross-VPC, can't move EC2 between subnets, Fn::Cidr vs Custom Resource, DX alone not encrypted, Aurora vs RDS reliability, Redshift Spectrum vs Athena, Redshift cross-Region snapshot grant (×2), DynamoDB 400KB + drop table, DMS prerequisites, SCPs + all-features mode, Compute vs EC2 Instance Savings Plans, KPL vs KCL
