@@ -106,12 +106,13 @@ Multi-select 6/13 (46%) vs single 36/62 (58%); all 7 multi misses had 1 correct 
 ### TD Set 3 wrong-answer redo (tracker: `practice-exam/sap/td_set_3_review.md`)
 | Groups | Pass 1 | Pass 2 due | Pass 3 due |
 |---|---|---|---|
-| A (9) — overbuilt: simplest/cheapest fix | due 10-06 – 10-07 | ~10-10 | ~10-14 |
-| B (6) — data protection & network access | due 10-06 – 10-07 | ~10-10 | ~10-14 |
-| C (5) — governance, compliance & IAM | due 10-06 – 10-07 | ~10-10 | ~10-14 |
-| D (4) — edge, TLS & API auth | due 10-06 – 10-07 | ~10-10 | ~10-14 |
-| E (6) — service fit & limits | due 10-06 – 10-07 | ~10-10 | ~10-14 |
-| F (3) — HA, hybrid, troubleshooting | due 10-06 – 10-07 | ~10-10 | ~10-14 |
+| A (9) — overbuilt: simplest/cheapest fix | 10-06 — 9/9 | ~10-10 | ~10-14 |
+| B (6) — data protection & network access | 10-06 — 6/6 | ~10-10 | ~10-14 |
+| C (5) — governance, compliance & IAM | 10-06 — 5/5 | ~10-10 | ~10-14 |
+| D (4) — edge, TLS & API auth | 10-06 — 4/4 | ~10-10 | ~10-14 |
+| E (6) — service fit & limits | 10-06 — 6/6 | ~10-10 | ~10-14 |
+| F (3) — HA, hybrid, troubleshooting | 10-06 — 2/3 ❌ Q6 | ~10-10 | ~10-14 |
+| **Total** | **32/33 (97%)** | | |
 
 ### TD question usage (for keeping mocks clean)
 | Set | Seen | Status |
