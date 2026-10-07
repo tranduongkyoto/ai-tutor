@@ -16,14 +16,25 @@ Background: SAA-C03 passed.
 
 ## Phase 1: Foundation — DONE
 
-### Course Progress (Maarek v38 Slides)
-| Chapter | Status | Udemy Drill | Date |
-|---------|--------|-------------|------|
-| Identity & Federation | Done | 8/15 (53%) | 2026-09-15 |
-| Security | Done | 10/13 (77%) | 2026-09-15 |
-| VPC | Done | 23/30 (77%) | 2026-09-16 |
-| Storage | Done | 25/40 (63%) | 2026-09-17 |
-| Databases | Done | 19/26 (73%) | 2026-09-18 |
+### Course Progress (Maarek v38 Slides) — updated 2026-10-07 from learner checklist
+| Chapter | Status | Drill | Labs |
+|---------|--------|-------|------|
+| Identity & Federation | Done | Udemy 8/15 (53%) | 2 labs |
+| Security | Done | Udemy 10/13 (77%) | #3640 |
+| Compute & Load Balancing | Done | TD 13/20 (65%) | #2934, #176 |
+| Storage | Done | Udemy 25/40 (63%) | — |
+| Caching | Done | — | — |
+| Databases | Done | Udemy 19/26 (73%) | #240 |
+| Service Communication | Done | TD 7.5/8 (94%) | — |
+| Monitoring | Done | TD 11.5/14 (82%) | #3452, #276 |
+| Deployment & Instance Management | Done | — | — |
+| Migrations | Done | — | — |
+| Amazon VPC | Done | Udemy 23/30 (77%) | #2856, #244; #354 skipped (10-07) |
+| Data Engineering | Done (10-07) | — | — |
+| Cost Control | Done (10-07) | — | — |
+| Machine Learning | Skimmed 2x (10-07) | — | — |
+| Other Services | Skimmed 2x (10-07) | — | — |
+| Exam Preparation | Not started | — | — |
 
 ### Hands-on Labs
 | Lab | Title | Domain | Status | Date |
@@ -33,6 +44,11 @@ Background: SAA-C03 passed.
 | #3640 | Security Controls + KMS + Data Protection | Security | Done | 2026-09-15 |
 | #2934 | ASG Lifecycle Hooks + Lambda + SSM | Compute | Done | 2026-09-15 |
 | #2856 | Troubleshoot & Secure AWS Network (SG vs NACL) | VPC | Done | 2026-09-16 |
+| #240 | RDS Multi-AZ + CloudWatch + SNS | Databases | Done | — |
+| #3452 | CloudTrail + CloudWatch Audit | Monitoring | Done | — |
+| #276 | VPC Flow Logs + CloudWatch | Monitoring | Done | — |
+| (2 labs) | Identity & Federation | Identity | Done | — |
+| #354 | Gateway VPC Endpoints + Endpoint Policies | VPC | Skipped (learner decision) | 10-07 |
 
 ## Phase 2: Chapter Drills + Timed Baseline — IN PROGRESS
 
@@ -81,7 +97,7 @@ Multi-select 6/13 (46%) vs single 36/62 (58%); all 7 multi misses had 1 correct 
 | A + B (21) | 09-25 — 20/21 (miss Q18) | 09-30 — 20/21 (miss Q29) | 10-06 — 19/21 ❌ Q10, Q62 |
 | C + D (12) | 09-26 — 12/12 | 09-30 — 12/12 | 10-06 — 11/12 ❌ Q32 |
 | E + F (11) | 09-27 — 10/11 (miss Q48) | 09-30 — 9/11 (miss Q21, Q48 🔁) | 10-06 — 10/11 ❌ Q69 |
-| **Total** | **42/44 (95%)** | **41/44 (93%)** | **40/44 (91%)** — misses Q10, Q62, Q69 (faded), Q32 (same pick as test) |
+| **Total** | **42/44 (95%)** | **41/44 (93%)** | **40/44 (91%)** — misses Q10, Q62, Q69 (faded), Q32 (same pick as test); retry 10-07 — 4/4 |
 
 ### TD Set 1 wrong-answer redo (tracker: `practice-exam/sap/td_set_1_review.md`)
 | Groups | Pass 1 | Pass 2 | Pass 3 |
@@ -93,15 +109,15 @@ Multi-select 6/13 (46%) vs single 36/62 (58%); all 7 multi misses had 1 correct 
 | **Total** | **29/29 (100%)** | **25/29 (86%)** — misses Q17, Q57 (same pick as before), Q25, Q69; retry 10-05 — 4/4 | **28/29 (97%)** — miss Q26 (misread) |
 
 ### TD Set 2 wrong-answer redo (tracker: `practice-exam/sap/td_set_2_review.md`)
-| Groups | Pass 1 | Pass 2 | Pass 3 due |
+| Groups | Pass 1 | Pass 2 | Pass 3 |
 |---|---|---|---|
-| A (9) — identity, access, federation | 10-02 — 9/9 | 10-05 — 9/9 | ~10-09 |
-| B (4) — edge/data protection | 10-02 — 4/4 | 10-05 — 4/4 | ~10-09 |
-| F (3) — storage/migration | 10-02 — 3/3 | 10-05 — 3/3 | ~10-09 |
-| C (6) — DR/HA | 10-02 — 6/6 | 10-05 — 6/6 | ~10-09 |
-| D (4) — networking | 10-02 — 4/4 | 10-05 — 4/4 | ~10-09 |
-| E (6) — service fit | 10-02 — 6/6 | 10-05 — 6/6 | ~10-09 |
-| **Total** | **32/32 (100%)** | **32/32 (100%)** | |
+| A (9) — identity, access, federation | 10-02 — 9/9 | 10-05 — 9/9 | 10-07 ✅ |
+| B (4) — edge/data protection | 10-02 — 4/4 | 10-05 — 4/4 | 10-07 ✅ |
+| F (3) — storage/migration | 10-02 — 3/3 | 10-05 — 3/3 | 10-07 ✅ |
+| C (6) — DR/HA | 10-02 — 6/6 | 10-05 — 6/6 | 10-07 ✅ |
+| D (4) — networking | 10-02 — 4/4 | 10-05 — 4/4 | 10-07 ✅ |
+| E (6) — service fit | 10-02 — 6/6 | 10-05 — 6/6 | 10-07 ✅ |
+| **Total** | **32/32 (100%)** | **32/32 (100%)** | **32/32 (100%)** (10-07) |
 
 ### TD Set 3 wrong-answer redo (tracker: `practice-exam/sap/td_set_3_review.md`)
 | Groups | Pass 1 | Pass 2 due | Pass 3 due |
@@ -133,22 +149,37 @@ SAP-C03 GA 11-17 (5 domains; adds GenAI/Bedrock AgentCore, FIS/Resilience Hub/AR
 
 Timed: TD5 41.3% (09-25) → TD3 56.0% (10-05). Needed pace: **~+10 pts / 2 weeks** → ~66% by mid-Oct, ~76% by early Nov.
 
-| Gate | Date | Go | Switch to SAP-C03 |
-|---|---|---|---|
-| TD Set 4 timed | ~10-15 – 10-16 | ≥66% | <62% (62–65%: keep going, re-check 11-02) |
-| Final unseen full test (AWS official practice exam on Skill Builder) | ~11-02 – 11-05 | ≥75% | <70% |
+**Readiness gates (updated 10-07):** unseen-question scores are the primary signal; retakes are secondary.
+No AWS official practice exam (decision 10-07).
 
-Book the SAP-C02 slot now (slots near 11-16 fill up); check the Pearson VUE reschedule/cancel window when booking.
+| Gate | Source | Date | Go | Switch to SAP-C03 |
+|---|---|---|---|---|
+| **Gate 1** | **Mixed Unseen Mock #1** — Udemy #2 unseen 27 + Udemy #3 unseen 27 + TD6 16 + Udemy #1 unseen 5 = 75, shuffled, timed 210 min (`practice-exam/sap/mixed_unseen_mock_1.md`) | 10-07 | ≥66% | <62% (62–65%: keep going) |
+| **Gate 2 (final)** | **TD Set 4 timed** (75 unseen) | ~10-28 | ≥75% | <70% |
+| Retake check | One full timed retake of TD1/2/3/5, ≥2 weeks after last seen; every answer justified | ~10-20 onward | ≥85% | — |
 
-### Sprint plan (SAP-C02, 10-06 → 11-13)
+**Book / keep the exam date only if** Gate 2 ≥75% **and** one retake ≥85%.
+Udemy Test #2/#3: 48 of 75 questions each were already seen in chapter drills, so all remaining unseen Udemy questions + TD6 went into Mock #1.
+**TD4 is the last unseen material** — no Dojo drills (they contain TD4/TD6 questions).
 
-| Week | Focus |
+Book the SAP-C02 slot now (slots near 11-16 fill up); check the Pearson VUE reschedule/cancel window and the
+SAA-C03 50% discount voucher (Certification account → Benefits) when booking.
+
+### Sprint plan (SAP-C02, 10-06 → 11-13) — updated 10-07
+
+| Date | Focus |
 |---|---|
-| 10-06 – 10-12 | **Book exam.** TD3 Pass 1 (all groups) · TD1 + TD5 Pass 3 · TD2 Pass 3 (~10-09) · drill group-A habit (simplest/cheapest fix) via cost-control + caching chapter drills |
-| 10-13 – 10-19 | TD3 Pass 2 · **TD Set 4 timed (gate 1)** → `test-review --vi` + Pass 1 · deployment + migrations chapter drills |
-| 10-20 – 11-02 | TD4 Pass 2 · TD3 Pass 3 · remaining chapter drills (identity, storage, data-eng) · TD6 (16q) timed · Udemy #2/#3 timed retakes |
-| 11-02 – 11-05 | **Official practice exam (gate 2)** → review |
-| 11-06 – 11-12 | Wrong-answer marathon (all 🔁 repeat misses), weak-area rules, light review the day before |
+| 10-06 | ✅ TD3 review + Pass 1 (32/33) · TD1 Pass 3 (28/29) · TD5 Pass 3 (40/44) |
+| 10-07 | ✅ TD5 4-miss retry (4/4) · ✅ Cost Control chapter · ✅ re-watch ELB types · ✅ Data Engineering chapter · ✅ Other Services + ML skim · ✅ re-watch FSx + Transfer Family · ✅ 🇻🇳 right-answer sections TD2/3/5 · **Mixed Unseen Mock #1 timed — Gate 1** · **book exam** |
+| 10-08 | Mock #1 review (by source + domain) + miss redo Pass 1 |
+| 10-09 | TD3 Pass 2 · Mock #1 🇻🇳 miss sections |
+| 10-10 – 10-14 | TD3 right-answer "Guessed?" review · repeat-miss list · Mock #1 Pass 2 (10-13) |
+| 10-15 – 10-19 | weak-area re-watch (from Mock #1 domains) · TD3 Pass 3 · wrong-answer marathon round 1 |
+| ~10-20 | **TD5 full timed retake** (retake check) |
+| 10-21 – 10-26 | TD1/TD2 retake · Mock #1 Pass 3 · Exam Preparation chapter (10-26) |
+| **~10-28** | **TD Set 4 timed — Gate 2 (final)** → `test-review --vi` |
+| 10-29 – 10-30 | TD4 review + Pass 1 |
+| 10-31 – 11-09 | Pass 3s · wrong-answer marathon (all 🔁 repeat misses) · 10 rules per set |
 | **11-10 – 11-13** | **Exam (210 min with ESL +30)** |
 
 ### Plan (revised 2026-09-28 — superseded 10-06 by the sprint plan above — full-set review mode replaces topic-by-topic chapter drills)
@@ -190,10 +221,10 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 
 | Metric | Value |
 |--------|-------|
-| Course chapters read | 5/18 (Maarek) |
+| Course chapters read | 15/16 (Maarek) — only Exam Prep left (planned 10-14) |
 | Chapter drill questions | 117/166 correct (70.5%) — Udemy 85/124 (69%), TD 32/42 (76%) |
 | Timed tests | TD Set 5: 41.3% → TD Set 3: 56.0% |
-| Labs completed | 5/11 (Maarek) |
+| Labs completed | 10/11 (Maarek) — #354 skipped |
 | Current phase | 2 — Chapter drills + timed baseline |
 | Hours invested | ~30h |
 
