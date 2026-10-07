@@ -5,6 +5,9 @@ Session state: practice-exam/sap/td_review_set_{N}_session.json (shuffled order 
 Export: practice-exam/sap/TD_SAP_Review_Set{N}_Full.md — same layout as TD_SAP_Timed_Set{N}_Full.md, so
 build_test_review.py / verify_test_review.py work unchanged. Q numbers = shuffled position.
 
+A named set (e.g. `--set mixed_unseen_mock_1`) reads `{name}_source.md` (same TD layout), keeps state in
+`{name}_session.json` and exports `{name}_export.md`; it has no drill-seen list.
+
 Usage (run from practice-exam/sap/):
   python3 review_set_session.py init   --set 1 [--seed 7] [--force]
   python3 review_set_session.py show   --set 1 --block 1
@@ -85,8 +88,8 @@ def parse_source(path: Path) -> dict:
     return questions
 
 
-def seen_in_drills(set_no: int, progress: Path) -> list:
-    if not progress.exists():
+def seen_in_drills(set_no, progress: Path) -> list:
+    if not isinstance(set_no, int) or not progress.exists():
         return []
     found = re.findall(rf"^\| TD{set_no}:Q(\d+) ", progress.read_text(encoding="utf-8"), re.M)
     return sorted({int(x) for x in found})
@@ -96,8 +99,11 @@ class Session:
     def __init__(self, set_no: int, base: Path):
         self.set_no = set_no
         self.base = base
-        self.path = base / f"td_review_set_{set_no}_session.json"
-        self.questions = parse_source(base / f"SAP-Review-Mode-Set-{set_no}.md")
+        named = not isinstance(set_no, int)
+        self.label = set_no if named else f"TD{set_no}"
+        self.path = base / (f"{set_no}_session.json" if named else f"td_review_set_{set_no}_session.json")
+        self.export_path = base / (f"{set_no}_export.md" if named else f"TD_SAP_Review_Set{set_no}_Full.md")
+        self.questions = parse_source(base / (f"{set_no}_source.md" if named else f"SAP-Review-Mode-Set-{set_no}.md"))
         self.data = json.loads(self.path.read_text(encoding="utf-8")) if self.path.exists() else None
 
     def require(self):
@@ -136,7 +142,7 @@ def cmd_init(s: Session, args):
               "revealed_blocks": []}
     s.save()
     blocks = (len(order) + BLOCK - 1) // BLOCK
-    print(f"Session created: TD Set {s.set_no}, {len(order)} questions, {blocks} blocks, "
+    print(f"Session created: {s.label}, {len(order)} questions, {blocks} blocks, "
           f"{len(s.data['seen'])} seen in drills: {s.data['seen']}")
 
 
@@ -195,7 +201,7 @@ def cmd_reveal(s: Session, args):
     for pos in positions:
         q, ok = s.question_at(pos), s.is_correct(pos)
         seen = " 🔁seen" if s.seen(pos) else ""
-        print(f"## Q{pos} (TD{s.set_no}:Q{q.number}) — {'✅' if ok else '❌'}{seen} · {q.domain}")
+        print(f"## Q{pos} ({s.label}:Q{q.number}) — {'✅' if ok else '❌'}{seen} · {q.domain}")
         print(f"Picked: {s.data['answers'][str(pos)]} · Correct: {q.answer}")
         if not ok or args.all:
             print(f"\n{q.explanation}\n")
@@ -241,7 +247,7 @@ def cmd_export(s: Session, args):
     for p in positions:
         by_domain[s.question_at(p).domain].append(s.is_correct(p))
     unseen = [p for p in positions if not s.seen(p)]
-    lines = [f"# Review Mode Set {s.set_no} – AWS Certified Solutions Architect Professional (Tutorials Dojo)", "",
+    lines = [f"# Review Mode {'Set ' + str(s.set_no) if isinstance(s.set_no, int) else s.label} – AWS Certified Solutions Architect Professional (Tutorials Dojo)", "",
              f"**Kết quả:** {right}/{total} câu đúng ({right / total:.2%}) — {'✅ Đạt' if right / total >= 0.75 else '❌ Chưa đạt'}",
              "", f"**Unseen only:** {rate(s.is_correct(p) for p in unseen)} · **Mode:** review, blocks of {BLOCK} · "
              f"**Date:** {s.data['created']}", "", "## Điểm theo domain", "", "| Domain | Tỉ lệ đúng |", "|---|---|"]
@@ -263,7 +269,7 @@ def cmd_export(s: Session, args):
             lines.append(f"- **{letter}.** {flat}{tags}")
         lines += ["", f"> **Bạn chọn:** {', '.join(picked)}  ", f"> **Đáp án đúng:** {q.answer}  ",
                   f"> **Kết quả:** {'✅ Đúng' if ok else '❌ Sai'}", "", "### Giải thích", "", q.explanation, "", "---", ""]
-    out = s.base / f"TD_SAP_Review_Set{s.set_no}_Full.md"
+    out = s.export_path
     out.write_text("\n".join(lines), encoding="utf-8")
     print(f"Wrote {out.name}: {right}/{total}; next: test-review on this file")
 
@@ -275,7 +281,8 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in ("init", "show", "record", "reveal", "status", "export"):
         p = sub.add_parser(name)
-        p.add_argument("--set", type=int, required=True)
+        p.add_argument("--set", type=lambda v: int(v) if v.isdigit() else v, required=True,
+                       help="TD set number, or a named set with a {name}_source.md file")
         p.add_argument("--base", type=Path, default=Path("."), help="folder with the TD source files")
         if name == "init":
             p.add_argument("--seed", type=int, default=None)
