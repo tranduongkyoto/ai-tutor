@@ -83,6 +83,62 @@ Which of the following options is the recommended action to meet the company req
 
 🧠 **Rule:** Right-sizing → Compute Optimizer (opt-in, ≥12h data) + CloudWatch agent for memory.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Thousands EC2 (nhiều có high-memory, host DB clusters active/passive)
+        │
+Yêu cầu: phân tích hiệu quả sử dụng resource + ACT (resize) dựa trên kết quả
+        │
+Chưa có baseline nào về cách app dùng DB
+        │
+Ràng buộc: cost-effective
+```
+
+Đáp án đúng: **C — CloudWatch agent (cho memory) + opt-in Compute Optimizer, chờ ≥12h, rightsize theo recommendation**. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+**AWS Compute Optimizer** dùng machine learning phân tích historical utilization và tự sinh ra khuyến nghị rightsizing cho EC2 instance, Auto Scaling group, Lambda function, và EBS volume — đúng yêu cầu "act on recommendations" mà không cần tự dựng dashboard hay phân tích thủ công.
+
+```
+Thousands EC2 (cài CloudWatch agent) ──► Compute Optimizer (opt-in, ML phân tích)
+                                                │ chờ ≥ 12h để có đủ data
+                                                ▼
+                                    Recommendation: under/over-provisioned/optimized
+                                                │
+                                    Rightsize EC2 theo recommendation
+```
+
+Điểm bắt buộc: **Compute Optimizer mặc định chỉ thấy CPU utilization** (từ EC2 metadata có sẵn). Muốn có **memory metrics** — rất quan trọng với "high-memory instances host database clusters" trong đề — phải **cài CloudWatch agent** trên từng instance trước. Đây chính là lý do C liệt kê "Ensure CloudWatch agent is installed" như một bước bắt buộc, không phải chi tiết thừa.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì enable detailed monitoring + tự dựng CloudWatch dashboard thì vẫn phải **tự review thủ công** cho hàng nghìn instance, không có recommendation tự động — không "cost-effective" về effort.
+- **B sai** vì **Systems Manager OpsCenter** chỉ dùng để xem/xử lý operational work items (OpsItems), không phải công cụ phân tích usage pattern hay sinh ra rightsizing recommendation cho EC2.
+- **D sai** vì rightsizing recommendation là tính năng của **Compute Optimizer**, không phải Trusted Advisor; ngoài ra Incident Manager không liên quan và không bắt buộc phải nâng Enterprise Support để dùng nó.
+
+#### So sánh nhanh
+
+| Đáp án | Cơ chế | Có recommendation tự động? | Thấy memory? |
+|---|---|---|---|
+| **C (đúng)** | Compute Optimizer + CloudWatch agent | Có | Có (nhờ agent) |
+| A | CloudWatch dashboard thủ công | Không | Có nhưng phải tự đọc |
+| B | OpsCenter dashboard | Không (sai mục đích service) | — |
+| D | Trusted Advisor + Enterprise Support | Sai service cho rightsizing | — |
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm:** Q8 trong set này hỏi về reporting Lambda memory recommendation (CSV hàng tuần) — đáp án đúng cũng là Compute Optimizer (`ExportLambdaFunctionRecommendations` API), nhưng Anh đã chọn nhầm CloudWatch Lambda Insights ở đó vì Lambda Insights **chỉ monitoring, không sinh recommendation**. Cùng một nguyên lý: Compute Optimizer = nơi duy nhất có "recommended configuration + cost savings" cho EC2, Lambda, ECS Fargate, EBS; CloudWatch (dù là agent, Insights, hay dashboard) chỉ cung cấp **raw metrics**, không tự rightsizing.
+
+#### Quy tắc nhớ cho thi
+
+- **"Phân tích efficiency + rightsize theo recommendation"** → **AWS Compute Optimizer**, opt-in trước, chờ tối thiểu **12 giờ** để có data.
+- **"High-memory instance cần memory metrics"** → Compute Optimizer không tự thấy memory, phải **cài CloudWatch agent** trước.
+- **CloudWatch dashboard / OpsCenter / Trusted Advisor** → đều không tự sinh ra rightsizing recommendation như Compute Optimizer.
+
 ### TD explanation
 
 AWS Compute Optimizer helps you choose the optimal AWS Compute resources for your workloads. Compute Optimizer delivers intuitive and actionable recommendations to help you identify the optimal AWS Compute resources. When you access the AWS Compute Optimizer console for the first time, you are asked to opt-in, using the account that you’re signed in with, before you can use the service.
@@ -141,6 +197,57 @@ What solution would meet these requirements?
 
 🧠 **Rule:** Blockchain + PII → hash on-chain, PII off-chain (DynamoDB).
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Hồ sơ bệnh nhân (PII) ──► cần lưu trên Amazon Managed Blockchain
+                                │
+Yêu cầu: secure + transparent + immutable
+         chia sẻ giữa nhiều private entities (healthcare insurance)
+```
+
+Đáp án đúng: **A — Lambda hash PII rồi ghi on-chain, PII thật lưu off-chain trong DynamoDB**. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+Bản chất blockchain là **immutable** (không xoá/sửa được) và các participant trong network có thể thấy được dữ liệu on-chain — hai đặc điểm này **xung đột trực tiếp** với việc lưu PII thật (right-to-be-forgotten, HIPAA...).
+
+```
+PII thật (tên, hồ sơ...) ──► Lambda hash (SHA-...) ──► Amazon Managed Blockchain (on-chain)
+       │                                                   lưu HASH, immutable, verify được
+       └──► Lambda mã hoá (KMS) ──► Amazon DynamoDB (off-chain)
+                                      lưu PII thật, có thể update/xoá khi cần
+```
+
+Chỉ hash được ghi on-chain → đảm bảo tính **immutable + transparent** (ai cũng verify được bản ghi không bị sửa) mà **không lộ PII thật**. PII thật nằm ở DynamoDB — nơi có thể áp dụng kiểm soát truy cập, mã hoá, và xoá khi cần tuân thủ quy định.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **C sai** vì lưu **toàn bộ patient data** on-chain — blockchain minh bạch với mọi participant trong network, vi phạm ngay privacy/HIPAA, và vì immutable nên không thể xoá dữ liệu nhạy cảm sau này.
+- **D sai** vì "chỉ lưu tên + ID" vẫn là **PII** (name, ID vẫn định danh được cá nhân) — vẫn phải chịu quy định bảo vệ dữ liệu, không nên lưu plaintext on-chain dù nghe có vẻ "ít dữ liệu hơn".
+- **B sai** vì vừa lưu toàn bộ patient data on-chain (sai như C), vừa dùng **"EC2 Arbitrum Nodes"** — không liên quan/không cần thiết với Amazon Managed Blockchain (dịch vụ đã quản lý sẵn hạ tầng), và ALB trước EC2 node không cung cấp authentication/authorization phù hợp cho truy cập dữ liệu.
+
+#### So sánh nhanh
+
+| Đáp án | On-chain lưu gì | Off-chain | Vấn đề |
+|---|---|---|---|
+| **A (đúng)** | Hash của PII | PII thật (DynamoDB, mã hoá) | Không |
+| B | Toàn bộ patient data | — (qua EC2 Arbitrum node) | Lộ PII + kiến trúc sai |
+| C | Toàn bộ patient data | — | Lộ PII, không xoá được |
+| D | Tên + ID (vẫn là PII) | PII còn lại | Vẫn lộ PII định danh được |
+
+#### Lưu ý thực tế
+
+⚠️ **Watch:** Nguyên tắc cố định cho mọi câu về Managed Blockchain + dữ liệu nhạy cảm: **never store raw PII on-chain** vì immutable nghĩa là không xoá được — hễ thấy đáp án nào lưu PII thật (toàn bộ hoặc một phần như tên/ID) trực tiếp lên blockchain, loại ngay dù nghe "ít rủi ro hơn" vì vẫn là PII.
+
+#### Quy tắc nhớ cho thi
+
+- **"Blockchain + PII + transparent/immutable"** → **hash on-chain, dữ liệu thật off-chain** (DynamoDB/S3), dùng Lambda làm cầu nối hash + mã hoá.
+- **Tên, ID cá nhân** → vẫn tính là PII, không bao giờ nên lưu plaintext on-chain.
+- Thấy đáp án thêm thành phần **không chuẩn** (ví dụ "EC2 Arbitrum Nodes" cạnh Managed Blockchain) → thường là chi tiết sai kỹ thuật, loại ngay.
+
 ### TD explanation
 
 Amazon Managed Blockchain is a fully managed service that helps build and manage Web3 applications with blockchain frameworks. With Amazon Managed Blockchain, you can securely transact and share data on a distributed and immutable ledger.
@@ -194,6 +301,61 @@ Which of the following implementations can improve the deployment process?
 ⚠️ **Watch:** Don't keep installing at boot
 
 🧠 **Rule:** Slow boot bootstrap → golden AMI (SSM Automation AWS-CreateImage / Image Builder).
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Custom software framework ──► cài bằng EC2 user data script
+                                     mỗi lần deploy tốn 15-20 phút
+                                     │
+                          Bottleneck trong deployment process
+                                     │
+Yêu cầu: deploy NHANH HƠN để release thường xuyên
+```
+
+Đáp án đúng: **C — SSM Automation + AWS-CreateImage để build custom AMI đã cài sẵn framework, dùng AMI đó làm baseline**. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+Vấn đề gốc là framework bị **cài lại từ đầu mỗi lần boot** thông qua user data — đây chính là phần tốn 15-20 phút. Giải pháp đúng là **loại bỏ bước cài đặt khỏi runtime**, chuyển nó sang **build-time** (tạo AMI một lần, tái sử dụng nhiều lần):
+
+```
+[Một lần] SSM Automation (AWS-CreateImage document)
+    → EC2 chạy cài framework → chụp lại thành Custom AMI
+                                        │
+[Mỗi lần deploy sau] Launch instance từ Custom AMI
+    → framework đã có sẵn, KHÔNG cần cài lại
+    → user data chỉ còn phần config/app-specific, rất nhanh
+```
+
+AWS Systems Manager Automation cung cấp runbook có sẵn (`AWS-CreateImage`) để tự động hoá việc tạo AMI — không cần thao tác console thủ công, và AMI này trở thành "golden image" cho mọi lần deploy tiếp theo.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì chỉ tối ưu **tốc độ tải file** (nén + lưu S3) nhưng bước **giải nén + cài đặt** vẫn chạy mỗi lần — không giải quyết gốc rễ 15-20 phút.
+- **B sai** vì Elastic Beanstalk đơn giản hoá việc deploy application, nhưng **không đụng đến vấn đề thời gian cài framework** — bottleneck vẫn còn nguyên dù chuyển sang Beanstalk.
+- **D sai** vì framework là **dependency bắt buộc** của application (phải cài xong trước khi app chạy) — không thể parallelize cài framework với deploy app, vì app cần framework sẵn sàng trước.
+
+#### So sánh nhanh
+
+| Đáp án | Giải quyết bottleneck 15-20 phút? | Lý do |
+|---|---|---|
+| **C (đúng)** | Có | Cài 1 lần → bake vào AMI → tái sử dụng |
+| A | Không | Vẫn phải unzip + install mỗi lần |
+| B | Không | Chỉ đổi platform deploy, không đổi thời gian cài |
+| D | Không | Framework là dependency, không parallelize được |
+
+#### Lưu ý thực tế
+
+⚠️ **Watch:** Nguyên tắc cần nhớ — **đừng tiếp tục cài đặt ở boot time** nếu bước cài đặt tốn nhiều thời gian và không đổi giữa các lần deploy. Dấu hiệu nhận biết câu hỏi dạng này: "user data script mất X phút" + "muốn deploy nhanh hơn" → luôn nghĩ đến golden AMI (SSM Automation `AWS-CreateImage`, hoặc EC2 Image Builder cho pipeline phức tạp hơn).
+
+#### Quy tắc nhớ cho thi
+
+- **"User data cài dependency tốn nhiều phút" + "muốn deploy nhanh"** → **golden AMI** qua SSM Automation (`AWS-CreateImage`).
+- **Dependency bắt buộc trước khi app chạy** → không thể parallelize với bước deploy app.
+- Beanstalk/CodePipeline chỉ cải thiện **quy trình deploy**, không tự động giảm **thời gian cài đặt** nằm trong user data.
 
 ### TD explanation
 
@@ -253,6 +415,65 @@ Which solution will meet these requirements?
 
 🧠 **Rule:** Split monolith by function → Lambda per component + API Gateway + custom domain.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+.NET monolith REST API ──► 3 EC2 (nhiều AZ)
+         │
+Route 53 (multi-value answer) ──► round-robin tới 3 EC2
+         │
+Một số function TỐN resource hơn hẳn function khác (uneven usage)
+Traffic không đều, unresponsive lúc peak
+         │
+Yêu cầu: cost-effective + ÍT operational overhead nhất
+```
+
+Đáp án đúng: **D — tách API thành nhiều Lambda function theo component, dùng API Gateway REST API làm interface, custom domain trỏ cùng domain cũ qua Route 53**. Anh chọn đúng D.
+
+#### Vì sao D đúng
+
+Vấn đề cốt lõi: trong kiến trúc monolith trên EC2, **tất cả function dùng chung instance** — nếu một function (tốn nhiều resource) bị quá tải, phải scale **toàn bộ** instance (bao gồm cả các function nhẹ khác), gây lãng phí và vẫn unresponsive lúc peak.
+
+```
+Trước (monolith):
+  EC2 ──► [Function A (nhẹ) | Function B (nặng) | Function C (nhẹ)]
+         scale instance = scale luôn cả A, B, C cùng lúc
+
+Sau (Lambda theo component):
+  API Gateway ──► Lambda A (nhẹ, scale riêng)
+             ──► Lambda B (nặng, scale riêng theo đúng nhu cầu)
+             ──► Lambda C (nhẹ, scale riêng)
+```
+
+Mỗi Lambda tự scale độc lập theo đúng tải của chính nó, trả tiền theo request thực tế (pay-per-use) — tối ưu cả cost và operational overhead so với việc quản lý EC2/ASG. Yêu cầu "giữ nguyên domain name" được đáp ứng bằng cách **cấu hình custom domain trên API Gateway**, rồi chỉ cần update Route 53 record trỏ sang domain đó — client bên ngoài không nhận thấy khác biệt.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì vẫn giữ kiến trúc **monolith trên EC2** — ASG + ALB chỉ scale toàn bộ instance, không tách riêng được function nặng khỏi function nhẹ, vẫn lãng phí resource khi chỉ một phần app bị quá tải.
+- **B sai** vì **Global Accelerator** giải quyết vấn đề performance/availability cho **user toàn cầu** qua AWS backbone network — đề bài không có yêu cầu đó, thêm Global Accelerator chỉ tăng cost và complexity không cần thiết.
+- **C sai** vì **EKS + Kubernetes Ingress** đem lại operational overhead rất cao (quản lý cluster, Ingress controller...) — ngược hẳn với yêu cầu "least operational overhead"; Spot Instances cũng không phù hợp nếu workload không chịu được gián đoạn.
+
+#### So sánh nhanh
+
+| Đáp án | Scale theo function riêng? | Operational overhead |
+|---|---|---|
+| **D (đúng)** | Có (mỗi Lambda tự scale) | Thấp nhất (serverless) |
+| A | Không (scale cả instance) | Trung bình (quản lý ASG/ALB) |
+| B | Không | Cao hơn (thêm Global Accelerator không cần) |
+| C | Có (pod-level) nhưng rất phức tạp | Cao nhất (quản lý Kubernetes) |
+
+#### Lưu ý thực tế
+
+⚠️ **Watch:** Chi tiết dễ bỏ sót — khi tách monolith thành Lambda, phải **giữ nguyên domain cũ** cho client. Cách làm chuẩn là cấu hình **custom domain trên API Gateway** rồi update Route 53 record trỏ vào đó, không phải để client gọi trực tiếp API Gateway default endpoint.
+
+#### Quy tắc nhớ cho thi
+
+- **"Một số function tốn resource nhiều hơn hẳn" + "cost-effective, ít overhead"** → tách monolith thành **Lambda theo từng component** + API Gateway.
+- **Giữ nguyên domain khi migrate sang serverless** → **custom domain trên API Gateway** + update Route 53 record.
+- **Không có yêu cầu global traffic** → đừng thêm Global Accelerator; **không cần container orchestration phức tạp** → đừng chọn EKS khi mục tiêu là giảm overhead.
+
 ### TD explanation
 
 AWS Lambda is a serverless compute service that lets you run your code without provisioning or managing servers. It executes your code only when needed and scales automatically, from a few requests per day to thousands per second. Amazon API Gateway is a fully managed service that makes it easy to create, publish, maintain, monitor, and secure APIs at any scale. It acts as a “front door” for applications to access data, business logic, or functionality from your backend services, such as Lambda functions, web applications, or real-time communication services. In combination, Lambda and API Gateway provide a powerful, scalable, and cost-effective solution to build and expose APIs without the need for server management.
@@ -308,6 +529,63 @@ Which of the following implementations will improve the reliability and scalabil
 ⚠️ **Watch:** ⚠️ Same service you missed in Q10 (VPC endpoint + EIP detail)
 
 🧠 **Rule:** SFTP to S3 → AWS Transfer Family; point Route 53 record at server endpoint.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Custom SFTP server trên EC2 (public subnet)
+      │
+sftp.tutorialsdojo.com (Route 53) ──► trỏ vào server
+      │
+Cron job trên EC2 ──► đẩy file lên S3 data lake (terabytes)
+      │
+Yêu cầu: cải thiện RELIABILITY + SCALABILITY của SFTP server
+```
+
+Đáp án đúng: **B — dùng AWS Transfer for SFTP làm server, update Route 53 trỏ vào server endpoint hostname**. Anh chọn đúng B.
+
+#### Vì sao B đúng
+
+**AWS Transfer Family** là managed service chuyên cho SFTP/FTPS/FTP, chuyển dữ liệu trực tiếp vào S3 hoặc EFS — không cần tự quản lý EC2, không cần tự viết cron job đồng bộ:
+
+```
+Partners ──SFTP──► AWS Transfer Family server endpoint
+                            │
+                   (managed, auto scaling, redundant fleet, hỗ trợ tới 3 AZ)
+                            │
+                            ▼
+                      Amazon S3 data lake (trực tiếp, không cần cron job)
+```
+
+Transfer Family **tự quản lý availability và scaling** (được backed bởi "auto scaling, redundant fleet" theo TD explanation) — đúng chính xác yêu cầu "improve reliability and scalability" mà không cần tự dựng hạ tầng. Chỉ cần đổi Route 53 record trỏ vào server endpoint hostname mới.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì dựng NLB + ASG EC2 để tự host SFTP là **giải pháp khả thi nhưng tốn công** — phải tự quản lý fleet, patch, scaling policy — không cần thiết khi Transfer Family đã làm sẵn đúng việc này.
+- **C sai** vì **SFTP dùng TCP** (SSH trên port 22), không phải HTTP/HTTPS — một ALB với HTTPS listener **không thể route traffic SFTP**, sai hoàn toàn về protocol.
+- **D sai** vì **Storage Gateway file gateway** dùng cho kịch bản on-premises cần đẩy data lên AWS qua NFS/SMB — **không có SFTP endpoint** để expose, không áp dụng được cho yêu cầu đề bài.
+
+#### So sánh nhanh
+
+| Đáp án | Đúng protocol? | Managed/tự quản lý | Vấn đề |
+|---|---|---|---|
+| **B (đúng)** | Có (SFTP) | Managed hoàn toàn | Không |
+| A | Có (SFTP qua NLB) | Tự quản lý ASG/EC2 | Nhiều việc hơn cần thiết |
+| C | Sai (HTTPS ≠ SFTP) | — | Sai protocol |
+| D | Không có SFTP endpoint | — | Sai use case |
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm:** Q10 trong set này cũng hỏi về AWS Transfer Family cho SFTP, nhưng với yêu cầu khác — **giữ nguyên Elastic IP và Security Group allowlist theo IP partner**. Ở Q10, Anh đã chọn nhầm phương án dùng **"publicly accessible endpoint"** (endpoint công khai do AWS quản lý network, KHÔNG nằm trong VPC) — loại endpoint này **không gắn được Elastic IP hay Security Group tuỳ chỉnh**. Đáp án đúng của Q10 là tạo server **VPC-hosted, endpoint internet-facing** (nằm trong VPC) — chỉ loại endpoint này mới cho phép associate Elastic IP và custom Security Group. Ở Q60 (câu này), đề bài **không yêu cầu giữ EIP/SG cụ thể**, chỉ cần reliability + scalability, nên dùng server endpoint hostname bình thường (loại server nào cũng có hostname) là đủ — không cần quan tâm đến chi tiết VPC-hosted vs public endpoint.
+
+#### Quy tắc nhớ cho thi
+
+- **"Tự host SFTP trên EC2, muốn giảm quản lý + tăng reliability/scalability"** → **AWS Transfer Family**, đẩy storage vào S3/EFS.
+- **SFTP là TCP** → ALB (HTTP/HTTPS layer 7) không bao giờ phù hợp cho SFTP, chỉ NLB (layer 4) mới route được TCP thô.
+- **Cần giữ nguyên Elastic IP + Security Group** → bắt buộc dùng **VPC-hosted endpoint**, không dùng public endpoint (xem thêm Q10).
+- **Storage Gateway file gateway** = bài toán on-premises → AWS, không phải SFTP server thay thế.
 
 ### TD explanation
 
@@ -391,6 +669,63 @@ Which of the following options is the recommended solution to meet the company�
 
 🧠 **Rule:** Branch-based testing → separate pipeline per branch + CodeBuild tests + separate test account.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+GitHub repo ──► AWS CodePipeline (build stage) ──► artifact ──► S3
+                     │
+Yêu cầu mới (FDD — Feature-Driven Development):
+  1. Pipeline riêng cho feature development
+  2. Feature dev KHÔNG ảnh hưởng production app
+  3. Có stage continuous unit testing
+  4. Dev artifact và prod artifact TÁCH RIÊNG
+  5. Vẫn giữ khả năng integrate dev + prod code
+```
+
+Đáp án đúng: **A — pipeline riêng trigger bởi "feature" branch, stage CodeBuild chạy unit test, stage artifact trong S3 bucket ở testing account riêng**. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+```
+"feature" branch (GitHub) ──► Pipeline RIÊNG (CodePipeline)
+                                      │
+                             CodeBuild: build + unit test
+                                      │
+                             Artifact ──► S3 bucket (testing AWS account — TÁCH)
+                                      │
+            (main/prod branch vẫn chạy pipeline production riêng, không bị đụng)
+```
+
+**Pipeline riêng theo branch "feature"** đáp ứng yêu cầu #1 và #2 — code đang phát triển không chạm vào pipeline/production app đang chạy. **CodeBuild** vốn đã tích hợp sẵn khả năng chạy unit test trong cùng build stage (không cần thêm service khác), đáp ứng yêu cầu #3. **Artifact lưu ở S3 bucket trong một AWS account testing riêng** tách biệt hoàn toàn khỏi artifact production, đáp ứng yêu cầu #4. Vì vẫn dùng cùng repo GitHub (chỉ khác branch), merge feature branch vào main sau này vẫn giữ được khả năng integrate dev/prod code — đáp ứng yêu cầu #5.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **C sai** vì dùng **Lambda function để chạy unit test** — không cần thiết, vì CodeBuild đã có khả năng chạy test ngay trong build stage; thêm Lambda chỉ tăng độ phức tạp không cần thiết.
+- **D sai** vì dùng **Jenkins** thay CodePipeline (không phải managed AWS service, phải tự quản lý Jenkins server) và dùng **AWS Well-Architected Tool** để gửi artifact sang S3 — sai hoàn toàn, Well-Architected Tool chỉ dùng để review architecture risk, không liên quan gì đến việc chuyển artifact.
+- **B sai** vì tạo **repo GitHub riêng** cho feature development — không cần thiết, chỉ cần dùng feature branch trên cùng repo là đủ; tạo repo riêng gây trùng lặp, thêm phức tạp khi cần merge lại. Việc dùng Amazon CodeGuru để review code cũng không nằm trong yêu cầu đề bài; đồng thời staging artifact vào **production AWS account** đi ngược yêu cầu #2 (không ảnh hưởng production).
+
+#### So sánh nhanh
+
+| Đáp án | Trigger | Unit test ở đâu | Artifact lưu ở account nào |
+|---|---|---|---|
+| **A (đúng)** | feature branch | CodeBuild (built-in) | Testing account (tách riêng) |
+| B | repo mới | CodeGuru review + CodeBuild | Production account (sai!) |
+| C | feature branch | Lambda function (dư thừa) | Testing account |
+| D | feature "tags" + Jenkins | Jenkins stage | S3 qua Well-Architected Tool (sai tool) |
+
+#### Lưu ý thực tế
+
+⚠️ **Watch:** Đừng để bị đánh lạc hướng bởi các service "nghe có vẻ hợp lý" nhưng sai mục đích — CodeGuru dùng để review/improve code quality (không phải chạy test), Well-Architected Tool dùng để đánh giá rủi ro kiến trúc tổng thể (không phải pipeline artifact tool). Khi đề chỉ cần "unit test trong build stage", luôn ưu tiên khả năng **built-in của CodeBuild** trước khi nghĩ đến thêm service khác (Lambda, CodeGuru...).
+
+#### Quy tắc nhớ cho thi
+
+- **"Test riêng cho feature branch, không ảnh hưởng production"** → **pipeline riêng theo branch** + artifact ở **AWS account testing riêng**.
+- **"Unit test trong CI/CD"** → luôn ưu tiên **CodeBuild test stage có sẵn**, không cần Lambda hay service ngoài.
+- Thấy **Jenkins** cạnh CodePipeline trong cùng câu hỏi AWS → thường là đáp án sai (AWS managed service luôn được ưu tiên khi khả dụng).
+- **CodeGuru** = code review/quality, **Well-Architected Tool** = architecture risk review — không phải artifact/testing tool.
+
 ### TD explanation
 
 AWS CodePipeline is a continuous delivery service that you can use to model, visualize, and automate the steps required to release your software. You can quickly model and configure the different stages of a software release process. CodePipeline automates the steps required to release your software changes continuously.
@@ -463,6 +798,70 @@ Which solution would meet the requirements?
 
 🧠 **Rule:** Save data before termination → lifecycle hook EC2_INSTANCE_TERMINATING + SSM Automation.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+ASG (10 EC2 cố định) ──behind──► ALB
+      │
+ELB health check ──► phát hiện unhealthy ──► TERMINATE + replace
+      │
+CloudWatch agent trên mỗi EC2 ──► gửi log mỗi 5 phút ──► CloudWatch Logs
+      │
+Vấn đề: log của instance BỊ TERMINATE → KHÔNG recover được
+Yêu cầu: tự động backup log TRƯỚC khi instance bị terminate
+```
+
+Đáp án đúng: **A — lifecycle hook `EC2_INSTANCE_TERMINATING` (default result CONTINUE) + EventBridge rule bắt state `Terminating:Wait` → Lambda gọi `SendCommand` chạy SSM Automation document backup log lên S3**. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+Vấn đề gốc: log gửi theo **batch 5 phút** — nếu instance bị terminate đột ngột, log chưa kịp gửi sẽ **mất vĩnh viễn**. Cần một cơ chế **chặn đứng (pause) quá trình terminate tạm thời** để kịp chạy script backup trước khi instance biến mất hẳn.
+
+```
+ASG quyết định terminate instance
+        │
+   Instance vào state Terminating
+        │ (có lifecycle hook EC2_INSTANCE_TERMINATING)
+        ▼
+   Terminating:Wait  ◄── instance bị GIỮ LẠI ở đây, chưa chết
+        │
+EventBridge rule bắt state này ──► trigger Lambda
+        │
+Lambda gọi SSM SendCommand ──► chạy Automation document
+        │                         (backup log còn lại lên S3)
+        ▼
+CompleteLifecycleAction (default CONTINUE) ──► instance tiếp tục bị terminate
+```
+
+**Lifecycle hook** chính là cơ chế duy nhất của ASG cho phép **tạm giữ instance ở trạng thái "chờ"** trước khi nó biến mất thật sự — đủ thời gian để chạy script backup. Default result là **CONTINUE** (không phải ABANDON) để đảm bảo sau khi hoàn thành backup, quá trình terminate vẫn tiếp tục diễn ra bình thường, không bị kẹt mãi.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **D sai** vì chạy script qua user data + EventBridge bắt state **Terminating** (không có lifecycle hook) — **không đảm bảo** script có đủ thời gian chạy xong trước khi instance bị terminate hẳn; termination có thể diễn ra rất nhanh.
+- **B sai** vì phải **SSH thủ công** vào từng instance để backup — hoàn toàn không scalable khi có nhiều instance hoặc scale in/out thường xuyên; cũng không phải giải pháp tự động.
+- **C sai** vì dùng `CompleteLifecycleAction` với **ABANDON** để pause — nhưng được trigger **sau khi** termination event đã xảy ra (qua OpsCenter remediation runbook), tức là **đã trễ**, termination có thể đã đi quá điểm có thể chặn lại; thêm vào đó OpsCenter (dành cho incident management) là lớp phức tạp không cần thiết cho việc backup log.
+
+#### So sánh nhanh
+
+| Đáp án | Chặn kịp thời trước khi mất log? | Cách trigger | Độ phức tạp |
+|---|---|---|---|
+| **A (đúng)** | Có (lifecycle hook giữ ở Terminating:Wait) | EventBridge + Lambda + SSM | Hợp lý |
+| B | Không (SSH thủ công, không scale) | Thủ công | Không khả thi ở scale lớn |
+| C | Không (trigger sau termination event, có thể đã trễ) | OpsCenter remediation | Thừa phức tạp |
+| D | Không (user data không đảm bảo kịp chạy) | EventBridge bắt state Terminating | Không chắc chắn |
+
+#### Lưu ý thực tế
+
+⚠️ **Watch:** Default result của lifecycle hook phải là **CONTINUE**, không phải ABANDON — nếu set ABANDON hoặc không complete lifecycle action, instance có thể bị kẹt vĩnh viễn ở trạng thái Terminating:Wait, gây tốn chi phí và cản trở ASG hoạt động bình thường.
+
+#### Quy tắc nhớ cho thi
+
+- **"Chạy script/backup data trước khi ASG terminate instance"** → **lifecycle hook `autoscaling:EC2_INSTANCE_TERMINATING`** + EventBridge rule bắt state `Terminating:Wait` + SSM Automation/SendCommand.
+- **Default result của lifecycle hook** nên là **CONTINUE** để không chặn termination vĩnh viễn.
+- **SSH thủ công** hoặc **trigger sau khi sự kiện đã xảy ra** (không có hook) → luôn là dấu hiệu đáp án sai cho bài toán "capture data trước khi resource biến mất".
+
 ### TD explanation
 
 The EC2 instances in an Auto Scaling group have a path, or lifecycle, that differs from that of other EC2 instances. The lifecycle starts when the Auto Scaling group launches an instance and puts it into service. The lifecycle ends when you terminate the instance, or the Auto Scaling group takes the instance out of service and terminates it.
@@ -531,6 +930,63 @@ Which solution can be used to accomplish this objective with the least amount of
 
 🧠 **Rule:** Org-wide S3 usage/cost insight → S3 Storage Lens (org dashboard + advanced metrics).
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+AWS Organization
+ ├─ Account 1 (Region us-east-1) ── nhiều S3 bucket
+ ├─ Account 2 (Region ap-southeast-1) ── nhiều S3 bucket
+ ├─ ... (hàng trăm account, nhiều Region)
+
+Yêu cầu:
+    - Hiểu storage usage trên TOÀN org (mọi account, mọi region)
+    - Xu hướng lịch sử + so sánh theo thời gian trong 6 THÁNG qua
+    - Ít development overhead NHẤT
+```
+
+Đáp án đúng: **A (S3 Storage Lens với advanced metrics)**. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+**S3 Storage Lens** là dịch vụ phân tích storage ở mức **organization-wide** — nó tự động tổng hợp usage/activity metrics từ tất cả account và Region trong Organization vào một dashboard duy nhất, không cần code gì thêm:
+
+```
+S3 Storage Lens
+    → bật ở cấp Organization (qua AWS Organizations trusted access)
+    → tự gom dữ liệu từ MỌI account + MỌI Region
+    → dashboard có sẵn, chỉ cần "configure" không cần "build"
+    → Advanced metrics tier: lưu lịch sử tới 15 tháng
+```
+
+Vì đề cần nhìn **6 tháng lịch sử** và **free metrics chỉ giữ 14 ngày**, phải chọn **advanced metrics** — đúng như option A nêu rõ "Configure the dashboard to include advanced metrics".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B — Storage Class Analysis:** chỉ phân tích pattern truy cập để gợi ý chuyển storage class (ví dụ Standard → IA), không cho view tổng hợp toàn org, không có lịch sử xu hướng đa account/đa region.
+- **C — IAM Access Analyzer for S3 + QuickSight:** Access Analyzer chỉ soi **permission/policy** của bucket (ai truy cập được), hoàn toàn không liên quan đến storage usage hay cost. Phải tự export CSV rồi dựng QuickSight — development overhead cao, lại sai mục tiêu.
+- **D — S3 Inventory + Trusted Advisor:** Inventory cho metadata object-level (tên file, size, storage class...) nhưng phải tự tổng hợp/aggregate dữ liệu này cho hàng trăm account — rất tốn công. Trusted Advisor chỉ đưa ra khuyến nghị best-practice, không phải công cụ phân tích xu hướng.
+
+| Phương án | Vấn đề |
+|---|---|
+| **A. Storage Lens** | Có sẵn dashboard org-wide, advanced metrics giữ 15 tháng |
+| B. Storage Class Analysis | Không tổng hợp đa account/region, không có lịch sử dài |
+| C. Access Analyzer + QuickSight | Sai domain (permission, không phải usage); overhead cao |
+| D. S3 Inventory + Trusted Advisor | Phải tự aggregate hàng trăm account; Trusted Advisor không phân tích trend |
+
+#### Lưu ý thực tế
+
+- **⚠️ Free metrics chỉ giữ 14 ngày** — nếu đề chỉ hỏi "xem usage hiện tại", free tier có thể đủ; nhưng hễ đề nói "lịch sử nhiều tháng" / "so sánh theo thời gian" → luôn cần **advanced metrics** (có phí).
+- Storage Lens phải được kích hoạt ở cấp Organization (trusted access) để thấy được dữ liệu của tất cả account thành viên, không chỉ account đang đăng nhập.
+
+#### Quy tắc nhớ cho thi
+
+- **"Nhiều account, nhiều Region" + "usage trend/history" + "least dev overhead"** → **S3 Storage Lens**
+- **"Lịch sử > 14 ngày"** → bắt buộc **advanced metrics**
+- **Access Analyzer for S3** → chỉ về **permission**, không phải cost/usage
+- **S3 Inventory** → metadata object-level, không tự tổng hợp đa account
+
 ### TD explanation
 
 Amazon S3 Storage Lens is a cloud-storage analytics feature that you can use to gain organization-wide visibility into object-storage usage and activity. You can use S3 Storage Lens metrics to generate summary insights, such as finding out how much storage you have across your entire organization or which are the fastest-growing buckets and prefixes.
@@ -588,6 +1044,64 @@ Which of the following options is the MOST operationally efficient solution?
 ⚠️ **Watch:** Per-account trails miss new accounts
 
 🧠 **Rule:** Org-wide auditing → organization trail in management account.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+AWS Organization (management account)
+ ├─ Account A (business unit 1)
+ ├─ Account B (business unit 2)
+ ├─ Account C (business unit 3)
+ ├─ ... account MỚI sẽ được thêm theo thời gian
+
+Yêu cầu: CloudTrail phải được bật ở
+    - TẤT CẢ account hiện có
+    - TẤT CẢ account tương lai (tự động, không cần thao tác thủ công)
+Tiêu chí: MOST operationally efficient
+```
+
+Đáp án đúng: **A (organizational trail trong management account)**. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+**Organizational trail** là loại trail đặc biệt tạo từ management account (hoặc delegated admin), tự động áp dụng cho **mọi account hiện tại + mọi account được thêm vào sau này**:
+
+```
+Management account
+    → Create trail → chọn "apply to organization"
+    → Trail được push xuống TẤT CẢ member account hiện có
+    → Account MỚI gia nhập Organization
+        → trail tự động enable, KHÔNG cần thao tác gì thêm
+    → Log file của mọi account gộp vào MỘT S3 bucket trung tâm
+```
+
+Không cần script, không cần Lambda định kỳ kiểm tra — đây chính là lý do "most operationally efficient": một lần cấu hình, vận hành vĩnh viễn.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B — Script EC2 periodic check:** phải tự maintain EC2 instance 24/7, viết code kiểm tra account mới, tốn chi phí vận hành liên tục, và có khoảng trễ (periodic) nên account mới có thể "lọt lưới" một thời gian trước khi được áp trail.
+- **C — EventBridge + Lambda periodic check:** cùng bản chất với B nhưng dùng serverless — vẫn phải code, vẫn chạy theo chu kỳ nên không đảm bảo tức thời, phức tạp không cần thiết khi AWS đã có giải pháp native.
+- **D — Tạo trail thủ công từng account + SCP enforce:** thủ công = dễ sai, dễ quên khi có account mới; SCP chỉ ngăn người dùng *tắt* CloudTrail, không tự động *tạo* trail cho account mới.
+
+| Phương án | Tự động cho account mới? | Cần code/script? | Vận hành liên tục? |
+|---|---|---|---|
+| **A. Organizational trail** | Có, ngay lập tức | Không | Không |
+| B. Script EC2 | Không (có delay) | Có | Có (EC2 24/7) |
+| C. EventBridge + Lambda | Không (có delay) | Có | Có |
+| D. Thủ công + SCP | Không | Không | Có (thao tác người) |
+
+#### Lưu ý thực tế
+
+- **⚠️ Per-account trail tạo riêng lẻ sẽ bỏ sót account mới** — đây là trap chính của câu này: các phương án B/C/D đều "vá" cho việc thiếu organizational trail bằng cách polling hoặc làm tay, trong khi AWS đã có cơ chế native xử lý việc này ngay từ đầu.
+- Organizational trail chỉ tạo được từ **management account** hoặc **delegated administrator account** — account thành viên thường không tự tạo được loại trail này.
+
+#### Quy tắc nhớ cho thi
+
+- **"Nhiều account hiện tại + account tương lai" + "audit toàn Organization"** → **organizational trail ở management account**
+- **"MOST operationally efficient"** → luôn ưu tiên giải pháp **native, tự động**, không cần script/polling
+- SCP → chỉ **ngăn chặn** hành vi (deny), không tự **tạo** resource
 
 ### TD explanation
 
@@ -651,6 +1165,65 @@ What would be the most effective approach to implement this policy with minimal 
 
 🧠 **Rule:** Org-wide guardrail → SCP at root OU denying IAM actions for non-supervisory principals.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+AWS Organizations
+ ├─ Root OU
+ │   ├─ Account 1
+ │   ├─ Account 2
+ │   ├─ ... (nhiều account)
+
+Chính sách công ty:
+    - CHỈ supervisory role được chạy IAM action
+    - Non-supervisory role → KHÔNG được chạy IAM action
+    - Áp dụng cho TẤT CẢ account trong Organization
+Tiêu chí: minimal administrative effort
+```
+
+Đáp án đúng: **C (SCP tại root OU, deny IAM actions cho non-supervisory)**. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+**SCP (Service Control Policy)** đặt tại **root OU** sẽ tự động áp dụng cho **mọi account** nằm dưới root — không cần làm việc này ở từng account riêng lẻ:
+
+```
+Root OU
+    └─ SCP: deny iam:* khi principal KHÔNG phải supervisory role
+         │
+         ├─ Account 1 ── tự động nhận policy
+         ├─ Account 2 ── tự động nhận policy
+         └─ ... mọi account con, mọi OU con đều inherit
+```
+
+SCP quy định **giới hạn permission tối đa** (maximum available permissions) cho account — dù IAM policy của user/role trong account có cho phép IAM action, SCP deny vẫn luôn thắng. Đặt ở root = một lần cấu hình, phủ toàn bộ Organization = đúng "minimal administrative effort".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A — Một IAM role chung cho supervisory, gán ở mọi account:** chỉ *cấp quyền* cho supervisory, nhưng **không hề chặn** các role/user khác chạy IAM action — không đáp ứng yêu cầu "restrict non-supervisory roles".
+- **B — IAM permissions boundary:** permissions boundary dùng để **giới hạn quyền tối đa khi delegate** việc tạo IAM entity (ví dụ cho phép user A tạo role nhưng không vượt quá boundary), không phải cơ chế để "chỉ định ai được chạy IAM action" theo kiểu role-based org-wide.
+- **D — Gán SCP trực tiếp cho IAM user từng account:** **SCP không thể gán cho user** — SCP chỉ áp dụng ở cấp Organization/OU/account, không áp cho từng identity. Đây là lựa chọn sai về kỹ thuật (technically invalid), không chỉ là kém hiệu quả.
+
+| Phương án | Vấn đề |
+|---|---|
+| **C. SCP tại root OU** | Đúng cơ chế, phủ toàn Organization, 1 lần cấu hình |
+| A. IAM role chung | Không restrict non-supervisory |
+| B. Permissions boundary | Sai mục đích sử dụng (dùng để delegate, không để chặn role) |
+| D. SCP gán cho user | Sai kỹ thuật — SCP không gán được cho user |
+
+#### Lưu ý thực tế
+
+- **⚠️ SCP không bao giờ gán trực tiếp cho user/role** — chỉ gán cho Organization, OU, hoặc account. Đây là điểm hay bị nhầm vì SCP "giống" IAM policy về cú pháp JSON nhưng khác hoàn toàn về nơi áp dụng.
+- SCP không cấp quyền (không thể "allow" thêm permission ngoài IAM), nó chỉ **giới hạn** — vẫn cần IAM policy riêng cấp quyền thật cho supervisory role.
+
+#### Quy tắc nhớ cho thi
+
+- **"Áp policy cho TẤT CẢ account trong Organization, minimal effort"** → **SCP ở root OU**
+- **"SCP gán cho user/role trực tiếp"** → luôn là bẫy sai, SCP chỉ gán Org/OU/account
+- **Permissions boundary** → delegate quyền tạo IAM entity, KHÔNG phải cơ chế role-based access control toàn org
+
 ### TD explanation
 
 AWS Service Control Policies (SCPs) are a type of policy that you can use to manage permissions in your organization. SCPs offer central control over the maximum available permissions for all accounts in your organization, allowing you to ensure your accounts stay within your organization’s access control guidelines. By applying the SCP at the root OU level, it ensures that the policy is enforced across all accounts in the organization, which aligns with the company’s policy.
@@ -702,6 +1275,62 @@ Which set of actions will satisfy the requirements?
 ⚠️ **Watch:** ⚠️ Same concept you MISSED in Q16 (picked RAM there) — review both together
 
 🧠 **Rule:** Org cost breakdown → CUR in management account → S3 → QuickSight dashboard.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+AWS Organization
+ ├─ OU 1 ── hàng ngàn account
+ ├─ OU 2 ── hàng ngàn account
+ ├─ ... 
+
+Mỗi OU cần: xem & phân tích breakdown chi tiết
+            AWS usage + cost của các account thành viên
+```
+
+Đáp án đúng: **B (CUR ở management account → S3 → QuickSight dashboard)**. Anh chọn đúng B.
+
+#### Vì sao B đúng
+
+**AWS Cost and Usage Report (CUR)** là báo cáo cost/usage chi tiết nhất của AWS (breakdown theo hour/day/month, theo product, theo resource, theo tag...). Luồng đúng:
+
+```
+Management account
+    → Tạo MỘT CUR duy nhất (gom dữ liệu billing của TẤT CẢ member account)
+    → CUR delivery → S3 bucket trung tâm
+    → Import vào Amazon QuickSight
+        → dựng dashboard, filter/breakdown theo OU hoặc theo account
+        → chia sẻ dashboard cho từng OU xem đúng phần của họ
+```
+
+Tạo **một** CUR ở management account là cách đơn giản nhất để đảm bảo dữ liệu đầy đủ cho mọi account — QuickSight sau đó lọc/breakdown theo OU mà không cần tạo nhiều report rời rạc.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A — Trusted Advisor tạo CUR + CloudWatch Dashboard:** **Trusted Advisor không có khả năng tạo CUR** — nó chỉ đưa ra khuyến nghị best-practice (cost, security, performance...), sai hoàn toàn về dịch vụ.
+- **D — Systems Manager OpsCenter tạo CUR:** OpsCenter dùng để quản lý/giải quyết operational issue (incident, alert), **không liên quan đến billing/CUR**, sai dịch vụ tương tự A.
+- **C — Lambda tạo CUR riêng trong từng account + CloudWatch Dashboard:** phức tạp không cần thiết (phải code Lambda, schedule bằng EventBridge, tạo CUR lặp lại ở từng member account) khi chỉ cần MỘT CUR ở management account là đủ. Thêm vào đó, CloudWatch Dashboard có khả năng visualize/phân tích kém hơn QuickSight cho dữ liệu cost chi tiết.
+
+| Phương án | Vấn đề |
+|---|---|
+| **B. CUR (mgmt account) + QuickSight** | Đúng dịch vụ, đơn giản, 1 CUR duy nhất |
+| A. Trusted Advisor | Không tạo được CUR |
+| D. OpsCenter | Không tạo được CUR (sai domain — operational, không phải billing) |
+| C. Lambda tạo CUR từng account | Thừa phức tạp; CloudWatch Dashboard kém hơn QuickSight |
+
+#### Lưu ý thực tế
+
+- **⚠️ Dễ nhầm:** Đây đúng là tình huống Anh **đã trả lời sai ở Q16** (chọn A — dùng AWS RAM để tạo CUR). Cả hai câu cùng pattern "Organization nhiều account/OU, cần cost breakdown theo OU" và cùng đáp án đúng về bản chất: **CUR được tạo Ở MANAGEMENT ACCOUNT** (không phải RAM, không phải Systems Manager, không phải Trusted Advisor), sau đó đưa vào **QuickSight** để dashboard và filter theo OU/account. RAM chỉ share resource kỹ thuật (Transit Gateway, subnet, Aurora cluster...) — **không hề liên quan đến billing/CUR**, đó là bẫy khiến Anh chọn sai ở Q16.
+- Cost allocation tags (nếu đề nhắc) được **activate tại management account**, không phải ở từng member account — một chi tiết khác hay bị hỏi chung với nhóm câu CUR/cost breakdown này.
+
+#### Quy tắc nhớ cho thi
+
+- **"Cost/usage breakdown toàn Organization theo OU/account"** → **CUR tạo ở management account** + **QuickSight** để visualize/filter
+- **"RAM tạo CUR"** → luôn luôn SAI, RAM chỉ share resource kỹ thuật, không đụng billing
+- **"Trusted Advisor / Systems Manager OpsCenter tạo CUR"** → luôn luôn SAI, cả hai không có chức năng này
+- **Cost allocation tags** → activate ở **management account**
 
 ### TD explanation
 
@@ -765,6 +1394,64 @@ Which actions should the Solutions Architect take?
 
 🧠 **Rule:** Cross-account AssumeRole → role's trust policy in A names B's instance role ARN (+ B allows sts:AssumeRole).
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Account A (primary)                  Account B (secondary)
+┌─────────────────────┐              ┌─────────────────────┐
+│ IAM Role (CFN tạo)   │   assume     │ EC2 instance         │
+│                       │ ◄─────────  │  + Instance Profile  │
+│                       │   role      │  (chứa role riêng    │
+└─────────────────────┘              │   của EC2)            │
+                                       └─────────────────────┘
+
+EC2 ở B muốn AssumeRole vào role ở A → bị DENY
+```
+
+Đáp án đúng: **B (sửa trust policy của role trong Account A, thêm ARN role EC2 của B)**. Anh chọn đúng B.
+
+#### Vì sao B đúng
+
+**Trust policy** nằm trên chính IAM role, và nó quyết định **ai được phép assume role đó**. Role được tạo ở Account A → trust policy phải sửa **ở Account A**:
+
+```
+Role trong Account A
+    trust policy:
+        Principal: arn:aws:iam::<Account B>:role/<EC2-instance-role>
+        Action: sts:AssumeRole
+    → EC2 ở B (qua instance profile) giờ được liệt kê là trusted principal
+    → EC2 gọi sts:AssumeRole thành công
+```
+
+Mặc định, role mới tạo **không có statement trust nào** → không ai assume được. Phải chủ động thêm ARN của role gắn trong instance profile của EC2 (Account B) làm principal được tin tưởng, đúng theo nguyên tắc least privilege (chỉ định đích danh role, không mở cho cả account).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **D — Sửa trust policy ở Account B:** sai vị trí hoàn toàn. Trust policy của role được **quản lý tại account sở hữu role** (ở đây là A), không phải account đi assume (B). Sửa ở B không có tác dụng gì với role nằm ở A.
+- **C — Trust policy ở A nhưng allow từ root principal của B:** kỹ thuật có chạy được, nhưng vi phạm **least privilege** — cho phép *bất kỳ* identity nào trong toàn bộ Account B assume role, không chỉ riêng EC2 instance role cần thiết. Rủi ro bảo mật cao hơn mức cần.
+- **A — Thêm CAPABILITY_IAM/CAPABILITY_NAMED_IAM trong CloudFormation:** hai capability này chỉ để CloudFormation **được phép tạo/update IAM resource** (role, policy...) — giúp deployment template không bị reject, nhưng **không liên quan gì đến việc fix cross-account trust**. Giải quyết sai vấn đề.
+
+| Phương án | Vị trí sửa | Phạm vi trust | Đúng/Sai |
+|---|---|---|---|
+| **B. Trust policy ở A, named ARN** | A (nơi role tồn tại) | Chỉ đúng role EC2 cần | Đúng, least privilege |
+| C. Trust policy ở A, root principal B | A | Toàn bộ Account B | Chạy được nhưng quá rộng |
+| D. Trust policy ở B | B (sai account) | — | Không có hiệu lực |
+| A. CAPABILITY_IAM/NAMED_IAM | Template CFN | — | Không liên quan trust |
+
+#### Lưu ý thực tế
+
+- **⚠️ Luôn nhớ: trust policy được chỉnh sửa tại account SỞ HỮU role**, không phải account đi gọi AssumeRole. Đây là bẫy lặp lại nhiều lần trong các câu cross-account IAM — rất dễ nhầm hướng vì trực giác hay nghĩ "cấu hình phía người gọi".
+- Dù C "chạy được", đề luôn ưu tiên phương án tuân thủ least privilege khi có nhiều lựa chọn kỹ thuật khả dụng.
+
+#### Quy tắc nhớ cho thi
+
+- **"EC2/role ở account B cần assume role ở account A"** → sửa **trust policy của role trong A**, chỉ định ARN cụ thể của role/EC2 ở B
+- **"Trust policy ở account B"** → luôn SAI, trust policy luôn nằm ở nơi role được tạo
+- **"Root principal của account khác"** → kỹ thuật đúng nhưng vi phạm least privilege, không phải lựa chọn tối ưu khi có phương án cụ thể hơn
+- **CAPABILITY_IAM / CAPABILITY_NAMED_IAM** → chỉ cho phép CFN tạo IAM resource, không liên quan cross-account trust
+
 ### TD explanation
 
 IAM Roles and Cross-Account Access: An IAM role is an IAM identity that you can create in your account that has specific permissions. An IAM role is similar to an IAM user in that it is an AWS identity with permission policies that determine what the identity can and cannot do in AWS. However, instead of being uniquely associated with one person, a role is intended to be assumed by anyone who needs it. Also, a role does not have standard long-term credentials such as a password or access keys associated with it. Instead, when you assume a role, it provides you with temporary security credentials for your role session.
@@ -824,6 +1511,69 @@ Which of the following options will meet the specified requirements while minimi
 ⚠️ **Watch:** No long-lived access keys
 
 🧠 **Rule:** CI/CD from GitHub → IAM OIDC identity provider + role trusting sts:AssumeRoleWithWebIdentity.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+GitHub Actions (CI/CD)                     AWS
+┌─────────────────────┐                    ┌─────────────────────┐
+│ Workflow deploy      │ ── hiện tại ────►  │ IAM user + access key│
+│                       │   (static key)     │ (S3 permissions)     │
+└─────────────────────┘                    └─────────────────────┘
+
+Yêu cầu sau audit:
+    - Bỏ static access key
+    - Dùng credential DYNAMIC, SHORT-LIVED
+    - Tự động hóa việc lấy credential cho GitHub Actions
+    - Minimal operational overhead
+```
+
+Đáp án đúng: **C (OIDC Identity Provider cho GitHub + role trust sts:AssumeRoleWithWebIdentity)**. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+**IAM OIDC Identity Provider** cho phép AWS **tin tưởng trực tiếp GitHub** làm identity provider, không cần lưu secret nào ở phía GitHub:
+
+```
+AWS IAM
+    → Tạo OIDC IdP, liên kết với GitHub (token.actions.githubusercontent.com)
+    → Tạo IAM role
+        trust policy: cho phép sts:AssumeRoleWithWebIdentity
+                       từ GitHub OIDC IdP (điều kiện theo repo/branch)
+    → GitHub Actions workflow
+        → tự động lấy OIDC token từ GitHub
+        → gọi AssumeRoleWithWebIdentity → nhận credential TẠM THỜI
+        → dùng credential đó để deploy, hết hạn sau session
+```
+
+Không có access key tĩnh nào được lưu trữ — mỗi lần workflow chạy, GitHub tự phát hành token và AWS tự verify/đổi lấy credential ngắn hạn. Đây là giải pháp native, ít vận hành nhất, đúng best practice hiện tại cho CI/CD.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B — IAM Identity Center tích hợp GitHub:** IAM Identity Center được thiết kế cho **xác thực người dùng (human)** qua web login tương tác — không hỗ trợ workload-to-workload (machine-to-machine) authentication như GitHub Actions cần.
+- **D — Cognito OIDC IdP + user pool:** Cognito user pool cũng nhằm vào **xác thực người dùng cuối của app**, không phải cơ chế dành cho service-to-service như CI/CD pipeline; thêm Cognito vào giữa chỉ tạo phức tạp dư thừa không cần thiết.
+- **A — Chỉ dùng STS phát credential tạm:** STS đúng là nơi phát temporary credential, nhưng **không tự nó định nghĩa cách GitHub Actions liên kết với role nào** — thiếu phần OIDC trust để biết "ai" (GitHub) được phép gọi AssumeRole. Thiếu cơ chế liên kết cụ thể.
+
+| Phương án | Có OIDC trust với GitHub? | Dành cho machine-to-machine? | Đúng/Sai |
+|---|---|---|---|
+| **C. OIDC IdP + AssumeRoleWithWebIdentity** | Có | Có | Đúng |
+| A. Chỉ STS | Không rõ liên kết | Không đủ | Thiếu cơ chế |
+| B. IAM Identity Center | Không | Không (dành cho human login) | Sai |
+| D. Cognito OIDC | Có (nhưng sai đối tượng) | Không (dành cho end-user app) | Sai mục đích |
+
+#### Lưu ý thực tế
+
+- **⚠️ Không có access key tĩnh nào lưu trong GitHub Secrets** — đây chính là mục tiêu bảo mật của audit: loại bỏ long-lived credential hoàn toàn, thay bằng token ngắn hạn phát theo từng lần chạy workflow.
+- IAM Identity Center và Cognito đều là các dịch vụ identity hợp lệ của AWS nhưng **sai đối tượng sử dụng** (human users / app end-users) — không phải cơ chế dành cho CI/CD workload authentication.
+
+#### Quy tắc nhớ cho thi
+
+- **"GitHub Actions / CI pipeline cần credential AWS, bỏ static key"** → **IAM OIDC Identity Provider + role trust sts:AssumeRoleWithWebIdentity**
+- **"IAM Identity Center"** → dành cho con người đăng nhập tương tác, KHÔNG dùng cho workload CI/CD
+- **"Cognito user pool"** → dành cho end-user của application, KHÔNG dùng cho service-to-service
+- **"Chỉ nói STS mà không nói OIDC IdP + trust policy"** → thiếu chi tiết quan trọng, chưa đủ để giải quyết bài toán
 
 ### TD explanation
 
@@ -886,6 +1636,60 @@ Which solution in the following options should a solutions architect implement t
 ⚠️ **Watch:** Site-to-Site VPN ≠ remote user VPN
 
 🧠 **Rule:** Remote users + AD + MFA → AWS Client VPN with AD Connector + MFA.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises AD  ◄──── integrate ────  AWS Directory Service
+                                       for Microsoft AD
+
+Employee (bất kỳ đâu trên thế giới)
+    → cần VPN vào VPC để access internal app
+    → VPN BẮT BUỘC có MFA
+```
+
+Đáp án đúng: **D (Client VPN + AD Connector, MFA trên AD Connector)**. Anh chọn đúng D.
+
+#### Vì sao D đúng
+
+Yêu cầu là **remote user, cá nhân, từ bất kỳ đâu** → đây là bài toán cho **AWS Client VPN** (client-based VPN), không phải Site-to-Site:
+
+```
+Employee's laptop
+    → AWS Client VPN endpoint (OpenVPN-based)
+        → AD Connector (kết nối tới AWS Directory Service / on-prem AD)
+            → MFA enabled trên AD Connector
+    → Xác thực user + MFA thành công → vào VPC → truy cập internal app
+```
+
+**AD Connector** là loại directory service dùng để **kết nối AWS resource với AD on-premises đã tồn tại sẵn** (đúng với tình huống công ty đã integrate AWS Directory Service với on-prem AD). Bật MFA ngay trên AD Connector đảm bảo mọi lần xác thực qua Client VPN đều phải qua bước MFA.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B — Site-to-Site VPN + WorkSpaces MFA:** Site-to-Site VPN dùng để nối **toàn bộ network** (ví dụ văn phòng với VPC), không phải giải pháp cho **từng cá nhân truy cập từ bất kỳ đâu**. Sai loại VPN.
+- **A — VPN CloudHub + AWS Copilot:** VPN CloudHub dùng cho **nhiều kết nối Site-to-Site** (hub giữa các site văn phòng), không giải quyết remote individual access; "AWS Copilot" (công cụ cho container deployment) hoàn toàn không liên quan đến thiết lập VPN — option này vừa sai use case vừa sai dịch vụ.
+- **C — Client VPN qua AWS Direct Connect:** Direct Connect là **kết nối mạng chuyên dụng** (dedicated network link) giữa on-prem và AWS, không phải cơ chế để "thiết lập hoặc quản lý" VPN connection; dùng Direct Connect cho mục đích này là không hợp lý (unconventional), không phải cách tích hợp Client VPN chuẩn.
+
+| Phương án | Loại VPN | Phù hợp remote user cá nhân? | Đúng/Sai |
+|---|---|---|---|
+| **D. Client VPN + AD Connector + MFA** | Client-based | Có | Đúng |
+| A. VPN CloudHub + Copilot | Site-to-Site (hub) | Không | Sai (+ Copilot không liên quan) |
+| B. Site-to-Site + WorkSpaces | Site-to-Site | Không | Sai loại VPN |
+| C. Client VPN qua Direct Connect | Client-based nhưng sai cơ chế kết nối | Không hợp lý | Sai cách tích hợp |
+
+#### Lưu ý thực tế
+
+- **⚠️ Site-to-Site VPN ≠ remote user VPN** — đây là điểm phân biệt cốt lõi của câu này: hễ đề nói "nhân viên truy cập từ bất kỳ đâu/cá nhân" → luôn là **Client VPN**, không phải Site-to-Site (dù Site-to-Site vẫn là giải pháp hợp lệ cho việc nối hai network cố định).
+- MFA trong kịch bản AD Connector được bật **trên chính AD Connector** (liên kết với RADIUS MFA của on-prem AD), không phải trên WorkSpaces hay trên bản thân Client VPN endpoint riêng lẻ.
+
+#### Quy tắc nhớ cho thi
+
+- **"Remote user + AD + MFA + truy cập từ bất kỳ đâu"** → **AWS Client VPN + AD Connector + MFA**
+- **"Site-to-Site VPN / VPN CloudHub"** → chỉ dùng khi nối **network với network** (site cố định), không phải cho user cá nhân
+- **"Direct Connect"** → kết nối mạng chuyên dụng, không phải cơ chế thiết lập VPN connection
+- Thấy công cụ **không liên quan** (ví dụ "AWS Copilot" trong câu về VPN) → loại ngay, đó là chi tiết gây nhiễu rõ rệt
 
 ### TD explanation
 
@@ -967,6 +1771,66 @@ Which of the following options achieves these requirements in the most cost-effe
 
 🧠 **Rule:** Per-account spend alerts → AWS Budgets (filters per account) in mgmt account + Cost Explorer reports.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+AWS Organization (management account)
+ ├─ Account dept A
+ ├─ Account dept B
+ ├─ ... 
+
+Yêu cầu:
+    - Mỗi department head: email alert khi spend vượt threshold
+    - Mỗi department head: báo cáo billing HÀNG THÁNG
+    - Giải pháp: CENTRALIZED + cost-effective NHẤT
+```
+
+Đáp án đúng: **D (AWS Budgets với budget filter ở management account + Cost Explorer cho report)**. Anh chọn đúng D.
+
+#### Vì sao D đúng
+
+Yêu cầu có 2 phần tách biệt rõ ràng: **alert** và **report** — mỗi phần dùng đúng công cụ của nó, cả hai đều quản lý tập trung từ **management account**:
+
+```
+Management account
+    ├─ AWS Budgets
+    │     → tạo budget riêng cho MỖI member account (dùng budget filter theo linked account)
+    │     → vượt threshold → gửi EMAIL notification cho department head tương ứng
+    │
+    └─ AWS Cost Explorer
+          → filter theo linked account
+          → generate monthly billing report cho từng department
+```
+
+Cả hai bước đều thực hiện **một lần, tập trung** ở management account — không cần lặp lại cấu hình ở từng account con, không cần code thêm (Lambda/CUR xử lý) → đúng "centralized, cost-effective".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A — Budgets + Cost Explorer nhưng cấu hình riêng TỪNG account:** về công cụ thì đúng (Budgets cho alert, Cost Explorer cho report), nhưng đây là cách tiếp cận **decentralized** — phải lặp lại cấu hình ở mỗi department account, trái với yêu cầu "centralized".
+- **B — CUR + Lambda trong từng account:** phải code Lambda để phân tích CUR và tự trigger SNS ở **mỗi** account — vừa phức tạp, vừa tốn chi phí (Lambda, xử lý CUR), vừa không centralized.
+- **C — Cost allocation tags (ở management account) + CUR filter theo tag + Lambda ở từng account:** cost allocation tags phù hợp khi cần breakdown **chi tiết theo project/department bằng tag**, nhưng ở đây yêu cầu chỉ là theo dõi **tổng spend theo account** — dùng tag là dư thừa, lại cần maintain việc tag đúng cho mọi resource mới, cộng thêm Lambda ở từng account vẫn decentralized như B.
+
+| Phương án | Centralized? | Cần code (Lambda)? | Đúng công cụ? |
+|---|---|---|---|
+| **D. Budgets (mgmt) + Cost Explorer** | Có | Không | Có |
+| A. Budgets + Cost Explorer (từng account) | Không | Không | Có nhưng sai vị trí |
+| B. CUR + Lambda (từng account) | Không | Có | Thừa phức tạp |
+| C. Cost allocation tags + CUR + Lambda | Một phần (tag ở mgmt) | Có | Dư thừa, sai nhu cầu |
+
+#### Lưu ý thực tế
+
+- **⚠️ Alert = Budgets, reporting = Cost Explorer** — đây là cách phân vai chuẩn: AWS Budgets chuyên về threshold + notification (SNS/email), Cost Explorer chuyên về visualize/generate report định kỳ. Đề thi SAP-C02 rất hay trộn hai nhu cầu này vào một câu để kiểm tra có phân biệt đúng công cụ không.
+- **Budget filter** theo linked account cho phép tạo nhiều threshold khác nhau cho từng department ngay trong **một** management account, không cần vào từng account con để set riêng.
+
+#### Quy tắc nhớ cho thi
+
+- **"Alert khi vượt threshold"** → **AWS Budgets**
+- **"Report định kỳ / breakdown chi phí để xem"** → **AWS Cost Explorer** (hoặc CUR cho chi tiết sâu hơn)
+- **"Centralized + cost-effective cho nhiều account"** → luôn làm ở **management account**, dùng filter theo linked account, KHÔNG lặp cấu hình ở từng account con
+- **"Cost allocation tags"** → chỉ cần khi yêu cầu breakdown theo tag/project, không cần nếu chỉ theo dõi theo account
+
 ### TD explanation
 
 AWS Budgets allows you to set custom budgets to track your AWS spending, and it can alert you via email or SNS notifications if your costs exceed or are projected to exceed your budget. AWS Cost Explorer is a tool that provides detailed information about your AWS costs and usage, enabling you to visualize and understand your spending patterns.
@@ -1028,6 +1892,69 @@ What solution will fulfill these requirements MOST cost-effectively?
 ⚠️ **Watch:** Snapshots/cross-Region replicas can't guarantee sub-minute RPO
 
 🧠 **Rule:** RPO < 1 min cross-Region Aurora → Aurora Global Database (+ CFN to provision DR infra).
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Banking app ──► medium EC2 instances + Aurora PostgreSQL
+      │
+Yêu cầu DR cross-Region:
+  RPO < 1 phút  (mất dữ liệu tối đa 1 phút)
+  RTO ≤ 15 phút (khôi phục xong trong 15 phút)
+      │
+Ràng buộc: MOST cost-effective
+```
+
+Đáp án đúng: **B — CloudFormation để provision DR infra khi cần + Aurora Global Database (primary + secondary read-only) + AWS Elastic Disaster Recovery cho EC2 + Route 53 failover routing**. Anh chọn đúng B.
+
+#### Vì sao B đúng
+
+Yêu cầu khó nhất ở đây là **RPO < 1 phút** — rất chặt, chỉ một số kỹ thuật replication cụ thể đáp ứng được:
+
+```
+Production Region                    DR Region
+┌─────────────────────┐             ┌─────────────────────┐
+│ Aurora primary       │──global DB──│ Aurora secondary     │  RPO < 1 phút
+│ (PostgreSQL)         │  replication│ (read-only)          │  (tốc độ Aurora
+└─────────────────────┘             └─────────────────────┘   Global DB)
+│ EC2 instances        │──AWS DRS────│ (chưa chạy, "pilot    │
+│                       │ replication │  light"/standby)     │
+└─────────────────────┘             └─────────────────────┘
+                                             │
+                     CloudFormation template (chỉ provision khi có disaster)
+                                             │
+                     Route 53 FAILOVER routing policy ──► trỏ traffic sang DR khi cần
+```
+
+**Aurora Global Database** được thiết kế riêng cho disaster recovery cross-Region với replication lag rất thấp (thường dưới 1 giây), đủ đáp ứng RPO < 1 phút. **AWS Elastic Disaster Recovery (DRS)** continuously replicate EC2, cho phép launch lại instance ở DR region nhanh (RTO thấp) mà **không cần chạy đầy đủ hạ tầng song song** — đây chính là yếu tố giữ chi phí thấp hơn so với chạy active-active toàn phần. CloudFormation dùng để **provision hạ tầng còn thiếu (auto-scaling group...) chỉ khi disaster xảy ra**, tránh phải trả tiền duy trì fleet đầy đủ 24/7.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì **active-active ở nhiều region liên tục** — tuy đạt RPO/RTO gần như 0, nhưng đây là phương án **đắt nhất** (chạy full-scale infra song song 24/7 ở ≥2 region) — vi phạm ràng buộc "most cost-effective".
+- **C sai** vì warm standby (1 EC2 + Aurora instance chạy sẵn, có data replication) có thể đạt được RPO/RTO mong muốn về mặt kỹ thuật, nhưng **không có automatic failover** — phải có người can thiệp thủ công để chuyển traffic, làm **tăng RTO thực tế** vượt quá 15 phút.
+- **D sai** vì chỉ dùng **snapshot định kỳ** — đây là phương án rẻ nhất nhưng **restore từ snapshot luôn tốn nhiều thời gian hơn** 15 phút, và RPO phụ thuộc vào tần suất snapshot (chắc chắn không dưới 1 phút).
+
+#### So sánh nhanh
+
+| Đáp án | RPO đạt được? | RTO đạt được? | Cost |
+|---|---|---|---|
+| A. Active-active | Có (gần 0) | Có (gần 0) | Cao nhất |
+| **B. Aurora Global DB + DRS + CFN (đúng)** | Có (< 1 phút) | Có (≤ 15 phút, auto failover) | Hợp lý |
+| C. Warm standby (manual) | Có thể | Không chắc (manual failover) | Thấp hơn B |
+| D. Backup/restore từ snapshot | Không | Không | Thấp nhất |
+
+#### Lưu ý thực tế
+
+⚠️ **Watch:** Nguyên tắc chốt cho câu dạng này — khi RPO/RTO siết rất chặt (ví dụ RPO < 1 phút), **snapshot và cross-Region read replica thông thường** (không phải Aurora Global Database) **không đủ nhanh** để đảm bảo. Phải nhận diện đúng combo "Aurora Global Database" (cho DB, RPO cực thấp) + "AWS Elastic Disaster Recovery" (cho EC2/compute, RTO thấp mà không cần chạy song song liên tục) + "Route 53 failover routing" (tự động chuyển traffic, không cần manual).
+
+#### Quy tắc nhớ cho thi
+
+- **"RPO rất thấp (giây/dưới phút) cho Aurora cross-Region"** → **Aurora Global Database**.
+- **"RTO thấp cho EC2 cross-Region, cost-effective (không active-active)"** → **AWS Elastic Disaster Recovery (DRS)**.
+- **"Tự động failover" = bắt buộc automatic** → **Route 53 failover routing policy**; nếu đáp án chỉ "có thể failover" (manual) → loại.
+- **Snapshot/backup định kỳ** → luôn là phương án rẻ nhất nhưng **RPO/RTO kém nhất** trong nhóm lựa chọn.
 
 ### TD explanation
 
@@ -1095,6 +2022,60 @@ Which of the following options would fulfill the given requirements?
 
 🧠 **Rule:** Replatform web app → Elastic Beanstalk (ALB + ASG) + EFS for shared files + managed DB.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises                              AWS
+┌────────────────────────┐             ┌──────────────────────────────┐
+│ Linux web app + LB      │             │ Elastic Beanstalk (ALB + ASG) │
+│ PostgreSQL database     │  ────────►  │ 3 → 50 EC2 instances          │
+│ Digital assets (NFS)    │             │ KHÔNG được sửa code app       │
+└────────────────────────┘             │ Storage NFS-compatible         │
+                                        │ Database PostgreSQL bền vững   │
+                                        └──────────────────────────────┘
+Yêu cầu chốt: scale 3→50 instance, KHÔNG sửa app, NFS-compatible storage, data integrity/availability
+```
+
+Đáp án đúng là **A**: Amazon EFS (NFS) + AWS Elastic Beanstalk (ALB + ASG) + mount EFS qua `.ebextensions` + Amazon Aurora PostgreSQL riêng biệt. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+- **Amazon EFS**: đúng nghĩa "NFS-compatible storage", hỗ trợ truy cập song song từ hàng ngàn EC2 instance với throughput/IOPS cao, khớp chính xác yêu cầu "robust NFS-compatible storage system for digital assets".
+- **AWS Elastic Beanstalk**: cho phép "replatform" app Linux hiện có lên AWS **mà không cần sửa code** — đây là điểm mấu chốt của yêu cầu "without allowing any modifications to the application". Elastic Beanstalk tự quản lý hạ tầng bên dưới (EC2, ALB, ASG) còn code app giữ nguyên.
+- **Application Load Balancer + Auto Scaling group**: kết hợp này cho phép scale từ 3 → 50 instance theo traffic đỉnh mùa mua sắm, đúng yêu cầu "scale efficiently and seamlessly".
+- **`.ebextensions` config files**: đây là cách chuẩn để tùy biến phần mềm chạy trên EC2 instance của môi trường Elastic Beanstalk — dùng để mount EFS vào các instance mà không cần sửa ứng dụng.
+- **Amazon Aurora (PostgreSQL-compatible)**: đáp ứng yêu cầu database PostgreSQL, đồng thời mang độ bền (durability) và tính khả dụng (availability) tốt hơn RDS PostgreSQL thông thường — khớp yêu cầu "ensure data integrity and availability, safeguarding against data loss".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B sai** vì dùng **EBS Multi-Attach** — EBS **không phải NFS-compatible**, đây là block storage chỉ attach được cho một số lượng instance hạn chế trong cùng AZ, không đáp ứng yêu cầu "NFS-compatible storage" cho digital assets dùng chung.
+- **C sai** vì dùng **EC2 Auto Scaling scale-in lifecycle hook** để mount EFS — lifecycle hook không được thiết kế để mount file system; đây là cơ chế tạm dừng một instance ở trạng thái "Terminating:Wait" hoặc "Pending:Wait" để chạy custom action (ví dụ drain connection), không phải công cụ mount storage.
+- **D sai** vì dùng **S3** cho file storage — S3 là object storage, **không NFS-compatible**; đồng thời chuyển app sang **AWS Lambda** yêu cầu sửa lại code ứng dụng, vi phạm trực tiếp yêu cầu "without allowing any modifications to the application".
+
+#### So sánh nhanh
+
+| Đáp án | Storage | Compute | Có sửa code app? | NFS-compatible? |
+|---|---|---|---|---|
+| **A (đúng)** | EFS | Elastic Beanstalk (ALB+ASG) | Không | Có |
+| B | EBS Multi-Attach | Elastic Beanstalk (NLB+ASG) | Không | Không |
+| C | EFS | Launch template + ASG (NLB) | Không (nhưng mount sai cách) | Có |
+| D | S3 | Lambda | Có (phải sửa code) | Không |
+
+#### Lưu ý thực tế
+
+- **Shared file storage cho web tier**: khi nhiều EC2 instance cần cùng truy cập một tập file (ảnh, nội dung user upload), câu trả lời gần như luôn là **EFS**, vì nó hỗ trợ truy cập đồng thời (massively parallel) từ nhiều instance — EBS (dù có Multi-Attach) không làm được việc này ở quy mô lớn vì Multi-Attach bị giới hạn trong 1 AZ và chỉ dùng tốt cho cluster file system đặc biệt (như GFS2), không phải giải pháp chung cho web tier.
+- Elastic Beanstalk là lựa chọn kinh điển khi đề nói "migrate/replatform mà không sửa code app" cho các framework phổ biến (PHP, Node.js, Python, Java, .NET, Go, Docker).
+
+#### Quy tắc nhớ cho thi
+
+- **"NFS-compatible shared storage cho nhiều EC2"** → **Amazon EFS**
+- **"replatform/migrate web app, KHÔNG sửa code"** → **AWS Elastic Beanstalk** (ALB + ASG tự động)
+- **"mount EFS trên Elastic Beanstalk"** → dùng **`.ebextensions`**, không dùng lifecycle hook
+- **EBS Multi-Attach** → không phải NFS, chỉ phù hợp cluster file system chuyên biệt trong 1 AZ
+- **S3 + Lambda** → object storage + phải sửa code, loại ngay khi đề cấm modify application
+
 ### TD explanation
 
 Amazon Elastic File System (EFS) is a fully managed service that makes it easy to set up and scale file storage in the Amazon Cloud. It’s designed to provide massively parallel shared access to thousands of Amazon EC2 instances, enabling your applications to achieve high levels of aggregate throughput and IOPS with consistent low latencies. This makes it a suitable choice for a robust NFS-compatible storage system for the application’s digital assets.
@@ -1156,6 +2137,59 @@ Which of the following options should the solutions architect implement to meet 
 ⚠️ **Watch:** ⚠️ Same services you missed in Q4 (VM Import) and Q32 (FSx+DataSync)
 
 🧠 **Rule:** Lift VM as-is → VM Import/Export; SMB share → FSx for Windows + DataSync.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises                                  AWS
+┌──────────────────────────┐               ┌───────────────────────────┐
+│ Legacy VMs trên VMware    │  ─────────►   │ Amazon EC2 instances       │
+│ (phải GIỮ NGUYÊN software │               │ (preserve software/config)│
+│  + config)                │               └───────────────────────────┘
+│                            │
+│ Storage server SMB shares  │  ─────────►   ┌───────────────────────────┐
+│ (logging + backup)         │               │ FSx for Windows File Server│
+└──────────────────────────┘               └───────────────────────────┘
+```
+
+Hai nhu cầu tách biệt trong cùng một đề: (1) migrate VM VMware **giữ nguyên software/config**, (2) migrate dữ liệu SMB share. Đáp án đúng là **C**: FSx for Windows + DataSync (cho SMB) kết hợp với VM Import/Export (cho VM). Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+- **AWS DataSync hỗ trợ SMB shares trực tiếp**: DataSync copy được dữ liệu giữa NFS, **SMB shares**, self-managed object storage, S3, EFS, và **FSx for Windows File Server**. Vì storage server trong đề dùng SMB, DataSync là công cụ chuẩn để đồng bộ dữ liệu đó sang AWS.
+- **FSx for Windows File Server là đích phù hợp cho dữ liệu SMB**: vì nó là file system Windows thật, tương thích SMB, phù hợp để làm nơi lưu central logging/backup destination tương đương storage server gốc.
+- **VM Import/Export cho phần VM**: tạo VM image dạng OVF, upload lên S3, dùng VM Import/Export để import thành EC2 instance — quy trình này **giữ nguyên toàn bộ software và cấu hình** đã cài trên VM gốc, đúng yêu cầu "preserve the software and configuration settings of the servers".
+- Hai cơ chế này giải quyết đúng hai phần khác nhau của đề: VM Import/Export lo phần server/VM, DataSync + FSx lo phần dữ liệu SMB.
+
+⚠️ **Dễ nhầm:** Đây là cùng nhóm khái niệm với 2 câu đã sai trước đó — Q4 (VM Import/Export để preserve VM stack khi lift-and-shift) và Q32 (Windows server cần file system thật trong AWS → FSx for Windows + DataSync, **không phải** Storage Gateway File Gateway).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì **AWS Backup chỉ backup được tài nguyên AWS**, không thể tạo AMI từ VM on-premises. SSM hybrid activation chỉ giúp quản lý (patch, automation) server on-prem, không phải công cụ import/migrate VM.
+- **B sai** vì chỉ giải quyết đúng phần VM (VM Import/Export cho VMware VM) nhưng **bỏ sót hoàn toàn phần SMB storage server** — dữ liệu trong SMB share có thể thay đổi liên tục, cần một công cụ đồng bộ chuyên dụng như DataSync, không chỉ export VM.
+- **D sai** vì dùng **Storage Gateway File Gateway** để sync SMB — về mặt kỹ thuật khả thi nhưng không cần thiết, vì AWS DataSync đã là dịch vụ managed chuyên biệt cho việc copy dữ liệu từ SMB share sang AWS, không cần dựng File Gateway ở on-premises làm trung gian.
+
+#### So sánh nhanh
+
+| Đáp án | Xử lý VM (preserve config)? | Xử lý SMB share? |
+|---|---|---|
+| **C (đúng)** | VM Import/Export (đúng) | DataSync → FSx for Windows (đúng) |
+| A | AWS Backup (sai, không hỗ trợ on-prem) | Không đề cập |
+| B | VM Import/Export (đúng) | Bỏ sót |
+| D | Không đề cập đúng cách | File Gateway (thừa, không cần thiết) |
+
+#### Lưu ý thực tế
+
+- ⚠️ **Watch**: đây là bộ 3 câu lặp cùng nhóm kiến thức — khi đề có "VMware VM cần giữ nguyên software/config" → nghĩ ngay **VM Import/Export**; khi đề có "Windows SMB share cần có trong AWS" → nghĩ ngay **FSx for Windows File Server + DataSync**, không phải Storage Gateway File Gateway (File Gateway lưu dữ liệu thật trong S3, không phải Windows file system thật, và dễ gây gián đoạn khi phải dựng lại Windows FS sau này).
+
+#### Quy tắc nhớ cho thi
+
+- **"VMware VM, giữ nguyên software + config"** → **VM Import/Export** (OVF → S3 → `import-image`)
+- **"SMB share cần sync lên AWS"** → **AWS DataSync** (hỗ trợ SMB trực tiếp)
+- **"Windows file system thật trong AWS"** → **FSx for Windows File Server**, không phải File Gateway
+- **AWS Backup** → chỉ backup tài nguyên AWS, không tạo AMI từ VM on-premises
 
 ### TD explanation
 
@@ -1223,6 +2257,55 @@ Which of the following options is the recommended solution that will meet the ab
 
 🧠 **Rule:** Heterogeneous DB migration → AWS SCT (schema) + DMS (data) to RDS.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises                              AWS (managed services)
+┌──────────────────────────┐           ┌──────────────────────────────┐
+│ SQL Server Always On      │           │ Amazon RDS for MySQL         │
+│ cluster (mission-critical)│  ──────►  │ (khác engine → heterogeneous)│
+└──────────────────────────┘           └──────────────────────────────┘
+Yêu cầu: heterogeneous migration (SQL Server → MySQL), ưu tiên managed service
+```
+
+Đáp án đúng là **C**: AWS Schema Conversion Tool (SCT) chuyển schema SQL Server → MySQL, sau đó AWS DMS migrate dữ liệu thực tế vào RDS MySQL. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+- **"Heterogeneous migration"** nghĩa là chuyển đổi **giữa hai database engine khác nhau** (SQL Server → MySQL) — không chỉ copy dữ liệu, mà phải **chuyển đổi schema** trước vì cấu trúc, kiểu dữ liệu, cú pháp giữa hai engine khác nhau.
+- **AWS SCT** chính xác là công cụ dùng để convert schema từ một engine sang engine khác (ở đây từ SQL Server sang MySQL-compatible), trước khi migrate dữ liệu.
+- **AWS DMS** là dịch vụ managed chuyên biệt để migrate dữ liệu thực tế vào RDS, hỗ trợ cả migration một lần và replicate thay đổi liên tục (ongoing replication) để giữ đồng bộ giữa nguồn và đích.
+- Kết hợp **SCT (schema) + DMS (data)** là quy trình chuẩn AWS khuyến nghị cho heterogeneous migration, đồng thời cả hai đều là managed service, đáp ứng yêu cầu "use AWS managed services whenever possible to save on operational overhead costs".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì dùng **AWS Glue để load dữ liệu từ S3 vào RDS MySQL table** — Glue được thiết kế cho ETL job (transform dữ liệu phức tạp), không phải công cụ phù hợp để load trực tiếp một backup file SQL Server đã convert sang MySQL; đây không phải cách tiếp cận managed, chuẩn hóa cho heterogeneous migration.
+- **B sai** vì dùng **DataSync để chuyển backup file** (DataSync chỉ dùng để transfer file, không phải migrate database), và **BULK INSERT** của SQL Server chỉ load dữ liệu **vào SQL Server instance**, không áp dụng được để load vào RDS MySQL — sai cả công cụ chuyển và công cụ load.
+- **D sai** vì dùng **AWS DataSync để "replicate" SQL Server database** — DataSync không có khả năng replicate dữ liệu database (nó chỉ sync file/object storage), và việc "promote RDS instance as master" sau khi "replication" hoàn tất không khả thi vì không có bước convert schema giữa hai engine khác nhau.
+
+#### So sánh nhanh
+
+| Đáp án | Chuyển schema? | Công cụ migrate data | Phù hợp heterogeneous? |
+|---|---|---|---|
+| **C (đúng)** | AWS SCT | AWS DMS | Có |
+| A | Không | AWS Glue | Không — Glue dùng cho ETL, không phải migration chuẩn |
+| B | Không | DataSync + BULK INSERT | Không — BULK INSERT không áp dụng cho RDS MySQL |
+| D | Không | DataSync (không hỗ trợ) | Không — DataSync không replicate database |
+
+#### Lưu ý thực tế
+
+- Phân biệt rõ hai loại migration: **homogeneous** (cùng engine, ví dụ SQL Server → SQL Server trên RDS) chỉ cần DMS; **heterogeneous** (khác engine, ví dụ SQL Server → MySQL) cần **SCT trước, DMS sau**.
+- AWS DataSync luôn chỉ xử lý **dữ liệu file/object** (NFS, SMB, S3, EFS, FSx), **không bao giờ** là công cụ để migrate hoặc replicate một database engine.
+
+#### Quy tắc nhớ cho thi
+
+- **"Heterogeneous database migration" (khác engine)** → **AWS SCT (schema) + AWS DMS (data)**
+- **"Homogeneous migration" (cùng engine)** → chỉ cần **AWS DMS**
+- **DataSync** → chỉ dùng cho file/object transfer, không bao giờ dùng để migrate database
+- **AWS Glue** → công cụ ETL tổng quát, không phải giải pháp chuẩn cho database migration
+
 ### TD explanation
 
 You can use the AWS Schema Conversion Tool (AWS SCT) to convert your existing database schema from one database engine to another. You can convert relational OLTP schema or data warehouse schema. Your converted schema is suitable for an Amazon Relational Database Service (Amazon RDS), MySQL, MariaDB, Oracle, SQL Server, PostgreSQL DB, an Amazon Aurora DB cluster, or an Amazon Redshift cluster. The converted schema can also be used with a database on an Amazon EC2 instance or stored as data on an Amazon S3 bucket.
@@ -1280,6 +2363,56 @@ Which set of actions will meet the requirements?
 ⚠️ **Watch:** ⚠️ Same service you missed in Q33 (AWS Transform discovery)
 
 🧠 **Rule:** Discovery + dependency mapping → AWS Transform discovery tool + migration planning.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises: Ubuntu + Windows servers (virtualized)
+Mục tiêu: migrate toàn bộ hệ thống lên AWS
+Yêu cầu:
+  - Hiểu CHÍNH XÁC actual usage + dependencies giữa component
+  - Right-size EC2 instance để tránh lãng phí (underutilized resources)
+```
+
+Đáp án đúng là **A**: AWS Transform discovery tool (thu thập usage/dependency) → AWS Transform migration planning (nhóm server thành application + wave) → AWS Transform migration assessments (sinh right-sizing + cost recommendation). Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+- **AWS Transform discovery tool** tự động quét server inventory (hỗ trợ VMware vCenter, Microsoft Hyper-V, imported servers), thu thập **performance và usage information thực tế** từ physical servers và VM — đúng yêu cầu "precisely understand the actual usage".
+- **AWS Transform migration planning** dùng dữ liệu discovery để nhóm server thành application và migration wave, đồng thời cho phép hỏi/khai thác sâu về dependency giữa server — đúng yêu cầu "deeply analyze application components and the dependencies".
+- **AWS Transform migration assessments** sinh ra **automated right-sizing recommendations và cost estimate** dựa trên dữ liệu discovery đã thu thập **trước khi di chuyển** — đúng yêu cầu "right-size Amazon EC2 instances to avoid unnecessary expenses", và quan trọng là làm **trước migration**, không phải sau.
+
+⚠️ **Dễ nhầm:** Đây là cùng nhóm dịch vụ với câu đã sai trước đó — Q33 cũng xoay quanh **AWS Transform discovery + assessment** cho trường hợp Hyper-V server, nhưng đáp án sai đã chọn CloudWatch agent/Glue+Athena (không phải tool discovery chuyên dụng cho migration).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B sai** vì tuy đúng ở phần discovery và migration planning, nhưng lại **trì hoãn right-sizing tới sau khi đã migrate lên EC2** rồi mới dùng AWS Compute Optimizer. Compute Optimizer chỉ phân tích dựa trên **dữ liệu CloudWatch thực tế của resource đang chạy trên AWS** — trước khi migrate, công ty chưa có dữ liệu lịch sử đó, nên Compute Optimizer không thể đưa ra recommendation hữu ích ở giai đoạn này.
+- **C sai** vì **AWS Systems Manager Agent không cung cấp mức hiểu sâu về resource usage và application dependency** như công cụ discovery chuyên dụng; Systems Manager Application Manager chủ yếu phục vụ quản lý lifecycle ứng dụng, không phải để nhóm server theo mục đích migration; và **AWS Pricing Calculator** chỉ đưa ra ước tính chi phí dựa trên input thủ công, không có khả năng sinh ra right-sizing recommendation dựa trên performance/usage data thực tế.
+- **D sai** vì **AWS Transform MGN** là dịch vụ "rehost" (replicate block-level ngay lập tức), **bỏ qua hoàn toàn** các bước discovery, dependency analysis, application grouping, và migration wave planning mà đề yêu cầu. Ngoài ra Compute Optimizer ở đây cũng bị dùng sai thời điểm — chỉ hữu ích sau khi workload đã chạy trên AWS và có dữ liệu CloudWatch.
+
+#### So sánh nhanh
+
+| Đáp án | Discovery/dependency trước migrate? | Right-sizing khi nào? | Phù hợp yêu cầu? |
+|---|---|---|---|
+| **A (đúng)** | AWS Transform discovery + planning | Trước migrate (Transform assessment) | Có |
+| B | AWS Transform discovery + planning | Sau migrate (Compute Optimizer) | Không — thiếu dữ liệu lịch sử lúc cần |
+| C | SSM Agent (không đủ sâu) | AWS Pricing Calculator (thủ công) | Không |
+| D | Bỏ qua (MGN rehost ngay) | Sau migrate (Compute Optimizer) | Không |
+
+#### Lưu ý thực tế
+
+- ⚠️ **Watch**: điểm phân biệt B và A chính là **thời điểm right-sizing**. Compute Optimizer luôn cần dữ liệu CloudWatch của resource **đang chạy thật** — nên chỉ hữu ích SAU migration. Nếu đề yêu cầu right-sizing TRƯỚC migration (như ở đây, để tránh lãng phí ngay từ đầu), phải dùng AWS Transform migration assessments.
+- AWS Transform MGN khác hẳn AWS Transform discovery — MGN để rehost ngay (replicate liên tục), discovery tool để thu thập thông tin trước khi lập kế hoạch.
+
+#### Quy tắc nhớ cho thi
+
+- **"Hiểu actual usage + dependency trước khi migrate"** → **AWS Transform discovery tool**
+- **"Nhóm server thành application + migration wave"** → **AWS Transform migration planning**
+- **"Right-size EC2 TRƯỚC migration"** → **AWS Transform migration assessments** (không phải Compute Optimizer)
+- **"Right-size SAU khi đã chạy trên AWS"** → **AWS Compute Optimizer** (cần dữ liệu CloudWatch thật)
+- **AWS Transform MGN** → rehost/replicate ngay, không có bước discovery/dependency analysis
 
 ### TD explanation
 
@@ -1377,6 +2510,55 @@ Which of the following solutions meets this requirement?
 
 🧠 **Rule:** Reliability → ASG + ELB; read scaling → Aurora + Aurora Replicas.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Hiện tại:
+┌─────────────────────┐
+│ 1 EC2 instance       │  ──── read-intensive ────►  RDS PostgreSQL
+│ (unresponsive peak)  │
+└─────────────────────┘
+
+Yêu cầu: tăng reliability, minimal development effort
+```
+
+Đáp án đúng là **B**: nhiều EC2 qua Auto Scaling group + Elastic Load Balancer, kết hợp migrate database sang Amazon Aurora + Aurora Replicas để xử lý read-intensive. Anh chọn đúng B.
+
+#### Vì sao B đúng
+
+- **ASG + ELB** giải quyết trực tiếp vấn đề "một EC2 instance bị unresponsive khi tải cao": phân tải ra nhiều instance, ELB route traffic tới instance healthy, ASG tự scale số instance theo nhu cầu — đúng yêu cầu "enhance reliability".
+- **Amazon Aurora + Aurora Replicas** giải quyết đúng bottleneck "read-intensive calls": Aurora Replicas là endpoint độc lập trong cluster, chuyên nhận read traffic, giúp giảm tải cho instance chính — khớp chính xác với mô tả "makes read-intensive calls to RDS PostgreSQL".
+- **Minimal development effort**: cả ASG/ELB và Aurora Replicas đều là managed service, không cần sửa logic code ứng dụng nhiều — chỉ cần đổi endpoint kết nối DB và deploy multi-instance, không phải viết lại ứng dụng.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì chỉ **upgrade EC2 instance type** (vertical scaling) — vẫn là một điểm lỗi duy nhất (single point of failure), không giải quyết được reliability khi traffic đỉnh vượt quá cả instance lớn nhất. Dùng standby instance của Multi-AZ RDS cho read cũng kém hiệu quả hơn Aurora Replica chuyên dụng.
+- **C sai** vì tuy có ASG cho web tier, nhưng dùng **CloudFront với ASG làm origin** — về kỹ thuật, **không thể trực tiếp dùng một Auto Scaling group làm origin của CloudFront distribution**; CloudFront cũng không cần thiết cho use case này (vốn thiết kế cho caching nội dung static, không giải quyết bottleneck đọc database). Phần DB vẫn dùng standby Multi-AZ cho read, kém hiệu quả hơn Aurora Replica.
+- **D sai** vì vẫn **upgrade EC2 instance type** thay vì dùng ASG + ELB — không giải quyết triệt để vấn đề reliability/scalability của web tier, dù phần Aurora Replica cho DB là đúng hướng. CloudFront cũng không cần thiết ở đây.
+
+#### So sánh nhanh
+
+| Đáp án | Web tier scaling | DB read scaling | Reliability đầy đủ? |
+|---|---|---|---|
+| **B (đúng)** | ASG + ELB | Aurora + Aurora Replicas | Có |
+| A | Upgrade instance type (1 instance) | Multi-AZ standby cho read | Không |
+| C | ASG + CloudFront (sai kỹ thuật) | Multi-AZ standby cho read | Không |
+| D | Upgrade instance type (1 instance) | Aurora + Aurora Replicas | Không |
+
+#### Lưu ý thực tế
+
+- **Read-heavy → replicas, không phải bigger instance**: khi đề nhấn mạnh "read-intensive" và yêu cầu cải thiện hiệu năng/độ ổn định, luôn nghĩ tới dedicated read replica (Aurora Replicas, RDS read replica) trước khi nghĩ tới vertical scaling.
+- Dùng standby instance của Multi-AZ RDS cho mục đích đọc **không phải cách dùng chính thức/hiệu quả** — standby chỉ dùng cho failover, không phải để offload read traffic như Aurora Replica.
+
+#### Quy tắc nhớ cho thi
+
+- **"Single EC2 unresponsive at peak"** → **Auto Scaling group + Elastic Load Balancer**
+- **"Read-intensive database calls"** → **Aurora + Aurora Replicas** (không phải Multi-AZ standby)
+- **"CloudFront + ASG as origin"** → sai kỹ thuật, không thể gắn ASG trực tiếp làm origin CloudFront
+- **"Minimal development effort"** → ưu tiên giải pháp managed service, ít thay đổi code
+
 ### TD explanation
 
 Auto Scaling Groups: Auto Scaling groups help ensure that you have the correct number of Amazon EC2 instances available to handle your application’s load. You can create launch configurations that serve as templates for launching instances. The Auto Scaling group can automatically increase or decrease the number of instances based on user-defined policies, schedules, and health checks.
@@ -1460,6 +2642,56 @@ Which combination of steps in the following options would meet this requirement 
 
 🧠 **Rule:** Connection pressure → RDS Proxy; read load → ElastiCache for Redis.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+API Gateway → Lambda → RDS MySQL
+
+High-traffic event:
+  CloudWatch thấy: Lambda invocations cao, DB connections cao, RDS CPU cao
+  → Chọn HAI bước cải thiện performance
+```
+
+Đáp án đúng là **B, C**: modify Lambda dùng **RDS Proxy endpoint** + cache dữ liệu đọc nhiều bằng **ElastiCache for Redis**. Anh chọn đúng B, C.
+
+#### Vì sao B và C đúng
+
+- **B — RDS Proxy**: khi nhiều Lambda invocation đồng thời, mỗi invocation có xu hướng mở connection riêng tới DB, dễ làm cạn giới hạn connection và tăng CPU/memory overhead của RDS. RDS Proxy duy trì một **connection pool** dùng chung, Lambda chỉ cần kết nối tới proxy endpoint (không đổi code nhiều — chỉ đổi endpoint), proxy lo việc pooling và **queue/throttle** các request vượt khả năng — giúp DB chịu được spike traffic mà không bị quá tải.
+- **C — ElastiCache for Redis**: giảm trực tiếp số lượng request phải chạm tới RDS bằng cách cache dữ liệu được truy cập thường xuyên. Khi nhiều Lambda đọc cùng dữ liệu, cache giúp giảm tải CPU utilization trên RDS — giải quyết đúng nguyên nhân gốc (quá nhiều truy vấn tới DB).
+- Hai giải pháp này bổ trợ nhau: RDS Proxy xử lý áp lực **connection**, ElastiCache xử lý áp lực **query load** — giải quyết toàn diện cả "high Lambda invocations, database connections, và CPU utilization" được liệt kê trong đề.
+
+⚠️ **Dễ nhầm:** Đây là cùng bài toán "Lambda + RDS connection pressure" như hai câu đã sai trước — Q5 (quá nhiều Lambda mở connection tới RDS cùng lúc → cần RDS Proxy + SQS đệm, không phải SNS retry) và Q58 (idle connection do Lambda không reuse connection → cần init connection ngoài handler + RDS Proxy, không phải đổi API Gateway endpoint type).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì **Multi-AZ chỉ cải thiện availability/failover**, không giải quyết vấn đề performance dưới tải cao — đề yêu cầu cải thiện performance, không phải HA.
+- **D sai** vì chỉnh **timeout và concurrent execution limits** của Lambda không đụng tới nguyên nhân gốc là database bị quá tải connection/query — Lambda có thể chạy nhiều hơn nhưng DB vẫn chịu áp lực tương tự hoặc nặng hơn.
+- **E sai** vì chỉnh **memory allocation** chỉ giúp Lambda chạy nhanh hơn một chút, và "đóng connection sau khi lấy dữ liệu" là good practice nhưng **không quản lý được connection hiệu quả trong lúc traffic cao** — không thay thế được cơ chế pooling chuyên dụng như RDS Proxy.
+
+#### So sánh nhanh
+
+| Đáp án | Giải quyết connection pressure? | Giải quyết query/CPU load? |
+|---|---|---|
+| **B. RDS Proxy** | Có — connection pooling | Gián tiếp (giảm overhead mở connection) |
+| **C. ElastiCache for Redis** | Không trực tiếp | Có — giảm số query chạm DB |
+| A. Multi-AZ | Không (chỉ HA) | Không |
+| D. Timeout/concurrency | Không | Không |
+| E. Memory + close connection | Một phần (manual) | Không đáng kể |
+
+#### Lưu ý thực tế
+
+- ⚠️ **Watch**: "RDS Proxy cho áp lực kết nối từ Lambda" là pattern lặp lại rất nhiều trong các câu hỏi SAP-C02 liên quan tới serverless + RDS — bất cứ khi nào thấy "Lambda + RDS, nhiều connection/CPU cao khi traffic tăng", RDS Proxy gần như luôn là một trong các đáp án đúng.
+- RDS Proxy còn hỗ trợ enforce IAM authentication và lưu credential an toàn trong Secrets Manager — một lợi ích phụ ngoài connection pooling.
+
+#### Quy tắc nhớ cho thi
+
+- **"Lambda invocations cao + DB connections cao + CPU cao trên RDS"** → **RDS Proxy** (pooling) gần như luôn đúng
+- **"Giảm tải query lặp lại, dữ liệu đọc nhiều"** → **ElastiCache (Redis/Memcached)**
+- **Multi-AZ** → chỉ là HA/failover, không phải giải pháp performance
+- **Tăng concurrency/memory Lambda** → không giải quyết bottleneck ở tầng database
+
 ### TD explanation
 
 Amazon RDS Proxy is a service that allows applications to pool and share database connections, improving their ability to scale and making them more resilient to database failures. When an application connects to an RDS Proxy, the proxy maintains a pool of connections to the database and reuses these connections across requests.
@@ -1529,6 +2761,52 @@ What actions should the cloud engineer take to ensure the most cost-effective so
 
 🧠 **Rule:** SQS worker fleet → Lambda triggered by SQS; object output → S3 not EFS.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+SQS queue (URL bài báo) → fleet EC2 nhỏ (crawl + xử lý, 5 phút/task) → ghi .json vào EFS
+
+Vấn đề: nhiều lúc instance IDLE vì ít URL đổ vào queue
+Mục tiêu: giảm chi phí vận hành, chọn HAI hành động
+```
+
+Đáp án đúng là **B, C**: thay EC2 bằng **AWS Lambda** (fetch/xử lý từ SQS) + lưu .json bằng **Amazon S3** thay cho EFS. Anh chọn đúng B, C.
+
+#### Vì sao B và C đúng
+
+- **B — Lambda thay EC2**: Lambda chỉ tính tiền theo lượt invoke/thời gian chạy thực tế, tự động scale theo volume message trong SQS queue. Khi queue ít URL (idle period), Lambda không chạy thì không tốn tiền — khác hẳn với fleet EC2 phải chạy liên tục dù không có việc để xử lý. Đây là tối ưu chi phí trực tiếp cho pattern "worker fleet polling SQS, có lúc idle".
+- **C — S3 thay EFS**: S3 là object storage, phù hợp và **rẻ hơn EFS** cho việc lưu trữ output dạng file (.json) không cần truy cập kiểu file-system/NFS đồng thời phức tạp. Vì các file .json này chỉ là kết quả ghi ra rồi đọc lại, không cần tính năng chia sẻ file POSIX của EFS, dùng S3 vừa rẻ hơn vừa đơn giản hơn.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì **Amazon Neptune là graph database**, được thiết kế cho dữ liệu có quan hệ phức tạp (nodes/edges), hoàn toàn không phù hợp để lưu file .json thông thường.
+- **D sai** vì **Spot Instances có thể bị gián đoạn** (interrupt với 2 phút cảnh báo) khi AWS cần lấy lại capacity — điều này có thể làm gián đoạn quá trình crawl cần phản hồi theo real-time update từ các tổ chức y tế, không phù hợp với yêu cầu ổn định của hệ thống.
+- **E sai** vì **Amazon RDS là relational database**, không phù hợp để lưu file .json, và chi phí vận hành RDS (instance luôn chạy) thường **cao hơn** cả EFS hoặc S3 cho mục đích lưu file đơn giản này.
+
+#### So sánh nhanh
+
+| Đáp án | Vai trò | Phù hợp cost-optimization? |
+|---|---|---|
+| **B. Lambda thay EC2** | Compute theo sự kiện SQS | Có — chỉ tính tiền khi có việc, tự scale |
+| **C. S3 thay EFS** | Lưu .json | Có — rẻ hơn, đơn giản hơn cho object output |
+| A. Neptune | Graph DB | Không — sai loại dữ liệu |
+| D. Spot Instances | Vẫn dùng EC2, giảm giá | Không — rủi ro bị interrupt, ảnh hưởng real-time |
+| E. RDS | Relational DB | Không — sai loại dữ liệu, tốn kém hơn |
+
+#### Lưu ý thực tế
+
+- **EFS thường đắt hơn S3** khi dùng cho việc lưu object/file đơn giản không cần chia sẻ POSIX phức tạp — nếu use case chỉ là "ghi ra rồi đọc lại file", S3 luôn là lựa chọn kinh tế hơn.
+- Pattern "SQS queue + worker có lúc idle" là dấu hiệu kinh điển để chuyển sang Lambda — vì Lambda loại bỏ hoàn toàn chi phí "trả tiền khi không có việc làm" mà fleet EC2 luôn gặp phải.
+
+#### Quy tắc nhớ cho thi
+
+- **"SQS worker fleet, có traffic lúc cao lúc thấp/idle"** → **AWS Lambda triggered by SQS** để tối ưu chi phí
+- **"Lưu output dạng file/object (json, image...)"** → **Amazon S3**, không phải EFS (trừ khi cần shared POSIX file system thật)
+- **Spot Instances** → rẻ nhưng có rủi ro interrupt, tránh dùng khi cần tính liên tục/real-time
+- **Neptune/RDS** → chỉ dùng đúng loại dữ liệu (graph/relational), không dùng để lưu file tùy ý
+
 ### TD explanation
 
 AWS Lambda is a serverless compute service that lets you run your code without provisioning or managing servers. It automatically scales your application in response to the volume of incoming messages in the SQS queue. This would be more cost-effective during periods of low health update volumes.
@@ -1590,6 +2868,57 @@ Which of the following options are possible solutions to allow the Lambda functi
 
 🧠 **Rule:** Lambda to VPC resource → Lambda in private subnets + SG rule; DynamoDB via gateway endpoint or NAT.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Lambda functions (resize/watermark/process ảnh)
+    │                           │
+    ▼                           ▼
+DynamoDB table            Neptune DB cluster
+(metadata)                 (3 private subnet trong VPC)
+
+Yêu cầu: Lambda phải truy cập ĐƯỢC CẢ HAI — chọn HAI giải pháp khả thi
+```
+
+Đáp án đúng là **A, C**: deploy Lambda vào private subnet cùng VPC + mở security group cho Neptune, khác biệt chỉ ở cách Lambda truy cập DynamoDB — **A dùng DynamoDB VPC endpoint**, **C dùng NAT gateway**. Anh chọn đúng A, C.
+
+#### Vì sao A và C đúng
+
+- **Cả hai đều deploy Lambda vào private subnet trong cùng VPC với Neptune** và cập nhật Neptune security group để chấp nhận connection từ Lambda security group — đây là cách bắt buộc để Lambda truy cập resource (Neptune) đang nằm trong private subnet, vì Neptune không expose ra ngoài VPC.
+- **A dùng DynamoDB VPC Gateway Endpoint**: tạo route trong route table để traffic tới DynamoDB đi qua endpoint riêng trong VPC, không cần ra internet — đây là cách "private" chuẩn để truy cập DynamoDB từ private subnet.
+- **C dùng NAT Gateway**: vì DynamoDB cũng có thể truy cập qua HTTPS API public endpoint, Lambda trong private subnet có thể route traffic ra ngoài qua NAT gateway đặt ở public subnet để tới được endpoint đó.
+- Cả hai cách đều hợp lệ vì giải quyết đúng hai nhu cầu: (1) truy cập Neptune — chỉ cần SG rule + cùng VPC/subnet; (2) truy cập DynamoDB — cần một đường ra khỏi private subnet, dù là qua VPC endpoint (A) hay NAT gateway (C).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B sai** vì deploy Lambda vào **public subnet** không giải quyết được vấn đề truy cập internet — Lambda **không có public IP**, nên dù subnet có Internet Gateway, Lambda vẫn **không thể** tự kết nối ra internet qua IGW. Đặt Lambda ở public subnet cho mục đích này là vô nghĩa.
+- **D sai** vì Neptune nằm trong **private subnet**, nghĩa là **không expose ra ngoài VPC**. VPC endpoint chỉ cho phép resource **bên trong VPC** truy cập, nên nếu Lambda vẫn đứng **ngoài VPC**, nó sẽ không bao giờ reach được VPC endpoint đó để tới Neptune.
+- **E sai** vì theo mặc định, **Lambda functions được tạo ngoài VPC và không thể truy cập resource bên trong VPC** — việc mở security group cho "Lambda IP range" không có ý nghĩa vì Lambda ngoài VPC không có đường kết nối trực tiếp tới resource trong private subnet bất kể SG rule.
+
+#### So sánh nhanh
+
+| Đáp án | Lambda ở đâu | Truy cập Neptune? | Truy cập DynamoDB? |
+|---|---|---|---|
+| **A (đúng)** | Private subnet (cùng VPC) | Có (SG rule) | Có (DynamoDB VPC Gateway Endpoint) |
+| **C (đúng)** | Private subnet (cùng VPC) | Có (SG rule) | Có (qua NAT gateway ra internet) |
+| B | Public subnet | Có (SG rule) | Lambda không có public IP → không ra internet dù có IGW |
+| D | Ngoài VPC | Không — VPC endpoint chỉ phục vụ resource trong VPC | Không đề cập đúng |
+| E | Ngoài VPC | Không — Lambda ngoài VPC không truy cập được resource trong VPC | Không đề cập |
+
+#### Lưu ý thực tế
+
+- ⚠️ **Watch**: khi Lambda được gắn vào VPC (để truy cập resource private như Neptune/RDS), nó **mất khả năng truy cập internet trực tiếp** — phải có **NAT gateway** (cho traffic ra ngoài, ví dụ DynamoDB qua HTTPS API) hoặc **VPC endpoint** (cho traffic tới AWS service hỗ trợ endpoint, như DynamoDB Gateway Endpoint) để bù lại.
+- Lambda luôn **không có public IP**, nên "đặt ở public subnet + Internet Gateway" không bao giờ đủ để Lambda tự ra internet — đây là điểm hay bị nhầm.
+
+#### Quy tắc nhớ cho thi
+
+- **"Lambda cần truy cập resource trong VPC (RDS/Neptune/ElastiCache...)"** → **đưa Lambda vào private subnet cùng VPC + SG rule**
+- **"Lambda trong VPC cần ra internet/DynamoDB/S3"** → **NAT gateway** (ra ngoài qua IGW) hoặc **VPC Gateway/Interface Endpoint** (riêng cho dịch vụ AWS hỗ trợ)
+- **Lambda không có public IP** → đặt ở public subnet không giúp nó tự kết nối internet
+- **VPC endpoint** → chỉ phục vụ resource **bên trong VPC**, không giúp resource ngoài VPC truy cập vào trong
+
 ### TD explanation
 
 Amazon Neptune is a fast, reliable, fully-managed graph database service that makes it easy to build and run applications that work with highly connected datasets. The core of Neptune is a purpose-built, high-performance graph database engine. This engine is optimized for storing billions of relationships and querying the graph with milliseconds latency.
@@ -1649,6 +2978,52 @@ Which of the following options should the Solutions Architect implement to deplo
 ⚠️ **Watch:** Secrets never in image
 
 🧠 **Rule:** HA SQL Server → RDS Multi-AZ; creds → Secrets Manager injected into Fargate task.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+.NET Core app (Docker container) → serve public traffic
+Cần: SQL Server HA + connection string KHÔNG lưu trong container
+```
+
+Đáp án đúng là **A**: RDS SQL Server Multi-AZ (HA) + Secrets Manager (credentials) + Fargate (ALB + Service Auto Scaling, multi-AZ) + ECS task execution role fetch secret → inject secret vào task definition dưới dạng environment variable. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+- **Amazon RDS for SQL Server với Multi-AZ** đáp ứng yêu cầu "highly-available SQL Server" — RDS hỗ trợ Multi-AZ cho SQL Server qua Database Mirroring (DBM) hoặc Always On Availability Groups (AGs), AWS quản lý toàn bộ việc replicate/failover.
+- **AWS Secrets Manager** lưu credential database, cho phép **thay hoàn toàn hardcoded credential bằng API call** — đúng yêu cầu "connection string should not be saved inside the container".
+- **ECS task execution role + Fargate**: Fargate hỗ trợ cơ chế inject secret vào container **tại thời điểm khởi động** — task execution role được cấp quyền lấy secret từ Secrets Manager, ARN của secret được khai báo trong phần environment variable của task definition. Secret **không bao giờ nằm trong image hay trong code**, chỉ được "tiêm" vào container runtime khi start, đúng yêu cầu bảo mật.
+- **Fargate cluster + Service Auto Scaling + ALB nhiều AZ** đáp ứng việc serve public traffic với khả năng scale và high availability cho tầng application.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B sai** vì **deploy SQL Server trong Fargate cluster** — Fargate không có persistent/durable storage phù hợp cho một database quan trọng; SQL Server production cần storage bền vững mà Amazon RDS mới cung cấp đúng cách, không nên tự host database trên Fargate.
+- **C sai** vì tuy dùng Fargate cho app là hợp lý, nhưng lại **deploy SQL Server trên EC2 Auto Scaling group tự quản lý** — việc này đòi hỏi công ty tự lo HA, backup, patching cho SQL Server thay vì dùng Amazon RDS Multi-AZ (vốn để AWS quản lý replication/failover tự động) — không tối ưu, không đúng "managed service" mà yêu cầu HA hàm ý.
+- **D sai** vì dùng **Amazon EKS Distro** — đây **không phải dịch vụ managed** (phải tự quản lý control plane), làm tăng độ phức tạp không cần thiết cho một ứng dụng Docker đơn giản. Ngoài ra, cách tiêm secret ở đây dùng **"empty non-persistent volume"** để Kubernetes viết credential ra — volume non-persistent có thể mất dữ liệu khi pod bị terminate/restart, kém an toàn và kém ổn định hơn cách Fargate + Secrets Manager inject trực tiếp qua environment variable.
+
+#### So sánh nhanh
+
+| Đáp án | Database | HA database? | Cách lưu credential | Compute cho app |
+|---|---|---|---|---|
+| **A (đúng)** | RDS SQL Server | Multi-AZ (managed) | Secrets Manager → inject qua task definition | Fargate + ALB + ASG |
+| B | SQL Server trong Fargate | Không — thiếu persistent storage | SSM Parameter Store | Fargate (khác service) |
+| C | SQL Server trên EC2 ASG | Tự quản lý, không managed | SSM Parameter Store | Fargate |
+| D | RDS SQL Server | Multi-AZ (managed) | Secrets Manager → viết vào non-persistent volume | EKS Distro (không managed) |
+
+#### Lưu ý thực tế
+
+- **Secrets không bao giờ nằm trong container image**: nguyên tắc chung — dù dùng Secrets Manager hay SSM Parameter Store, secret phải được "tiêm" vào container ở runtime (qua task definition/environment variable hoặc volume), không bao giờ build cứng vào Docker image hay source code.
+- Secrets Manager còn hỗ trợ **tự động rotate credential** theo lịch — một lợi ích đáng chú ý so với lưu tĩnh trong Parameter Store thường.
+
+#### Quy tắc nhớ cho thi
+
+- **"HA SQL Server, managed"** → **Amazon RDS for SQL Server Multi-AZ** (DBM hoặc Always On AGs)
+- **"Secret không lưu trong container/image"** → **AWS Secrets Manager**, inject qua ECS task execution role + task definition
+- **SQL Server tự host trên Fargate/EC2** → luôn kém hơn RDS Multi-AZ cho production database cần HA
+- **Non-persistent volume để lưu secret** → rủi ro mất dữ liệu khi pod restart, không nên dùng để "truyền" credential
+- **EKS Distro** → không phải managed Kubernetes, tăng overhead vận hành không cần thiết cho use case Docker đơn giản
 
 ### TD explanation
 
@@ -1721,6 +3096,56 @@ Which combination of steps is the most cost-effective approach that would meet t
 
 🧠 **Rule:** Global uploads → S3 Transfer Acceleration; global API callers → edge-optimized endpoint.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Users (US)                         Users (Asia, Middle East)
+    │                                      │
+    ▼                                      ▼
+CloudFront (đã có, phân phối static site)
+    │
+    ├── Upload PDF ──► S3 bucket (us-east-1)        ← chậm vì xa
+    └── Gọi OCR ──────► API Gateway REGIONAL ──► Lambda (async) ──► DynamoDB
+                         (us-east-1)                               ↑ chậm vì xa
+```
+
+Yêu cầu: **giảm latency cho user ở Asia/Middle East**, cách **tiết kiệm chi phí nhất**. Đáp án đúng: **A (S3 Transfer Acceleration)** + **D (API Gateway Edge-Optimized)**. Anh chọn đúng cả hai.
+
+#### Vì sao A đúng — S3 Transfer Acceleration
+
+S3TA tăng tốc transfer đi/đến S3 tới 50–500% cho các object lớn, truyền đi xa, bằng cách đẩy dữ liệu vào **edge location gần client nhất của CloudFront**, sau đó định tuyến qua mạng backbone tối ưu của AWS về S3 — thay vì đi public Internet toàn trình. Trong bài này, user upload PDF (file lớn) từ xa vào S3 ở us-east-1, đúng use case của S3TA.
+
+#### Vì sao D đúng — API Gateway Edge-Optimized
+
+CloudFront đã dùng để phân phối static website, nhưng **API Gateway đang là Regional endpoint** — mọi lệnh gọi REST API (trigger OCR) từ Asia/Middle East phải đi thẳng tới us-east-1. Chuyển sang **Edge-Optimized** đặt API phía sau CloudFront, giúp request API được route qua edge location gần user, cải thiện latency gọi API trên toàn cầu.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B (EC2 + EBS + Global Accelerator + Edge-Optimized):** dùng EC2/EBS để upload PDF là thêm hẳn một tầng hạ tầng phải tự quản lý (vá lỗi, scale, backup) → tăng chi phí vận hành, không cost-effective. Global Accelerator cũng dư thừa vì CloudFront đã xử lý việc giảm latency cho HTTP/HTTPS content rồi.
+- **C (deploy Lambda + S3 ở từng region + cross-region replication + Route 53 Geolocation):** CRR dùng cho DR/archive/migration, không phải để giảm latency đọc/viết theo kiểu này; nhân bản dữ liệu ra nhiều region làm tăng chi phí lưu trữ đáng kể — ngược lại yêu cầu "cost-effective".
+- **E (Aurora Serverless + RDS Proxy thay DynamoDB):** đổi loại database không liên quan gì đến latency của user ở xa; DynamoDB vốn đã là managed/serverless, vấn đề không nằm ở tầng lưu trạng thái OCR.
+
+#### So sánh nhanh
+
+| Thành phần chậm | Nguyên nhân | Giải pháp đúng |
+|---|---|---|
+| Upload PDF lên S3 | User xa bucket us-east-1 | S3 Transfer Acceleration (qua CloudFront edge) |
+| Gọi REST API OCR | API Gateway Regional | Edge-Optimized endpoint |
+| Hiển thị website | — | CloudFront (đã có sẵn, không cần đổi) |
+
+#### Lưu ý thực tế
+
+⚠️ **Watch (từ note gốc):** đừng nhầm hai khái niệm tăng tốc edge của AWS — **Transfer Acceleration** chỉ áp dụng cho **upload/download vào S3**, còn **Edge-Optimized endpoint** chỉ áp dụng cho **API Gateway**. Cả hai đều "mượn" edge location của CloudFront nhưng phục vụ hai luồng traffic khác nhau trong cùng bài toán — đề bài này cố ý tách hai nhu cầu riêng để kiểm tra anh có phân biệt được không.
+
+#### Quy tắc nhớ cho thi
+
+- **Upload/download file lớn qua khoảng cách xa vào S3** → **S3 Transfer Acceleration**
+- **Gọi REST API từ user phân tán toàn cầu, hiện đang Regional** → **API Gateway Edge-Optimized**
+- **CloudFront đã phân phối content tĩnh rồi** → không cần thêm Global Accelerator hay tự build EC2 làm proxy
+- **Cross-region S3 replication** → dùng cho DR/backup/migration, KHÔNG phải để giảm latency đọc/viết
+
 ### TD explanation
 
 Amazon S3 Transfer Acceleration can speed up content transfers to and from Amazon S3 by as much as 50% – 500% for long-distance transfer of larger objects. Customers who have either web or mobile applications with widespread users or applications hosted far away from their S3 bucket can experience long and variable upload and download speeds over the Internet.
@@ -1786,6 +3211,45 @@ Which two actions should the firm take to achieve these requirements? (Select TW
 
 🧠 **Rule:** DX Gateway ↔ TGW → advertise allowed prefixes = VPC CIDR (same or wider).
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises servers                         AWS (us-east-1)
+        │                                           
+        │  Direct Connect 200 Mbps                  
+        ▼                                           
+  Transit VIF ──► Direct Connect Gateway ──► Transit Gateway ──► VPC A, VPC B, VPC C...
+```
+
+Yêu cầu: on-prem servers phải **tới được resource trong các VPC** qua transit VIF. Đáp án đúng: **D + E** (advertise allowed prefixes bao trùm VPC CIDR + advertise VPC prefixes list cho TGW association). Anh chọn đúng cả hai.
+
+#### Vì sao D đúng — Allowed prefixes trên DX Gateway
+
+Allowed prefixes là một **filter** trên Direct Connect Gateway: nó chỉ cho phép quảng bá (advertise) các CIDR **bằng hoặc hẹp hơn** danh sách này sang phía on-prem. Nếu allowed prefixes hẹp hơn CIDR thật của VPC, một phần IP trong VPC sẽ **không thể reach được từ on-prem**. Vì vậy phải set allowed prefixes bằng hoặc rộng hơn VPC CIDR để đảm bảo toàn bộ VPC được quảng bá ra ngoài.
+
+#### Vì sao E đúng — Advertise VPC prefixes cho TGW association
+
+Khi DX Gateway gắn với Transit Gateway (qua transit VIF), cần cấu hình **prefixes list cho chính association này** để route traffic giữa on-prem ↔ Direct Connect Gateway ↔ Transit Gateway. Điều này đặc biệt quan trọng vì bước này hoạt động **ngay cả khi VPC đính kèm TGW chưa có CIDR gán sẵn** — nói cách khác, nó là bước bắt buộc riêng cho việc route qua TGW, không phải chỉ dựa vào allowed prefixes chung.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A (dùng cùng CKN/CAK cho mọi kết nối DX):** CKN/CAK chỉ dùng cho **MACsec encryption**, không liên quan gì đến việc route traffic tới VPC; hơn nữa dùng chung key cho mọi connection còn là **thói quen bảo mật tồi**.
+- **B (nâng băng thông 200→500 Mbps):** đề không nói băng thông hiện tại không đủ; nâng tốc độ chỉ cải thiện performance, không giải quyết vấn đề **kết nối được hay không**.
+- **C (MACsec must_encrypt):** encryption mode không ảnh hưởng tới khả năng on-prem reach VPC resource — đây là vấn đề bảo mật đường truyền, không phải vấn đề routing.
+
+#### Lưu ý thực tế
+
+⚠️ **Watch (từ note gốc):** allowed prefixes luôn phải **cover toàn bộ VPC CIDR** — khai thiếu một phần là lỗi dễ mắc khi VPC có nhiều CIDR block phụ (secondary CIDR) được add sau. Đồng thời đừng nhầm "allowed prefixes" (filter CIDR nào được advertise) với "route propagation" (TGW route table có học route hay không) — hai cơ chế riêng, bài này cần cả hai đúng để traffic chảy thông suốt.
+
+#### Quy tắc nhớ cho thi
+
+- **On-prem qua DX cần reach toàn bộ VPC** → allowed prefixes trên DX Gateway phải **bằng hoặc rộng hơn** VPC CIDR
+- **DX Gateway gắn Transit Gateway qua transit VIF** → phải advertise VPC prefixes list riêng cho association đó
+- **CKN/CAK** → chỉ phục vụ MACsec, không phải routing
+- **Thấy "tăng băng thông" mà đề không nói nghẽn** → gần như luôn là bẫy, không phải đáp án
+
 ### TD explanation
 
 The prefix list, which includes IPv4 and IPv6 addresses, is a filter that permits the same or a smaller range of CIDRs to be promoted to the Direct Connect gateway. When setting up a Direct Connect gateway, it’s important to set the allowed prefixes to a range that is the same or wider than the VPC CIDR block. This ensures that all IP addresses within the VPC can be reached from the local servers.
@@ -1846,6 +3310,62 @@ Which of the following implementation would ensure that the development traffic 
 
 🧠 **Rule:** Segmentation on TGW → separate route tables per environment, disable default association/propagation.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+                         Transit Gateway (us-east-1, share qua RAM)
+                                     │
+                 ┌───────────────────┼───────────────────┐
+                 ▼                   ▼                   ▼
+          VPC dev (acc A)     VPC prod (acc B)     VPC dev (acc C)
+                 \_____________________↕____________________/
+                     Hiện tại: TẤT CẢ attach vào default
+                     route table → dev ↔ prod thông nhau (SAI)
+```
+
+Yêu cầu: EC2 cùng environment (dev↔dev hoặc prod↔prod) được thông nhau, nhưng **dev không được thông với prod**. Đáp án đúng: **D** (tách route table riêng cho dev và prod, disable default association/propagation). Anh chọn đúng.
+
+#### Vì sao D đúng
+
+Mỗi VPC/VPN attachment trên Transit Gateway được gắn với **một route table** quyết định next-hop. Theo mặc định, mọi attachment đổ vào **default route table** → đó là lý do dev và prod đang thông nhau. Giải pháp: 
+
+```
+1. Xóa route propagation + association của từng attachment khỏi default route table
+2. Tạo 2 route table riêng: "dev-rt" và "prod-rt"
+3. Attach VPC dev → dev-rt; attach VPC prod → prod-rt
+4. Enable route propagation cho từng attachment vào route table tương ứng
+```
+
+Cơ chế này tương tự VRF (virtual routing and forwarding) trong networking truyền thống — tách network segment ngay trong Transit Gateway mà không cần tạo thêm TGW hay VPC mới.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B (tag "env" + policy qua Transit Gateway Network Manager):** Network Manager chỉ dùng để **giám sát/visualize** hoạt động mạng trên một dashboard, nó **không tạo được network policy** để chặn traffic.
+- **C (security group chặn traffic):** security group **chỉ có allow rule**, không có deny rule — về bản chất không thể dùng SG để "block" traffic theo cách đề yêu cầu.
+- **A (tag attachment + cấu hình TGW route table theo tag):** tag chỉ hữu ích để định danh/hiển thị trên Console, **không thể dùng làm điều kiện routing** trong route table của Transit Gateway.
+
+#### So sánh nhanh
+
+| Cách | Có tách được traffic theo môi trường? | Vì sao |
+|---|---|---|
+| **D. Route table riêng cho dev/prod** | Có | Route table là đơn vị routing thật của TGW |
+| A. Tag + "TGW route table theo tag" | Không | Tag không phải điều kiện match trong route table |
+| B. Tag + Network Manager policy | Không | Network Manager chỉ để monitor |
+| C. Security group block | Không | SG không hỗ trợ deny rule |
+
+#### Lưu ý thực tế
+
+⚠️ **Watch (từ note gốc):** default route table của TGW tự động association + propagate **mọi** attachment mới — đây là trap kinh điển: ai cũng tưởng chỉ cần tạo route table mới là xong, nhưng phải **xóa association/propagation khỏi default route table trước**, nếu không traffic vẫn còn đường vòng qua default route table.
+
+#### Quy tắc nhớ cho thi
+
+- **Segment traffic trong 1 Transit Gateway theo môi trường/tenant** → **route table riêng** cho mỗi nhóm, không phải tag
+- **"Block" traffic** → security group/NACL **không "block" (chỉ allow/deny ở NACL)**; SG không có deny rule
+- **Transit Gateway Network Manager** → chỉ để **monitor/visualize**, không cấu hình policy routing
+- **Đổi route table association của TGW** → nhớ **remove khỏi default route table** trước khi gắn route table mới
+
 ### TD explanation
 
 A transit gateway enables you to attach VPCs and VPN connections in the same Region and route traffic between them. A transit gateway works across AWS accounts, and you can use AWS RAM to share your transit gateway with other accounts. After you share a transit gateway with another AWS account, the account owner can attach their VPCs to your transit gateway. A user from either account can delete the attachment at any time.
@@ -1905,6 +3425,60 @@ Which of the following option is the recommended action to meet the company requ
 ⚠️ **Watch:** Deployment type is immutable
 
 🧠 **Rule:** FSx Single-AZ → Multi-AZ: new Multi-AZ file system + DataSync copy + repoint apps.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+FSx for Windows File Server (Single-AZ)  ──X── Vi phạm chính sách HA 2-AZ
+        │
+        │  Deployment type KHÔNG sửa được sau khi tạo (immutable)
+        ▼
+Phải tạo FSx MỚI (Multi-AZ) + đưa data sang + trỏ app vào share mới
+        Yêu cầu: tối thiểu downtime
+```
+
+Đáp án đúng: **A** — dùng AWS DataSync copy data sang FSx Multi-AZ mới, rồi trỏ app sang share mới. Anh chọn đúng.
+
+#### Vì sao A đúng
+
+Deployment type của Amazon FSx (Single-AZ vs Multi-AZ) được xác định **tại thời điểm tạo file system và không thể đổi sau đó**. Vì vậy, cách duy nhất để chuyển từ Single-AZ sang Multi-AZ là **tạo file system mới**. AWS DataSync hỗ trợ **copy liên tục (continuously sync)** data giữa hai FSx share, nên luồng đúng là:
+
+```
+1. Tạo FSx for Windows mới, deployment type = Multi-AZ
+2. DataSync copy toàn bộ data cũ sang share mới (và tiếp tục sync phần ghi mới)
+3. Khi đồng bộ gần như real-time, trỏ application sang FSx share mới
+4. Ngắt/xóa FSx Single-AZ cũ
+```
+
+Multi-AZ tự động provision một standby file server ở AZ khác, đồng bộ hóa synchronous mọi thay đổi ghi vào đĩa, và tự động failover khi có maintenance hoặc AZ disruption — đáp ứng đúng yêu cầu HA 2-AZ của công ty.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **D (update deployment type trên Console):** **không thể** — deployment type là thuộc tính immutable của FSx file system, không có nút "đổi Single-AZ → Multi-AZ" trên Console hay API.
+- **B (backup → restore thành Multi-AZ mới):** về lý thuyết khả thi, nhưng giữa lúc backup xong và lúc restore xong, **data mới ghi vào FSx cũ sẽ bị thiếu** trên bản restore → nên vẫn cần DataSync để đồng bộ phần chênh lệch đó, tức là giải pháp này không đầy đủ như A.
+- **C (DataSync sync liên tục sang FSx Single-AZ thứ hai):** vẫn **không compliant** vì file system đích vẫn là Single-AZ; đồng thời cách failover kiểu manual này dễ gây downtime không cần thiết nếu không phát hiện kịp sự cố ở share chính.
+
+#### So sánh nhanh
+
+| Cách | Có đạt Multi-AZ? | Có mất data mới ghi? | Downtime |
+|---|---|---|---|
+| **A. DataSync → FSx mới Multi-AZ** | Có | Không (sync liên tục) | Thấp nhất |
+| B. Backup/restore → FSx mới Multi-AZ | Có | Có thể mất data ghi sau backup | Trung bình |
+| C. DataSync → FSx mới Single-AZ | Không | Không | Phụ thuộc detect failure |
+| D. Update deployment type tại chỗ | Không thể thực hiện | — | — |
+
+#### Lưu ý thực tế
+
+⚠️ **Watch (từ note gốc):** đây là trap thường gặp với FSx — nhiều dịch vụ AWS khác (ví dụ RDS) cho phép "modify" để chuyển Single-AZ → Multi-AZ ngay trên Console, nhưng **FSx for Windows thì không** — deployment type cố định từ lúc tạo. Đừng áp dụng tư duy "chỉ cần modify" của RDS sang FSx.
+
+#### Quy tắc nhớ cho thi
+
+- **FSx deployment type (Single-AZ/Multi-AZ)** → **immutable**, không có cách "modify tại chỗ"
+- **Chuyển FSx Single-AZ → Multi-AZ, downtime tối thiểu** → tạo FSx Multi-AZ mới + **AWS DataSync** đồng bộ liên tục + repoint app
+- **Backup/restore FSx** → luôn có khoảng hở data giữa lúc backup và lúc restore xong → cần DataSync bổ sung nếu muốn giảm downtime thật sự
+- **Đồng bộ liên tục giữa 2 FSx share** → đúng use case của **AWS DataSync**, không phải backup/restore
 
 ### TD explanation
 
@@ -1972,6 +3546,60 @@ Which solution would meet the requirements?
 
 🧠 **Rule:** Custom error page → S3 origin (OAC) + CloudFront custom error response.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+User ──► Route 53 ──► CloudFront ──► ALB (origin) ──► Fargate task (misconfigured)
+                                         │
+                                         └─► Lỗi cấu hình task definition
+                                             → trả về HTTP 502 ngắt quãng (intermittent)
+                                             → user thấy trang lỗi mặc định của ALB
+```
+
+Yêu cầu: hiển thị **trang lỗi tùy chỉnh** cho user khi gặp 502, **operational overhead thấp nhất**. Đáp án đúng: **B** — thêm S3 (OAC) làm origin phụ trên CloudFront + custom error response làm origin failover khi gặp 502. Anh chọn đúng.
+
+#### Vì sao B đúng
+
+CloudFront có cơ chế **custom error response**: khi origin chính (ALB) trả về status code cụ thể (ở đây là 502), CloudFront có thể tự động trả về một trang lỗi khác thay vì forward lỗi gốc cho user. Cách triển khai gọn nhất:
+
+```
+1. Upload trang HTML lỗi vào S3 bucket (enable static website hosting)
+2. Thêm S3 bucket này làm MỘT ORIGIN MỚI trong CloudFront distribution
+3. Bật Origin Access Control (OAC) để CloudFront truy cập S3 bucket an toàn
+4. Cấu hình custom error response: khi origin trả 502 → origin failover sang S3 origin
+   → CloudFront trả trang lỗi tĩnh từ S3
+```
+
+Toàn bộ việc này nằm trong cấu hình CloudFront + một S3 bucket tĩnh — **không cần viết code, không cần thêm logic xử lý** — đúng tiêu chí "ít overhead nhất", trong khi vẫn phản ứng **ngay lập tức** với mỗi request lỗi (khác với cơ chế dựa trên health check hay alarm có độ trễ).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **C (Lambda + CloudWatch alarm trên HTTPCode_Target_5XX_Count):** đây là cách phát triển tốn công nhất (phải code logic redirect), và quan trọng hơn: CloudWatch alarm có **độ trễ** giữa lúc lỗi xảy ra và lúc alarm trigger Lambda → **không phản hồi ngay lập tức** cho user đang gặp lỗi 502 ngắt quãng.
+- **A (Route 53 failover policy + health check trỏ sang S3 website endpoint):** Route 53 failover phù hợp hơn cho trường hợp **origin chết hoàn toàn**, không hợp với lỗi **intermittent (ngắt quãng)** — health check có thể không kịp phát hiện vì hệ thống nhìn chung vẫn "healthy" phần lớn thời gian, nên failover không được trigger đúng lúc user gặp lỗi.
+- **D (ALB fixed-response action trả 502 + custom message trên path /*):** chỉ **thay đổi nội dung body** của response lỗi, không thực sự redirect sang trang lỗi; tệ hơn, rule fixed-response tại path gốc `/*` sẽ **chặn luôn mọi request tới mọi path** bất kể có lỗi hay không — gây outage toàn diện thay vì chỉ xử lý lỗi 502.
+
+#### So sánh nhanh
+
+| Cách | Phản hồi ngay? | Overhead | Phù hợp lỗi "intermittent"? |
+|---|---|---|---|
+| **B. CloudFront custom error response + S3 origin (OAC)** | Có | Thấp nhất | Có |
+| A. Route 53 failover + health check | Không (phụ thuộc health check) | Trung bình | Kém — hợp với outage toàn phần hơn |
+| C. Lambda + CloudWatch alarm | Không (có delay) | Cao (code + vận hành) | Kém |
+| D. ALB fixed-response trên path /* | Có nhưng sai phạm vi | Thấp nhưng phá vỡ traffic | Không — block toàn bộ request |
+
+#### Lưu ý thực tế
+
+⚠️ **Watch (từ note gốc):** trang lỗi phải nằm **ngoài** origin đang gặp lỗi — nếu đặt error page trên chính ALB/Fargate đang lỗi thì khi origin đó "chết", trang lỗi cũng kẹt theo. Đây là lý do S3 (một origin hoàn toàn độc lập, luôn available) được chọn làm nơi chứa trang lỗi, không phải sửa trực tiếp trên ALB hay ứng dụng.
+
+#### Quy tắc nhớ cho thi
+
+- **CloudFront + origin có lỗi intermittent, cần custom error page, ít overhead** → **CloudFront custom error response + S3 origin (OAC) làm origin failover**
+- **Route 53 health check failover** → hợp với origin **chết hoàn toàn**, không hợp lỗi chập chờn/ngắt quãng
+- **CloudWatch alarm → Lambda** → luôn có độ trễ, không phải giải pháp "instant response"
+- **ALB fixed-response ở path `/*`** → cẩn thận, nó áp dụng cho **tất cả request**, không chỉ request lỗi
+
 ### TD explanation
 
 Normally, when an object served through CloudFront is unavailable, the web server will return an HTTP status code to CloudFront to indicate the problem. For example, if a client requests an invalid URL, your web server would return an HTTP 404 (Not Found) status code to CloudFront, and CloudFront would relay that status code back to the client.
@@ -2031,6 +3659,64 @@ Which solution will provide the MOST significant improvement in performance?
 ⚠️ **Watch:** Columnar + partitioned = less data scanned
 
 🧠 **Rule:** Query-heavy logs → Parquet output + hourly partitions.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Nhiều VPC (microservices) ──► VPC Flow Logs ──► S3 bucket trung tâm
+                                                  Format: Text, gzip, giữ vĩnh viễn
+                                                        │
+                                                        ▼
+                                          Redshift Spectrum query trực tiếp trên S3
+                                          → càng nhiều log, query/visualization càng CHẬM
+```
+
+Yêu cầu: cải thiện performance **nhiều nhất** cho truy vấn + giảm dung lượng lưu trữ. Đáp án đúng: **C** — đổi output format của VPC Flow Log sang **Parquet**, partition theo **hour**. Anh chọn đúng.
+
+#### Vì sao C đúng
+
+Flow logs hiện ở dạng **text row-based + gzip** — Redshift Spectrum phải đọc toàn bộ file, giải nén, rồi mới lọc được cột cần dùng. Đổi sang **Apache Parquet** giải quyết cả hai vấn đề đồng thời:
+
+```
+Parquet = columnar format
+  → Spectrum chỉ đọc đúng CỘT cần truy vấn, bỏ qua cột không liên quan
+  → hỗ trợ predicate filtering: skip luôn block dữ liệu không khớp điều kiện
+  → nén hiệu quả hơn text+gzip → giảm dung lượng S3
+
+Partition theo hour
+  → Spectrum chỉ scan đúng những partition (giờ) liên quan đến query
+  → giảm số lượng file/bytes phải đọc từ S3
+```
+
+Hai cải tiến này tác động trực tiếp vào cơ chế Redshift Spectrum tính phí/thời gian theo **lượng dữ liệu scan** — ít dữ liệu scan hơn đồng nghĩa truy vấn nhanh hơn và rẻ hơn, đúng cả hai mục tiêu đề bài (performance + storage).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B (đổi gzip → bzip2):** cải thiện compression không đáng kể, mà bzip2 còn **tốn thời gian compress/decompress hơn** gzip — có thể triệt tiêu luôn phần lợi ích nén được, không giải quyết gốc vấn đề (text, row-based, không partition).
+- **A (chia log ra nhiều bucket S3):** không đổi gì về cách lưu trữ dữ liệu (vẫn text/gzip, vẫn phải đọc toàn file) — chỉ làm phức tạp thêm việc quản lý, **không mang lại lợi ích hiệu năng** thực sự.
+- **D (AWS Glue catalog hóa log):** Glue Data Catalog giúp **khám phá/định nghĩa schema** cho dữ liệu (ETL), nhưng **không tự tối ưu format hay cách lưu trữ dữ liệu** — nó không làm cho dữ liệu bên dưới trở nên nhanh hơn để query.
+
+#### So sánh nhanh
+
+| Giải pháp | Giảm bytes phải scan? | Giảm storage? | Giải quyết gốc vấn đề (row-based, không partition)? |
+|---|---|---|---|
+| **C. Parquet + partition by hour** | Có (columnar + predicate filter + partition pruning) | Có | Có |
+| B. bzip2 thay gzip | Không đáng kể | Nhỏ | Không |
+| A. Nhiều bucket S3 | Không | Không | Không |
+| D. AWS Glue catalog | Không | Không | Không (chỉ catalog, không đổi data format) |
+
+#### Lưu ý thực tế
+
+📝 **Ghi chú kỹ thuật:** VPC Flow Logs hỗ trợ cấu hình trực tiếp output format = Parquet (và Hive-style partition theo ngày/giờ) khi publish đến S3 — không cần một pipeline ETL riêng để convert, đây chính là lý do "ít operational overhead" của phương án C so với việc tự dựng Glue job để convert định kỳ.
+
+#### Quy tắc nhớ cho thi
+
+- **Redshift Spectrum/Athena query trên log lớn, chậm dần theo thời gian** → đổi sang **columnar format (Parquet/ORC)** + **partition theo thời gian**
+- **"Giảm dung lượng lưu trữ + tăng tốc truy vấn" cùng lúc** → luôn nghĩ tới **Parquet**, không phải đổi compression algorithm
+- **AWS Glue Data Catalog** → chỉ catalog/metadata, **không tối ưu hiệu năng query** của chính dữ liệu
+- **Đổi compression (gzip↔bzip2)** → hiếm khi là đáp án đúng khi vấn đề gốc là **row-based format + không partition**
 
 ### TD explanation
 

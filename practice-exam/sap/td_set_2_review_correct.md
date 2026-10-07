@@ -95,6 +95,67 @@ Which of the following solutions will meet the company requirements with the LEA
 
 🧠 **Rule:** Governed self-service launch → Service Catalog portfolio of CloudFormation products.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Data scientist (ít biết AWS)          AWS account công ty
+┌─────────────────────┐               ┌──────────────────────────┐
+│ Chỉ muốn bấm nút     │  self-service │ SageMaker Notebook        │
+│ "tạo notebook"       │ ────────────► │ (KMS key preconfigured,   │
+│ không muốn thấy       │               │  size: Small/Medium/Large)│
+│ CloudFormation/CLI    │               └──────────────────────────┘
+└─────────────────────┘
+Yêu cầu: LEAST operational overhead, ẩn hết độ phức tạp setup
+```
+
+Đáp án đúng: **D — CloudFormation template + AWS Service Catalog portfolio**. Anh chọn đúng D.
+
+#### Vì sao D đúng
+
+```
+CloudFormation template
+  (AWS::SageMaker::NotebookInstance, KMS key preconfigured)
+        │
+        ▼
+Mappings (Small/Medium/Large — ẩn tên instance type thật)
+        │
+        ▼
+AWS Service Catalog Portfolio
+        │ share với IAM role của data scientists
+        ▼
+Data scientist mở self-service portal → chọn size → bấm Launch
+```
+
+AWS Service Catalog sinh ra đúng cho bài toán này: team hạ tầng/an ninh đóng gói sẵn một "sản phẩm" CloudFormation đã cấu hình KMS key, rồi public nó qua portfolio cho end-user dùng qua portal tự phục vụ. Data scientist không cần biết CloudFormation là gì — chỉ thấy tham số đơn giản (Small/Medium/Large) nhờ phần Mappings. Đây chính là mẫu kiến trúc TD nhắc tới: "secured data science using Amazon SageMaker AI, AWS Service Catalog, and AWS KMS" — mã hóa storage volume được Service Catalog product ép dùng, không bao giờ lộ ra ngoài cho data scientist.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A — Proton + CLI script tự viết:** AWS Proton dùng để tạo self-service portal cho *platform templates* (hạ tầng chuẩn hoá cho dev team), không phải cơ chế end-user tự phục vụ sẵn có. Hơn nữa phải viết CLI script tùy biến và bắt data scientist tự chạy script trên máy họ — ngược hoàn toàn với "LEAST operational overhead" và "ẩn độ phức tạp".
+- **B — S3 website + API Gateway + Lambda:** khả thi nhưng tốn công viết website, viết Lambda function đúng logic tạo resource, và quan trọng hơn: công ty có *nhiều account* nên phải lặp lại Lambda cho từng account — overhead nhân lên theo số account.
+- **C — CFN template upload lên S3 cho user tự tải về:** user vẫn phải tự download template rồi tự upload vào console CloudFormation và tự điền tham số — không "self-service" đúng nghĩa, vẫn lộ chi tiết CloudFormation ra cho data scientist.
+
+#### So sánh nhanh
+
+| Lựa chọn | Ẩn độ phức tạp? | Multi-account overhead | Self-service thật? |
+|---|---|---|---|
+| **D. Service Catalog + CFN** | Có (Mappings) | Thấp — share portfolio | Có |
+| C. CFN trên S3 | Không | Trung bình | Không (vẫn phải tự upload) |
+| B. Website + Lambda | Không hẳn | Cao (per-account) | Có nhưng tốn công build |
+| A. Proton + CLI script | Không | Cao (chạy local) | Không |
+
+#### Lưu ý thực tế
+
+- Service Catalog không tự nó "cấp phép" — vẫn cần IAM permission để user được dùng portfolio; đề bài mô tả đúng bước "share với IAM role của data scientists".
+- KMS key preconfigured nằm sẵn trong CFN template nên user không bao giờ phải tự chọn/khai báo key — tránh cả lỗi cấu hình sai và lộ thông tin mã hóa.
+
+#### Quy tắc nhớ cho thi
+
+- **"Self-service, ẩn complexity, nhiều account, least overhead"** → **Service Catalog portfolio of CloudFormation products**
+- **AWS Proton** → self-service cho *platform/infra templates* của dev team, không phải end-user launch resource đơn giản
+- **"Upload template lên S3 cho người dùng tự tải"** → không tính là self-service thật
+
 ### TD explanation
 
 AWS Service Catalog allows organizations to create and manage catalogs of IT services that are approved for use on AWS. These IT services can include everything from virtual machine images, servers, software, and databases to complete multi-tier application architectures. AWS Service Catalog allows you to centrally manage deployed IT services and your applications, resources, and metadata.
@@ -142,6 +203,75 @@ What combination of steps will satisfy these requirements? (Select TWO.)
 ⚠️ **Watch:** Server access logs lack IAM identity detail; ⚠️ resource-level IAM conditions also decide Q75
 
 🧠 **Rule:** Per-user prefix → ${aws:PrincipalTag/...} policy; who accessed what → CloudTrail data events + Athena.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+IAM Identity Center group (R&D scientists)
+        │
+        ▼
+S3 bucket chung (research documents)
+   ├── scientist-1/*   ← chỉ scientist-1 đọc được
+   ├── scientist-2/*   ← chỉ scientist-2 đọc được
+   └── ...
+        │
+        ▼
+Yêu cầu thêm: báo cáo HÀNG THÁNG ai đã truy cập file nào
+```
+
+Đáp án đúng (Select TWO): **A + E**. Anh chọn đúng cả hai.
+
+#### Vì sao A đúng — IAM policy với condition tag là thứ THỰC SỰ cấp quyền
+
+```
+Identity-based policy gắn vào permission set của Identity Center role:
+
+Resource: arn:aws:s3:::bucket/${aws:PrincipalTag/userNameID}/*
+Effect: Allow
+```
+
+Đây là điểm mấu chốt: **IAM policy (có Condition dựa trên tag của principal) là công cụ GRANT quyền thực tế** — nó cho phép từng scientist chỉ đọc đúng prefix gắn với tag riêng của họ, dùng chính session từ IAM Identity Center. Không cần tạo bucket riêng, không cần Access Point riêng cho từng người — một policy dùng biến `${aws:PrincipalTag/...}` là đủ.
+
+#### Vì sao E đúng — CloudTrail data events mới ghi được "ai, truy cập gì"
+
+```
+S3 bucket  → CloudTrail data event logging (object-level API) → log bucket riêng
+                                                                      │
+                                                                      ▼
+                                                      Amazon Athena (Athena connector)
+                                                                      │
+                                                                      ▼
+                                                      Monthly report: user X đã GetObject file Y lúc nào
+```
+
+CloudTrail data events ghi chi tiết **identity của caller** cho từng S3 API call (GetObject, PutObject...) — đúng loại thông tin "ai truy cập file nào" mà audit hàng tháng cần. Athena truy vấn trực tiếp log này bằng SQL, serverless, trả chính xác báo cáo yêu cầu.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B — S3 Object Lock Governance + AWS Config weekly:** Object Lock chỉ chống sửa/xoá dữ liệu, không liên quan access control theo từng user. AWS Config đánh giá compliance cấu hình resource, không sinh ra báo cáo "ai đã đọc file nào" — sai cả hai vế của yêu cầu.
+- **C — S3 Access Point mỗi scientist + Server Access Logging + QuickSight:** Access Point riêng cho mỗi người có thể kiểm soát access nhưng cồng kềnh hơn một policy dùng tag; quan trọng hơn, **S3 Server Access Logging không có đủ chi tiết identity** để audit "ai" truy cập, và QuickSight là BI visualization chứ không phải công cụ audit report chi tiết.
+- **D — Server access logging lưu vào EMRFS, query bằng Athena:** EMRFS là hệ thống file cho EMR, hoàn toàn không cần thiết ở đây — Athena query trực tiếp S3 log được, không phải đi qua EMRFS; lại dùng server access logging (thiếu chi tiết identity) thay vì CloudTrail data events.
+
+#### So sánh nhanh
+
+| Lựa chọn | Cấp quyền per-user? | Audit "ai truy cập gì"? |
+|---|---|---|
+| **A. IAM policy + tag condition** | Có (prefix theo tag) | — |
+| **E. CloudTrail data events + Athena** | — | Có (identity-level) |
+| C. Access Point + Server Access Logging + QuickSight | Có nhưng cồng kềnh | Không đủ chi tiết |
+| B. Object Lock + Config | Không | Không |
+
+#### ⚠️ Dễ nhầm
+
+Mặt trái của bài học này: **IAM policy (identity-based, có Condition) GRANT quyền thật** — khác hẳn với SCP (Service Control Policy), vốn **không bao giờ grant quyền**, chỉ giới hạn trần quyền ở cấp account/OU. Ở Q75 và Q66 trong cùng bộ đề này, anh đã nhầm khi chọn đáp án dùng SCP để "authorize access cho một business unit/team cụ thể" — SCP không làm được việc đó, phải dùng IAM policy (như đúng cách Q19 này làm với tag condition).
+
+#### Quy tắc nhớ cho thi
+
+- **"Mỗi user chỉ truy cập file của chính mình, cùng một bucket"** → IAM policy với `${aws:PrincipalTag/...}` hoặc biến tương tự trên prefix
+- **"Ai đã truy cập resource nào, khi nào"** → CloudTrail data events + Athena, không phải Server Access Logging hay AWS Config
+- **"SCP authorizes/grants access cho một team"** → luôn SAI, SCP không grant; IAM policy mới grant
 
 ### TD explanation
 
@@ -193,6 +323,62 @@ Which of the following options is the recommended way to extend the current Acti
 
 🧠 **Rule:** Extend on-prem AD → AWS Managed Microsoft AD with trust relationship.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises Microsoft Active Directory
+        │  employees login bằng password Windows hiện có
+        ▼
+   Trust relationship cần được thiết lập
+        │
+        ▼
+AWS resources / Management Console / CLI
+Yêu cầu: SSO dùng NGUYÊN mật khẩu Windows đang có, "recommended way to extend"
+```
+
+Đáp án đúng: **A — AWS Directory Service tích hợp AD hiện có qua trust relationship, enable SSO bằng Managed Microsoft AD**. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+```
+On-prem AD domain  ◄──── trust relationship ────►  AWS Managed Microsoft AD
+                                                      (AWS Directory Service)
+                                                              │
+                                                              ▼
+                                            SSO vào AWS Management Console,
+                                            AWS CLI, Windows-based workloads
+```
+
+Vì công ty **đã có sẵn Microsoft AD**, cách "recommended" đúng nghĩa là dùng **AWS Directory Service for Microsoft AD** để thiết lập secure Windows trust giữa AD on-premises và AWS Managed Microsoft AD domain trên cloud. Trust relationship này chính là cơ chế "extend domain hiện tại sang AWS" — không tạo thêm hệ thống authentication mới, employees dùng nguyên password Windows.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B — Amazon Cognito:** Cognito dành cho **customer-facing web/mobile app** (đăng nhập qua social identity provider như Facebook/Google), không phải giải pháp extend corporate AD cho nhân viên nội bộ.
+- **C — IAM Identity Center + AWS Organizations:** chỉ dùng Identity Center *một mình* là không đủ — Identity Center vẫn cần tích hợp với AD thông qua AWS Directory Service ở bên dưới. Đề bài hỏi cách "extend AD domain", mà bước extend đó chính là AWS Directory Service, không phải Identity Center.
+- **D — IAM Roles cross-account:** cross-account access dùng để chia sẻ resource giữa các AWS account khác nhau, không liên quan gì đến việc đồng bộ authentication với AD on-premises.
+
+#### So sánh nhanh
+
+| Lựa chọn | Giải quyết đúng "extend AD hiện có"? | Vai trò thực sự |
+|---|---|---|
+| **A. AWS Directory Service + trust** | Có | Cầu nối trust giữa on-prem AD và AWS |
+| C. IAM Identity Center + Organizations | Không đủ một mình | SSO đa account, vẫn cần Directory Service bên dưới |
+| B. Cognito | Không | Auth cho app khách hàng |
+| D. IAM cross-account role | Không | Chia sẻ resource giữa account |
+
+#### Lưu ý thực tế
+
+- AWS Directory Service hỗ trợ cả hai mô hình: (1) standalone AWS Managed Microsoft AD, hoặc (2) kết nối tới AD on-premises có sẵn qua trust relationship — đề bài rơi vào trường hợp (2) vì công ty "đang dùng Microsoft Active Directory".
+- IAM Identity Center có thể tích hợp AD **thông qua** AWS Directory Service — hai dịch vụ này bổ sung cho nhau, không thay thế nhau; nếu đề chỉ cho một lựa chọn "Identity Center alone" thì vẫn thiếu bước AD integration.
+
+#### Quy tắc nhớ cho thi
+
+- **"Công ty đã có Microsoft AD, muốn SSO bằng password hiện có"** → **AWS Directory Service + trust relationship**
+- **"Customer-facing app, social login"** → Cognito, không phải Directory Service
+- **"IAM Identity Center" xuất hiện một mình không kèm Directory Service** → thường là lựa chọn thiếu, vì Identity Center cần tích hợp AD qua Directory Service
+
 ### TD explanation
 
 Because the company is using Microsoft Active Directory already, you can use AWS Directory Service for Microsoft AD to create secure Windows trusts between your on-premises Microsoft Active Directory domains and your AWS Microsoft AD domain in the AWS Cloud. By setting up a trust relationship, you can integrate SSO to the AWS Management Console and the AWS Command Line Interface (CLI), as well as your Windows-based workloads.
@@ -234,6 +420,67 @@ In this scenario, how will you provide the auditor access to the logs of your AW
 ⚠️ **Watch:** Never call AWS to grant access
 
 🧠 **Rule:** CloudTrail + least-privilege read-only IAM identity for the auditor.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+AWS resources (S3, DynamoDB, EC2)
+        │
+        ▼
+   AWS CloudTrail (ghi log mọi API call)
+        │
+        ▼
+   Auditor bên ngoài cần XEM log để compliance audit
+        │
+Yêu cầu: cách an toàn, đúng chuẩn để cấp quyền xem log cho auditor
+```
+
+Đáp án đúng: **B — Enable CloudTrail + tạo IAM user read-only + đưa access credential cho auditor**. Anh chọn đúng B.
+
+#### Vì sao B đúng
+
+```
+CloudTrail logging ON
+      │
+      ▼
+IAM User (riêng cho auditor)
+      │ policy: read-only trên các resource cần audit
+      ▼
+Access credential → đưa cho auditor
+      │
+      ▼
+Auditor tự xem log trong S3 bucket, không cần ai hỗ trợ thủ công
+```
+
+Đây là mô hình chuẩn: CloudTrail tự động ghi lịch sử API call liên tục; việc còn lại chỉ là **cấp một identity least-privilege (read-only)** cho auditor để họ tự truy cập log — không cần công ty can thiệp gì thêm mỗi lần auditor cần xem.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A — SNS gửi email kèm file log mỗi khi CloudTrail delivery:** rủi ro bảo mật rõ ràng — log compliance nhạy cảm không nên gửi qua email đính kèm; nên giữ log trong S3 bucket và cấp read access trực tiếp thay vì phát tán qua email.
+- **C — Liên hệ AWS để AWS tự cấp quyền cho auditor bên thứ ba:** không cần và không đúng quy trình — compliance audit không yêu cầu AWS phải "authorize" bên ngoài; AWS chỉ cần liên hệ trong trường hợp pentest, không phải audit log thông thường.
+- **D — Tạo IAM role gán cho EC2/S3/DynamoDB:** IAM role ở đây gắn sai đối tượng — role nên gắn (hoặc identity tương đương) cho chính auditor, không phải attach vào các resource EC2/S3/DynamoDB; auditor cần một identity để đăng nhập/gọi API, không phải resource cần role.
+
+#### So sánh nhanh
+
+| Lựa chọn | Đúng cơ chế cấp quyền? | Rủi ro bảo mật |
+|---|---|---|
+| **B. IAM user read-only + CloudTrail** | Có | Thấp |
+| A. SNS email log | Không cần thiết | Cao (lộ log qua email) |
+| C. Liên hệ AWS cấp quyền | Sai quy trình | — |
+| D. Role gắn vào EC2/S3/DynamoDB | Gắn sai đối tượng | — |
+
+#### Lưu ý thực tế
+
+- CloudTrail chỉ cần **enable logging to required resources** — không cần thiết lập gì đặc biệt để phục vụ audit, log tự được ghi liên tục vào S3.
+- Nguyên tắc least privilege: credential cấp cho auditor chỉ nên có quyền **read-only** trên đúng phạm vi tài nguyên cần audit, không hơn.
+
+#### Quy tắc nhớ cho thi
+
+- **"Auditor cần xem log compliance"** → CloudTrail (đã ghi log) + IAM identity read-only, không cần gọi AWS hỗ trợ
+- **"Gửi log qua email/SNS cho người ngoài"** → luôn là bẫy rủi ro bảo mật, loại ngay
+- **"Liên hệ AWS để cấp quyền"** → chỉ đúng cho pentest, không đúng cho audit log thông thường
 
 ### TD explanation
 
@@ -289,6 +536,64 @@ How should the solutions architect set up the user registration flow in AWS for 
 
 🧠 **Rule:** Mobile clients → temporary STS credentials (AssumeRole / Cognito).
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Mobile app (triệu users)
+        │  upload/download ảnh
+        ▼
+Amazon S3 bucket
+Yêu cầu: "millions of users", "most secure manner" cho user registration flow
+```
+
+Đáp án đúng: **B — IAM Role + STS AssumeRole sinh temporary credentials MỖI LẦN mở app, lưu trong memory app**. Anh chọn đúng B.
+
+#### Vì sao B đúng
+
+```
+User mở app
+      │
+      ▼
+App gọi STS AssumeRole (dùng IAM Role đã gán quyền S3)
+      │
+      ▼
+Temporary credentials (access key + secret key + session token)
+      │  lưu TRONG MEMORY app, không ghi ra file
+      ▼
+App dùng credentials này để upload/download ảnh trên S3
+      │
+Lần mở app tiếp theo → sinh credentials MỚI
+```
+
+Vì đây là mobile app public cho triệu người, **không bao giờ được nhúng credential tĩnh vào app** — mọi thiết bị cài app đều có thể bị decompile hoặc bị tấn công để lấy ra. STS AssumeRole giải quyết đúng vấn đề: mỗi lần app mở, sinh một bộ temporary credentials mới, có hạn dùng, không tồn tại lâu dài trên thiết bị.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A — "long-term credentials using AWS STS":** tự mâu thuẫn ngay trong câu chữ — STS sinh ra là để cấp **temporary** credentials, "long-term credentials từ STS" không đúng với bản chất dịch vụ và đi ngược yêu cầu "most secure" khi lưu credential dài hạn trong app.
+- **C — IAM user + access/secret key tĩnh nhúng vào app:** đây chính là kiểu credential tĩnh nguy hiểm nhất — một khi app bị reverse-engineer, key này không bao giờ đổi, kẻ tấn công dùng vĩnh viễn.
+- **D — Giống C nhưng thêm bucket policy:** vẫn là IAM user với key tĩnh nhúng trong app, bucket policy không giải quyết được vấn đề gốc là static credential bị lộ.
+
+#### So sánh nhanh
+
+| Lựa chọn | Loại credential | Vòng đời | An toàn cho app công khai? |
+|---|---|---|---|
+| **B. IAM Role + AssumeRole** | Temporary | Ngắn, sinh mới mỗi lần mở app | Có |
+| A. "Long-term STS" | Mâu thuẫn khái niệm | Dài hạn | Không |
+| C. IAM user key | Static | Vĩnh viễn | Không |
+| D. IAM user key + bucket policy | Static | Vĩnh viễn | Không |
+
+#### ⚠️ Dễ nhầm
+
+Nguyên tắc "EC2/app → AWS resource = IAM Role, lấy temp credentials qua STS/instance metadata" cũng chính là chỗ anh từng vấp ở **Q15** trong bộ đề này: dù đã chọn đúng hướng IAM Role + instance profile, anh lại **thêm một bước thừa** (lưu ARN của role vào SSM Parameter Store) — trong khi instance profile một mình đã đủ, không cần cơ chế nào khác để "gán" role. Ở Q55 này anh đã áp dụng đúng và gọn: chỉ IAM Role + AssumeRole, không thêm bước phụ nào. Ghi nhớ: khi đã có IAM Role gắn đúng cơ chế (instance profile cho EC2, AssumeRole cho app/mobile), đừng tự thêm bước "lưu/truyền ARN" — đó là dấu hiệu over-engineering trong các câu hỏi dạng này.
+
+#### Quy tắc nhớ cho thi
+
+- **"Mobile app / nhiều user, cần S3 access an toàn nhất"** → IAM Role + STS AssumeRole, credentials tạm trong memory
+- **"Long-term credentials" đi cùng STS** → mâu thuẫn, luôn là đáp án sai
+- **IAM user + access/secret key nhúng trong app** → luôn là bẫy kém an toàn nhất trong các câu dạng này
+
 ### TD explanation
 
 In this scenario, the best solution is to use a combination of an IAM Role and STS for authentication. The STS AssumeRole returns a set of temporary security credentials that you can use to access AWS resources that you might not normally have access to. These temporary credentials consist of an access key ID, a secret access key, and a security token. Typically, you use AssumeRole for cross-account access or federation.
@@ -331,6 +636,67 @@ Which of the following options must be checked to ensure the proper configuratio
 ⚠️ **Watch:** ⚠️ Same SAML family you missed in Q31 — AssumeRoleWithSAML, not WebIdentity
 
 🧠 **Rule:** Check AssumeRoleWithSAML params, role trust policy principal = SAML provider, role mapping in assertions.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises IdP (SAML 2.0)
+      │ SAML assertion
+      ▼
+Federated identity web portal
+      │ gọi STS AssumeRoleWithSAML
+      ▼
+AWS environment
+      │
+Solutions Architect: login OK      Other test users: KHÔNG vào được
+Yêu cầu: kiểm tra config nào để sửa lỗi (Select THREE)
+```
+
+Đáp án đúng: **A, C, E**. Anh chọn đúng cả ba.
+
+#### Vì sao A, C, E đúng — ba mảnh ghép bắt buộc của luồng AssumeRoleWithSAML
+
+```
+1) IAM role trust policy    → Principal = SAML provider      (C)
+2) IdP's SAML assertion     → map user/group → đúng IAM role  (E)
+3) Portal gọi STS           → AssumeRoleWithSAML(
+                                 SAMLProviderArn,
+                                 RoleArn,
+                                 SAMLAssertion)                (A)
+```
+
+Ba điều kiện này phải đồng thời đúng mới federation chạy được cho MỌI user, không chỉ admin:
+- **C** — trust policy của role phải set SAML provider làm Principal, đây là "cửa" cho phép AssumeRoleWithSAML được gọi thành công.
+- **E** — IdP phải định nghĩa assertion mapping user/group ↔ IAM role; nếu user khác không được map đúng role trong assertion, họ sẽ không AssumeRole được dù trust policy đúng.
+- **A** — client (portal) gọi API đúng cách: phải truyền đủ ARN của SAML provider, ARN của role, và SAML assertion — thiếu bất kỳ phần nào, STS từ chối.
+
+Vì SA (admin) vào được còn user khác thì không, nhiều khả năng là role mapping trong SAML assertion của IdP (E) chưa đúng cho các user/group khác, hoặc trust policy/role tương ứng của họ chưa đúng — đây đúng là phạm vi 3 điểm cần check.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B — "IAM policy của user phải Allow SAML federation":** sai vì user ở đây không có IAM user — quyền của họ nằm trong **IAM role được map qua assertion**, không có "IAM policy riêng của test user" nào để kiểm tra; phải xem role policy, không phải user policy.
+- **D — "users phải thuộc default AWSFederatedUser IAM group":** không tồn tại nhóm mặc định này trong AWS — bẫy tên nhóm giả.
+- **F — "VPC resources phải reach được IdP qua DNS hostname":** không liên quan trực tiếp tới việc federation hoạt động hay không; đây không phải điều kiện bắt buộc của luồng SAML.
+
+#### So sánh nhanh
+
+| Thành phần cần đúng | Vai trò |
+|---|---|
+| **C. Trust policy = SAML provider** | Cho phép role được AssumeRoleWithSAML |
+| **E. Role mapping trong SAML assertion** | Xác định user/group nào được role nào |
+| **A. ARN SAML provider + ARN role + assertion khi gọi API** | Đảm bảo lời gọi AssumeRoleWithSAML hợp lệ |
+
+#### ⚠️ Dễ nhầm
+
+Đây cùng họ SAML federation với **Q31** mà anh từng chọn sai: ở Q31 bẫy là nhầm **AssumeRoleWithWebIdentity** (dành cho web identity provider như Google/Facebook) với luồng SAML doanh nghiệp đúng phải là **AssumeRoleWithSAML** (qua IAM Identity Center hoặc trực tiếp). Ở Q57, anh đã nhận diện đúng rằng mọi cấu hình xoay quanh AssumeRoleWithSAML — không lẫn sang WebIdentity. Ghi nhớ chắc: **SAML corporate IdP luôn đi với AssumeRoleWithSAML**, không bao giờ đi với AssumeRoleWithWebIdentity.
+
+#### Quy tắc nhớ cho thi
+
+- **SAML federation không hoạt động cho một số user** → kiểm tra trust policy (Principal = SAML provider), role mapping trong assertion, và tham số gọi AssumeRoleWithSAML
+- **"SAML 2.0-compliant IdP"** → luôn gắn với **AssumeRoleWithSAML**, không phải AssumeRoleWithWebIdentity
+- **"Default AWSFederatedUser group"** → không tồn tại, luôn là bẫy
 
 ### TD explanation
 
@@ -392,6 +758,63 @@ Which of the following solutions is a secure architecture and allows the EC2 ins
 
 🧠 **Rule:** EC2 → S3 access = IAM role; credentials from instance metadata (not userdata).
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Mobile app               EC2 instance (web server)            S3 bucket
+┌───────────┐            ┌───────────────────┐                ┌─────────┐
+│ Upload ảnh│ ─────────► │ Thêm watermark,    │ ─────────────► │ Durable │
+└───────────┘            │ rồi upload S3      │                │ storage │
+                          └───────────────────┘                └─────────┘
+Yêu cầu: kiến trúc BẢO MẬT cho phép EC2 upload ảnh lên S3
+```
+
+Đáp án đúng: **B — IAM Role gán cho EC2, lấy temporary credentials từ instance metadata**. Anh chọn đúng B.
+
+#### Vì sao B đúng
+
+```
+IAM Role (permissions: s3:ListBucket, s3:PutObject)
+      │
+      ▼
+Attach vào EC2 instance (instance profile)
+      │
+      ▼
+App trên EC2 gọi instance metadata service
+      │
+      ▼
+Temporary security credentials → upload ảnh lên S3
+```
+
+EC2 instance gọi AWS resource (S3) thì cách chuẩn và an toàn nhất luôn là **IAM Role** — không bao giờ nhúng credential tĩnh vào application code. Role gắn vào instance qua instance profile; mọi process chạy trên instance tự lấy được temporary credentials từ **instance metadata**, không cần quản lý key thủ công, credentials tự xoay vòng.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A — Service Control Policy (SCP) gắn vào EC2 instance:** sai cả về bản chất SCP — SCP chỉ hoạt động ở cấp **account/OU** trong AWS Organizations, nó giới hạn hành động được phép, **không grant quyền cho bất kỳ user/role nào**, và càng không thể "attach" trực tiếp vào một EC2 instance.
+- **C — IAM user + launch instance "as the IAM user" + lấy credentials từ instance userdata:** sai hai lần — nên dùng IAM Role, không phải IAM user; và credentials phải lấy từ **instance metadata**, không phải userdata (userdata chỉ là script khởi tạo, không phải nơi lưu/lấy credentials).
+- **D — IAM service role đúng nhưng lấy credentials từ instance userdata:** gần đúng (có dùng IAM Role) nhưng sai điểm mấu chốt — vẫn ghi "lấy từ userdata" thay vì metadata, nên vẫn bị loại.
+
+#### So sánh nhanh
+
+| Lựa chọn | Cơ chế cấp quyền | Nguồn lấy credentials | Đúng? |
+|---|---|---|---|
+| **B. IAM Role** | Instance profile | Instance metadata | Có |
+| A. SCP | Không grant quyền | — | Không |
+| C. IAM user | Launch as IAM user | Instance userdata | Không |
+| D. IAM role | Instance profile | Instance userdata (sai) | Không |
+
+#### ⚠️ Dễ nhầm
+
+Nguyên tắc "EC2/app → S3 = IAM Role qua instance profile/metadata, không cần gì khác" chính là nơi anh từng vấp ở **Q15**: dù chọn đúng hướng IAM Role, anh lại thêm một bước thừa (lưu ARN role vào SSM Parameter Store) tưởng như "chắc chắn hơn" nhưng thực ra không cần thiết — instance profile một mình đã đủ để instance "mặc" role đó vào. Ở Q72 này anh làm đúng và gọn: chỉ IAM Role + instance metadata, không thêm cơ chế phụ. Ghi nhớ: câu hỏi IAM Role cho EC2 luôn chỉ cần **Role + instance profile + instance metadata** — bất kỳ bước "thêm" nào khác (SSM Parameter, userdata, SCP) đều là dấu hiệu sai hoặc dư thừa.
+
+#### Quy tắc nhớ cho thi
+
+- **"EC2 cần truy cập S3/AWS resource an toàn"** → IAM Role, credentials lấy từ **instance metadata**
+- **"SCP attach vào EC2/instance"** → luôn sai, SCP chỉ hoạt động ở cấp account/OU và không grant quyền
+- **"Credentials từ instance userdata"** → luôn sai, phải là instance **metadata**
+
 ### TD explanation
 
 This question tests your understanding of IAM, specifically on when to use an IAM Role over an SCP. Since the server is running on an EC2 instance and the application makes requests to S3 to store the photos, the more suitable option to use here is an IAM Role.
@@ -441,6 +864,53 @@ Which of the following options should the Solutions Architect implement to impro
 ⚠️ **Watch:** CloudFront can't natively route on full User-Agent logic
 
 🧠 **Rule:** Offload static to S3 + CloudFront; Lambda@Edge to vary content by device.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Mobile game viral → traffic đăng ký bùng nổ
+        │
+ALB ──► ASG EC2 (CPU cao, user bị sluggish)
+        │
+Website có static content theo device type (desktop/mobile/tablet...)
+```
+
+Yêu cầu: giảm tải cho EC2, cải thiện response time, mà vẫn phải phục vụ **nội dung static khác nhau theo User-Agent** của từng loại device. Đáp án đúng: **A** — đưa static content ra S3 + CloudFront, dùng **Lambda@Edge** để parse User-Agent và trả nội dung phù hợp. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+- **Tách static content ra S3**: EC2 không còn phải tự phục vụ ảnh/CSS/JS tĩnh → giảm hẳn CPU load, đúng với nguyên nhân gốc "EC2 CPU cao vì traffic viral".
+- **CloudFront làm CDN phía trước S3**: cache tại edge, giảm số request chạm tới origin, cải thiện response time toàn cục.
+- **Lambda@Edge**: chạy function tại edge location, đọc header `User-Agent` của viewer request, từ đó quyết định trả về nội dung nào (ảnh độ phân giải khác, layout khác...) theo device type — đúng yêu cầu "load khác nhau theo device type" mà đề đặt ra.
+- Lambda@Edge tự scale từ vài request/ngày tới hàng nghìn request/giây, không cần quản lý server — phù hợp traffic viral tăng vọt bất ngờ.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B sai** vì Network Load Balancer hoạt động ở **Layer 4** (TCP) — không đọc được HTTP header như `User-Agent` nằm ở **Layer 7**. NLB không thể route theo nội dung header này.
+- **C sai** vì tuy cũng dùng S3 + CloudFront, nhưng lại dựa vào việc **CloudFront cache theo giá trị header User-Agent** — AWS khuyến cáo **không nên làm vậy**: User-Agent có vô số giá trị khác nhau, cache theo nó khiến cache-hit-ratio giảm mạnh và CloudFront phải forward nhiều request hơn về origin, phản tác dụng với mục tiêu giảm tải.
+- **D sai** vì **Route 53 không có khả năng routing dựa trên HTTP header** — Route 53 chỉ hoạt động ở tầng DNS (domain → IP), không đọc được nội dung request HTTP.
+
+#### So sánh nhanh
+
+| Đáp án | Cơ chế | Vấn đề |
+|---|---|---|
+| **A (đúng)** | S3 + CloudFront + Lambda@Edge đọc User-Agent | Không có |
+| B | NLB cố đọc User-Agent | NLB là Layer 4, không đọc được header |
+| C | CloudFront cache theo User-Agent | Cache-hit-ratio tệ, nhiều request hơn tới origin |
+| D | Route 53 route theo header | Route 53 không đọc HTTP header |
+
+#### Lưu ý thực tế
+
+- Lambda@Edge chạy tại 4 điểm trong luồng CloudFront: viewer request, origin request, origin response, viewer response — dùng viewer request để đọc User-Agent sớm nhất và trả content phù hợp trước khi forward đi origin.
+- Nếu không cấu hình cache theo header, CloudFront tự ghi đè `User-Agent: Amazon CloudFront` khi forward về origin — nên muốn xử lý theo device type phải làm ở Lambda@Edge, không thể trông chờ vào origin đọc header gốc.
+
+#### Quy tắc nhớ cho thi
+
+- **"Nội dung khác nhau theo thiết bị/User-Agent trên CloudFront"** → **Lambda@Edge**, không phải CloudFront cache-by-header
+- **"Route/parse theo HTTP header"** → chỉ có thể làm ở Layer 7 (ALB rules hoặc Lambda@Edge), **không bao giờ** ở NLB hay Route 53
+- **"Giảm tải EC2 do static content"** → tách ra **S3 + CloudFront**
 
 ### TD explanation
 
@@ -498,6 +968,42 @@ As a Solutions Architect of the bank, how can you secure your AWS Storage Gatewa
 
 🧠 **Rule:** Secure iSCSI targets → CHAP authentication.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises ──iSCSI──► AWS Storage Gateway (Volume Gateway)
+                              │
+                     Bị replay attack: kẻ tấn công bắt data transmission
+                     rồi re-transmit / giả mạo IP packet
+```
+
+Yêu cầu: chặn replay attack trên kết nối **iSCSI** của Volume Gateway. Đáp án đúng: **D** — dùng **CHAP (Challenge-Handshake Authentication Protocol)** để xác thực kết nối iSCSI và initiator. Anh chọn đúng D.
+
+#### Vì sao D đúng
+
+- Volume Gateway expose volume ra ngoài dưới dạng **iSCSI target**, client (initiator) kết nối vào bằng protocol iSCSI.
+- **CHAP** là cơ chế xác thực được Storage Gateway hỗ trợ sẵn cho chính kết nối iSCSI đó — mỗi volume target có thể gán một hoặc nhiều cặp CHAP credentials.
+- CHAP có cơ chế challenge-response (không truyền lại password/secret dạng cố định qua mạng mỗi lần), nên **chống được replay attack**: kẻ tấn công bắt được một transmission cũ không thể dùng lại để giả mạo kết nối mới.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì đổi sang **CIFS/SMB** không liên quan gì đến cơ chế chống replay attack — đây là đổi protocol file-sharing, không giải quyết vấn đề xác thực kết nối iSCSI.
+- **B sai** vì đổi sang **iSCSI Virtual Tape Library (VTL) Interface** — VTL là interface dành cho **Tape Gateway**, không áp dụng cho Volume Gateway đang dùng trong bài.
+- **C sai** vì CHAP được dùng để xác thực **iSCSI**, không phải **NFS**. NFS là protocol khác (dùng cho File Gateway), CHAP không áp dụng ở đó.
+
+#### Lưu ý thực tế
+
+- ⚠️ Trong bài, dễ nhầm giữa "CHAP cho NFS" (sai — C) và "CHAP cho iSCSI" (đúng — D): CHAP luôn gắn với iSCSI/initiator connections, không bao giờ với NFS.
+- Volume Gateway dùng iSCSI block interface; Tape Gateway mới dùng iSCSI-VTL interface — hai loại gateway khác mục đích, không hoán đổi cơ chế bảo mật cho nhau.
+
+#### Quy tắc nhớ cho thi
+
+- **"Replay attack trên Volume Gateway / iSCSI"** → **CHAP authentication**
+- **"CHAP"** → luôn gắn với **iSCSI**, tuyệt đối không phải NFS
+- **"VTL interface"** → chỉ dành cho **Tape Gateway**, không phải Volume Gateway
+
 ### TD explanation
 
 In AWS Storage Gateway, your iSCSI initiators connect to your volumes as iSCSI targets. Storage Gateway uses Challenge-Handshake Authentication Protocol (CHAP) to authenticate iSCSI and initiator connections. CHAP provides protection against playback attacks by requiring authentication to access storage volume targets. For each volume target, you can define one or more CHAP credentials. You can view and edit these credentials for the different initiators in the Configure CHAP credentials dialog box.
@@ -539,6 +1045,59 @@ Which of the following options should the Solutions Architect implement to meet 
 ⚠️ **Watch:** ⚠️ Q44: OAC enforces the CloudFront path, not a specific client
 
 🧠 **Rule:** S3 origin → OAC; ALB origin → CloudFront custom header checked by WAF on the ALB.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+                 CloudFront distribution
+                 /                    \
+   S3 (static media, private)    ALB ──► Fargate tasks (dynamic content)
+
+Route 53 Alias record ──► CloudFront (đã đúng)
+Yêu cầu: static VÀ dynamic đều chỉ truy cập được qua CloudFront (không đi tắt vào S3 hay ALB)
+```
+
+Chọn **HAI** giải pháp — một cho origin S3, một cho origin ALB. Đáp án đúng: **B (custom header + WAF trên ALB)** + **C (OAC cho S3)**. Anh chọn đúng B, C.
+
+#### Vì sao B, C đúng
+
+**C — origin S3:**
+- Tạo **Origin Access Control (OAC)**, gắn vào CloudFront distribution, rồi set bucket policy của S3 chỉ cho phép access từ OAC đó.
+- OAC dùng SigV4-signed request để CloudFront gọi S3 — ai request trực tiếp bằng S3 URL (không qua CloudFront, không có signature) sẽ bị từ chối.
+
+**B — origin ALB (Fargate phía sau):**
+- ALB không hỗ trợ cơ chế OAC như S3. Giải pháp tương đương là: CloudFront **thêm custom header** vào mọi origin request gửi tới ALB → gắn **AWS WAF web ACL** vào **ALB** với rule: request **không có custom header đó** thì bị deny.
+- Vì chỉ CloudFront (được cấu hình thêm header) mới gửi request có header này, bất kỳ ai gọi trực tiếp vào ALB (bỏ qua CloudFront) sẽ bị WAF chặn ở tầng ALB.
+
+Hai giải pháp này bổ sung cho nhau: một khóa đường vào S3, một khóa đường vào ALB — đúng yêu cầu "cả static và dynamic chỉ qua CloudFront".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **D sai** vì web ACL lại gắn vào **CloudFront distribution** thay vì ALB. Request mới tới CloudFront chưa có custom header (CloudFront mới là bên *thêm* header rồi mới forward đi origin) → WAF trên CloudFront có thể chặn ngay cả request hợp lệ ban đầu từ user. Header chỉ tồn tại ở đoạn **CloudFront → origin**, nên WAF phải đặt ở phía origin (ALB), không phải phía CloudFront.
+- **E sai** vì CloudFront **không có IP range cố định** — nếu set NACL chỉ cho phép IP của CloudFront, phải tự cập nhật liên tục theo AWS IP pool, không bền vững và dễ lỗi.
+- **A sai** vì **S3 bucket ACL không có khả năng giới hạn truy cập chỉ từ CloudFront** — cơ chế đúng cho việc này là OAC + bucket policy, không phải ACL.
+
+#### So sánh nhanh
+
+| Origin | Cơ chế khóa | Đáp án |
+|---|---|---|
+| S3 (static) | OAC + bucket policy | **C (đúng)** |
+| ALB (dynamic) | CloudFront custom header + WAF trên **ALB** | **B (đúng)** |
+| ALB (dynamic) | WAF trên **CloudFront** (sai vị trí) | D (sai) |
+| ALB (dynamic) | NACL theo IP CloudFront | E (sai — IP không cố định) |
+| S3 (static) | Bucket ACL | A (sai — không hỗ trợ) |
+
+#### Lưu ý thực tế
+
+⚠️ Dễ nhầm: OAC chỉ đảm bảo request **đi qua đúng đường CloudFront**, chứ không giới hạn **ai** được dùng CloudFront URL đó (xem Q44 ở nhóm wrong-answer — OAC + HTTPS thôi không đủ để giới hạn "chỉ một client cụ thể"). Ở Q53 này, yêu cầu chỉ là "chỉ qua CloudFront" (không giới hạn client nào), nên OAC (cho S3) + custom header/WAF (cho ALB) là đủ — khác bài toán của Q44 cần thêm signed URL/cookie để giới hạn đúng một người dùng.
+
+#### Quy tắc nhớ cho thi
+
+- **"S3 origin chỉ truy cập qua CloudFront"** → **OAC** + bucket policy
+- **"ALB/custom origin chỉ truy cập qua CloudFront"** → CloudFront thêm **custom header** + **WAF web ACL gắn vào ALB** (không gắn vào CloudFront)
+- **"Giới hạn theo IP CloudFront"** → sai, vì CloudFront không có IP cố định
 
 ### TD explanation
 
@@ -611,6 +1170,54 @@ In this scenario, which of the following meets all of the requirements?
 
 🧠 **Rule:** Key never leaves → CloudHSM with TCP LB; logs → private S3 with SSE.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises ──hybrid──► AWS
+                          │
+                   ELB ──► EC2 instances
+
+Yêu cầu:
+1. SSL key luôn được giữ AN TOÀN tuyệt đối
+2. Application logs chỉ một số ít người dùng được decrypt
+```
+
+Đáp án đúng: **D** — ELB **TCP load balancing** + **AWS CloudHSM** xử lý SSL transactions + logs lưu trên **S3 private với SSE**. Anh chọn đúng D.
+
+#### Vì sao D đúng
+
+- **CloudHSM** cho phép tạo và lưu giữ private key trong một hardware security module FIPS 140-2 Level 3 — **private key không bao giờ rời khỏi HSM**, đáp ứng đúng yêu cầu "SSL key luôn giữ an toàn tuyệt đối" tốt hơn là upload key vào EC2 hay S3.
+- **ELB chạy TCP load balancing (Layer 4)**: vì CloudHSM là bên thực hiện SSL/TLS handshake (offload SSL), ELB chỉ cần forward traffic ở layer TCP, không terminate SSL tại ELB.
+- **Logs lưu trên S3 private + SSE (Server-Side Encryption)**: S3 là storage bền (durable), SSE mã hóa dữ liệu tại rest, và việc ai được decrypt (qua quyền KMS/key) có thể giới hạn cho một nhóm nhỏ người dùng — đáp ứng "chỉ một số ít người dùng decrypt được logs".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì logs được lưu trên **ephemeral volume** — loại storage tạm, dữ liệu mất khi instance dừng/terminate, không đảm bảo logs được giữ lại lâu dài hay durable.
+- **B sai** vì **upload private key lên EC2 instance** để tự offload SSL — vi phạm trực tiếp yêu cầu "SSL key luôn an toàn", vì key nằm trên OS của EC2, dễ bị truy cập hơn CloudHSM. Thêm vào đó logs cũng lưu ephemeral volume như A.
+- **C sai** vì EC2 **retrieve private key từ một S3 bucket non-public khi boot** — về nguyên tắc **không nên lưu private key nhạy cảm trên S3**, dù bucket có private hay không, vì rủi ro rò rỉ lớn hơn CloudHSM.
+
+#### So sánh nhanh
+
+| Đáp án | Nơi xử lý SSL key | Nơi lưu logs | Vấn đề |
+|---|---|---|---|
+| **D (đúng)** | CloudHSM | S3 private + SSE | Không |
+| A | CloudHSM | Ephemeral volume | Logs không durable |
+| B | Private key trên EC2 | Ephemeral volume | Key không an toàn + logs không durable |
+| C | Private key trên S3, load khi boot | S3 private + SSE | Key không nên lưu trên S3 |
+
+#### Lưu ý thực tế
+
+- CloudHSM tự động hóa các việc vận hành HSM phức tạp: hardware provisioning, patching, high availability, backup — và tự đồng bộ key giữa các HSM trong cluster, nên vẫn scale và HA được dù key "không rời HSM".
+- Nguyên tắc chung khi thấy đề nhắc "private key phải luôn an toàn tuyệt đối": loại ngay các lựa chọn để key trên EC2 hoặc S3 — chỉ CloudHSM (hoặc KMS cho các trường hợp khác) mới đáp ứng.
+
+#### Quy tắc nhớ cho thi
+
+- **"SSL/TLS key phải tuyệt đối an toàn"** → **AWS CloudHSM**, không bao giờ để private key trên EC2 hoặc S3
+- **"CloudHSM xử lý SSL"** → ELB chạy **TCP load balancing** (Layer 4), không terminate SSL tại ELB
+- **"Logs cần durable + decrypt hạn chế"** → **S3 private + SSE**, không dùng ephemeral volume
+
 ### TD explanation
 
 AWS CloudHSM is a cloud-based hardware security module (HSM) that enables you to easily generate and use your own encryption keys on the AWS Cloud. With CloudHSM, you can manage your own encryption keys using FIPS 140-2 Level 3 validated HSMs. CloudHSM offers you the flexibility to integrate with your applications using industry-standard APIs, such as PKCS#11, Java Cryptography Extensions (JCE), and Microsoft CryptoNG (CNG) libraries.
@@ -667,6 +1274,57 @@ Which of the following are the recommended actions to accomplish the above requi
 
 🧠 **Rule:** ACM certificate + long Cache-Control max-age.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Viewer ──HTTPS?──► CloudFront (custom domain: tutorialsdojo.com) ──► Origin
+```
+
+Hai yêu cầu riêng biệt (chọn HAI):
+1. Bắt buộc **HTTPS** giữa viewer và CloudFront, dùng **custom domain**
+2. Tăng **cache hit ratio** để giảm request chạm tới origin
+
+Đáp án đúng: **A (Cache-Control max-age dài)** + **B (ACM certificate)**. Anh chọn đúng A, B.
+
+#### Vì sao A, B đúng
+
+**B — custom domain + HTTPS:**
+- Khi dùng domain riêng (không phải `*.cloudfront.net`), CloudFront **không thể tự cấp SSL/TLS certificate** như trường hợp domain mặc định — phải **dùng certificate từ AWS Certificate Manager (ACM)**, hoặc import certificate bên thứ ba **vào ACM** (hoặc IAM certificate store).
+- Đây là bước bắt buộc để cấu hình Viewer Protocol Policy yêu cầu HTTPS trên custom domain.
+
+**A — tăng cache hit ratio:**
+- Cấu hình origin thêm **Cache-Control max-age** với giá trị càng dài càng tốt (trong giới hạn hợp lý) → CloudFront giữ object trong cache lâu hơn, giảm số lần phải forward request về origin để kiểm tra object có thay đổi hay không.
+- max-age ngắn → CloudFront phải "hỏi lại" origin thường xuyên hơn → cache hit ratio thấp hơn.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **C sai** vì **import SSL/TLS certificate vào S3** — về nguyên tắc **không nên lưu certificate (public hay private) trên S3 bucket**; certificate bên thứ ba phải import **vào ACM**, không phải S3.
+- **D sai** vì **Lambda@Edge** dùng để tùy biến nội dung CloudFront trả về (ví dụ theo User-Agent, theo cookie...), không liên quan đến việc cải thiện cache hit ratio.
+- **E sai** vì **Amazon OpenSearch + Kibana** dùng cho log analytics / monitoring thời gian thực, không phải cơ chế cache của CloudFront — không ảnh hưởng gì tới cache hit ratio.
+
+#### So sánh nhanh
+
+| Đáp án | Mục tiêu nhắm tới | Vấn đề |
+|---|---|---|
+| **A (đúng)** | Tăng cache hit ratio | Không |
+| **B (đúng)** | HTTPS cho custom domain | Không |
+| C | "HTTPS" nhưng sai nơi lưu cert | Cert không nên lưu trên S3 |
+| D | Không liên quan cache hit ratio | Lambda@Edge dùng để customize content |
+| E | Không liên quan cache hit ratio | OpenSearch/Kibana chỉ để phân tích log |
+
+#### Lưu ý thực tế
+
+⚠️ Dễ nhầm (liên quan Q1 — nhóm wrong-answer): **ACM public certificate hoàn toàn miễn phí**, chỉ cần verify quyền sở hữu domain qua DNS hoặc email — không có lý do gì phải trả phí hoặc dùng S3 để lưu certificate. Ngược lại, **ACM Private Certificate** mới tính phí theo tháng (cần Private CA) và chỉ cần thiết cho PKI nội bộ, không áp dụng cho website public như bài này. Việc "import certificate bên thứ ba" luôn đưa **vào ACM**, chưa từng có chuyện lưu certificate trực tiếp trên S3 trong bất kỳ ngữ cảnh AWS hợp lệ nào.
+
+#### Quy tắc nhớ cho thi
+
+- **"Custom domain + HTTPS trên CloudFront"** → **ACM certificate** (public, free), attach vào distribution
+- **"Tăng cache hit ratio"** → **Cache-Control max-age** dài nhất có thể trên origin
+- **"Certificate của bên thứ ba"** → import **vào ACM**, tuyệt đối không lưu trên S3
+- **"Lambda@Edge" / "OpenSearch+Kibana"** → không liên quan đến cache hit ratio, chỉ là bẫy
+
 ### TD explanation
 
 You can configure one or more cache behaviors in your CloudFront distribution to require HTTPS for communication between viewers and CloudFront. You also can configure one or more cache behaviors to allow both HTTP and HTTPS so that CloudFront requires HTTPS for some objects but not for others. The configuration steps depend on which domain name you’re using in object URLs:
@@ -713,6 +1371,51 @@ Which of the following options could satisfy this requirement?
 ⚠️ **Watch:** Distribution ID is not a valid S3 principal
 
 🧠 **Rule:** S3 origin locked to CloudFront → Origin Access Control + bucket policy.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Partner companies ──┬──► S3 URL trực tiếp (KHÔNG được phép)
+                     │
+                     └──► CloudFront distribution ──► S3 bucket (origin)
+
+Yêu cầu: tất cả file confidential chỉ được truy cập qua CloudFront.
+```
+
+Đáp án đúng: **A** — tạo **Origin Access Control (OAC)**, gắn vào CloudFront distribution, đổi quyền S3 bucket chỉ cho OAC đọc. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+- Mặc định, nếu S3 bucket cho phép "everyone" đọc object, user vẫn có thể truy cập trực tiếp qua **S3 URL** dù CloudFront không hề expose URL đó công khai — vì S3 URL vẫn tồn tại độc lập và có thể bị lộ (ứng dụng trả về trực tiếp, hoặc ai đó share link).
+- **OAC** là một "CloudFront user" đặc biệt, được CloudFront dùng để ký (SigV4) các request gửi tới S3. Khi gắn OAC vào distribution và **đổi permission S3 bucket chỉ cho OAC đọc**, mọi request trực tiếp bằng S3 URL (không có signature của OAC) sẽ bị từ chối.
+- Kết quả: file chỉ truy cập được **qua CloudFront** — đúng yêu cầu đề bài, dù không cần giới hạn một client cụ thể nào (khác với bài toán "chỉ một client" ở Q44).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **D sai** vì **CloudFront Distribution ID không phải là một Principal hợp lệ** trong S3 bucket policy — cú pháp này không hoạt động về mặt kỹ thuật, cần dùng OAC (được AWS cung cấp đúng cơ chế) thay vì tự viết policy với Distribution ID.
+- **C sai** vì gán một **IAM user** có quyền truy cập bucket cho CloudFront không tạo ra cơ chế **loại trừ** truy cập trực tiếp — IAM user chỉ quản lý quyền của "ai" gọi API, không chặn được việc người dùng cuối (viewer) gõ thẳng S3 URL.
+- **B sai** vì không cần viết **policy riêng cho từng bucket** — đây là việc làm thừa, không giải quyết gốc vấn đề (chặn truy cập trực tiếp vào S3), lại tốn công vận hành khi có nhiều bucket.
+
+#### So sánh nhanh
+
+| Đáp án | Cơ chế | Chặn được S3 URL trực tiếp? |
+|---|---|---|
+| **A (đúng)** | OAC + bucket policy chỉ cho OAC | Có |
+| B | Policy riêng từng bucket cho CloudFront | Không hợp lý, thừa thao tác |
+| C | Gán IAM user cho CloudFront | Không chặn trực tiếp S3 URL |
+| D | Bucket policy với Distribution ID là Principal | Sai cú pháp, không hoạt động |
+
+#### Lưu ý thực tế
+
+⚠️ Dễ nhầm: **OAC chỉ đảm bảo request đi đúng đường qua CloudFront**, nó không giới hạn **AI** được dùng CloudFront URL đó. Nếu đề yêu cầu thêm "chỉ MỘT client cụ thể" (như Q44 ở nhóm wrong-answer) thì phải bổ sung **CloudFront signed URL/signed cookie** mới đủ — OAC một mình không đáp ứng được mức giới hạn đó. Ở Q69 này, đề chỉ yêu cầu "chặn truy cập trực tiếp S3, buộc đi qua CloudFront" (không giới hạn client nào), nên OAC một mình là đủ và đúng.
+
+#### Quy tắc nhớ cho thi
+
+- **"Chỉ truy cập được qua CloudFront, chặn S3 URL trực tiếp"** → **OAC** + sửa bucket policy chỉ cho OAC đọc
+- **"Chỉ MỘT client cụ thể truy cập được"** → cần thêm **signed URL / signed cookie**, OAC không đủ
+- **CloudFront Distribution ID** không bao giờ là một **Principal** hợp lệ trong IAM/bucket policy
 
 ### TD explanation
 
@@ -768,6 +1471,46 @@ In this scenario, which of the following items can you use to build a durable, h
 
 🧠 **Rule:** RDS Multi-AZ + read replicas, S3 for media, CloudFront.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+News website, 5M readers/tháng, global
+┌─────────────┐     ┌──────────────┐     ┌──────────────┐
+│ Cover image │     │ Article text │     │ Comments      │
+│ (static)    │     │ (DB record)  │     │ (3 tháng đầu) │
+└─────────────┘     └──────────────┘     └──────────────┘
+Yêu cầu: durable + highly available + scalable (Select TWO)
+```
+
+Đề cho 5 lựa chọn nhưng chỉ cần đúng 2 cấu phần: nơi lưu **ảnh/media tĩnh** và nơi chạy **database**. Đáp án đúng: **B** (RDS Multi-AZ + Read Replicas, S3 cho media) + **D** (CloudFront). Anh chọn đúng cả hai.
+
+#### Vì sao B và D đúng
+
+- **B — RDS Multi-AZ + Read Replicas, S3 cho media:** Multi-AZ cho **high availability** (failover tự động khi AZ gặp sự cố), Read Replicas cho **scalability** (san tải đọc cho lượng truy cập khổng lồ hàng tháng). S3 lưu ảnh bìa và media đạt **11 số 9 durability**, đúng yêu cầu "durable".
+- **D — CloudFront:** bài viết được đọc nhiều nhất trong 2 tháng đầu, độc giả ở khắp toàn cầu → CDN cache nội dung gần người dùng, tải trang nhanh hơn bất kể vị trí địa lý — đúng yêu cầu "scalable" cho lưu lượng global.
+
+Hai lựa chọn này bổ sung cho nhau: D xử lý **tầng phân phối** (network/CDN), B xử lý **tầng lưu trữ** (data layer) — tạo thành một giải pháp hoàn chỉnh.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì Lambda **không có khái niệm Auto-Healing** — Lambda là serverless, function chỉ chạy theo event, không có "instance" nào cần tự hồi phục.
+- **C sai** vì **RDS không hỗ trợ Oracle RAC (Real Application Clusters)**. RAC là tính năng cluster của Oracle chạy trên hạ tầng riêng mà RDS không cung cấp.
+- **E sai** vì **RAID 0 không có redundancy** — một disk hỏng là mất toàn bộ dữ liệu (ngược hẳn với yêu cầu "durable"). TD giải thích thêm: dù dùng RAID 1 (mirroring) thì EBS vẫn kém durable và kém scalable hơn S3.
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm:** RAID 0 trên EBS tăng **IOPS/throughput** (striping), không tăng độ bền — đề thi hay gài "RAID 0 để lưu dữ liệu quan trọng" như một cái bẫy. Muốn durable thật, phải dùng S3 hoặc ít nhất RAID 1/EBS snapshot, chứ RAID 0 không bao giờ là lựa chọn cho "durable storage".
+
+#### Quy tắc nhớ cho thi
+
+- **"Static media (ảnh, video) + cần durable + scalable"** → **Amazon S3**, không phải EBS
+- **"Global readers, cần tải nhanh mọi nơi"** → **CloudFront**
+- **"RDS + Oracle RAC"** → luôn là **bẫy sai**, RDS không hỗ trợ RAC
+- **"RAID 0"** → chỉ tăng performance, **không tăng độ bền dữ liệu**
+- **Lambda** → không có "Auto-Healing", vì nó không chạy instance thường trực
+
 ### TD explanation
 
 In this scenario, the main objective is to provide a durable, highly-available and scalable architecture for the website. You can use CloudFront as a CDN, then Amazon RDS with Multi-AZ deployments and Read Replicas to provide scalability and high-availability for the millions of incoming traffic every month. Lastly, you can use an S3 bucket to durably store the images and other static media content of the website.
@@ -811,6 +1554,52 @@ What would happen to the database during failover?
 
 🧠 **Rule:** Multi-AZ failover flips the DB endpoint CNAME to the standby.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Web tier: ASG multi-AZ + ALB
+DB tier:  RDS Multi-AZ
+              │
+   Maintenance window → patch OS trên primary
+              │
+          FAILOVER xảy ra
+              │
+   Điều gì thay đổi để app vẫn kết nối được DB?
+```
+
+Câu hỏi thuần lý thuyết: cơ chế failover của RDS Multi-AZ hoạt động **như thế nào** ở tầng network. Đáp án đúng: **D** — CNAME record của DB endpoint được đổi từ primary sang standby. Anh chọn đúng D.
+
+#### Vì sao D đúng
+
+RDS Multi-AZ tạo **một DB endpoint duy nhất** mà ứng dụng luôn kết nối tới (ví dụ `mydb.xxxxx.rds.amazonaws.com`). Endpoint này thực chất là một **CNAME record**, trỏ tới IP của instance đang là primary tại thời điểm đó. Khi failover xảy ra (do patch OS, do AZ down, do primary lỗi…), RDS **không tạo instance mới**, không cần ứng dụng đổi connection string — RDS chỉ **cập nhật lại CNAME** để nó trỏ sang standby instance vừa được promote thành primary mới. Ứng dụng "vô tình" kết nối đúng chỗ vì DNS tự cập nhật.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **C sai** vì IP address **không di chuyển** — chỉ CNAME đổi hướng, không có việc "switch IP của primary sang standby". Đây là điểm TD nhấn mạnh rõ: CNAME thay đổi, không phải IP.
+- **B sai** vì RDS instance **không tự reboot** trong quá trình failover — standby vốn đã chạy sẵn (đồng bộ dữ liệu liên tục), chỉ cần được promote, không cần khởi động lại.
+- **A sai** vì **không có instance mới nào được tạo** — standby đã tồn tại từ trước (đó chính là ý nghĩa của Multi-AZ: luôn có bản sao đồng bộ sẵn sàng), failover chỉ là việc promote standby có sẵn.
+
+#### So sánh nhanh
+
+| Đáp án | Cơ chế đề xuất | Đúng không? |
+|---|---|---|
+| **D (đúng)** | Đổi CNAME từ primary sang standby | ✅ |
+| C | Đổi IP address | ❌ — IP không đổi, chỉ CNAME đổi |
+| B | Tự động reboot | ❌ — standby đã chạy sẵn, không cần reboot |
+| A | Tạo instance mới | ❌ — standby có sẵn từ lúc tạo Multi-AZ |
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm:** Multi-AZ chỉ là cơ chế **High Availability (HA)**, giúp failover nhanh trong **cùng Region** — nó **không phải Disaster Recovery (DR)** giữa các Region. Nếu đề hỏi về khôi phục sau khi **toàn bộ Region** sập, câu trả lời phải xoay quanh **Read Replica cross-region**, snapshot cross-region, hoặc Aurora Global Database — không phải Multi-AZ.
+
+#### Quy tắc nhớ cho thi
+
+- **"RDS Multi-AZ failover"** → chỉ đổi **CNAME endpoint**, IP và instance ID không đổi
+- **"Standby instance"** → luôn đã tồn tại và đồng bộ sẵn, failover là **promote**, không phải **tạo mới**
+- **"Multi-AZ" ≠ "Disaster Recovery"** — Multi-AZ là HA trong 1 Region, DR cần giải pháp cross-region
+
 ### TD explanation
 
 Amazon RDS Multi-AZ deployments provide enhanced availability and durability for Database (DB) Instances, making them a natural fit for production database workloads. When you provision a Multi-AZ DB Instance, Amazon RDS automatically creates a primary DB Instance and synchronously replicates the data to a standby instance in a different Availability Zone (AZ). Each AZ runs on its own physically distinct, independent infrastructure, and is engineered to be highly reliable. In case of an infrastructure failure, Amazon RDS performs an automatic failover to the standby (or to a read replica in the case of Amazon Aurora), so that you can resume database operations as soon as the failover is complete.
@@ -852,6 +1641,52 @@ Which of the following would be the best architecture setup to satisfy the above
 ⚠️ **Watch:** Spot for a steady-state HA tier is risky
 
 🧠 **Rule:** Multi-AZ ASG + ELB + CloudFront + RDS Multi-AZ.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Issue tracking system — khách hàng toàn cầu
+Yêu cầu: scalable + highly available + fault-tolerant
+Database: OLTP, steady-state usage
+AWS Well-Architected Tool → cần HA + fault-tolerant design
+```
+
+Đề cho 4 kiến trúc khác nhau, mỗi cái khác ở: loại EC2 (Spot/On-Demand), DB (RDS Multi-AZ/Read Replica/DynamoDB), và deploy tool. Đáp án đúng: **B** — CloudFormation + ASG multi-AZ + ELB + CloudFront + RDS Multi-AZ. Anh chọn đúng B.
+
+#### Vì sao B đúng
+
+- **ASG multi-AZ + ELB**: đúng cả hai yêu cầu "scalable" (auto scaling theo tải) và "highly available" (instance phân tán nhiều AZ, ELB route traffic tránh AZ lỗi).
+- **CloudFront**: giảm tải cho origin, cải thiện tốc độ cho khách hàng toàn cầu.
+- **RDS Multi-AZ**: đúng với đặc tính **OLTP steady-state** — Multi-AZ đảm bảo DB luôn có failover sẵn sàng khi 1 instance down, đúng yêu cầu "fault-tolerant".
+- **CloudFormation**: TD khuyến nghị dùng IaC để launch kiến trúc, dù không phải điểm quyết định chính nhưng là best practice được đề cập.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì dùng **Spot Instances** — Spot không phù hợp cho workload **steady-state** (ổn định, liên tục) vì có thể bị interrupt bất cứ lúc nào, phá vỡ tính "highly available" cho hệ thống OLTP chạy liên tục. Ngoài ra chỉ dùng **Read Replicas** thay vì Multi-AZ — Read Replica chỉ phục vụ đọc, availability kém hơn Multi-AZ nhiều.
+- **C sai** vì **Dedicated EC2 instance không có Auto Scaling** → không scalable, không HA. Ngoài ra **Redshift dùng cho OLAP** (data warehouse phân tích), không phù hợp cho **OLTP** như đề yêu cầu.
+- **D sai** vì chỉ dùng **"multiple On-Demand instances"** không qua Auto Scaling Group, và **không triển khai across multiple AZs** → thiếu cả tính scalable và HA theo đúng nghĩa.
+
+#### So sánh nhanh
+
+| Đáp án | EC2 | Multi-AZ? | DB | Vấn đề |
+|---|---|---|---|---|
+| **B (đúng)** | ASG + ELB, multi-AZ | Có | RDS Multi-AZ | Không có |
+| A | ASG Spot | — | RDS Read Replica | Spot không ổn định cho steady-state; Read Replica ≠ HA |
+| C | Dedicated, không ASG | — | Redshift (OLAP) | Không scalable; sai loại DB |
+| D | On-Demand, không ASG | Không rõ multi-AZ | DynamoDB | Thiếu ASG, thiếu multi-AZ |
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm:** **Multi-AZ (HA)** và **Read Replica (scale đọc)** giải quyết hai bài toán khác nhau — Multi-AZ không cải thiện read performance, Read Replica không tự động failover thành primary khi chính nó gặp sự cố (phải manual promote). Đề hay gài: "dùng Read Replica để tăng availability" — sai, Read Replica chỉ tăng khả năng đọc, không thay thế được Multi-AZ cho HA.
+
+#### Quy tắc nhớ cho thi
+
+- **"Steady-state workload"** → **Reserved/On-Demand + Auto Scaling**, tránh Spot làm nền tảng chính
+- **"OLTP"** → RDS/Aurora; **"OLAP/data warehouse"** → Redshift
+- **"HA + fault-tolerant cho RDS"** → **Multi-AZ**, không phải Read Replica
+- **"Scalable + HA cho web tier"** → luôn cần **ASG trải nhiều AZ + ELB**
 
 ### TD explanation
 
@@ -898,6 +1733,56 @@ Which of the following options offers the BEST solution for this scenario?
 
 🧠 **Rule:** Macie for PII; S3 IA after 1 month; RDS Multi-AZ for AZ failure.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Photo-sharing site
+┌─────────────────────┐        ┌─────────────────────────┐
+│ MySQL RDS            │        │ S3 Standard bucket       │
+│ (user data)           │        │ (photos + PII metadata)  │
+│ → down khi AZ lỗi     │        │ → chỉ hot 1 tháng đầu    │
+└─────────────────────┘        └─────────────────────────┘
+Yêu cầu: (1) tự động phát hiện/bảo vệ PII trong S3
+         (2) retrieve ảnh NGAY LẬP TỨC bất kể lưu bao lâu
+         (3) hết downtime khi AZ gặp sự cố
+```
+
+Đáp án đúng: **C** — Amazon Macie (PII) + lifecycle sang S3 Infrequent Access sau 1 tháng + RDS Multi-AZ. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+- **Amazon Macie**: đây là dịch vụ **chuyên biệt** để tự động discover, classify, protect PII trong S3 bằng machine learning — đúng chính xác yêu cầu đề bài.
+- **S3 Standard → Infrequent Access (IA) sau 1 tháng**: dữ liệu chỉ "hot" trong tháng đầu rồi giảm truy cập, nhưng vẫn cần **retrieve ngay lập tức** — IA vẫn cho **millisecond access**, chỉ khác Standard ở giá lưu trữ/giá truy xuất, không có delay retrieval như Glacier.
+- **RDS Multi-AZ**: giải quyết đúng vấn đề "RDS luôn down khi AZ gặp sự cố" — Multi-AZ failover sang standby tự động, giữ site luôn hoạt động.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì dùng **Amazon Inspector** thay vì Macie — Inspector là dịch vụ **đánh giá bảo mật tự động cho EC2/container**, không liên quan gì tới phát hiện PII. Ngoài ra dùng **Glacier Deep Archive** cho ảnh cũ — vi phạm yêu cầu "retrieve ngay lập tức", vì Glacier Deep Archive có retrieval time hàng giờ.
+- **B sai** vì vẫn dùng **Inspector** sai dịch vụ cho PII, và thay RDS Multi-AZ bằng **Read Replicas** — Read Replica chỉ cho phép đọc, nếu primary down thì **không ghi được** (ví dụ user mới không đăng ký được), không giải quyết downtime như yêu cầu.
+- **D sai** vì thay S3 bằng **EBS Volumes** (không scalable bằng S3 cho lưu trữ media) và thay RDS bằng **Redshift** — Redshift là data warehouse phân tích (OLAP), không phải nơi lưu transactional user data.
+
+#### So sánh nhanh
+
+| Đáp án | Dịch vụ PII | Storage class | DB fix |
+|---|---|---|---|
+| **C (đúng)** | Macie | S3 IA sau 1 tháng | RDS Multi-AZ |
+| A | Inspector (sai) | Glacier Deep Archive (chậm) | RDS Multi-AZ |
+| B | Inspector (sai) | S3 IA | Read Replica (không fix write-down) |
+| D | Macie | EBS + Redshift (sai service) | — |
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm:** Amazon Inspector và Amazon Macie dễ bị gài nhầm vào nhau trên đề thi — **Inspector = security assessment cho EC2/ECR** (tìm lỗ hổng phần mềm), **Macie = phát hiện & bảo vệ dữ liệu nhạy cảm (PII) trong S3**. Thấy từ khóa "PII" hoặc "sensitive data trong S3" → luôn là Macie.
+
+#### Quy tắc nhớ cho thi
+
+- **"Tự động phát hiện PII trong S3"** → **Amazon Macie**, không phải Inspector
+- **"Access ngay lập tức dù ít dùng"** → **S3 Standard-IA**, không dùng Glacier (có retrieval delay)
+- **"RDS down khi AZ lỗi"** → fix bằng **Multi-AZ**, Read Replica không giải quyết được write-availability
+- **Redshift** → chỉ dùng cho data warehouse/OLAP, không phải thay thế cho RDS OLTP
+
 ### TD explanation
 
 Amazon Macie is a security service that uses machine learning to automatically discover, classify, and protect sensitive data in AWS. Amazon Macie recognizes sensitive data such as personally identifiable information (PII) or intellectual property and provides you with dashboards and alerts that give visibility into how this data is being accessed or moved. The fully managed service continuously monitors data access activity for anomalies and generates detailed alerts when it detects the risk of unauthorized access or inadvertent data leaks. Today, Amazon Macie is available to protect data stored in Amazon S3, with support for additional AWS data stores soon.
@@ -942,6 +1827,55 @@ Which of the following options should the Solutions Architect implement in order
 ⚠️ **Watch:** An ALB can't span Regions
 
 🧠 **Rule:** Separate ALB+ASG per Region + Route 53 failover routing.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+us-west-1 (primary)                us-east-1 (DR, passive)
+┌─────────────────────┐            ┌─────────────────────┐
+│ ALB (multi-AZ)        │            │ ALB (multi-AZ)        │
+│ ASG (multi-AZ)        │            │ ASG (multi-AZ)        │
+└─────────────────────┘            └─────────────────────┘
+          │                                   │
+          └────────── Route 53 ───────────────┘
+        Record trỏ tới 2 ALB, health check,
+        yêu cầu: us-east-1 là PASSIVE backup
+```
+
+Yêu cầu chốt: us-east-1 chỉ **đứng dự phòng (passive)**, nhận traffic khi us-west-1 fail — đây chính xác là bài toán **active-passive failover**. Đáp án đúng: **C** — mỗi Region có ALB+ASG riêng, Route 53 health check + **failover routing policy**. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+- **Mỗi Region tự có ALB + ASG multi-AZ riêng**: vì ALB và Auto Scaling group **chỉ hoạt động trong một Region** — không có "cross-region ALB" hay "cross-region ASG".
+- **Route 53 health check + failover routing policy**: đây là cơ chế chính xác để tạo **active-passive**: Route 53 chỉ trả về record của resource "healthy primary"; khi primary down, mới chuyển sang secondary. Điều này khớp hoàn toàn với yêu cầu "DR site đóng vai trò passive backup" — tức bình thường **không nhận traffic**, chỉ nhận khi primary fail.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì cố gắng dùng **Inter-Region VPC peering** để một ASG "trải" cả hai Region và một ALB phục vụ cả hai — nhưng **Auto Scaling group không thể span nhiều Region**, và **ALB không thể route traffic sang EC2 instance ở Region khác**, dù có VPC peering.
+- **D sai** cùng lỗi: ALB không span được multiple Region, ASG cũng không deploy instance xuyên Region được, VPC peering không thay đổi được giới hạn này.
+- **B sai** vì kiến trúc kỹ thuật đúng (ALB+ASG riêng mỗi Region) nhưng **không chỉ rõ routing policy** — chỉ "tạo record riêng + enable health check" là chưa đủ để tạo **active-passive**; nếu không chọn đúng failover routing policy, Route 53 có thể trả về cả hai record (giống active-active), vi phạm yêu cầu "passive backup".
+
+#### So sánh nhanh
+
+| Đáp án | VPC peering? | ALB/ASG span region? | Routing policy |
+|---|---|---|---|
+| **C (đúng)** | Không cần | Riêng mỗi Region | **Failover** (đúng active-passive) |
+| B | Không cần | Riêng mỗi Region | Không chỉ rõ policy (sai) |
+| A | Có (vô nghĩa) | Cố span region (không thể) | — |
+| D | Có (vô nghĩa) | Cố span region (không thể) | Alias đơn giản (không failover) |
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm:** ALB có thể "span multiple Availability Zones" **trong cùng một Region**, nhưng **không bao giờ span được nhiều Region** — dù có VPC peering kết nối hai VPC ở hai Region, ALB vẫn chỉ route traffic tới target trong cùng Region của nó. VPC peering chỉ giải quyết network connectivity, không thay đổi được giới hạn scope của ALB/ASG.
+
+#### Quy tắc nhớ cho thi
+
+- **"DR site là passive backup"** → Route 53 **failover routing policy** + health check
+- **ALB / Auto Scaling group** → luôn giới hạn trong **một Region**, không bao giờ span cross-region
+- **"VPC peering"** → chỉ giải quyết network connectivity, **không** làm ALB/ASG hoạt động cross-region
+- **"Active-active" vs "active-passive"** → active-active dùng routing policy khác (weighted, latency…), active-passive **bắt buộc dùng failover policy**
 
 ### TD explanation
 
@@ -1000,6 +1934,52 @@ Which of the following options should the solutions architect implement to meet 
 
 🧠 **Rule:** Stateless tiers + ElastiCache for state + RDS Multi-AZ with read replicas.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Web tier ── App tier ── DB tier
+  │             │           │
+ ASG           ASG       RDS
+Traffic: large + unpredictable
+Yêu cầu: HA + auto-scale mọi tầng
+```
+
+Bốn lựa chọn khác nhau ở 3 trục: **stateful vs stateless** instance, **có/không có caching** cho tier sync, và **RDS Read Replica + Multi-AZ hay chỉ một trong hai**. Đáp án đúng: **D** — stateless + ElastiCache Serverless + RDS Read Replicas **và** Multi-AZ. Anh chọn đúng D.
+
+#### Vì sao D đúng
+
+- **Stateless web/app tier**: với traffic "lớn và không thể đoán trước", instance phải **stateless** để Auto Scaling group có thể scale-in/scale-out tự do — bất kỳ instance nào cũng xử lý được request tiếp theo, không cần biết lịch sử phiên trước.
+- **Amazon ElastiCache Serverless**: dùng để đồng bộ dữ liệu session/trạng thái giữa các tier thay vì lưu trong instance → giữ instance stateless mà vẫn chia sẻ được thông tin dùng chung.
+- **RDS Read Replicas + Multi-AZ cùng lúc**: đây là điểm khác biệt chính so với các lựa chọn khác — **Read Replicas xử lý workload đọc nhiều** (fetch dữ liệu bệnh nhân khổng lồ mỗi ngày), **Multi-AZ đảm bảo high availability** khi một AZ gặp sự cố. Hai cơ chế **giải quyết hai vấn đề khác nhau** (scale đọc vs HA) nên cần **cả hai**, không phải chọn một.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì dùng **stateful instance** (phá vỡ khả năng auto scale linh hoạt) và chỉ dùng **Read Replicas** (không có Multi-AZ → thiếu HA).
+- **B sai** cùng lỗi stateful, và chỉ có **Multi-AZ** (không có Read Replica → DB vẫn là bottleneck cho lượng đọc lớn, vì Multi-AZ không cải thiện read performance).
+- **C sai** vì dùng stateless + ElastiCache đúng, nhưng DB tier **chỉ có Multi-AZ, thiếu Read Replicas** — Multi-AZ chỉ cải thiện Availability, không cải thiện khả năng đọc dữ liệu lớn như đề yêu cầu ("millions of requests per day to fetch data").
+
+#### So sánh nhanh
+
+| Đáp án | Instance | Caching | RDS |
+|---|---|---|---|
+| **D (đúng)** | Stateless | ElastiCache Serverless | Read Replicas + Multi-AZ |
+| C | Stateless | ElastiCache Serverless | Chỉ Multi-AZ |
+| B | Stateful | Không | Chỉ Multi-AZ |
+| A | Stateful | Không | Chỉ Read Replicas |
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm:** **RDS Multi-AZ không cải thiện read throughput** — nó chỉ tạo bản sao đồng bộ (synchronous) dùng cho failover, standby không phục vụ query đọc thông thường. Muốn tăng khả năng đọc, phải dùng **Read Replicas** (bản sao bất đồng bộ, phục vụ SELECT). Đề thi hay đưa 2 lựa chọn "chỉ Multi-AZ" hoặc "chỉ Read Replica" làm mồi nhử — thực tế khi cả HA và scale-đọc đều cần, phải chọn đáp án có **cả hai**.
+
+#### Quy tắc nhớ cho thi
+
+- **"Unpredictable traffic + cần auto scale"** → instance phải **stateless**
+- **State cần share giữa instance** → **ElastiCache** (không lưu trong local instance)
+- **"Đọc nhiều + cần HA"** → RDS cần **cả Read Replicas (đọc) và Multi-AZ (HA)**, không phải chỉ một
+- **Multi-AZ** ≠ tăng read performance; **Read Replica** ≠ tự động failover thành primary
+
 ### TD explanation
 
 When users or services interact with an application, they will often perform a series of interactions that form a session. A session is unique data for users that persists between requests while they use the application. A stateless application is an application that does not need knowledge of previous interactions and does not store session information.
@@ -1045,6 +2025,51 @@ Which solution will meet the given requirements?
 ⚠️ **Watch:** Stop/start may change host and private IP behavior; reboot doesn't move hosts
 
 🧠 **Rule:** StatusCheckFailed_System alarm → EC2 recover action (keeps IPs, metadata).
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Stateful licensing app trên 1 EC2 instance
+Client luôn kết nối tới CÙNG MỘT IP
+AWS hardware bên dưới gặp lỗi (hardware failure)
+   → cần instance TỰ ĐỘNG recover, giữ nguyên cấu hình network
+```
+
+Yêu cầu chốt: recovery phải **tự động**, và instance phải giữ nguyên **instance ID, private IP, Elastic IP** sau khi phục hồi. Đáp án đúng: **C** — CloudWatch alarm theo dõi **StatusCheckFailed_System** để trigger **EC2 recovery action**. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+- **StatusCheckFailed_System** là metric chuyên biệt để phát hiện lỗi ở **tầng hạ tầng AWS** (hardware/host), khác với StatusCheckFailed_Instance (lỗi ở tầng OS/instance).
+- **EC2 recovery action** (gắn trực tiếp vào CloudWatch alarm) sẽ **tự động di chuyển instance sang host vật lý khác** mà vẫn **giữ nguyên instance ID, private IP address, và Elastic IP** — đúng chính xác yêu cầu "client phải tiếp tục connect vào cùng IP sau khi recover".
+- Đây là cơ chế **native, tự động hoàn toàn**, không cần Lambda hay script trung gian — đúng yêu cầu "recover automatically".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A sai** vì lệnh **`reboot-instances`** chỉ khởi động lại instance **trên cùng host vật lý đang lỗi** — không giải quyết được vấn đề hardware failure, vì phần cứng hỏng vẫn còn đó.
+- **B sai** vì **stop/start** instance sẽ đưa nó lên **host mới** (đúng hướng), và Elastic IP vẫn giữ được IP public — nhưng đây là giải pháp **thủ công/gián tiếp** (phải tự dựng CloudWatch alarm gọi stop rồi start), kém tin cậy hơn recovery action native, và theo TD "disrupts the ephemeral state" — tức có thể mất dữ liệu ephemeral (như instance store) trong quá trình stop/start.
+- **D sai** vì **Systems Manager patch** chỉ xử lý lỗi **software/OS-level** — một status check failure ở tầng **System (hardware)** thì patch OS hoàn toàn không liên quan, không giải quyết được gốc vấn đề.
+
+#### So sánh nhanh
+
+| Đáp án | Cơ chế | Giữ IP? | Tự động? | Giải quyết hardware failure? |
+|---|---|---|---|---|
+| **C (đúng)** | CloudWatch alarm + EC2 recovery action | ✅ (instance ID, private IP, EIP) | ✅ | ✅ — di chuyển sang host mới |
+| B | Stop/start qua alarm | ✅ (chỉ EIP, nhờ gán sẵn) | Có cấu hình nhưng gián tiếp | ✅ nhưng kém tin cậy, mất ephemeral state |
+| A | Lambda gọi reboot | — | ✅ | ❌ — reboot vẫn trên host hỏng |
+| D | SSM patch | — | ✅ | ❌ — patch không fix hardware |
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm:** `StatusCheckFailed_System` (lỗi hạ tầng AWS) khác hẳn `StatusCheckFailed_Instance` (lỗi OS/cấu hình bên trong instance) — chỉ loại đầu mới cần đến **EC2 recovery action** (di chuyển host). Ngoài ra, **stop/start** đưa instance lên host mới giống recovery, nhưng **private IP sẽ bị đổi nếu không dùng Elastic IP** — còn recovery action native thì **giữ nguyên cả private IP** mà không cần Elastic IP.
+
+#### Quy tắc nhớ cho thi
+
+- **"Giữ nguyên IP sau khi hardware failure, cần tự động"** → **CloudWatch alarm + StatusCheckFailed_System + EC2 recovery action**
+- **Reboot** → chỉ fix lỗi mềm, **không di chuyển host**, vô dụng với hardware failure
+- **Stop/start** → có thể dùng tạm nhưng là giải pháp thủ công, kém hơn recovery action native
+- **SSM patching** → chỉ dành cho lỗi OS/software, không liên quan tới hardware check
 
 ### TD explanation
 
@@ -1095,6 +2120,74 @@ Which of the following steps should the Solutions Architect implement to allow t
 ⚠️ **Watch:** Inbound endpoint is for on-prem → AWS queries
 
 🧠 **Rule:** Route 53 Resolver outbound endpoint + forwarding rule to AD DNS; keep AmazonProvidedDNS.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+VPC
+┌─────────────────────────────────────────────────────┐
+│ EC2 instances                                         │
+│    │  cần resolve:                                    │
+│    │   1) private.tutorialsdojo.com (AD domain FQDN)   │
+│    │   2) VPC interface endpoint (Kinesis via PrivateLink)│
+│    ▼                                                   │
+│ Route 53 Resolver (AmazonProvidedDNS)                  │
+└─────────────────────────────────────────────────────┘
+      Domain controllers (AWS Managed Microsoft AD) trong VPC
+Yêu cầu: resolve CẢ HAI loại domain (Select TWO)
+```
+
+Đáp án đúng: **A + D**. Anh chọn đúng cả hai.
+
+#### Vì sao A + D đúng — outbound endpoint và forwarding rule là hai nửa của một giải pháp
+
+```
+Route 53 Resolver (AmazonProvidedDNS mặc định của VPC)
+      │
+      ├── tự resolve: VPC-local domain, private hosted zone, VPC endpoint  ✓ (có sẵn)
+      │
+      └── domain KHÁC (private.tutorialsdojo.com) → cần forward ra ngoài
+                │
+                ▼
+        Outbound Endpoint (D)  ─── tạo trên Route 53 console
+                │
+                ▼
+        Forwarding Rule (A) ─── forward query private.tutorialsdojo.com
+                │              tới IP của 2 domain controllers
+                ▼
+        AD domain controllers trả lời FQDN
+```
+
+- **D (Outbound Endpoint)** là hạ tầng bắt buộc để Resolver có thể gửi query ra ngoài VPC-local domain tới DNS resolver khác (ở đây là domain controllers của AD).
+- **A (Forwarding Rule)** là luật cụ thể đặt trên outbound endpoint: query nào khớp `private.tutorialsdojo.com` thì forward tới IP của domain controllers.
+
+Khi có cả hai, AmazonProvidedDNS vẫn giữ nguyên là DNS resolver của VPC — Resolver tự biết: domain AD thì forward theo rule, còn VPC endpoint và các domain AWS khác vẫn tự resolve như bình thường (vì đó là khả năng có sẵn của Resolver, không cần cấu hình thêm).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B — "Conditional forwarder inside the endpoint":** sai vị trí cấu hình — **conditional forwarder được cấu hình bên trong chính AD server**, không phải trên Route 53 Resolver endpoint. Route 53 side dùng "forwarding rule", không phải "conditional forwarder".
+- **C — Tự cấu hình split DNS trên từng client:** khả thi về lý thuyết nhưng tạo quá nhiều **operational overhead** — phải sửa DNS config trên từng instance thủ công, trong khi outbound endpoint + forwarding rule làm việc này tập trung, tự động cho toàn VPC.
+- **E — Inbound Endpoint:** sai chiều hoàn toàn — **Inbound Endpoint dùng để on-premises network query vào AWS resource**, không phải để VPC resolve ra domain bên ngoài VPC-local.
+
+#### So sánh nhanh
+
+| Loại endpoint | Chiều resolve | Dùng khi nào |
+|---|---|---|
+| **Outbound Endpoint (D)** | VPC → domain bên ngoài VPC-local (AD, on-prem) | VPC cần resolve custom domain |
+| Inbound Endpoint (E) | On-premises → AWS resource | Mạng ngoài cần resolve tên trong VPC |
+
+#### Lưu ý thực tế
+
+- Nếu nhiều forwarding rule cùng khớp một query (ví dụ `tutorialsdojo.com` và `portal.tutorialsdojo.com`), Resolver luôn chọn **rule khớp cụ thể nhất** (most specific match) để forward.
+- Instance vẫn khai báo DNS resolver là **AmazonProvidedDNS** như cũ — không cần đổi DNS server trên từng client, vì toàn bộ logic forward nằm ở outbound endpoint + rule.
+
+#### Quy tắc nhớ cho thi
+
+- **"VPC cần resolve domain AD/on-prem + vẫn giữ AmazonProvidedDNS"** → **Outbound Endpoint + Forwarding Rule**
+- **"Conditional forwarder"** → cấu hình trong AD server, không phải trên Route 53 Resolver
+- **"On-prem cần resolve tên trong AWS"** → Inbound Endpoint, chiều ngược lại với bài này
 
 ### TD explanation
 
@@ -1154,6 +2247,74 @@ Which of the following options below can meet this requirement? (Select TWO.)
 
 🧠 **Rule:** Fix NACL + SG; AWS Config for configuration history.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+VPC, cùng Availability Zone
+┌──────────────────┐        ┌──────────────────┐
+│ Subnet A          │        │ Subnet B          │
+│  EC2: database    │ ◄────► │ EC2: web app      │
+└──────────────────┘        └──────────────────┘
+Hai yêu cầu:
+  1) Hai instance phải connect được với nhau
+  2) Phải TRACK lịch sử thay đổi của security config (Select TWO)
+```
+
+Đáp án đúng: **A + B**. Anh chọn đúng cả hai.
+
+#### Vì sao A đúng — NACL + Security Group là nơi quyết định traffic đi được hay không
+
+```
+Web app (Subnet B) ──► Network ACL của Subnet A/B (cho phép traffic giữa 2 subnet)
+                   ──► Security Group của DB instance (cho phép port/protocol đúng)
+                   ──► DB instance (Subnet A)
+```
+
+Hai instance nằm ở hai subnet khác nhau trong cùng VPC/AZ thì về routing mặc định đã thông nhau (route table local); vấn đề connect được hay không nằm ở **tầng filtering**: Network ACL (chặn/cho phép theo subnet) và Security Group (chặn/cho phép theo instance, theo port/protocol cụ thể). Cả hai phải được cấu hình đúng cùng lúc.
+
+#### Vì sao B đúng — AWS Config là dịch vụ chuyên biệt cho lịch sử cấu hình
+
+```
+EC2 instance / Security Group
+        │
+        ▼
+   AWS Config
+        │ liên tục record configuration
+        ▼
+   Configuration history + compliance evaluation
+```
+
+AWS Config được thiết kế đúng cho yêu cầu "track historical changes to security configurations" — nó liên tục ghi nhận thay đổi cấu hình resource (bao gồm Security Group rules) và cho phép xem lại lịch sử, đánh giá compliance.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **C — Route 53 để routing giữa hai subnet:** Route 53 là DNS service, **không có khả năng routing network giữa các subnet** — việc đó thuộc về route table (đã có sẵn, local route) và NACL/Security Group cho filtering.
+- **D — AWS Systems Manager để track lịch sử security config:** Systems Manager phục vụ quản lý vận hành (patch, session, automation...), **không phải công cụ theo dõi lịch sử thay đổi cấu hình** — đúng việc này phải dùng AWS Config.
+- **E — NAT instance/Internet Gateway (IGW):** không cần thiết cho giao tiếp NỘI BỘ giữa hai instance trong VPC — NAT/IGW chỉ liên quan khi cần đi ra Internet, không liên quan đến traffic giữa hai subnet private.
+
+#### So sánh nhanh
+
+| Lựa chọn | Giải quyết connectivity? | Giải quyết audit history? |
+|---|---|---|
+| **A. NACL + SG** | Có | — |
+| **B. AWS Config** | — | Có |
+| C. Route 53 | Không (DNS, không routing) | — |
+| D. Systems Manager | — | Không (sai dịch vụ) |
+| E. NAT/IGW | Không (chỉ cho Internet-bound traffic) | — |
+
+#### Lưu ý thực tế
+
+- Security Group là **stateful** và hoạt động ở tầng instance; Network ACL là **stateless** và hoạt động ở tầng subnet — trong hầu hết trường hợp Security Group đủ dùng, nhưng NACL là lớp bảo vệ bổ sung khi cần kiểm soát ở cấp subnet.
+- AWS Config không chỉ lưu lịch sử mà còn so sánh với "desired configuration" để đánh giá compliance — hữu ích hơn việc chỉ xem log thủ công.
+
+#### Quy tắc nhớ cho thi
+
+- **"Hai instance cùng VPC khác subnet không connect được"** → kiểm tra Network ACL (subnet-level) + Security Group (instance-level)
+- **"Track lịch sử thay đổi cấu hình security"** → **AWS Config**, không phải Systems Manager
+- **Route 53 / NAT / IGW** → không liên quan đến connectivity nội bộ giữa subnet trong cùng VPC
+
 ### TD explanation
 
 AWS provides two features that you can use to increase security in your VPC: security groups and network ACLs. Security groups control inbound and outbound traffic for your instances, and network ACLs control inbound and outbound traffic for your subnets. In most cases, security groups can meet your needs; however, you can also use network ACLs if you want an additional layer of security for your VPC.
@@ -1202,6 +2363,68 @@ Which of the following solutions will allow VPC-A to communicate with the databa
 
 🧠 **Rule:** Longest-prefix match: /32 route to VPC-B host, /16 to VPC-C.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+                 VPC-A (172.16.0.0/16)
+                       │         │
+            pcx-aaaabbbb         pcx-aaaacccc
+                 │                     │
+       VPC-B (10.0.0.0/16)     VPC-C (10.0.0.0/16)   ← CÙNG CIDR, overlap!
+  DB instance: 10.0.0.77/32            (toàn bộ resource)
+
+Yêu cầu: VPC-A chỉ cần nói với MỘT host (10.0.0.77) trong VPC-B,
+         nhưng cần nói với TOÀN BỘ VPC-C
+```
+
+Đáp án đúng: **B**. Anh chọn đúng B.
+
+#### Vì sao B đúng — longest prefix match giải quyết overlap CIDR
+
+```
+VPC-A route table:
+  10.0.0.77/32   → pcx-aaaabbbb   (route cụ thể nhất, chỉ 1 host trong VPC-B)
+  10.0.0.0/16    → pcx-aaaacccc   (route rộng, cho toàn bộ VPC-C)
+
+VPC-B route table:
+  172.16.0.0/16  → pcx-aaaabbbb   (route về lại VPC-A)
+
+VPC-C route table:
+  172.16.0.0/16  → pcx-aaaacccc   (route về lại VPC-A)
+```
+
+Vì VPC-B và VPC-C có CIDR **trùng nhau** (10.0.0.0/16), VPC-A không thể có hai route cùng đích 10.0.0.0/16 chỉ tới hai peering connection khác nhau — sẽ xung đột. Giải pháp là dùng **longest prefix match**: route `/32` (cụ thể nhất, chỉ trúng đúng 10.0.0.77) trỏ về VPC-B qua `pcx-aaaabbbb`; mọi traffic khác trong dải `10.0.0.0/16` (route rộng hơn) tự động đi qua `pcx-aaaacccc` tới VPC-C. VPC router luôn ưu tiên route khớp cụ thể nhất.
+
+Lưu ý: vì AWS **không hỗ trợ unicast reverse path forwarding** trong VPC peering, VPC-B và VPC-C vẫn cần có static route riêng trỏ ngược về VPC-A (172.16.0.0/16) qua đúng peering connection của mình — route table của B và C trong đáp án B đã làm đúng việc này.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A — Route /24 cho cả B và C + thêm NACL để chặn:** route 10.0.0.0/24 trỏ tới cả hai peering connection sẽ **xung đột ngay trên VPC-A** (không rõ traffic đi đường nào); và NACL chỉ có khả năng **chặn (deny) traffic ra**, hoàn toàn không thể "redirect" traffic sang target khác — dùng NACL để sửa vấn đề routing là sai công cụ.
+- **C — Route /24 cho B, /16 cho C:** phần route cho VPC-C đúng, nhưng route `10.0.0.0/24` cho VPC-B lại quá rộng — nó bao trùm cả những IP thuộc dải `/24` đó mà thực ra nằm trong VPC-C (vì hai VPC trùng CIDR), khiến traffic đến các IP đó trong VPC-C bị route sai sang VPC-B.
+- **D — Dynamic route propagation:** dynamic route propagation chủ yếu dùng cho **Direct Connect hoặc Site-to-Site VPN**, không áp dụng cho VPC peering — peering luôn cần static route; thêm NACL cũng không đúng vai trò routing như đã nói ở A.
+
+#### So sánh nhanh
+
+| Lựa chọn | Route VPC-B | Route VPC-C | Vấn đề |
+|---|---|---|---|
+| **B. Đúng** | /32 (host cụ thể) | /16 (toàn VPC-C) | Không |
+| A | /24 (quá rộng) | /24 (quá rộng) | Xung đột + dùng NACL sai mục đích |
+| C | /24 (quá rộng) | /16 | Route B đè lên IP thuộc C |
+| D | Dynamic propagation | Dynamic propagation | Sai cơ chế (chỉ dùng cho DX/VPN) |
+
+#### Lưu ý thực tế
+
+- Đây là tình huống kinh điển "partial access with overlapping CIDR" trong VPC peering — AWS chính thức hỗ trợ route tới **một phần CIDR hoặc một instance cụ thể** của VPC peer, không bắt buộc share toàn bộ CIDR.
+- Luôn kiểm tra cả ba chiều route (A→B, A→C, và ngược lại) vì thiếu route ngược chiều ở B hoặc C sẽ làm response traffic không về được VPC-A.
+
+#### Quy tắc nhớ cho thi
+
+- **"Hai VPC peer có CIDR trùng nhau, cần route khác nhau cho từng cái"** → dùng **longest prefix match**: route cụ thể hơn (ví dụ /32) ưu tiên trước route rộng hơn
+- **NACL** → chỉ chặn (deny), không bao giờ dùng để "redirect" traffic sang peering connection khác
+- **Dynamic route propagation** → chỉ cho Direct Connect / VPN, VPC peering luôn cần static route
+
 ### TD explanation
 
 You can configure VPC peering connections to provide access to part of the CIDR block, a specific CIDR block (if the VPC has multiple CIDR blocks), or a specific instance within the peer VPC. In this scenario, a central VPC is peered to two or more VPCs that have overlapping CIDR blocks.
@@ -1246,6 +2469,61 @@ Which of the following option is the most likely cause of this issue?
 ⚠️ **Watch:** ASG spans AZs fine
 
 🧠 **Rule:** ALB must have that AZ (subnet) enabled.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Application Load Balancer
+        │
+   ┌────┴────┐
+   AZ-1       AZ-2
+   EC2 ✓      EC2 ✗ (không nhận request nào)
+   (ASG trải nhiều AZ, có traffic)   (ASG trải nhiều AZ, KHÔNG có traffic)
+```
+
+Đáp án đúng: **C — AZ đó chưa được associate với Application Load Balancer**. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+```
+ALB chỉ route traffic tới các AZ (subnet) mà nó đã được CẤU HÌNH để dùng
+      │
+      ▼
+Nếu AZ-2 chưa add vào ALB (chưa chọn subnet của AZ-2 khi config ALB)
+      │
+      ▼
+Instance trong AZ-2 dù healthy, dù nằm trong ASG, vẫn KHÔNG nhận traffic
+```
+
+Load balancer phải được add Availability Zone (chọn subnet tương ứng) trước khi nó route request tới instance trong AZ đó. Đây là nguyên nhân phổ biến nhất khi "ASG trải nhiều AZ nhưng một AZ không có traffic dù healthy" — vấn đề nằm ở cấu hình ALB, không phải ASG.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A — "Multi-AZ autoscaling chỉ hoạt động ở N. Virginia":** sai hoàn toàn — Auto Scaling multi-AZ hoạt động ở **mọi region**, không giới hạn region cụ thể nào.
+- **B — "Phải thêm instance vào từng AZ thủ công":** sai — Auto Scaling Group tự launch instance vào các AZ đã cấu hình, không cần thêm tay.
+- **D — "EC2 Auto Scaling không trải qua nhiều AZ":** sai bản chất — ASG **được thiết kế để trải nhiều AZ** nhằm tăng tính sẵn sàng, đây chính là tính năng cốt lõi của dịch vụ.
+
+#### So sánh nhanh
+
+| Lựa chọn | Nguyên nhân thật của vấn đề? |
+|---|---|
+| **C. AZ chưa add vào ALB** | Đúng |
+| A. Giới hạn region | Sai, không có giới hạn này |
+| B. Phải add instance thủ công | Sai, ASG tự quản lý |
+| D. ASG không multi-AZ | Sai, ASG hỗ trợ multi-AZ |
+
+#### Lưu ý thực tế
+
+- Khi cross-zone load balancing **tắt**, mỗi load balancer node chỉ route 50% traffic của nó cho target trong AZ riêng của node đó — số target không đều giữa các AZ sẽ dẫn tới tỷ lệ traffic/target không đồng đều (ví dụ 2 target ở AZ-A nhận 25% mỗi target, 8 target ở AZ-B chỉ nhận 6.25% mỗi target).
+- Khi cross-zone load balancing **bật**, traffic chia đều cho tất cả target bất kể AZ nào — nên luôn kiểm tra cả hai: (1) AZ đã add vào ALB chưa, (2) cross-zone load balancing bật hay tắt, khi debug traffic phân bổ lệch.
+
+#### Quy tắc nhớ cho thi
+
+- **"Instance trong một AZ không nhận traffic dù ASG khỏe mạnh"** → kiểm tra AZ đó đã được **add vào load balancer** chưa
+- **"ASG không hỗ trợ multi-AZ" / "chỉ hoạt động ở N. Virginia"** → luôn là bẫy sai, loại ngay
+- Phân bổ traffic lệch giữa AZ → cân nhắc thêm **cross-zone load balancing**
 
 ### TD explanation
 
@@ -1294,6 +2572,57 @@ Which is the most suitable solution that provides better availability and bandwi
 
 🧠 **Rule:** Replace NAT instances with NAT Gateway (per AZ).
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Private subnet
+┌──────────────┐
+│ EC2 instances │ ──► NAT instance (hay bị down) ──► Internet
+└──────────────┘
+Yêu cầu: tăng availability + bandwidth, MINIMAL administrative effort
+```
+
+Đáp án đúng: **A — NAT Gateway, update route table trỏ Internet traffic qua NAT Gateway**. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+```
+NAT Gateway (managed service của AWS)
+      │  tự có HA trong AZ, băng thông scale tự động
+      ▼
+Private subnet route table → đích Internet → target: NAT Gateway
+```
+
+AWS khuyến nghị **NAT Gateway thay cho NAT instance** chính vì hai lý do đề bài yêu cầu: (1) availability và bandwidth tốt hơn — NAT Gateway là managed service, không phải một EC2 instance đơn lẻ có thể down; (2) **không cần admin effort** — không phải patch OS, không phải scale size thủ công như NAT instance.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B — Hai NAT instance ở hai subnet, route riêng tới từng NAT instance:** đúng là high availability và fault-tolerant hơn một NAT instance, nhưng đòi hỏi **rất nhiều effort quản lý** — phải tự theo dõi health, failover, patch OS cho cả hai instance; ngược hẳn với yêu cầu "minimal administrative effort".
+- **C — NAT instance lớn hơn + enhanced networking:** chỉ cải thiện performance của **một component đơn lẻ**, vẫn là single point of failure — nếu instance đó down, không có gì thay thế, nên vẫn không đạt yêu cầu "better availability".
+- **D — Egress-only Internet Gateway:** sai mục đích — egress-only IGW chỉ dùng cho **IPv6 traffic**, đề bài không nói gì về IPv6, nên không áp dụng.
+
+#### So sánh nhanh
+
+| Lựa chọn | Availability | Bandwidth | Admin effort |
+|---|---|---|---|
+| **A. NAT Gateway** | Cao (managed) | Tự scale | Thấp nhất |
+| B. Hai NAT instance | Cao (nếu config đúng) | Giới hạn theo instance size | Cao (quản lý thủ công) |
+| C. NAT instance lớn hơn | Vẫn là SPOF | Cải thiện một phần | Trung bình |
+| D. Egress-only IGW | — | — | Sai use case (chỉ cho IPv6) |
+
+#### Lưu ý thực tế
+
+- NAT Gateway được tạo **theo từng subnet/AZ** và gắn Elastic IP — nếu muốn HA across AZ thực sự, nên có một NAT Gateway cho mỗi AZ, nhưng xét trong phạm vi câu hỏi, chỉ cần chuyển từ NAT instance sang NAT Gateway đã giải quyết đúng yêu cầu.
+- Egress-only Internet Gateway thường bị nhầm là "phiên bản an toàn hơn" của NAT, nhưng bản chất nó chỉ là tương đương NAT cho **IPv6**, không thay thế NAT Gateway/instance cho IPv4.
+
+#### Quy tắc nhớ cho thi
+
+- **"NAT instance hay down, cần tăng availability, ít effort"** → **NAT Gateway**
+- **Egress-only Internet Gateway** → chỉ dành cho IPv6, không áp dụng cho bài toán NAT IPv4
+- **Nhiều NAT instance để HA** → về lý thuyết đúng nhưng luôn sai vì "nhiều administrative effort" khi đề yêu cầu minimal effort
+
 ### TD explanation
 
 You can use a NAT device to enable instances in a private subnet to connect to the internet (for example, for software updates) or other AWS services, but prevent the internet from initiating connections with the instances. A NAT device forwards traffic from the instances in the private subnet to the internet or other AWS services, and then sends the response back to the instances. When traffic goes to the internet, the source IPv4 address is replaced with the NAT device’s address and similarly, when the response traffic goes to those instances, the NAT device translates the address back to those instances’ private IPv4 addresses.
@@ -1340,6 +2669,64 @@ Which of the following options is the recommended action to meet the company req
 ⚠️ **Watch:** CloudWatch is not a CDN
 
 🧠 **Rule:** CloudFormation + CloudFront.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Yêu cầu công ty:
+  - Quản lý hạ tầng cloud bằng Infrastructure as Code (IaC)
+  - Deploy lại y hệt từng version, stage sang env khác, revert khi cần,
+    biết rõ version nào đang chạy trong VPC
+  - App public-facing mới → cần CDN toàn cầu
+
+Đáp án đúng: C (AWS CloudFormation quản lý hạ tầng + Amazon CloudFront làm CDN)
+Anh chọn đúng C.
+```
+
+Đề không hỏi về CodeArtifact hay CI/CD pipeline cụ thể — đó chỉ là ngữ cảnh. Từ khoá quyết định là **"manage cloud infrastructure as code"** + **"global CDN"**.
+
+#### Vì sao C đúng
+
+**AWS CloudFormation** mô tả toàn bộ resource hạ tầng bằng một file text (template) — đây chính là "single source of truth". Vì hạ tầng được code hoá:
+
+```
+Template (JSON/YAML)
+    → tạo stack mới   = "deploy exact copies of different versions"
+    → update stack    = "stage changes into different environments"
+    → stack rollback  = "revert back to previous versions"
+    → stack events/exports = "identify specific versions running"
+```
+
+Tất cả 4 yêu cầu IaC đều map thẳng vào tính năng của CloudFormation.
+
+**Amazon CloudFront** là CDN: phân phối content qua mạng edge location toàn cầu, route user đến edge gần nhất để giảm latency → đúng yêu cầu "global CDN".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B, D (CloudWatch là CDN):** sai cơ bản — CloudWatch là dịch vụ monitoring/metrics, không phải CDN. Không có nghĩa gì để chọn.
+- **A (CloudFront đúng, nhưng dùng Elastic Beanstalk để quản lý hạ tầng):** Elastic Beanstalk giúp deploy và quản lý application nhanh, nhưng **không quản lý hạ tầng cloud dưới dạng application code** như CloudFormation. Beanstalk tập trung vào deploy app, không phải mô hình hoá toàn bộ infrastructure (VPC, network, IAM...) như một template có thể version, stage, rollback.
+
+#### So sánh nhanh
+
+| Đáp án | Quản lý hạ tầng | CDN | Vấn đề |
+|---|---|---|---|
+| **C** | CloudFormation | CloudFront | Đúng cả hai |
+| A | Elastic Beanstalk | CloudFront | Beanstalk không phải IaC đầy đủ cho hạ tầng |
+| B | CloudFormation | CloudWatch | CloudWatch không phải CDN |
+| D | Elastic Beanstalk | CloudWatch | Sai cả hai |
+
+#### Lưu ý thực tế
+
+- ⚠️ **CloudWatch không bao giờ là CDN** — đây là trap lặp lại nhiều lần trong đề thi SAP-C02 (nhầm CloudWatch với CloudFront). Hễ thấy "CloudWatch" đi kèm từ "CDN" trong option, loại ngay.
+- Elastic Beanstalk, OpsWorks, CodeDeploy đều là các lớp "deploy/manage application" cao hơn, khác với CloudFormation ở tầm "mô hình hoá toàn bộ hạ tầng as code".
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "IaC, version, stage, rollback cho toàn bộ infrastructure"** → **AWS CloudFormation**
+- **Thấy "global CDN"** → **Amazon CloudFront**
+- **Thấy "CloudWatch" ghép với "CDN"** → luôn sai, CloudWatch chỉ để monitoring
 
 ### TD explanation
 
@@ -1389,6 +2776,74 @@ Which of the following is the MOST scalable solution that the company should use
 
 🧠 **Rule:** Cognito + SQS buffer + DynamoDB behind ELB/CloudFront.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+E-commerce sale event → millions visitors trong thời gian ngắn
+User flow: login (Facebook/Google) → add to cart → checkout → hiển thị giá discount
+
+Yêu cầu: giải pháp MOST SCALABLE cho checkout, có decouple bằng message queue
+(đã loại Kafka, chọn "simpler message queue")
+
+Đáp án đúng: A
+  ELB + ASG web servers + CloudFront
+  Auth: Cognito (social login Facebook/Google)
+  Checkout → SQS queue (IAM Role cho EC2) → application servers đọc queue → DynamoDB
+Anh chọn đúng A.
+```
+
+#### Vì sao A đúng
+
+Kiến trúc A ghép đủ 4 lớp cần thiết cho "most scalable":
+
+```
+CloudFront (fast delivery)
+     │
+     ELB ── Auto Scaling Group (web servers, auth qua Cognito)
+                     │
+                     ▼
+              Amazon SQS queue  ◄── decouple checkout traffic
+                     │
+          application servers (đọc queue, dùng IAM Role)
+                     │
+                     ▼
+              Amazon DynamoDB
+```
+
+- **Cognito** xử lý social login (Facebook/Google) — đúng chức năng của nó là identity federation.
+- **SQS** decouple phần ghi đơn hàng khỏi phần xử lý — đúng vai trò buffer khi traffic tăng đột biến ("decouples the application architecture... allow application servers to process the requests").
+- **DynamoDB** + **IAM Role for EC2** scale tốt hơn RDS cho write throughput lớn, đột biến.
+- **Auto Scaling Group** cho web servers → scale theo traffic thật.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B:** dùng **Amazon Lex** để auth — Lex là dịch vụ xây dựng conversational interface (chatbot voice/text), **không dùng cho authentication**. Ngoài ra lưu cart vào **Multi-AZ RDS** — RDS đắt hơn và kém scale hơn DynamoDB khi traffic đột biến.
+- **C:** dùng S3 static hosting + JS SDK + Cognito (auth đúng), nhưng **AWS Global Accelerator không phục vụ static content từ S3 bucket** — phải dùng CloudFront. Thêm nữa, ghi trực tiếp vào DynamoDB (không qua queue) tốn read/write capacity, tăng cost khi traffic đột biến, kém scalable hơn phương án có SQS buffer.
+- **D:** giống A nhưng web servers **không đặt trong Auto Scaling Group** ("multiple web servers" thường, không ASG) và cũng ghi thẳng vào DynamoDB không qua SQS → không scalable khi traffic tăng vọt.
+
+#### So sánh nhanh
+
+| Đáp án | Auth | Queue/decouple | DB | Vấn đề |
+|---|---|---|---|---|
+| **A** | Cognito | SQS | DynamoDB (qua queue) | Đúng |
+| B | Lex (sai) | — | Multi-AZ RDS | Lex không phải auth; RDS đắt/kém scale |
+| C | Cognito | — | DynamoDB (trực tiếp) | Global Accelerator không serve S3 static |
+| D | Cognito | — | DynamoDB (trực tiếp) | Không có ASG, không có queue |
+
+#### Lưu ý thực tế
+
+- ⚠️ **Amazon Lex** chỉ để xây conversational interface (voice/text) — không bao giờ dùng để authenticate user. Nếu thấy "integrated in Amazon Lex" cho mục login → loại ngay.
+- **AWS Global Accelerator** hoạt động ở network layer (routing traffic đến endpoint tối ưu, dùng cho EC2/ALB/NLB/EIP) — **không phải CDN cho S3 static content**. Muốn CDN cho S3 phải dùng CloudFront.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "social login Facebook/Google"** → **Amazon Cognito**, không phải Lex
+- **Thấy "decouple checkout/surge traffic"** → thêm **SQS** làm buffer trước khi ghi DB
+- **Thấy "deliver static S3 content"** → **CloudFront**, không phải Global Accelerator
+- **Thấy "most scalable + cost"** → ưu tiên **DynamoDB** hơn RDS cho ghi khối lượng lớn, đột biến
+
 ### TD explanation
 
 Amazon Simple Queue Service (SQS) is a fully managed message queuing service that enables you to decouple and scale microservices, distributed systems, and serverless applications. SQS eliminates the complexity and overhead associated with managing and operating message oriented middleware, and empowers developers to focus on differentiating work. Using SQS, you can send, store, and receive messages between software components at any volume, without losing messages or requiring other services to be available.
@@ -1430,6 +2885,66 @@ Which of the following options is the recommended solution that will meet the re
 ⚠️ **Watch:** SNS isn't a work queue
 
 🧠 **Rule:** SQS depth-scaled Spot ASG workers + Glacier for archive.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Hiện tại (on-prem):
+  photographers upload ảnh → S3 bucket
+  servers on-prem xử lý ảnh (lấy job từ open-source messaging system)
+  sau xử lý → tape library lưu trữ dài hạn
+
+Mục tiêu: dịch chuyển lên AWS, GIỮ NGUYÊN kiến trúc, nhưng
+  minimize cost (storage + messaging)
+
+Đáp án đúng: C
+  Auto Scaling group of SPOT instance workers, scale theo SQS queue depth
+  Sau xử lý → chuyển S3 objects sang Amazon Glacier (archival)
+Anh chọn đúng C.
+```
+
+#### Vì sao C đúng
+
+Kiến trúc mô phỏng đúng 1:1 hệ thống cũ, nhưng thay bằng dịch vụ AWS rẻ nhất phù hợp vai trò:
+
+```
+open-source messaging system  →  Amazon SQS   (nhận job messages)
+on-prem dedicated servers     →  Spot instance workers trong ASG
+                                  (scale theo queue depth của SQS)
+tape library (lưu trữ lâu dài) →  Amazon Glacier (archival storage rẻ nhất)
+```
+
+- **SQS** đóng vai trò hàng đợi job xử lý ảnh — đúng use case kinh điển: "app places raw bitmap data in SQS queue for processing... dynamic scaling của ASG theo activity trong SQS queue".
+- **Spot instances** rẻ hơn On-Demand, phù hợp cho workload xử lý ảnh có thể chịu gián đoạn (giống batch processing).
+- **Glacier** là "cheapest storage option" cho archival — khớp đúng vai trò "tape library" (lưu dài hạn, không cần truy xuất nhanh).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A:** dùng SQS đúng, nhưng CloudWatch alarms terminate idle **EC2** instance — không có ASG nên không có khái niệm "idle instance" để scale/terminate hợp lý theo cách này; và chuyển sang **S3 IA-Standard** — S3 IA **không phải storage archival**, không khớp vai trò tape library.
+- **D:** chuyển trước sang S3 IA-Standard rồi sau xử lý lại chuyển về S3-IA (storage class không đổi, không có archival) — S3 IA vẫn không phải archival storage.
+- **B:** dùng **SNS** để truyền job messages — SNS là pub/sub notification, **không xử lý/queue job messages** như SQS; "Amazon Simple Notification Service cannot be used to process the messages."
+
+#### So sánh nhanh
+
+| Đáp án | Message queue | Compute scaling | Storage cuối |
+|---|---|---|---|
+| **C** | SQS | ASG Spot theo queue depth | **Glacier** (archival) |
+| A | SQS | EC2 + CloudWatch alarm (không ASG) | S3 IA (không phải archival) |
+| B | **SNS (sai)** | Spot + CloudWatch alarm | Glacier |
+| D | SQS | ASG Spot | S3 IA → S3 IA (không đổi) |
+
+#### Lưu ý thực tế
+
+- ⚠️ **S3 Standard-IA không phải storage class "archival"** — nó vẫn truy xuất nhanh (milliseconds), chỉ rẻ hơn Standard cho dữ liệu truy cập ít. Khi đề nói "tape library" hoặc "long-term archival", chỉ **Glacier** (hoặc Glacier Deep Archive) mới đúng vai trò.
+- SNS vs SQS: SNS = pub/sub broadcast (nhiều subscriber nhận cùng message), SQS = work queue (một consumer xử lý rồi xoá message). Khi cần "process job messages" tuần tự → luôn là SQS.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "tape library" / "long-term archive" / "cheapest cold storage"** → **Amazon Glacier**
+- **Thấy "process job messages", "queue depth scaling"** → **SQS**, không phải SNS
+- **Thấy "S3 IA" đi cùng "archival"** → sai, S3 IA không phải lưu trữ lạnh archival
 
 ### TD explanation
 
@@ -1483,6 +2998,62 @@ What does this code snippet do in CloudFormation?
 
 🧠 **Rule:** Fn::GetAtt Queue.Arn subscribes the SQS queue to the SNS topic.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```json
+"SNSTopic" : {
+  "Type" : "AWS::SNS::Topic",
+  "Properties" : {
+    "Subscription" : [{
+      "Protocol" : "sqs",
+      "Endpoint" : { "Fn::GetAtt" : [ "TutorialsDojoQueue", "Arn" ] }
+    }]
+  }
+}
+```
+
+Câu hỏi: đoạn CloudFormation này **làm gì**?
+
+Đáp án đúng: **A** — Tạo một SNS topic, rồi thêm subscription dùng ARN của resource SQS có logical name `TutorialsDojoQueue` (lấy ARN qua `Fn::GetAtt`).
+Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+Phân tích từng phần của template:
+
+```
+"Type": "AWS::SNS::Topic"        → resource này TẠO một SNS Topic
+"Subscription": [{...}]          → ngay khi tạo topic, thêm 1 subscription
+    "Protocol": "sqs"            → subscriber là một SQS queue
+    "Endpoint": Fn::GetAtt[
+        "TutorialsDojoQueue",    → logical ID của resource KHÁC trong template
+        "Arn"                   → attribute cần lấy: ARN của queue đó
+    ]
+```
+
+`Fn::GetAtt` là intrinsic function của CloudFormation, nhận 2 tham số: `logicalNameOfResource` và `attributeName`. Nó "returns the value of an attribute from a resource in the template" — ở đây lấy **ARN** của resource có logical name `TutorialsDojoQueue` (resource này được khai báo ở nơi khác trong template, không nằm trong đoạn code được trích).
+
+Vậy bản chất: SNS topic này **subscribe** một SQS queue đã tồn tại (logical name TutorialsDojoQueue) thông qua ARN của nó — đúng như đáp án A diễn giải.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B (tạo SNS topic rồi "invokes the call to create" SQS queue):** sai bản chất. Đoạn code **không tạo** SQS queue — `Fn::GetAtt` chỉ **tham chiếu đến** resource đã có, không khai báo/tạo mới resource đó.
+- **C (SNS topic "allows SQS subscription endpoints to be added as a parameter"):** sai — đây không mô tả đúng cơ chế. Endpoint ở đây là giá trị cụ thể lấy từ `Fn::GetAtt`, không phải một "parameter" cho phép người dùng tự thêm.
+- **D (SNS topic "allows SQS subscription endpoints"):** quá mơ hồ/chung, không mô tả chính xác việc subscription đã được tạo sẵn ngay trong properties bằng `Fn::GetAtt`.
+
+#### Lưu ý thực tế
+
+- `Fn::GetAtt` chỉ hoạt động với **logical ID của resource được khai báo trong cùng template** — không tự tạo resource đó. Nếu `TutorialsDojoQueue` chưa được khai báo ở `Resources` section, template này sẽ lỗi.
+- Pattern "SNS → SQS subscription qua Fn::GetAtt Arn" rất phổ biến trong CloudFormation để fan-out message tới nhiều SQS queue (SNS-to-SQS fanout pattern) — cần nhớ cả cú pháp lẫn ý nghĩa khi đọc code trong đề thi.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy `Fn::GetAtt [LogicalName, Attr]`** → đây là **tham chiếu** đến resource đã khai báo, KHÔNG phải tạo mới resource đó
+- **Thấy `"Protocol": "sqs"` trong `Subscription` của `AWS::SNS::Topic`** → đây là cấu hình **SNS-to-SQS fanout**, topic subscribe sẵn 1 (hoặc nhiều) queue
+- Khi đọc code CFN trong đề: tách rõ "cái gì được TẠO" (Type/Properties chính) vs "cái gì được THAM CHIẾU" (các intrinsic function như GetAtt, Ref)
+
 ### TD explanation
 
 AWS CloudFormation provides several built-in functions that help you manage your stacks which are called “intrinsic functions”. Use intrinsic functions in your templates to assign values to properties that are not available until runtime.
@@ -1529,6 +3100,68 @@ Which solution is the most cost-effective for addressing this issue?
 ⚠️ **Watch:** All-Spot for consistent response time is risky
 
 🧠 **Rule:** ASG min 5/max 30 + Reserved Instances for the baseline.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+25 On-Demand EC2, 3 AZ, đứng sau Network Load Balancer (NLB)
+App stateless, cần consistent response time
+
+Bình thường: CPU ~20%
+Peak:        CPU 90-100% → performance giảm mạnh
+Có kế hoạch scheduled scaling cho các event
+
+Mục tiêu: cải thiện performance + tối ưu cost trong 3 năm tới
+
+Đáp án đúng: C
+  ASG (min 5, max 30) gắn NLB + Reserved Instances cho 5 instance baseline
+Anh chọn đúng C.
+```
+
+#### Vì sao C đúng
+
+```
+CPU trung bình 20% của 25 instance hiện tại
+        ≈ tải thực tế tương đương khoảng 5 instance hoạt động full tải
+                    │
+         → min capacity = 5 (RI để tiết kiệm cho baseline)
+                    │
+Peak CPU 90-100% → cần scale vượt mức 25 hiện tại để tránh nghẽn
+                    │
+         → max capacity = 30 (có dư địa cho tăng trưởng/peak)
+```
+
+- **ASG min 5 / max 30**: baseline 5 instance khớp đúng với CPU trung bình 20% (tải hiện tại ở mức thấp), còn max 30 vượt mức 25 hiện có để giải quyết đúng vấn đề "CPU spike 90-100%" khi traffic cao.
+- **Reserved Instances cho 5 instance baseline**: vì hệ thống chạy "over the next three years" → RI 3 năm tiết kiệm hơn nhiều so với On-Demand cho phần tải ổn định, luôn chạy (baseline). Phần vượt baseline vẫn dùng On-Demand linh hoạt theo scale.
+- **NLB** phù hợp layer 4, hiệu năng cao, phục vụ đúng yêu cầu "consistent response times".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A (toàn bộ Spot Fleet, TotalTargetCapacity=25):** Spot Instance có thể bị interrupt bất kỳ lúc nào — **không phù hợp với app cần consistent response time**. Spot thích hợp cho batch/analytics/HPC chịu được gián đoạn, không phải production cần ổn định.
+- **B (Spot Fleet, TotalTargetCapacity=30, InstanceInterruptionBehavior=stop):** cùng vấn đề như A — toàn Spot vẫn rủi ro gián đoạn; "stop" chỉ đổi cách xử lý khi bị interrupt (dừng thay vì terminate), **không ngăn được việc bị interrupt**.
+- **D (ASG min 15/max 25, RI cho 15 instance):** max 25 **không vượt** mức hiện tại 25 → không giải quyết được vấn đề CPU spike 90-100% khi cần scale cao hơn nữa trong peak demand.
+
+#### So sánh nhanh
+
+| Đáp án | Compute | Min/Max | RI | Vấn đề |
+|---|---|---|---|---|
+| **C** | ASG (On-Demand mặc định) | 5 / 30 | 5 instance | Đúng — khớp baseline + đủ headroom peak |
+| A | 100% Spot | TotalTargetCapacity 25 | — | Spot không ổn định cho consistent performance |
+| B | 100% Spot | TotalTargetCapacity 30 | — | Vẫn 100% Spot, rủi ro interrupt |
+| D | ASG | 15 / 25 | 15 instance | Max không vượt mức hiện tại, không giải quyết spike |
+
+#### Lưu ý thực tế
+
+- ⚠️ **"Cost-effective" không đồng nghĩa "toàn bộ Spot"** khi đề yêu cầu "consistent response times" — đây là trap thường gặp: Spot rẻ nhưng đổi lại độ tin cậy thấp hơn, không phù hợp app production cần ổn định.
+- Reserved Instance hợp lý nhất khi áp cho phần **baseline luôn chạy** (ở đây CPU trung bình 20% ≈ 5 instance), còn phần "burst" vẫn nên linh hoạt On-Demand (hoặc Spot nếu chịu được gián đoạn).
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "consistent performance/response time" + "cost over 3 years"** → **ASG (On-Demand) + Reserved Instances** cho baseline, không phải toàn Spot
+- **"100% Spot Fleet" cho production cần ổn định** → luôn là đáp án gài, loại
+- **Tính baseline RI** = dựa vào CPU trung bình/tải bình thường, không phải tổng số instance hiện tại
 
 ### TD explanation
 
@@ -1578,6 +3211,62 @@ Which of the following is the most cost-effective option for implementing the se
 
 🧠 **Rule:** S3 storage + OpenSearch Service + Beanstalk.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+20 TB scanned files (có thể lên 50 TB) + website có search feature
+Chạy > 3 năm, cần giải pháp cost-effective nhất cho SEARCH
+
+Đáp án đúng: D
+  S3 standard (lưu + serve file)
+  Amazon OpenSearch Service (query processing)
+  Elastic Beanstalk (host website, multi-AZ)
+Anh chọn đúng D.
+```
+
+#### Vì sao D đúng
+
+```
+S3 Standard  ──────────► lưu trữ scanned files (durable, scalable, rẻ)
+     │
+     ▼ (metadata/index)
+Amazon OpenSearch Service ─► xử lý query/search (search & analytics engine
+                              chuyên dụng, có security, HA, durability)
+     │
+     ▼
+Elastic Beanstalk ─────────► host website, multi-AZ (giảm operational overhead)
+```
+
+Điểm mấu chốt của câu này: **"S3's native search capability is not effective"** — S3 là object storage, không có full-text search built-in tốt. Vì vậy bắt buộc cần **một dịch vụ search riêng** — đó là Amazon OpenSearch Service, được thiết kế chuyên cho "efficient search and analytics... querying extensive datasets". Elastic Beanstalk đơn giản hoá việc deploy/quản lý website, giảm overhead vận hành — hợp với yêu cầu chạy ổn định > 3 năm mà không cần tự quản lý server.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A (S3 tự search bằng "native search capabilities"):** sai gốc — S3 **không có khả năng search hiệu quả**; đây chính là lý do cả 3 đáp án còn lại đều cần thêm một search service riêng.
+- **B (CloudFormation + EC2 NGINX + open-source search app + EBS RAID):** RAID của **EBS volumes thường (standard) không bền và không scale** như S3 cho việc lưu trữ hàng chục TB file quét.
+- **C (EFS + 3rd-party search software + ASG On-Demand EC2 + ELB):** hai vấn đề cost — hệ thống chạy "more than 3 years" nên **Reserved Instances** tiết kiệm hơn On-Demand (đáp án dùng On-Demand); và mua + cài **3rd-party search software có thể tốn kém hơn** so với dùng Amazon OpenSearch Service (managed, sẵn có).
+
+#### So sánh nhanh
+
+| Đáp án | Lưu trữ file | Search | Compute | Vấn đề |
+|---|---|---|---|---|
+| **D** | S3 Standard | **OpenSearch Service** | Elastic Beanstalk | Đúng |
+| A | S3 | S3 "native search" | — | S3 không search hiệu quả |
+| B | EBS RAID | open-source app | EC2 (CloudFormation) | EBS RAID kém durable/scalable hơn S3 |
+| C | EFS | 3rd-party software | ASG EC2 On-Demand | On-Demand (không RI) + software 3rd-party tốn kém |
+
+#### Lưu ý thực tế
+
+- ⚠️ **S3 không có "native full-text search"** — đây là điểm dễ bị đánh lừa vì S3 rất mạnh về lưu trữ, nhưng search cần dịch vụ riêng (OpenSearch/Elasticsearch, hoặc tự build index).
+- Khi đề nói hệ thống chạy "more than X years" (ở đây 3 năm) → đây là tín hiệu kinh điển để chọn **Reserved Instances** thay vì On-Demand khi so sánh cost giữa các đáp án có EC2.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "search feature" cho dữ liệu lớn lưu ở S3** → cần thêm **Amazon OpenSearch Service**, S3 không tự search được
+- **Thấy "chạy > N năm" + so sánh cost EC2** → ưu tiên đáp án có **Reserved Instances**
+- **Thấy "giảm operational overhead" cho website hosting** → **Elastic Beanstalk** thường là lựa chọn phù hợp hơn tự quản lý EC2/NGINX
+
 ### TD explanation
 
 Amazon Simple Storage Service (S3) is an excellent object-based storage that is highly durable and scalable. However, its native search capability is not effective. Hence, you need to have a separate service to handle the search feature.
@@ -1626,6 +3315,69 @@ Which of the following actions should the solutions architect implement to fulfi
 ⚠️ **Watch:** KCL consumes; KPL produces
 
 🧠 **Rule:** EC2 KPL into Kinesis + Direct Connect + Lambda + WebSocket API @connections.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-prem: raw stock feed → transform → Apache Kafka cluster
+Yêu cầu: gửi output lên AWS, xây giải pháp scalable, near-real-time
+         cho web app, network phải consistent high-performance
+
+Select THREE → đáp án đúng: B, C, F
+Anh chọn đúng cả 3.
+```
+
+Đây là multi-select — 3 lựa chọn phải ghép thành **MỘT** giải pháp hoàn chỉnh, mỗi lựa chọn phụ trách một tầng khác nhau: network connectivity, ingestion vào AWS, và delivery real-time tới client.
+
+#### Vì sao B, C, F đúng — từng lựa chọn khớp một tầng
+
+```
+[Tầng network]        AWS Direct Connect (C)
+  on-prem data center ───dedicated connection───► AWS VPC
+  → "reduce network costs, increase bandwidth, more consistent
+     network experience than Internet-based connections"
+
+[Tầng ingestion]       EC2 (ASG) + Kinesis Producer Library (F)
+  Kafka cluster ──PULL──► EC2 fleet (KPL) ──► Kinesis Data Stream
+  → KPL là thư viện dành cho PRODUCER (đẩy data VÀO stream)
+
+[Tầng delivery real-time] Lambda + API Gateway WebSocket (B)
+  Kinesis stream ──► Lambda xử lý ──► WebSocket API (API Gateway)
+                                      ──@connections──► connected clients
+  → WebSocket bidirectional, phù hợp "financial trading platforms"
+    kiểu push real-time tới client, dùng @connections để gửi callback
+```
+
+Ba lựa chọn này khớp đúng chuỗi: **Direct Connect** (network ổn định) → **EC2 + KPL** (đưa data từ Kafka vào Kinesis) → **Lambda + WebSocket API** (đẩy real-time đến web app).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A (dùng "Kinesis Consumer Library" để đẩy data vào stream):** sai thuật ngữ bản chất — **Consumer Library (KCL) dùng để ĐỌC/xử lý** data ra khỏi stream, không dùng để **gửi data VÀO** stream. Việc đẩy data vào Kinesis phải dùng **Producer Library (KPL)**, như lựa chọn F.
+- **D (AppSync GraphQL API thay cho WebSocket API):** @connections để callback tới client **không phải là tính năng của GraphQL API trong AppSync** — @connections command gắn với WebSocket API của API Gateway, không phải AppSync.
+- **E (Site-to-Site VPN "cost-effective + consistent performance"):** VPN **không đảm bảo network connection đáng tin cậy và hiệu năng cao** như yêu cầu "consistent high-performance network" — VPN đi qua Internet nên không ổn định bằng Direct Connect (dedicated line).
+
+#### So sánh nhanh
+
+| Vai trò | Đúng | Vì sao sai (đáp án tương tự) |
+|---|---|---|
+| Đưa data vào Kinesis | **F: KPL** | A dùng KCL — sai, KCL là để consume |
+| Network connectivity | **C: Direct Connect** | E dùng Site-to-Site VPN — không đủ ổn định |
+| Push real-time tới client | **B: Lambda + WebSocket API** | D dùng AppSync GraphQL — @connections không thuộc AppSync |
+
+#### Lưu ý thực tế
+
+- ⚠️ **KPL (Producer) vs KCL (Consumer)** là cặp dễ nhầm kinh điển trong Kinesis: KPL = đẩy data VÀO stream, KCL = đọc data RA khỏi stream để xử lý.
+- `@connections` API chỉ dùng với **WebSocket API trong API Gateway** để gửi callback message tới client đã connect — không áp dụng cho REST API hay AppSync GraphQL API.
+- Direct Connect phù hợp khi đề nhấn mạnh "consistent/reliable high-performance network" cho production — VPN chỉ phù hợp khi yêu cầu chỉ là "cost-effective", không đòi hỏi hiệu năng ổn định cao.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "đẩy data vào Kinesis stream"** → **Kinesis Producer Library (KPL)**
+- **Thấy "đọc/xử lý data từ Kinesis stream"** → **Kinesis Consumer Library (KCL)**
+- **Thấy "push real-time đến client đã connect" + "@connections"** → **WebSocket API trong API Gateway**, không phải AppSync
+- **Thấy "consistent, high-performance, production-critical network từ on-prem"** → **AWS Direct Connect**, không phải Site-to-Site VPN
 
 ### TD explanation
 
@@ -1679,6 +3431,70 @@ Which combination of the following actions will resolve these issues? (Select TW
 
 🧠 **Rule:** Batch via Kinesis + raise DynamoDB WCU.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Smart meter → API Gateway → Lambda (xử lý) → DynamoDB (PUT)
+
+Ban đầu: Lambda xử lý 5-10s
+Hiện tại: khách hàng tăng + metrics mới → Lambda xử lý 60-90s
+Lỗi xuất hiện:
+  - TooManyRequestsException (Lambda)
+  - ProvisionedThroughputExceededException (DynamoDB PUT)
+
+Select TWO → đáp án đúng: B, D
+Anh chọn đúng cả 2.
+```
+
+#### Vì sao B, D đúng
+
+```
+ProvisionedThroughputExceededException
+    → nghĩa là "exceeded maximum allowed provisioned throughput"
+    → request rate ghi vào DynamoDB quá cao so với WCU hiện có
+    → Fix (D): TĂNG Write Capacity Unit (WCU) của bảng
+
+TooManyRequestsException (Lambda)
+    → quá nhiều invocation đồng thời, vượt concurrency
+    → Fix (B): GOM request từ API Gateway vào Amazon Kinesis Data Stream,
+      xử lý theo BATCH → giảm số lần invoke Lambda + giảm số PUT dồn dập
+      vào DynamoDB → giảm cả 2 lỗi cùng lúc
+```
+
+**D** giải quyết trực tiếp nguyên nhân DynamoDB: PUT request tiêu thụ WCU, tăng WCU = tăng throughput cho phép.
+
+**B** giải quyết nguyên nhân gốc ở tầng ingestion: stream + batch giúp "decrease in requests in Lambda" — giảm tần suất gọi Lambda và giảm tần suất ghi DynamoDB cùng lúc, thay vì mỗi smart meter tạo 1 request riêng lẻ.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A (tăng memory cho Lambda):** tăng memory có thể cải thiện execution speed ở mức nào đó, nhưng hiệu quả **plateau** ở mức memory cao, không giải quyết triệt để như batching; đồng thời **tăng chi phí đáng kể**.
+- **C (tăng throttling limit của API Gateway):** lỗi quan sát được (TooManyRequestsException, ProvisionedThroughputExceededException) **do Lambda concurrency và DynamoDB throughput**, không phải do API Gateway throttling — quota của API Gateway vốn đã cao hơn nhiều so với workload mô tả, nên tăng nó không giải quyết bottleneck thật.
+- **E (tăng payload size, giảm tần suất gửi):** có thể giảm số lượng request tới Lambda (giảm TooManyRequestsException), nhưng dễ **chạm giới hạn payload 10MB của API Gateway** nếu gom quá nhiều data trước khi gửi.
+
+#### So sánh nhanh
+
+| Đáp án | Giải quyết đúng lỗi nào | Vấn đề |
+|---|---|---|
+| **B** | TooManyRequestsException + giảm tải DynamoDB | Đúng — batch qua Kinesis |
+| **D** | ProvisionedThroughputExceededException | Đúng — tăng WCU |
+| A | Một phần TooManyRequestsException | Hiệu quả giảm dần, tốn chi phí |
+| C | Không đúng nguyên nhân | API Gateway không phải bottleneck |
+| E | Một phần TooManyRequestsException | Dễ vượt payload limit 10MB |
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm — liên quan Q24 (sai):** khi đề nói "streaming ingestion" / "gom batch dữ liệu từ nhiều nguồn gửi liên tục" (ví dụ smart meter gửi mỗi 5 phút), giải pháp đúng luôn là **Amazon Kinesis Data Stream / Kinesis Data Firehose** để batch hoá trước khi tới Lambda/DynamoDB — **không phải AWS Step Functions**. Step Functions điều phối workflow (orchestration các bước xử lý có trạng thái), không phải dịch vụ streaming/batching dữ liệu đầu vào. Ở Q58 này, Kinesis Data Stream là lựa chọn B đúng; nếu từng chọn Step Functions cho một tình huống tương tự (như ở Q24), đó là nhầm vai trò dịch vụ.
+
+- Cả hai lỗi (Lambda throttle + DynamoDB throughput) thường xuất hiện cùng lúc khi traffic tăng không kiểm soát — cần xử lý ở **cả hai tầng**: giảm tần suất request (batching) VÀ tăng throughput cho phép (WCU).
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy `ProvisionedThroughputExceededException`** → tăng **WCU/RCU** của DynamoDB (hoặc on-demand capacity)
+- **Thấy `TooManyRequestsException` ở Lambda do nhiều IoT/thiết bị gửi liên tục** → batch qua **Kinesis Data Stream/Firehose**, không phải tăng memory hay tăng API Gateway quota
+- **Thấy "streaming ingestion từ nhiều device"** → **Kinesis**, KHÔNG phải Step Functions (Step Functions = orchestration, không phải ingestion)
+
 ### TD explanation
 
 In Amazon DynamoDB, the ProvisionedThroughputExceededException error means that you exceeded your maximum allowed provisioned throughput for a table or for one or more global secondary indexes. This means that your request rate is too high. The AWS SDKs for DynamoDB automatically retries requests that receive this exception. Your request is eventually successful unless your retry queue is too large to finish.
@@ -1728,6 +3544,76 @@ Which of the following is the recommended solution that will meet the company re
 ⚠️ **Watch:** ElastiCache isn't a durable metadata store
 
 🧠 **Rule:** API Gateway + Lambda + Cognito + DynamoDB + S3 presigned URLs.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Yêu cầu service mới:
+  - Highly available, scalable, unpredictable workload
+  - Stateless, REST compliant
+  - 2 persistent storage layer: metadata + static content durable storage
+  - Authenticated + secure, minimize operational overhead cho auth
+  - Minimize cost
+
+Đáp án đúng: D
+  API Gateway + Lambda (unique function/resource, proxy integration)
+  Auth: Amazon Cognito user pools
+  Metadata: DynamoDB (Auto Scaling)
+  Static content: S3 bucket (secured) + presigned URL
+Anh chọn đúng D.
+```
+
+#### Vì sao D đúng
+
+```
+API Gateway (REST, proxy integration)
+     │
+     ▼
+Lambda functions (mỗi resource 1 function riêng)
+     │             │
+     ▼             ▼
+Cognito user pools   DynamoDB (metadata, Auto Scaling)
+(auth)                     │
+                            ▼
+                    S3 bucket (static content, secured)
+                            │
+                    presigned URL khi reference object
+```
+
+- **API Gateway + Lambda** là mô hình serverless, chỉ trả tiền khi có traffic → khớp "unpredictable workload" + "minimize cost" tốt hơn hẳn so với chạy container/server liên tục.
+- **Cognito user pools**: cung cấp sẵn "sign-up/sign-in, built-in UI, social sign-in, MFA, user directory..." — tức minimize operational overhead cho việc tự viết authorizer, trong khi vẫn đáp ứng "custom authentication logic" nếu cần (qua Lambda triggers).
+- **DynamoDB + Auto Scaling**: lưu metadata, scale theo tải, không cần quản lý capacity tay.
+- **S3 + presigned URL**: lưu static content durable, bảo mật qua presigned URL thay vì public access — đúng yêu cầu "securely processed".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A, C (Fargate + Application Load Balancer):** Fargate chạy container liên tục, **chi phí cao hơn Lambda** — Lambda chỉ chạy on-demand, phù hợp hơn với "keep costs at a minimum" và workload unpredictable. ("Running a Fargate cluster continuously is more expensive than running Lambda functions.")
+- **C cụ thể còn dùng "custom authenticator" tự viết:** tăng operational overhead so với việc dùng sẵn Cognito/API Gateway authorizer.
+- **B (ElastiCache Multi-AZ cluster lưu metadata):** ElastiCache là **cache in-memory, không phải nơi lưu metadata bền/durable** — không phù hợp vai trò "persistent storage layer for service object metadata".
+- **B cũng dùng API Gateway custom authorizer thay Cognito:** custom authorizer đòi hỏi tự code logic xác thực — **kém robust và nhiều operational overhead hơn** Cognito user pools (đã có sẵn tính năng MFA, user directory, social login...).
+
+#### So sánh nhanh
+
+| Đáp án | Compute | Auth | Metadata store | Vấn đề |
+|---|---|---|---|---|
+| **D** | API Gateway + Lambda | Cognito user pools | DynamoDB | Đúng — rẻ nhất, đủ robust |
+| A | Fargate + ALB | Cognito user pools | DynamoDB | Fargate chạy liên tục → đắt hơn Lambda |
+| B | API Gateway + Lambda | API Gateway custom authorizer | **ElastiCache** | ElastiCache không durable cho metadata; custom authorizer kém robust |
+| C | Fargate + ALB | Custom authenticator tự viết | DynamoDB | Đắt hơn Lambda; custom auth tăng overhead |
+
+#### Lưu ý thực tế
+
+- ⚠️ **ElastiCache không phải nơi lưu metadata bền** — nó là cache tạm thời (in-memory), dữ liệu có thể mất khi node restart/failover (dù Multi-AZ giúp HA, vẫn không đóng vai trò "persistent storage layer" đúng nghĩa cho metadata quan trọng).
+- Giữa **Cognito user pools** và **API Gateway custom authorizer**: Cognito được khuyến nghị khi cần tính năng user management đầy đủ (MFA, social login, user directory); custom authorizer phù hợp hơn khi logic auth rất đặc thù và đơn giản, nhưng tăng gánh vận hành.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "unpredictable workload" + "minimize cost"** → ưu tiên **Lambda** (serverless) hơn Fargate/EC2 chạy liên tục
+- **Thấy "persistent metadata store"** → **DynamoDB**, không phải ElastiCache (cache ≠ persistent store)
+- **Thấy "minimize operational overhead cho auth"** → **Cognito user pools** thường thắng custom authorizer tự viết
+- **Thấy "securely serve static content từ S3"** → **presigned URL**
 
 ### TD explanation
 
@@ -1784,6 +3670,67 @@ Which of the following options should the solutions architect implement to meet 
 
 🧠 **Rule:** Kinesis + Kinesis consumers.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Sports news website: click stream (sequence pages/ads đã click)
+Yêu cầu: xử lý REAL-TIME để biến đổi page layout ngay khi user click
+          (tăng engagement, tăng revenue)
+
+Đáp án đúng: C
+  Push web clicks by session → Amazon Kinesis
+  Analyze behavior bằng Kinesis workers (consumer)
+Anh chọn đúng C.
+```
+
+#### Vì sao C đúng
+
+```
+Browser (click, scroll)
+     │  SDK (ví dụ putRecords)
+     ▼
+Amazon Kinesis Data Stream
+     │
+     ▼
+Kinesis workers (EC2 hoặc consumer app)  ──► xử lý real-time
+     │
+     ▼
+Thay đổi page layout NGAY  +  lưu vào DynamoDB/Redshift (nếu cần)
+```
+
+Kinesis được mô tả đúng vai trò: "ingest real-time data such as... website clickstreams... process and analyze data as it arrives and responds instantly instead of having to wait until all your data is collected". Đây khớp 100% với yêu cầu "transform the page layout as the visitors click through" — tức phải xử lý **ngay khi** sự kiện xảy ra, không có khoảng trễ.
+
+#### Vì sao từng đáp án sai bị loại
+
+TD explanation nói rõ: "SQS, EC2, EMR, and Timestream services **do not have the capacity to analyze real-time streaming data**" theo cách phù hợp ở đây.
+
+- **A (SQS → periodically drain → RDS → SQL):** có bước **"periodically drain"** — nghĩa là xử lý theo lô định kỳ, **không phải real-time**. SQS vốn là hàng đợi message, không chuyên cho streaming analytics liên tục.
+- **B (weblog → S3 → Elastic MapReduce):** EMR là batch processing framework (Hadoop/Spark trên cluster) — mô hình "ghi log rồi phân tích sau" là **batch, không real-time**.
+- **D (publish vào Amazon Timestream, rồi custom SQL/ML):** Timestream là time-series database tối ưu cho lưu & query dữ liệu theo thời gian, nhưng **không phải dịch vụ streaming xử lý real-time** theo mô tả ở đây — vẫn là mô hình lưu rồi phân tích, thiếu lớp xử lý tức thời như Kinesis.
+
+#### So sánh nhanh
+
+| Đáp án | Cơ chế | Real-time? | Vấn đề |
+|---|---|---|---|
+| **C** | Kinesis + Kinesis workers | **Có** | Đúng |
+| A | SQS → drain định kỳ → RDS | Không | "Periodically" = batch, có trễ |
+| B | S3 log → EMR | Không | EMR là batch processing |
+| D | Timestream → SQL/ML | Không (theo mô tả) | Vẫn là lưu rồi phân tích sau |
+
+#### Lưu ý thực tế
+
+⚠️ **Dễ nhầm — cùng nhóm lỗi với Q24 (sai) và Q58:** khi đề yêu cầu xử lý dữ liệu **streaming/real-time** (clickstream, cảm biến gửi liên tục...), đáp án đúng luôn thuộc nhà **Kinesis** (Data Streams / Firehose / Data Analytics) — **không phải AWS Step Functions**. Step Functions dùng để orchestrate một workflow nhiều bước có trạng thái (state machine), không phải để ingest/xử lý luồng dữ liệu liên tục tốc độ cao. Nếu thấy đề nói "ingest continuous stream of events" → nghĩ ngay Kinesis, không phải Step Functions.
+
+- "SQS + periodically drain" là mẫu câu hay xuất hiện để đánh lừa — trông có vẻ xử lý được nhưng bản chất là batch có độ trễ, không đạt real-time.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "real-time" + "clickstream"/"streaming data"** → **Amazon Kinesis** (Data Streams + workers/consumers)
+- **Thấy "periodically" / "drain theo lô"** → đó là **batch**, không phải real-time, loại nếu đề yêu cầu real-time
+- **Thấy "streaming ingestion"** → luôn là **Kinesis**, không bao giờ là Step Functions
+
 ### TD explanation
 
 Amazon Kinesis makes it easy to collect, process, and analyze real-time, streaming data so you can get timely insights and react quickly to new information. Amazon Kinesis offers key capabilities to cost-effectively process streaming data at any scale, along with the flexibility to choose the tools that best suit the requirements of your application. With Amazon Kinesis, you can ingest real-time data such as video, audio, application logs, website clickstreams, and IoT telemetry data for machine learning, analytics, and other applications. Amazon Kinesis enables you to process and analyze data as it arrives and responds instantly instead of having to wait until all your data is collected before the processing can begin.
@@ -1827,6 +3774,66 @@ What is the most suitable architecture to use in this scenario?
 
 🧠 **Rule:** SQS + workers + DynamoDB + SNS Mobile Push.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Real estate app: location-based push notification
+2 triệu user toàn cầu, tăng nhanh
+Delivery < 1 phút, cost-effective
+(team đã loại AWS Wavelength, chọn simple queuing approach)
+
+Đáp án đúng: C
+  Mobile app → Amazon SQS queue
+  Fleet On-Demand EC2 → đọc offer từ Amazon DynamoDB
+  Push offer → AWS SNS Mobile Push
+Anh chọn đúng C.
+```
+
+#### Vì sao C đúng
+
+```
+Mobile app (iOS/Android) gửi location
+          │
+          ▼
+    Amazon SQS queue   ◄── "highly scalable, cost-effective... holding
+          │                 the location of millions of users"
+          ▼
+Fleet EC2 On-Demand ──► query Amazon DynamoDB (offer gần vị trí user)
+          │                 (highly scalable NoSQL cho tải lớn, scale)
+          ▼
+    AWS SNS Mobile Push ──► gửi push notification đến device
+```
+
+Mỗi thành phần đóng đúng vai trò: **SQS** chịu tải ghi vị trí từ 2 triệu+ user mà không cần provision trước; **DynamoDB** scale tốt cho truy vấn offer khối lượng lớn; **SNS Mobile Push** "send push notification messages directly to apps on mobile devices" — đúng chính xác chức năng cần: gửi alert đến mobile endpoint.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **A (API Gateway + ASG EC2 + RDS + AppSync để push):** sai ở bước cuối — dùng **AWS AppSync để gửi push notification là không đúng**; AppSync là GraphQL API service, không phải dịch vụ push notification. Phải dùng SNS Mobile Push.
+- **B (API Gateway + Lambda + RDS + Amazon Pinpoint):** Pinpoint dùng để push đúng chức năng, nhưng **RDS không scale tốt** cho dữ liệu location từ user toàn cầu so với DynamoDB — "mobile applications do not have complicated table relationships hence, it is recommended to use a NoSQL database like DynamoDB".
+- **D (SQS + EC2 + Aurora + AWS Device Farm để push):** **AWS Device Farm là dịch vụ test app** trên nhiều thiết bị thật/ảo — hoàn toàn không liên quan đến gửi push notification. Đây là sai nghiêm trọng nhất về chức năng dịch vụ.
+
+#### So sánh nhanh
+
+| Đáp án | Ingestion | DB | Push service | Vấn đề |
+|---|---|---|---|---|
+| **C** | SQS | DynamoDB | **SNS Mobile Push** | Đúng |
+| A | API Gateway | RDS | AppSync (sai) | AppSync không phải push service |
+| B | API Gateway + Lambda | RDS (kém scale) | Pinpoint (đúng chức năng) | RDS kém scale hơn DynamoDB cho data toàn cầu |
+| D | SQS | Aurora | Device Farm (sai hoàn toàn) | Device Farm là test service |
+
+#### Lưu ý thực tế
+
+- ⚠️ **AWS Device Farm chỉ là dịch vụ app testing** (test/reproduce issue trên nhiều device thật/giả lập) — tuyệt đối không dùng để gửi notification. Nếu thấy "Device Farm" đi với "send out the offers/push" trong option → luôn sai.
+- Amazon Pinpoint và SNS Mobile Push đều push được tới mobile, nhưng khi đề nhấn "cost-effective" + pattern SQS→worker→NoSQL, SNS Mobile Push thường là lựa chọn kinh điển hơn trong các câu dạng pattern cũ của Tutorials Dojo.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "push notification tới mobile app"** → **SNS Mobile Push** hoặc **Amazon Pinpoint**, không bao giờ là AppSync hay Device Farm
+- **Thấy "location data từ triệu user toàn cầu"** → **DynamoDB** thắng RDS/Aurora vì scale tốt hơn, không cần complex relationship
+- **Thấy "Device Farm"** → luôn là app testing service, không liên quan push/notification
+
 ### TD explanation
 
 With Amazon SNS Mobile Push Notifications, you have the ability to send push notification messages directly to apps on mobile devices. Push notification messages sent to a mobile endpoint can appear in the mobile app as message alerts, badge updates, or even sound alerts.
@@ -1867,6 +3874,68 @@ What should the administrator do to troubleshoot the issue?
 ⚠️ **Watch:** Device Defender is security auditing
 
 🧠 **Rule:** Device health/connectivity → IoT Device Management.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+IoT devices (ngoài biển) → AWS IoT Core → update DynamoDB table
+Agency đã dùng AWS IoT Device Defender (audit security policy, detect
+abnormal behavior) nhưng KHÔNG giúp chẩn đoán connectivity interruption
+
+Vấn đề: báo cáo hàng tuần cho thấy KHÔNG có update mới nào
+Cần: troubleshoot nguyên nhân
+
+Đáp án đúng: C
+  Register devices vào AWS IoT Device Management
+  Monitor device health, đảm bảo devices connected tới IoT Core
+Anh chọn đúng C.
+```
+
+#### Vì sao C đúng
+
+```
+IoT Device Management
+  → "securely register, organize, MONITOR, and remotely manage
+     IoT devices at scale throughout their lifecycle"
+  → upload/view device info, monitor fleet, TROUBLESHOOT individual
+     devices, remotely manage devices deployed across many locations
+          │
+          ▼
+  Xác định: devices có đang connected tới IoT Core không?
+          │
+          ▼
+  → tìm ra nguyên nhân mất update: devices offline/disconnect
+```
+
+Đây đúng loại công cụ để chẩn đoán **connectivity** — thứ mà Device Defender (đã dùng, chỉ về security audit) không làm được. Việc không có update mới trong DynamoDB nhiều khả năng do thiết bị **mất kết nối tới IoT Core**, và IoT Device Management là dịch vụ chuyên giám sát health/connectivity của fleet thiết bị ở quy mô lớn.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **D (dùng IoT Device Defender thêm Certificate Authority, "establish connectivity"):** sai bản chất — Device Defender **chỉ dùng cho security audit, alerting, mitigation**, không quản lý Certificate Authority trong IoT Core và **không dùng để establish connectivity** giữa device và IoT Core. Đề bài đã nói rõ Device Defender hiện tại "does not help diagnose connectivity interruptions" — đáp án D cố gắng ép Device Defender làm việc nó không làm được.
+- **A (AWS IoT SiteWise thu thập data trực tiếp từ devices):** IoT SiteWise dùng để "collecting and gaining insights to equipment data for **industrial operations management**" — không phải dịch vụ thu thập data từ IoT devices nói chung, và không giải quyết vấn đề connectivity.
+- **B (Lambda + IoT 1-Click update trực tiếp vào DynamoDB):** cách này **bypass AWS IoT Core hoàn toàn** — không giải quyết nguyên nhân gốc (connectivity giữa devices và IoT Core), chỉ che giấu triệu chứng bằng cách ghi thẳng vào DB.
+
+#### So sánh nhanh
+
+| Đáp án | Dịch vụ | Vấn đề |
+|---|---|---|
+| **C** | IoT Device Management | Đúng — chuyên monitor health/connectivity fleet |
+| A | IoT SiteWise | Dành cho industrial equipment data, không phải troubleshoot connectivity |
+| B | Lambda + IoT 1-Click | Bypass IoT Core, không chẩn đoán được nguyên nhân |
+| D | IoT Device Defender (mở rộng sai) | Device Defender chỉ security audit, không quản lý connectivity |
+
+#### Lưu ý thực tế
+
+- ⚠️ **AWS IoT Device Defender vs AWS IoT Device Management** là cặp dễ nhầm: Device Defender = security (audit policy, detect abnormal behavior, certificate/security issue); Device Management = operations (register, organize, monitor health, troubleshoot connectivity, remote manage, OTA update). Khi đề cần "troubleshoot connectivity/health" → luôn là Device Management.
+- AWS IoT SiteWise chỉ liên quan ngành công nghiệp (industrial equipment monitoring), không phải dịch vụ ingest chung cho mọi loại IoT sensor.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "device ngừng gửi data" / "troubleshoot connectivity/health của fleet IoT"** → **AWS IoT Device Management**
+- **Thấy "audit security policy / detect abnormal behavior / certificate security"** → **AWS IoT Device Defender** (nhưng KHÔNG dùng để fix connectivity)
+- **Thấy "industrial equipment data"** → **AWS IoT SiteWise**, không phải data IoT chung
 
 ### TD explanation
 
@@ -1914,6 +3983,53 @@ Which of the following options should the Solutions Architect implement to fulfi
 
 🧠 **Rule:** MGN for critical VMs + offline bulk transfer + VM Import for the rest.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises: 150 VMs, 40 TB storage
+Internet bandwidth: chỉ 12 Mbps (nâng cấp quá đắt)
+Deadline: 3 tháng
+Một số VM là mission-critical → downtime phải TỐI THIỂU
+```
+
+Yêu cầu: kế hoạch migration **cost-effective** mà vẫn kịp deadline. Đáp án đúng: **D** — dùng **AWS Transform MGN** cho VM mission-critical + **AWS Data Transfer Terminal** (chuyển offline vật lý) cho VM còn lại + **VM Import/Export** để đưa vào EC2. Anh chọn đúng D.
+
+#### Vì sao D đúng
+
+- **Bài toán băng thông**: 40 TB qua kết nối 12 Mbps sẽ tốn **nhiều tháng** để truyền qua Internet — vượt xa deadline 3 tháng, nên không thể dùng cách upload online cho toàn bộ 40 TB.
+- **Chia hai nhóm xử lý khác nhau theo đúng đặc tính:**
+  - VM mission-critical (cần downtime tối thiểu) → **AWS Transform MGN**: replicate server sang AWS rồi launch, hạn chế downtime khi cutover.
+  - VM không mission-critical (số lượng/khối lượng còn lại, không cần downtime thấp tuyệt đối) → export VM, **đặt lịch tại AWS Data Transfer Terminal** để upload dữ liệu vật lý tại chỗ (offline, không phụ thuộc 12 Mbps) → sau đó **VM Import/Export** convert VM thành EC2 AMI.
+- Kết hợp hai công cụ này vừa đáp ứng deadline (bỏ qua giới hạn băng thông cho phần lớn dữ liệu), vừa giữ downtime thấp cho phần quan trọng, vừa **cost-effective** (không cần nâng cấp Internet connection đắt đỏ).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B sai** vì yêu cầu **1 Gbps Direct Connect** mới — tuy giải quyết được bài toán băng thông và deadline, nhưng **không cost-effective**: đề đã nói rõ nâng cấp Internet là tốn kém cho công ty, và DX cần thời gian provision + chi phí hàng tháng không nhỏ.
+- **A sai** vì **refactor từng application** để chạy trên AWS service/Marketplace là nỗ lực lập kế hoạch rất lớn, tốn effort matching từng app với từng AWS service, dễ gây gián đoạn trong lúc migrate — không phù hợp với deadline 3 tháng chặt.
+- **C sai** vì dùng **AWS Transfer (SFTP) để upload toàn bộ 40 TB qua Internet 12 Mbps** — với băng thông này, việc upload sẽ mất **nhiều hơn 3 tháng**, không kịp deadline.
+
+#### So sánh nhanh
+
+| Đáp án | Cách chuyển 40 TB | Đáp ứng deadline 3 tháng? | Cost-effective? |
+|---|---|---|---|
+| **D (đúng)** | MGN (critical) + Data Transfer Terminal offline (còn lại) | Có | Có |
+| B | Direct Connect 1 Gbps | Có | Không — tốn phí DX |
+| C | SFTP qua 12 Mbps Internet | Không — quá chậm | — |
+| A | Refactor từng app sang AWS service | Không thực tế trong 3 tháng | — |
+
+#### Lưu ý thực tế
+
+- **AWS Data Transfer Terminal** là facility vật lý: đặt lịch, mang thiết bị lưu trữ tới, upload dữ liệu tại chỗ — giải pháp offline khi Internet bandwidth quá thấp so với khối lượng dữ liệu cần chuyển.
+- **AWS Transform MGN** chuyên cho lift-and-shift ít downtime; sau khi lên AWS mới replatform/refactor tiếp nếu cần — không nên refactor ngay từ đầu khi mục tiêu chính là di chuyển đúng hạn.
+
+#### Quy tắc nhớ cho thi
+
+- **"Dữ liệu lớn, băng thông thấp, deadline gấp"** → tính thời gian truyền qua Internet trước; nếu vượt deadline → cần giải pháp **offline/vật lý** (Data Transfer Terminal, Snowball...)
+- **"VM mission-critical cần downtime tối thiểu"** → **AWS Transform MGN**
+- **"Không cost-effective"** → loại ngay phương án yêu cầu nâng cấp kết nối mạng (Direct Connect mới) khi đề đã nói rõ ngân sách hạn chế
+
 ### TD explanation
 
 AWS Transform MGN (MGN) is an automated lift-and-shift solution that simplifies and speeds up the migration of applications to AWS, reducing costs. It enables businesses to move physical, virtual, or cloud servers without compatibility issues or performance disruptions. MGN replicates source servers to AWS and automatically launches them, allowing immediate benefits from cloud agility and cost savings. After migration, companies can easily replatform or refactor their applications using AWS services for faster modernization.
@@ -1960,6 +4076,53 @@ Which of the following options is the recommended action to meet the above requi
 
 🧠 **Rule:** DeletionPolicy: Retain for S3, Snapshot for RDS.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+CloudFormation stack: Voting app
+   ├── S3 bucket (ảnh độ phân giải cao)
+   └── RDS (tóm tắt 100 ký tự)
+
+Contest chạy 1 tháng/năm → stack bị DELETE sau mỗi contest
+Yêu cầu: sau khi xóa stack, S3 bucket PHẢI GIỮ, RDS data PHẢI GIỮ (để dùng lại năm sau)
+```
+
+Đáp án đúng: **B** — set `DeletionPolicy: Retain` cho resource S3, `DeletionPolicy: Snapshot` cho resource RDS. Anh chọn đúng B.
+
+#### Vì sao B đúng
+
+- `DeletionPolicy` là attribute của CloudFormation cho phép quyết định điều gì xảy ra với resource khi stack bị xóa (hoặc khi resource bị remove khỏi template và update stack).
+- **S3 → `Retain`**: S3 **không hỗ trợ snapshot**, nên cách duy nhất để giữ bucket (và toàn bộ object trong đó) khi xóa stack là `Retain` — CloudFormation sẽ không xóa bucket, chỉ gỡ nó khỏi quản lý của stack.
+- **RDS → `Snapshot`**: CloudFormation tự động tạo snapshot của DB instance trước khi xóa — vừa giữ lại dữ liệu (tóm tắt 100 ký tự), vừa **không phải duy trì RDS instance chạy liên tục** suốt thời gian không có contest (tiết kiệm chi phí, vì RDS instance tính phí theo giờ chạy dù không ai dùng).
+
+#### Vì sao từng đáp án sai bị loại
+
+- **D sai** vì set `Snapshot` cho **cả S3 và RDS** — nhưng **S3 không hỗ trợ DeletionPolicy Snapshot**; option này không khả thi về mặt kỹ thuật cho resource S3.
+- **C sai** vì set `Retain` cho **cả hai resource** — về mặt kỹ thuật vẫn giữ được dữ liệu, nhưng gây **chi phí vận hành không cần thiết**: RDS instance vẫn tiếp tục chạy (và tính phí) suốt cả năm dù contest chỉ diễn ra 1 tháng và không ai dùng ứng dụng ngoài thời gian đó. Nên dùng Snapshot cho RDS để không phải duy trì instance chạy liên tục.
+- **A sai** vì dùng **Cross-Region Replication (CRR)** để giữ bản sao S3 object ở region khác — nhưng khi stack bị xóa, **bucket gốc vẫn bị xóa** (CRR chỉ sao chép, không ngăn xóa bucket nguồn); dữ liệu "còn" nhưng ở một bucket/region khác, không đúng ý "S3 bucket vẫn còn" như đề yêu cầu.
+
+#### So sánh nhanh
+
+| Đáp án | DeletionPolicy S3 | DeletionPolicy RDS | Vấn đề |
+|---|---|---|---|
+| **B (đúng)** | Retain | Snapshot | Không |
+| C | Retain | Retain | RDS vẫn chạy tốn phí không cần thiết |
+| D | Snapshot | Snapshot | S3 không hỗ trợ Snapshot |
+| A | CRR (không phải DeletionPolicy) | Snapshot | Bucket gốc vẫn bị xóa |
+
+#### Lưu ý thực tế
+
+- `DeletionPolicy` cũng áp dụng khi resource bị **remove khỏi template rồi update stack** (không chỉ khi xóa nguyên stack), nhưng **không áp dụng** khi resource bị **replace** trong lúc update (ví dụ đổi property khiến CloudFormation phải tạo lại resource mới).
+- Nếu resource không có `DeletionPolicy`, CloudFormation **xóa resource theo mặc định** khi xóa stack — luôn cần set rõ khi muốn giữ dữ liệu quan trọng.
+
+#### Quy tắc nhớ cho thi
+
+- **S3 bucket cần giữ lại khi xóa stack** → `DeletionPolicy: Retain` (S3 không có Snapshot)
+- **RDS cần giữ dữ liệu nhưng không cần instance chạy liên tục** → `DeletionPolicy: Snapshot`
+- **"Retain cả hai" trông "an toàn" nhưng tốn phí** → cân nhắc Snapshot cho resource có hỗ trợ (RDS, EBS...) để tiết kiệm chi phí vận hành
+
 ### TD explanation
 
 With the DeletionPolicy attribute, you can preserve or (in some cases) back up a resource when its stack is deleted. You specify a DeletionPolicy attribute for each resource that you want to control. If a resource has no DeletionPolicy attribute, AWS CloudFormation deletes the resource by default.
@@ -2002,6 +4165,52 @@ Which of the following methods should you implement to meet the above requiremen
 
 🧠 **Rule:** Patch Manager + SSM Agent + Maintenance Windows.
 
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises patch management (tự động) ──Direct Connect (LAG)──► VPC
+                                                                    │
+                                                            EC2 instances
+
+Yêu cầu: sync patch baseline on-premises → EC2, TỰ ĐỘNG hóa lịch patching, LEAST effort
+```
+
+Đáp án đúng: **C** — dùng **AWS Systems Manager Patch Manager** (patch baseline on-prem), **cài SSM Agent** lên các EC2, và tự động hóa lịch bằng **Systems Manager Maintenance Windows**. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+- **Patch Manager** là service được thiết kế đúng cho việc "patch fleet of EC2/on-premises servers theo patch baseline" — hỗ trợ cả patch baseline tùy biến lấy từ môi trường on-premises.
+- **SSM Agent phải được cài trên EC2** để Patch Manager hoạt động — đây là điều kiện bắt buộc, option đúng phải nêu rõ bước này.
+- **Maintenance Windows** cho phép định nghĩa lịch (schedule), thời gian chạy tối đa (max duration), danh sách target và task — tự động hóa lịch patching mà không cần tự viết thêm logic scheduling nào khác, đúng tiêu chí "LEAST effort".
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B sai** vì dùng **Session Manager** — service này dùng để **truy cập instance an toàn, có audit log** (ví dụ thay SSH/RDP truyền thống), **không phải** để apply OS patch. Dùng sai service cho mục đích patching.
+- **A sai** vì tuy dùng đúng Patch Manager, nhưng lại **tự xây lịch bằng Lambda + Run Command** thay vì dùng **Maintenance Windows** có sẵn — tốn effort hơn (phải code, maintain Lambda) trong khi Maintenance Windows đã giải quyết đúng nhu cầu lập lịch. Ngoài ra option này cũng không nhắc tới việc cài SSM Agent.
+- **D sai** vì **State Manager** dùng để duy trì EC2/hybrid infrastructure ở một **state định nghĩa sẵn** (config, software khi boot, network settings...) — không phải service chuyên patch OS. **Distributor** dùng để package/distribute software/patches, nhưng kết hợp State Manager + Distributor không phải là cách chuẩn và tối ưu để patch theo baseline như Patch Manager.
+
+#### So sánh nhanh
+
+| Đáp án | Service patch | Cách lập lịch | Vấn đề |
+|---|---|---|---|
+| **C (đúng)** | Patch Manager + SSM Agent | Maintenance Windows | Không |
+| A | Patch Manager | Lambda + Run Command tự viết | Tốn effort hơn cần thiết |
+| B | Session Manager (sai mục đích) | Maintenance Windows | Session Manager không patch OS |
+| D | State Manager + Distributor | Distributor | Không phải service patch chuyên dụng |
+
+#### Lưu ý thực tế
+
+- SSM Agent là điều kiện bắt buộc cho hầu hết tính năng Systems Manager vận hành trên EC2/hybrid instance — luôn kiểm tra đáp án có nhắc tới việc cài agent khi liên quan tới Patch Manager, State Manager...
+- Maintenance Windows còn hỗ trợ chỉ định time zone và các ngày "không chạy", rất phù hợp khi cần đồng bộ lịch patch với chính sách vận hành hiện có của tổ chức.
+
+#### Quy tắc nhớ cho thi
+
+- **"Patch EC2 theo baseline + tự động lịch, LEAST effort"** → **Patch Manager** + **SSM Agent** + **Maintenance Windows**
+- **"Session Manager"** → chỉ để truy cập instance an toàn, **không** liên quan patch
+- **"State Manager"** → duy trì state định nghĩa sẵn (config), **không** chuyên patch OS như Patch Manager
+
 ### TD explanation
 
 AWS Systems Manager Patch Manager automates the process of patching managed instances with security-related updates. For Linux-based instances, you can also install patches for non-security updates. You can patch fleets of Amazon EC2 instances or your on-premises servers and virtual machines (VMs) by operating system type. This includes supported versions of Windows, Ubuntu Server, Red Hat Enterprise Linux (RHEL), SUSE Linux Enterprise Server (SLES), Amazon Linux, and Amazon Linux 2. You can scan instances to see only a report of missing patches, or you can scan and automatically install all missing patches.
@@ -2043,6 +4252,52 @@ Which of the following is the best solution to improve the image upload process?
 ⚠️ **Watch:** CloudFront isn't an upload accelerator for S3 here
 
 🧠 **Rule:** Long-distance uploads → S3 Transfer Acceleration.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Users (North America + Europe) ──mobile app──► Upload ảnh độ phân giải cao
+                                                        │
+                                                 S3 bucket tại us-east-1
+
+Sau 1 tuần: European artists báo upload CHẬM
+```
+
+Yêu cầu: cải thiện tốc độ upload ảnh, đặc biệt cho người dùng ở xa (Europe) so với region của bucket (us-east-1). Đáp án đúng: **A** — bật **S3 Transfer Acceleration** trên bucket, dùng endpoint `s3-accelerate` để upload. Anh chọn đúng A.
+
+#### Vì sao A đúng
+
+- **S3 Transfer Acceleration** giải quyết chính xác vấn đề "transfer qua khoảng cách địa lý xa": nó tận dụng mạng lưới edge location toàn cầu của CloudFront, dữ liệu đi vào edge gần người dùng nhất rồi được route tới S3 qua **mạng backbone tối ưu của AWS**, thay vì đi theo đường Internet công khai thông thường tới us-east-1.
+- Đây đúng use case AWS khuyến nghị: "khách hàng upload vào một bucket trung tâm từ khắp thế giới", "chuyển dữ liệu dung lượng lớn qua các lục địa" — khớp hoàn toàn với bài toán European artist upload ảnh lớn.
+- Chỉ cần đổi endpoint upload thành `s3-accelerate.amazonaws.com` (hoặc bản dualstack IPv6), không cần thay đổi kiến trúc gì khác.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **C sai** vì **multipart upload** giúp tăng throughput khi upload (chia file thành nhiều phần, upload song song) nhưng **không giải quyết được giới hạn khoảng cách địa lý** — người dùng Europe vẫn bị giới hạn bởi tốc độ kết nối Internet cố định của họ tới tận us-east-1, dù có chia nhỏ file hay không.
+- **D sai** vì CloudFront **được thiết kế cho content delivery/caching**, không phải tối ưu upload. CloudFront hỗ trợ POST/PUT nhưng có **giới hạn timeout kết nối tới origin (60 giây)** — upload file lớn mất vài phút sẽ dễ bị timeout và connection bị cắt. Transfer Acceleration mới là giải pháp chính thức AWS khuyến nghị cho upload lớn, dù cả hai cùng dùng chung mạng lưới edge CloudFront.
+- **B sai** vì Global Accelerator đặt trước **EC2 instances**, không liên quan gì tới việc ảnh được upload **trực tiếp vào S3** — tăng EC2 hay Auto Scaling cũng không cải thiện được tốc độ upload S3 từ một continent khác.
+
+#### So sánh nhanh
+
+| Đáp án | Cơ chế | Giải quyết đúng vấn đề? |
+|---|---|---|
+| **A (đúng)** | S3 Transfer Acceleration (dùng edge CloudFront để route tối ưu tới S3) | Có |
+| C | Multipart upload | Không — vẫn bị giới hạn bởi khoảng cách địa lý |
+| D | CloudFront làm origin custom cho S3 | Không — timeout 60s, không phải giải pháp upload chính thức |
+| B | Global Accelerator trước EC2 | Không liên quan — ảnh upload trực tiếp vào S3, không qua EC2 |
+
+#### Lưu ý thực tế
+
+- Sau khi enable Transfer Acceleration, có thể mất tới **20 phút** mới thấy rõ hiệu năng cải thiện, nhưng **endpoint** đã dùng được ngay khi enable.
+- Transfer Acceleration thực chất cũng dùng chung hạ tầng edge location của CloudFront — nhưng nó là một **tính năng riêng của S3** tối ưu cho PUT/GET object, khác với việc dùng CloudFront như một CDN/origin phía trước S3 (vốn có giới hạn timeout khi dùng cho upload).
+
+#### Quy tắc nhớ cho thi
+
+- **"Upload lớn, khoảng cách xa tới S3 bucket"** → **S3 Transfer Acceleration**, dùng endpoint `s3-accelerate`
+- **"Multipart upload"** → chỉ tăng throughput cục bộ, không giải quyết latency do khoảng cách địa lý
+- **"CloudFront đặt trước S3 để tăng tốc upload"** → sai, CloudFront có timeout 60s tới origin, không phải giải pháp khuyến nghị cho upload
 
 ### TD explanation
 
@@ -2100,6 +4355,57 @@ Which of the following should the Solutions Architect do to effectively plan the
 ⚠️ **Watch:** Inspector/X-Ray aren't discovery tools
 
 🧠 **Rule:** Transform discovery + assessment jobs + CART readiness.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises: hàng nghìn VM (Linux + Windows), Java/PHP apps, MySQL/Oracle DB
+            + vài service ở data center ngoài, SAN storage (iSCSI)
+Technical docs: KHÔNG ĐẦY ĐỦ, LỖI THỜI
+
+Nhiệm vụ: PHÂN TÍCH hiện trạng + ƯỚC TÍNH chi phí migration (chưa migrate thật)
+```
+
+Chọn **BA** hành động để **lập kế hoạch** migration. Đáp án đúng: **B (AWS Transform assessment jobs)** + **C (AWS Transform discovery tool)** + **D (AWS CART)**. Anh chọn đúng B, C, D.
+
+#### Vì sao B, C, D đúng
+
+- **C — AWS Transform discovery tool**: tự động khám phá server inventory (hỗ trợ VMware vCenter, Hyper-V, imported servers) — giải quyết đúng vấn đề gốc "docs không đầy đủ/lỗi thời": thay vì dựa vào tài liệu cũ, công cụ tự thu thập thông tin thực tế về VM và application đang chạy.
+- **D — AWS CART**: khảo sát 16 câu hỏi, đánh giá mức độ sẵn sàng migration theo 6 khía cạnh (business, people, process, platform, operations, security) — giúp phát hiện **gap về kỹ năng/tổ chức**, một phần quan trọng của việc "lập kế hoạch" ngoài yếu tố kỹ thuật.
+- **B — AWS Transform migration assessment jobs/workspaces**: dựa trên dữ liệu discovery, đưa ra **ước tính chi phí**, **right-sizing recommendation**, so sánh nhiều scenario, tạo report — đúng chính xác yêu cầu "estimate the cost of migrating" trong đề.
+
+Ba công cụ này hợp thành một luồng: **discovery (C)** → **assessment/cost (B)** → **readiness (D)**, đều thuộc giai đoạn **phân tích & lập kế hoạch**, không phải thực thi migration.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **E sai** vì **AWS Transform MGN** là service dùng cho **thực hiện migration thật** (lift-and-shift VM sang AWS), không phải công cụ lập kế hoạch. Đề yêu cầu rõ: phân tích hiện trạng và ước tính chi phí **trước khi** migrate thật.
+- **F sai** vì **AWS X-Ray** dùng để debug ứng dụng production/microservices đang chạy (trace request, tìm lỗi) — không giúp gì cho việc **lập kế hoạch di chuyển hạ tầng** on-premises.
+- **A sai** vì **Amazon Inspector** là dịch vụ đánh giá bảo mật tự động cho resource **đang chạy trên AWS** — không áp dụng được để quét/đánh giá application đang chạy **on-premises**.
+
+#### So sánh nhanh
+
+| Đáp án | Vai trò | Thuộc giai đoạn |
+|---|---|---|
+| **C (đúng)** | Khám phá server/app inventory on-prem | Discovery |
+| **D (đúng)** | Đánh giá sẵn sàng tổ chức (CART) | Readiness assessment |
+| **B (đúng)** | Ước tính chi phí, right-sizing | Cost/migration assessment |
+| E | Thực hiện migration (MGN) | Execution, không phải planning |
+| F | Debug app đang chạy (X-Ray) | Không liên quan planning |
+| A | Security assessment cho resource trên AWS (Inspector) | Không áp dụng cho on-premises |
+
+#### Lưu ý thực tế
+
+- AWS Transform là một hệ công cụ rộng: discovery, assessment, và cả modernize/migrate (ví dụ MGN cho lift-and-shift, hỗ trợ VMware→EC2, .NET modernization...) — cần phân biệt rõ công cụ nào thuộc **giai đoạn nào** (discovery/planning vs execution) khi đề hỏi cụ thể một giai đoạn.
+- CART là một khảo sát độc lập (survey-based), không cần tích hợp kỹ thuật vào hạ tầng — phù hợp đánh giá khía cạnh "con người & tổ chức" mà các tool kỹ thuật như discovery/assessment không đo được.
+
+#### Quy tắc nhớ cho thi
+
+- **"Docs không đầy đủ, cần biết hiện trạng VM/app"** → **AWS Transform discovery tool**
+- **"Ước tính chi phí + right-sizing trước khi migrate"** → **AWS Transform assessment jobs**
+- **"Đánh giá mức độ sẵn sàng tổ chức/kỹ năng"** → **AWS CART**
+- **"MGN / X-Ray / Inspector"** trong câu hỏi về *lập kế hoạch* → hầu như luôn là bẫy (MGN = execution, X-Ray = debug app chạy, Inspector = security cho resource trên AWS)
 
 ### TD explanation
 
@@ -2164,6 +4470,54 @@ Which solution will meet these requirements while adhering to the constraints?
 ⚠️ **Watch:** DynamoDB/Aurora require code changes
 
 🧠 **Rule:** Multi-AZ EC2 ASG + DocumentDB across AZs.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-premises: Java backend + MongoDB (NoSQL)
+
+Ràng buộc:
+- KHÔNG được sửa code ứng dụng
+- Kiến trúc sau migrate phải TƯƠNG TỰ on-premises
+- Backend VÀ database đều cần HIGH AVAILABILITY
+```
+
+Đáp án đúng: **C** — Java app trên **EC2 trong Auto Scaling group, nhiều AZ** + migrate MongoDB sang **Amazon DocumentDB (MongoDB compatibility) nhiều AZ**. Anh chọn đúng C.
+
+#### Vì sao C đúng
+
+- **Amazon DocumentDB (with MongoDB compatibility)**: tương thích JSON-like storage format, query language, và driver của MongoDB → **không cần sửa code ứng dụng**, đúng ràng buộc cứng của đề.
+- DocumentDB **mặc định deploy dữ liệu trên 3 Availability Zones** — nếu primary instance fail, tự động promote một replica lên primary, không cần can thiệp thủ công → đáp ứng HA cho database.
+- **EC2 trong Auto Scaling group trải nhiều AZ**: giữ được mức độ tùy biến cấu hình gần giống on-premises (so với việc đổi sang container/managed compute), đồng thời Auto Scaling tự thay instance unhealthy, scale theo traffic → đáp ứng HA + khả năng chịu lỗi cho backend.
+- Việc deploy resource trên **nhiều AZ** (ít nhất 2) cho cả backend và database là yếu tố quyết định khiến C đúng còn B sai.
+
+#### Vì sao từng đáp án sai bị loại
+
+- **B sai** vì tuy cũng dùng EC2 ASG + DocumentDB đúng loại database, nhưng DocumentDB chỉ deploy ở **single Availability Zone** — **không đáp ứng yêu cầu HA cho database layer**. Đây là điểm khác biệt duy nhất so với C, và chính là điểm làm B sai.
+- **A sai** vì đổi database từ MongoDB sang **Amazon DynamoDB** — khác hẳn loại database (DynamoDB có API/model khác MongoDB), buộc phải **sửa code đáng kể** ở tầng data access — vi phạm trực tiếp ràng buộc "không được sửa ứng dụng".
+- **D sai** vì đổi MongoDB sang **Amazon Aurora** — Aurora là **relational database**, khác hoàn toàn kiến trúc NoSQL của MongoDB, vừa vi phạm ràng buộc "kiến trúc tương tự on-premises", vừa đòi hỏi sửa code tầng data access.
+
+#### So sánh nhanh
+
+| Đáp án | Backend | Database | AZ cho DB | Cần sửa code? |
+|---|---|---|---|---|
+| **C (đúng)** | EC2 ASG multi-AZ | DocumentDB | Nhiều AZ | Không |
+| B | EC2 ASG multi-AZ | DocumentDB | **Single AZ** | Không, nhưng DB thiếu HA |
+| A | EKS (App2Container) | DynamoDB | — | Có — đổi hẳn model DB |
+| D | Elastic Beanstalk | Aurora (relational) | Nhiều AZ (read replica) | Có — đổi hẳn loại DB |
+
+#### Lưu ý thực tế
+
+- Đây là bộ ba yêu cầu kinh điển cho câu hỏi dạng "migrate không sửa code + giữ kiến trúc tương tự + cần HA": chọn đúng **managed service tương thích API/protocol gốc** (ở đây là DocumentDB cho MongoDB) rồi mới xét tới việc nó có **deploy multi-AZ** hay không — thiếu một trong hai điều kiện là sai ngay.
+- App2Container (trong A) tự nó không sai về nguyên tắc containerize Java app, nhưng điểm chốt làm A sai luôn là việc đổi sang DynamoDB — một lựa chọn tưởng hợp lý (DynamoDB cũng NoSQL, HA sẵn) nhưng không tương thích API với MongoDB.
+
+#### Quy tắc nhớ cho thi
+
+- **"Migrate MongoDB, không sửa code"** → **Amazon DocumentDB (with MongoDB compatibility)**, không phải DynamoDB hay Aurora
+- **"HA cho database"** → kiểm tra kỹ xem đáp án có ghi rõ **multi-AZ** hay chỉ "single AZ" — đây thường là điểm phân biệt giữa 2 đáp án gần giống nhau
+- **"Giữ kiến trúc tương tự on-premises + không sửa code"** → ưu tiên **EC2 (tự quản lý)** hơn là đổi sang container/serverless hoặc đổi loại database
 
 ### TD explanation
 
