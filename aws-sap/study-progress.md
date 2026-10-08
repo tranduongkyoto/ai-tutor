@@ -154,12 +154,12 @@ No AWS official practice exam (decision 10-07).
 
 | Gate | Source | Date | Go | Switch to SAP-C03 |
 |---|---|---|---|---|
-| **Gate 1** | **Mixed Unseen Mock #1** — Udemy #2 unseen 27 + Udemy #3 unseen 27 + TD6 16 + Udemy #1 unseen 5 = 75, shuffled, timed 210 min (`practice-exam/sap/mixed_unseen_mock_1.md`) | 10-07 | ≥66% | <62% (62–65%: keep going) |
+| **Gate 1** | **3 isolated unseen tests** (review mode, blocks of 25): Udemy #2 unseen 27 · Udemy #3 unseen 27 · TD6 16 (+ Udemy #1 unseen 5 mini) — combined unseen score; sessions `practice-exam/sap/{udemy2_unseen,udemy3_unseen,td6_isolated,udemy1_unseen}_session.json` | 10-07 – 10-09 | ≥66% combined | <62% (62–65%: keep going) |
 | **Gate 2 (final)** | **TD Set 4 timed** (75 unseen) | ~10-28 | ≥75% | <70% |
 | Retake check | One full timed retake of TD1/2/3/5, ≥2 weeks after last seen; every answer justified | ~10-20 onward | ≥85% | — |
 
 **Book / keep the exam date only if** Gate 2 ≥75% **and** one retake ≥85%.
-Udemy Test #2/#3: 48 of 75 questions each were already seen in chapter drills, so all remaining unseen Udemy questions + TD6 went into Mock #1.
+Udemy Test #2/#3: 48 of 75 questions each were already seen in chapter drills, so their remaining unseen questions + TD6 are taken as separate isolated tests (split from the merged mock on 10-08).
 **TD4 is the last unseen material** — no Dojo drills (they contain TD4/TD6 questions).
 
 Book the SAP-C02 slot now (slots near 11-16 fill up); check the Pearson VUE reschedule/cancel window and the
@@ -170,13 +170,13 @@ SAA-C03 50% discount voucher (Certification account → Benefits) when booking.
 | Date | Focus |
 |---|---|
 | 10-06 | ✅ TD3 review + Pass 1 (32/33) · TD1 Pass 3 (28/29) · TD5 Pass 3 (40/44) |
-| 10-07 | ✅ TD5 4-miss retry (4/4) · ✅ Cost Control chapter · ✅ re-watch ELB types · ✅ Data Engineering chapter · ✅ Other Services + ML skim · ✅ re-watch FSx + Transfer Family · ✅ 🇻🇳 right-answer sections TD2/3/5 · **Mixed Unseen Mock #1 timed — Gate 1** · **book exam** |
-| 10-08 | Mock #1 review (by source + domain) + miss redo Pass 1 |
-| 10-09 | TD3 Pass 2 · Mock #1 🇻🇳 miss sections |
-| 10-10 – 10-14 | TD3 right-answer "Guessed?" review · repeat-miss list · Mock #1 Pass 2 (10-13) |
-| 10-15 – 10-19 | weak-area re-watch (from Mock #1 domains) · TD3 Pass 3 · wrong-answer marathon round 1 |
+| 10-07 | ✅ TD5 4-miss retry (4/4) · ✅ Cost Control chapter · ✅ re-watch ELB types · ✅ Data Engineering chapter · ✅ Other Services + ML skim · ✅ re-watch FSx + Transfer Family · ✅ 🇻🇳 right-answer sections TD2/3/5 · Gate 1 started (18 answered, carried into the isolated tests) · **book exam** |
+| 10-08 | **Gate 1: Udemy #2 unseen ✅ 13/27 (48%)** — misses: Kinesis KDS/Firehose/fan-out ×3, Snow sizing ×2, WAF logs, SSM RunPatchBaseline, SQS message timer, Global Accelerator for DNS caching, CloudFront regional-edge bypass, tenancy, ASG health-check replace · 🇻🇳 review + **redo Pass 1 14/14** · Udemy #3 unseen next |
+| 10-09 | **Gate 1: TD6 + Udemy #1 mini** · combined score · TD3 Pass 2 D–F (A–C ✅ 18/20 on 10-08; misses Q63 AppStream, Q71 PowerUserAccess) |
+| 10-10 – 10-14 | TD3 right-answer "Guessed?" review · repeat-miss list · Gate 1 misses Pass 2 (10-13) |
+| 10-15 – 10-19 | weak-area re-watch (from Gate 1 domains) · TD3 Pass 3 · wrong-answer marathon round 1 |
 | ~10-20 | **TD5 full timed retake** (retake check) |
-| 10-21 – 10-26 | TD1/TD2 retake · Mock #1 Pass 3 · Exam Preparation chapter (10-26) |
+| 10-21 – 10-26 | TD1/TD2 retake · Gate 1 misses Pass 3 · Exam Preparation chapter (10-26) |
 | **~10-28** | **TD Set 4 timed — Gate 2 (final)** → `test-review --vi` |
 | 10-29 – 10-30 | TD4 review + Pass 1 |
 | 10-31 – 11-09 | Pass 3s · wrong-answer marathon (all 🔁 repeat misses) · 10 rules per set |

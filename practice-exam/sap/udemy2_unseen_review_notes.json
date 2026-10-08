@@ -1,0 +1,43 @@
+{
+ "title": "Udemy Test #2 — unseen questions (Gate 1)",
+ "analysis_file": "udemy2_unseen_analysis.md",
+ "wrong_review_file": "udemy2_unseen_review.md",
+ "wrong": {
+  "groups": {"A": "Kinesis family & streaming destinations", "B": "Data transfer sizing (Snow vs network)", "C": "Ops tooling: monitoring, patching, compliance", "D": "Exact feature behavior (SQS, CloudFront, tenancy, ASG, deploy routing)"},
+  "questions": {
+   "1": {"group": "A", "keywords": "multiple consumer apps + read lag on KDS", "trap": "Firehose is a delivery service to S3/Redshift/OpenSearch — consumer apps can't read from it", "rule": "Many KDS consumers lagging → Enhanced Fan-Out (dedicated 2 MB/s/shard per consumer)"},
+   "4": {"group": "B", "keywords": "9 PB, quickest + MOST cost-optimal, archive", "trap": "Snowmobile is for ≥10 PB at a single site", "rule": "<10 PB → many Snowball Edge Storage Optimized; Snow lands in S3 → lifecycle to Glacier (never direct to Glacier)"},
+   "6": {"group": "A", "keywords": "Firehose source already = Kinesis Data Streams; Agent writes to same Firehose", "trap": "Kinesis Agent CAN write to both KDS and Firehose", "rule": "KDS as Firehose source disables Firehose PutRecord/PutRecordBatch → producers must write to the KDS"},
+   "8": {"group": "A", "keywords": "simultaneous feed, each group independent, real-time", "trap": "SQS: one consumer deletes the message — no fan-out of the same record", "rule": "Many apps read the same stream concurrently/replay → Kinesis Data Streams"},
+   "9": {"group": "C", "keywords": "lag loading dynamic images + 504 timeouts; DynamoDB metrics fine", "trap": "X-Ray (E) right, but API Gateway access logs (D) only show who called what, not why Lambda is slow", "rule": "Slow Lambda behind API GW → Lambda CloudWatch Logs (processing time) + X-Ray traces"},
+   "12": {"group": "D", "keywords": "delay CERTAIN messages 1 min, others immediately", "trap": "Delay queue delays EVERY message in the queue", "rule": "Per-message delay → message timer (DelaySeconds on send); whole queue → delay queue"},
+   "13": {"group": "A", "keywords": "permanently record all traffic into WAF-protected ALB", "trap": "CloudTrail is not a WAF log destination", "rule": "WAF logs → CloudWatch Logs / S3 / Firehose; Firehose → S3 → Athena for analysis"},
+   "15": {"group": "B", "keywords": "200 TB, shortest time, 500 Mbps DX / 1 Gbps VPN", "trap": "1 Gbps ≈ 0.125 GB/s → 200 TB ≈ 18.5 days of perfect transfer", "rule": "Do the math: if link time > ~1 week, ship Snowball Edge (80 TB each → 3 devices)"},
+   "20": {"group": "D", "keywords": "mobile clients cache DNS, only 2 days, blue/green", "trap": "Route 53 weighted is DNS-based → stale client caches ignore the new weights", "rule": "DNS caching blocks a fast shift → Global Accelerator endpoint weights / traffic dials"},
+   "21": {"group": "D", "keywords": "content that SKIPS the regional edge cache", "trap": "Static files, product photos, user videos all go THROUGH the regional edge cache", "rule": "Skip regional edge cache: proxy methods PUT/POST/PATCH/OPTIONS/DELETE + dynamic content forwarding all headers"},
+   "22": {"group": "C", "keywords": "mixed Windows+Linux fleet, auditable, MINIMAL effort", "trap": "AWS-ApplyPatchBaseline is legacy Windows-only; OS-native patching = more effort", "rule": "Patch Manager: AWS-RunPatchBaseline + SSM Agent + maintenance window"},
+   "24": {"group": "D", "keywords": "LC tenancy vs VPC tenancy (dedicated/default mix)", "trap": "Assumed the VPC default overrides the LC (or vice versa)", "rule": "Either LC or VPC = dedicated → instances are dedicated"},
+   "26": {"group": "C", "keywords": "continuously assess/audit configs, compliance standards", "trap": "Config (C) right; A makes CloudTrail+SNS do auto-revert — CloudTrail only records", "rule": "Continuous config compliance → AWS Config rules + CloudTrail trail → CloudWatch Logs (KMS)"},
+   "27": {"group": "D", "keywords": "unhealthy instance + AZ rebalancing after manual terminate", "trap": "E right; B wrong — ASG does not terminate+launch in one activity", "rule": "Unhealthy → terminate FIRST then launch; AZ rebalancing → launch FIRST then terminate"}
+  }
+ },
+ "right": {
+  "groups": {"A": "Serverless & integration", "B": "Data & cost", "C": "Migration strategy", "D": "Security & content protection"},
+  "questions": {
+   "2": {"group": "A", "keywords": "2,400 msg/s, ordered, cost-effective", "watch": "batch size must reach 300 TPS × batch ≥ 2,400 — smallest batch that works", "rule": "FIFO 300 TPS (3,000 msg/s with batching of 10) → pick the minimal batch that covers peak"},
+   "3": {"group": "A", "keywords": "start/stop Beanstalk daily, one-stop scheduler, lowest ops", "watch": "Step Functions wait state = pay for long waits/complexity", "rule": "Scheduled start/stop → EventBridge cron + Lambda"},
+   "5": {"group": "C", "keywords": "hundreds of low-traffic PoC apps, lowest cost + least effort", "watch": "one EC2/Beanstalk per app = many idle instances", "rule": "Many small apps → containerize and bin-pack on ECS behind one ALB"},
+   "7": {"group": "C", "keywords": "Chef on-prem, minimal workflow change, less ops", "watch": "Rehost vs Replatform wording", "rule": "Chef/Puppet → OpsWorks (replatform)"},
+   "10": {"group": "A", "keywords": "429, Lambda never invoked, premium quota", "watch": "429 before Lambda = API GW account throttle, not Lambda", "rule": "Per-client quotas → usage plans + API keys"},
+   "11": {"group": "B", "keywords": "web/app tiers replaced in 6 months, cut cost now", "watch": "RI for tiers being retired = wasted commitment; Spot not reliable", "rule": "Short-lived tiers → On-Demand; long-lived DB → RI"},
+   "14": {"group": "B", "keywords": "raw kept 5 yrs untouched, curated queried by Athena", "watch": "curated to Deep Archive breaks Athena", "rule": "Raw archive → Deep Archive; Athena data → compressed columnar"},
+   "16": {"group": "A", "keywords": "stateful + stateless APIs", "watch": "REST = stateless, WebSocket = stateful", "rule": "API GW REST stateless; WebSocket stateful full-duplex"},
+   "17": {"group": "A", "keywords": "loosely coupled, spikes, most reliable", "watch": "Q8: SQS is wrong when many apps need the SAME record", "rule": "Order buffer with spikes → SQS + Lambda"},
+   "18": {"group": "A", "keywords": "faster Lambda deploy, auto detect + rollback", "watch": "change sets have no pre/post traffic hooks", "rule": "Lambda canary/linear + auto rollback → SAM + CodeDeploy + CloudWatch alarms"},
+   "19": {"group": "C", "keywords": "99.99% SLA global, auto failover, lowest cost", "watch": "always-on containers/RDS cost more", "rule": "Global + spiky + cheapest → S3 + API GW + Lambda + DynamoDB global tables, latency routing"},
+   "23": {"group": "D", "keywords": "ElastiCache Redis secure from unauthorized access", "watch": "SG outbound rule / CloudTrail are not access controls", "rule": "Redis security → SG inbound 6379 + in-transit/at-rest encryption + AUTH token"},
+   "25": {"group": "D", "keywords": "one install file vs whole members' area", "watch": "cookies vs URLs swapped", "rule": "Single file → signed URL; many files → signed cookies"}
+  },
+  "inconsistent": [["Q17", "Q8", "SQS fits a work buffer, not a multi-consumer fan-out stream"], ["Q16", "Q20", "Know exact service behavior (stateful/stateless; DNS caching vs anycast)"], ["Q10", "Q12", "Service knobs: usage plans right, SQS message timer vs delay queue missed"]]
+ }
+}
