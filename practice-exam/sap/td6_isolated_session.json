@@ -1,0 +1,36 @@
+{
+ "set": "td6_isolated",
+ "created": "2026-10-08",
+ "seed": 1008,
+ "order": [
+  2,
+  3,
+  1,
+  7,
+  10,
+  11,
+  5,
+  16,
+  14,
+  15,
+  9,
+  13,
+  12,
+  6,
+  8,
+  4
+ ],
+ "seen": [],
+ "answers": {
+  "1": "A",
+  "2": "B",
+  "3": "C",
+  "4": "A"
+ },
+ "revealed_blocks": [],
+ "flagged": [
+  15,
+  16
+ ],
+ "carried_from": "mixed_unseen_mock_1"
+}
