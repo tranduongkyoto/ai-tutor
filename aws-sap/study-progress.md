@@ -1,13 +1,14 @@
 ---
 certification: SAP-C02
 started: 2026-09-04
-last_updated: 2026-10-06
+last_updated: 2026-10-12
 current_phase: 2
 schedule: ~25h+/week sprint until exam (was ~15h/week)
 deadline: 2026-11-16 (last day for SAP-C02; SAP-C03 GA 11-17)
 exam_accommodation: ESL +30 approved (210 min, never expires)
 latest_timed_score: 56.0% (TD Set 3, 2026-10-05)
-target_exam_window: 2026-11-10 to 2026-11-13 (SAP-C02, before retirement)
+exam_booked: 2026-11-02 (SAP-C02, booked 10-12; reschedule decided by gates, max 2 reschedules, decide by 10-31)
+target_exam_window: 2026-11-02 (keeps a C02 retake option ~11-16) or fallback 11-10 to 11-13 (one attempt only)
 ---
 
 # AWS SAP-C02 Study Progress
@@ -29,7 +30,7 @@ Background: SAA-C03 passed.
 | Monitoring | Done | TD 11.5/14 (82%) | #3452, #276 |
 | Deployment & Instance Management | Done | — | — |
 | Migrations | Done | — | — |
-| Amazon VPC | Done | Udemy 23/30 (77%) | #2856, #244; #354 skipped (10-07) |
+| Amazon VPC | Done | Udemy 23/30 (77%) | #2856, #244, #354 (10-09), Traffic Mirroring (10-09) |
 | Data Engineering | Done (10-07) | — | — |
 | Cost Control | Done (10-07) | — | — |
 | Machine Learning | Skimmed 2x (10-07) | — | — |
@@ -48,7 +49,12 @@ Background: SAA-C03 passed.
 | #3452 | CloudTrail + CloudWatch Audit | Monitoring | Done | — |
 | #276 | VPC Flow Logs + CloudWatch | Monitoring | Done | — |
 | (2 labs) | Identity & Federation | Identity | Done | — |
-| #354 | Gateway VPC Endpoints + Endpoint Policies | VPC | Skipped (learner decision) | 10-07 |
+| #354 | Design and Implement Gateway VPC Endpoints (+ endpoint policies) | VPC | Done | 2026-10-09 |
+| — | Configuring Traffic Mirroring in AWS VPC | VPC/Security | Done | 2026-10-09 |
+| — | Active-Passive Failover with Route 53 Failover Routing | DNS/DR | Done | 2026-10-09 |
+| — | Distribute Traffic with Route 53 Weighted Routing | DNS | Done | 2026-10-09 |
+| — | Build and Monitor a Resilient System (EC2, RDS Multi-AZ, CloudWatch, SNS) | HA/Monitoring | Done | 2026-10-09 |
+| — | Automated Recovery for RPO/RTO with Amazon RDS | DR/Databases | Done | 2026-10-09 |
 
 ## Phase 2: Chapter Drills + Timed Baseline — IN PROGRESS
 
@@ -122,12 +128,12 @@ Multi-select 6/13 (46%) vs single 36/62 (58%); all 7 multi misses had 1 correct 
 ### TD Set 3 wrong-answer redo (tracker: `practice-exam/sap/td_set_3_review.md`)
 | Groups | Pass 1 | Pass 2 due | Pass 3 due |
 |---|---|---|---|
-| A (9) — overbuilt: simplest/cheapest fix | 10-06 — 9/9 | ~10-10 | ~10-14 |
-| B (6) — data protection & network access | 10-06 — 6/6 | ~10-10 | ~10-14 |
-| C (5) — governance, compliance & IAM | 10-06 — 5/5 | ~10-10 | ~10-14 |
-| D (4) — edge, TLS & API auth | 10-06 — 4/4 | ~10-10 | ~10-14 |
-| E (6) — service fit & limits | 10-06 — 6/6 | ~10-10 | ~10-14 |
-| F (3) — HA, hybrid, troubleshooting | 10-06 — 2/3 ❌ Q6 | ~10-10 | ~10-14 |
+| A (9) — overbuilt: simplest/cheapest fix | 10-06 — 9/9 | 10-08 — 8/9 ❌ Q63 | ~10-14 |
+| B (6) — data protection & network access | 10-06 — 6/6 | 10-08 — 6/6 | ~10-14 |
+| C (5) — governance, compliance & IAM | 10-06 — 5/5 | 10-08 — 4/5 ❌ Q71 | ~10-14 |
+| D (4) — edge, TLS & API auth | 10-06 — 4/4 | 10-12 — 3/4 ❌ Q10 | ~10-14 |
+| E (6) — service fit & limits | 10-06 — 6/6 | 10-12 — 6/6 | ~10-14 |
+| F (3) — HA, hybrid, troubleshooting | 10-06 — 2/3 ❌ Q6 | 10-12 — 3/3 | ~10-14 |
 | **Total** | **32/33 (97%)** | | |
 
 ### TD question usage (for keeping mocks clean)
@@ -155,32 +161,44 @@ No AWS official practice exam (decision 10-07).
 | Gate | Source | Date | Go | Switch to SAP-C03 |
 |---|---|---|---|---|
 | **Gate 1** | **3 isolated unseen tests** (review mode, blocks of 25): Udemy #2 unseen 27 · Udemy #3 unseen 27 · TD6 16 (+ Udemy #1 unseen 5 mini) — combined unseen score; sessions `practice-exam/sap/{udemy2_unseen,udemy3_unseen,td6_isolated,udemy1_unseen}_session.json` | 10-07 – 10-09 | ≥66% combined | <62% (62–65%: keep going) |
-| **Gate 2 (final)** | **TD Set 4 timed** (75 unseen) | ~10-28 | ≥75% | <70% |
+| **Gate 2 (final)** | **TD Set 4 timed** (75 unseen) | **10-27** (moved up for the 11-02 booking) | ≥75% | <70% |
 | Retake check | One full timed retake of TD1/2/3/5, ≥2 weeks after last seen; every answer justified | ~10-20 onward | ≥85% | — |
 
-**Book / keep the exam date only if** Gate 2 ≥75% **and** one retake ≥85%.
+**Exam booked 11-02 (10-12).** AWS retake rule: wait 14 calendar days, full fee each attempt, no attempt limit.
+11-02 + 14 days = 11-16 = last SAP-C02 day → a C02 retake is possible only if an 11-16 slot exists (zero buffer).
+
+| Gate 2 (TD4, 10-27) + retake check | Action (decide by **10-31**, ≥24 h before the exam) |
+|---|---|
+| TD4 ≥75% **and** one retake ≥85% | **Keep 11-02** (retake buffer 11-16 if needed) |
+| TD4 70–74% | **Reschedule to 11-10 – 11-13** (one attempt, +8–11 days of study) |
+| TD4 <70% | Reschedule to 11-13 as a last try, or cancel and switch to SAP-C03 |
+Gate 1 (10-13) ≥70% → 11-02 looks realistic; <62% → expect to move to 11-10 – 11-13.
 Udemy Test #2/#3: 48 of 75 questions each were already seen in chapter drills, so their remaining unseen questions + TD6 are taken as separate isolated tests (split from the merged mock on 10-08).
 **TD4 is the last unseen material** — no Dojo drills (they contain TD4/TD6 questions).
 
-Book the SAP-C02 slot now (slots near 11-16 fill up); check the Pearson VUE reschedule/cancel window and the
-SAA-C03 50% discount voucher (Certification account → Benefits) when booking.
+Pearson global free-retake offer (09-29 – 11-17) excludes SAP — not usable. Use the SAA-C03 50% voucher if available.
 
-### Sprint plan (SAP-C02, 10-06 → 11-13) — updated 10-07
+### Sprint plan (SAP-C02, 10-06 → 11-02 / 11-13) — updated 10-12
 
 | Date | Focus |
 |---|---|
 | 10-06 | ✅ TD3 review + Pass 1 (32/33) · TD1 Pass 3 (28/29) · TD5 Pass 3 (40/44) |
 | 10-07 | ✅ TD5 4-miss retry (4/4) · ✅ Cost Control chapter · ✅ re-watch ELB types · ✅ Data Engineering chapter · ✅ Other Services + ML skim · ✅ re-watch FSx + Transfer Family · ✅ 🇻🇳 right-answer sections TD2/3/5 · Gate 1 started (18 answered, carried into the isolated tests) · **book exam** |
 | 10-08 | **Gate 1: Udemy #2 unseen ✅ 13/27 (48%)** — misses: Kinesis KDS/Firehose/fan-out ×3, Snow sizing ×2, WAF logs, SSM RunPatchBaseline, SQS message timer, Global Accelerator for DNS caching, CloudFront regional-edge bypass, tenancy, ASG health-check replace · 🇻🇳 review + **redo Pass 1 14/14** · Udemy #3 unseen next |
-| 10-09 | **Gate 1: TD6 + Udemy #1 mini** · combined score · TD3 Pass 2 D–F (A–C ✅ 18/20 on 10-08; misses Q63 AppStream, Q71 PowerUserAccess) |
-| 10-10 – 10-14 | TD3 right-answer "Guessed?" review · repeat-miss list · Gate 1 misses Pass 2 (10-13) |
+| 10-09 | ✅ 6 labs: Gateway VPC Endpoints (#354), Traffic Mirroring, Route 53 failover, Route 53 weighted, resilient EC2 + RDS Multi-AZ + CloudWatch/SNS, RDS automated recovery (RPO/RTO) · Gate 1 tests moved |
+| 10-10 – 10-11 | Rest (no study) |
+| 10-12 | ✅ Udemy #2 unseen Pass 2 14/14 · ✅ TD3 Pass 2 D–F 12/13 (TD3 Pass 2 total 30/33; misses Q63, Q71, Q10 → retry 3/3 ✅) · ✅ **Gate 1: Udemy #3 unseen 19/27 (70%)** (restarted fresh; ~3 near-duplicates of Udemy #2) — misses: ALB host conditions, CloudTrail MFA Delete, MediaConvert+HLS, Traffic Mirroring 🔁, replatform EC2 vs Fargate, Route 53 private-zone health check via CloudWatch alarm, StackSets, Global Accelerator custom routing (subnet endpoints) · Gate 1 running: 32/54 (59%) |
+| 10-13 | **Gate 1: TD6 (12 left) + Udemy #1 mini** → combined score + decision |
+| 10-14 | TD3 right-answer "Guessed?" review · repeat-miss list · Gate 1 misses Pass 2 (10-13) |
 | 10-15 – 10-19 | weak-area re-watch (from Gate 1 domains) · TD3 Pass 3 · wrong-answer marathon round 1 |
-| ~10-20 | **TD5 full timed retake** (retake check) |
-| 10-21 – 10-26 | TD1/TD2 retake · Gate 1 misses Pass 3 · Exam Preparation chapter (10-26) |
-| **~10-28** | **TD Set 4 timed — Gate 2 (final)** → `test-review --vi` |
-| 10-29 – 10-30 | TD4 review + Pass 1 |
-| 10-31 – 11-09 | Pass 3s · wrong-answer marathon (all 🔁 repeat misses) · 10 rules per set |
-| **11-10 – 11-13** | **Exam (210 min with ESL +30)** |
+| ~10-19 | **TD5 full timed retake** (retake check ≥85%) |
+| 10-20 – 10-26 | TD1/TD2 retake · Gate 1 misses Pass 3 · Exam Preparation chapter (10-25) |
+| **10-27** | **TD Set 4 timed — Gate 2 (final)** → `test-review --vi` |
+| 10-28 – 10-30 | TD4 review + Pass 1 · wrong-answer marathon (all 🔁 repeat misses) |
+| **10-31** | **Reschedule decision deadline** (keep 11-02 or move to 11-10 – 11-13) |
+| 11-01 | Light review: 10 rules per set, rest |
+| **11-02** | **Exam attempt 1 (210 min with ESL +30)** — or moved to 11-10 – 11-13 per gate |
+| (11-16) | Last possible SAP-C02 retake if 11-02 fails |
 
 ### Plan (revised 2026-09-28 — superseded 10-06 by the sprint plan above — full-set review mode replaces topic-by-topic chapter drills)
 

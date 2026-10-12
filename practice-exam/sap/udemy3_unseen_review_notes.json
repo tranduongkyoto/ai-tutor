@@ -1,0 +1,43 @@
+{
+ "title": "Udemy Test #3 — unseen questions (Gate 1)",
+ "analysis_file": "udemy3_unseen_analysis.md",
+ "wrong_review_file": "udemy3_unseen_review.md",
+ "wrong": {
+  "groups": {"A": "Edge, routing & multi-Region delivery", "B": "Monitoring, logging & tamper-proofing", "C": "Migration strategy fit"},
+  "questions": {
+   "3": {"group": "A", "keywords": "mobile./web./api.ecomm.com → different target groups", "trap": "Host *.ecomm.com (B) right; redirect action (E) doesn't forward to target groups", "rule": "Route by hostname → ALB Host conditions (*.domain + apex); Path conditions only for /paths"},
+   "11": {"group": "A", "keywords": "fast start, efficient fast-forward, don't saturate bandwidth", "trap": "S3+CloudFront+HLS skips transcoding into adaptive-bitrate renditions", "rule": "VOD streaming → MediaConvert (transcode) + HLS manifest + CloudFront"},
+   "21": {"group": "A", "keywords": "health check for records in a PRIVATE hosted zone", "trap": "Route 53 health checkers live on the internet — they can't reach private IPs", "rule": "Private-zone health → CloudWatch metric → alarm → Route 53 health check on alarm state"},
+   "25": {"group": "A", "keywords": "automate deployment to many Regions, isolated silos", "trap": "create-stack has no --regions; one stack = one Region", "rule": "Multi-Region / multi-account deploy → CloudFormation StackSets"},
+   "26": {"group": "A", "keywords": "UDP game, assign players to a specific session/instance", "trap": "NLB load-balances — can't target a specific instance deterministically", "rule": "Deterministic user→instance routing → Global Accelerator custom routing + VPC subnet endpoints"},
+   "9": {"group": "B", "keywords": "LEAST effort to secure CloudTrail logs", "trap": "Integrity validation (D) right; KMS (E) gives confidentiality, not tamper/delete protection", "rule": "Tamper-proof CloudTrail → log file integrity validation + S3 MFA Delete"},
+   "14": {"group": "B", "keywords": "inspect network PACKETS for VoIP QoS", "trap": "VPC Flow Logs = metadata only (IPs, ports, accept/reject)", "rule": "Packet contents → VPC Traffic Mirroring to a monitoring instance"},
+   "16": {"group": "C", "keywords": "expedite, new OS version, 24/7 app, 90 TB images, cost-effective", "trap": "Fargate = re-architect to containers (slower, more change)", "rule": "New OS fast → replatform to EC2 with a fresh AMI; bulk data → Snowball"}
+  }
+ },
+ "right": {
+  "groups": {"A": "Integration & streaming", "B": "Ops, security & monitoring", "C": "Migration & cost", "D": "Edge & networking"},
+  "questions": {
+   "1": {"group": "B", "keywords": "new AMI broke app, ELB says healthy", "watch": "ELB health checks wouldn't catch functional bugs", "rule": "Safe AMI rollout → new launch config, double ASG, roll back to old config if bad"},
+   "2": {"group": "B", "keywords": "network exposure on ports violates policy → notify", "watch": "Shield/Flow Logs don't assess exposure", "rule": "Network reachability findings → Inspector + SNS"},
+   "4": {"group": "A", "keywords": "SQL sanity checks on S3 raw zone, cheap", "watch": "loading into Redshift/EMR = overbuilt", "rule": "Ad-hoc SQL on S3 → Athena"},
+   "5": {"group": "C", "keywords": "50 TB, 10 Mbps, some VMs mission-critical", "watch": "network too slow for bulk", "rule": "Critical VMs → MGN; bulk → Snowball + VM Import"},
+   "6": {"group": "A", "keywords": "ordered, spikes, minimal ops", "watch": "EC2 consumers = more ops", "rule": "Ordered stream + serverless → KDS + Lambda + DynamoDB"},
+   "7": {"group": "D", "keywords": "single static outbound IP for Beanstalk", "watch": "NAT instance = maintenance", "rule": "Static egress IP → NAT Gateway with EIP"},
+   "8": {"group": "C", "keywords": "unknown estate, Windows+Linux VMs", "watch": "SMS/MPA don't discover", "rule": "Discovery → Application Discovery Service agents"},
+   "10": {"group": "A", "keywords": "1 GB/min, filter attributes, least maintenance", "watch": "KDS needs shard mgmt", "rule": "Transform-and-land → Firehose + Lambda transform → S3"},
+   "12": {"group": "B", "keywords": "record all traffic into WAF-fronted ALB", "watch": "CloudTrail isn't a WAF destination", "rule": "WAF logs → Firehose → S3 → Athena"},
+   "13": {"group": "B", "keywords": "log failed connections, cheapest", "watch": "Kinesis/new VPC = overbuilt", "rule": "Rejected traffic → ENI Flow Logs (REJECT filter) → CloudWatch Logs"},
+   "15": {"group": "A", "keywords": "serverless queue, ordering, retries", "watch": "Amazon MQ isn't serverless", "rule": "Serverless ordered queue → SQS FIFO + Fargate"},
+   "17": {"group": "D", "keywords": "protect ALB origin behind CloudFront", "watch": "OAI only for S3 origins", "rule": "Custom origin protection → CloudFront custom header + WAF rule on ALB"},
+   "18": {"group": "D", "keywords": "timeouts, partial pages on scale-in", "watch": "lifecycle hook is for scale-out readiness", "rule": "In-flight requests on scale-in → connection draining (deregistration delay)"},
+   "19": {"group": "C", "keywords": "300 GB dataset ready before start, fast scale", "watch": "S3 download in user data = slow start", "rule": "Shared static dataset across ASG → EFS; patched AMI via SSM"},
+   "20": {"group": "D", "keywords": "on-prem spikes, little dev effort", "watch": "re-platforming = effort", "rule": "Offload on-prem spikes quickly → CloudFront custom origin"},
+   "22": {"group": "D", "keywords": "static IP for ALB, cheapest", "watch": "Global Accelerator costs more", "rule": "Static IP for ALB → NLB in front (ALB-type target)"},
+   "23": {"group": "D", "keywords": "per-device content via path headers, cost + performance", "watch": "NLB has no L7 routing", "rule": "Device-aware edge + L7 routing → CloudFront + Lambda@Edge + ALB"},
+   "24": {"group": "B", "keywords": "configs audited for unauthorized change", "watch": "auto-revert via SSM/EventBridge not required", "rule": "Config rules + CloudTrail→CloudWatch Logs (KMS)"},
+   "27": {"group": "A", "keywords": "stream into DW, SQL modify, fast analytics, BI", "watch": "KDS can't deliver directly to Redshift", "rule": "Firehose → Redshift → QuickSight"}
+  },
+  "inconsistent": [["Q13", "Q14", "Flow Logs fit metadata (rejects) but not packet inspection → Traffic Mirroring"], ["Q22", "Q26", "Global Accelerator: knew NLB-for-static-IP, missed custom routing accelerator"], ["Q17", "Q21", "Edge/DNS mechanics: custom-header origin protection right, private-zone health checks missed"]]
+ }
+}
