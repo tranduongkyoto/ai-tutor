@@ -1,9 +1,9 @@
 ---
 certification: SAP-C02
 started: 2026-09-04
-last_updated: 2026-10-12
+last_updated: 2026-10-13
 current_phase: 2
-schedule: ~25h+/week sprint until exam (was ~15h/week)
+schedule: 6h+/day sprint until exam (from 10-13; was ~25h/week)
 deadline: 2026-11-16 (last day for SAP-C02; SAP-C03 GA 11-17)
 exam_accommodation: ESL +30 approved (210 min, never expires)
 latest_timed_score: 56.0% (TD Set 3, 2026-10-05)
@@ -161,13 +161,13 @@ No AWS official practice exam (decision 10-07).
 | Gate | Source | Date | Go | Switch to SAP-C03 |
 |---|---|---|---|---|
 | **Gate 1** | **3 isolated unseen tests** (review mode, blocks of 25): Udemy #2 unseen 27 · Udemy #3 unseen 27 · TD6 16 (+ Udemy #1 unseen 5 mini) — combined unseen score; sessions `practice-exam/sap/{udemy2_unseen,udemy3_unseen,td6_isolated,udemy1_unseen}_session.json` | 10-07 – 10-09 | ≥66% combined | <62% (62–65%: keep going) |
-| **Gate 2 (final)** | **TD Set 4 timed** (75 unseen) | **10-27** (moved up for the 11-02 booking) | ≥75% | <70% |
+| **Gate 2 (final)** | **TD Set 4 timed** (75 unseen) | **10-26** (moved up for the 11-02 booking) | ≥75% | <70% |
 | Retake check | One full timed retake of TD1/2/3/5, ≥2 weeks after last seen; every answer justified | ~10-20 onward | ≥85% | — |
 
 **Exam booked 11-02 (10-12).** AWS retake rule: wait 14 calendar days, full fee each attempt, no attempt limit.
 11-02 + 14 days = 11-16 = last SAP-C02 day → a C02 retake is possible only if an 11-16 slot exists (zero buffer).
 
-| Gate 2 (TD4, 10-27) + retake check | Action (decide by **10-31**, ≥24 h before the exam) |
+| Gate 2 (TD4, 10-26) + retake check | Action (decide by **10-31**, ≥24 h before the exam) |
 |---|---|
 | TD4 ≥75% **and** one retake ≥85% | **Keep 11-02** (retake buffer 11-16 if needed) |
 | TD4 70–74% | **Reschedule to 11-10 – 11-13** (one attempt, +8–11 days of study) |
@@ -178,7 +178,7 @@ Udemy Test #2/#3: 48 of 75 questions each were already seen in chapter drills, s
 
 Pearson global free-retake offer (09-29 – 11-17) excludes SAP — not usable. Use the SAA-C03 50% voucher if available.
 
-### Sprint plan (SAP-C02, 10-06 → 11-02 / 11-13) — updated 10-12
+### Sprint plan (SAP-C02, 10-06 → 11-02 / 11-13) — updated 10-13 (plan B+: rolling retakes, 6h+/day)
 
 | Date | Focus |
 |---|---|
@@ -188,13 +188,20 @@ Pearson global free-retake offer (09-29 – 11-17) excludes SAP — not usable. 
 | 10-09 | ✅ 6 labs: Gateway VPC Endpoints (#354), Traffic Mirroring, Route 53 failover, Route 53 weighted, resilient EC2 + RDS Multi-AZ + CloudWatch/SNS, RDS automated recovery (RPO/RTO) · Gate 1 tests moved |
 | 10-10 – 10-11 | Rest (no study) |
 | 10-12 | ✅ Udemy #2 unseen Pass 2 14/14 · ✅ TD3 Pass 2 D–F 12/13 (TD3 Pass 2 total 30/33; misses Q63, Q71, Q10 → retry 3/3 ✅) · ✅ **Gate 1: Udemy #3 unseen 19/27 (70%)** (restarted fresh; ~3 near-duplicates of Udemy #2) — misses: ALB host conditions, CloudTrail MFA Delete, MediaConvert+HLS, Traffic Mirroring 🔁, replatform EC2 vs Fargate, Route 53 private-zone health check via CloudWatch alarm, StackSets, Global Accelerator custom routing (subnet endpoints) · Gate 1 running: 32/54 (59%) |
-| 10-13 | **Gate 1: TD6 (12 left) + Udemy #1 mini** → combined score + decision |
-| 10-14 | TD3 right-answer "Guessed?" review · repeat-miss list · Gate 1 misses Pass 2 (10-13) |
-| 10-15 – 10-19 | weak-area re-watch (from Gate 1 domains) · TD3 Pass 3 · wrong-answer marathon round 1 |
-| ~10-19 | **TD5 full timed retake** (retake check ≥85%) |
-| 10-20 – 10-26 | TD1/TD2 retake · Gate 1 misses Pass 3 · Exam Preparation chapter (10-25) |
-| **10-27** | **TD Set 4 timed — Gate 2 (final)** → `test-review --vi` |
-| 10-28 – 10-30 | TD4 review + Pass 1 · wrong-answer marathon (all 🔁 repeat misses) |
+| **10-13** | ✅ **Gate 1 final: TD6 11/16 (69%)** (restarted fresh; misses Athena-on-S3, Inspector Lambda standard scan, CloudFront Functions, tag policy+SCP, Savings Plan scope) · Udemy #1 mini skipped · **Gate 1 = 43/70 (61.4%)**; last two tests 30/43 (70%) · ✅ rule sheet + flashcards + weak-areas validated (TD6 added) · ✅ Udemy #3 redo Pass 1 A–C **8/8** · ✅ TD6 redo Pass 1 A–B **5/5** |
+| 10-14 | Repeat-miss marathon round 1 (list: `weak-areas.md` §8) · Udemy #3 Pass 1 · flashcards round 1 |
+| 10-15 | TD3 "Guessed?" review · weak areas: Route 53 / CloudFront / Global Accelerator |
+| **10-16** | **TD1 full timed retake** + full review (new misses + guesses, 🇻🇳) |
+| 10-17 | Fix TD1 misses · weak areas: Kinesis / EMR / Redshift |
+| **10-18** | **TD5 full timed retake** + review |
+| 10-19 | Fix TD5 misses · weak areas: migration + DR |
+| **10-20** | **TD2 full timed retake** + review |
+| 10-21 – 10-22 | Fix TD2 misses · repeat-miss marathon round 2 · Exam Preparation chapter |
+| **10-23** | **TD3 full timed retake** + review |
+| 10-24 – 10-25 | Fix TD3 misses · all-retake miss pass · final rule sheet |
+| **10-26** | **TD Set 4 timed — Gate 2 (final)** → `test-review --vi` |
+| 10-27 – 10-29 | TD4 review + Pass 1 + Pass 2 (10-29) · weak domains from TD4 |
+| 10-30 | Rule sheet + remaining repeat misses |
 | **10-31** | **Reschedule decision deadline** (keep 11-02 or move to 11-10 – 11-13) |
 | 11-01 | Light review: 10 rules per set, rest |
 | **11-02** | **Exam attempt 1 (210 min with ESL +30)** — or moved to 11-10 – 11-13 per gate |
@@ -247,6 +254,8 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 | Hours invested | ~30h |
 
 ## Weak Areas
+
+**Ranked view + confusion pairs: `aws-sap/weak-areas.md`** (built 10-13 from all 160 misses). The per-set lists below are the raw source.
 
 ### From TD Set 5 (top patterns)
 1. **Building your own solution instead of using a managed service** (12 wrong) — Glue, MediaConvert, Service Catalog, Patch Manager, Transfer Family, StackSets service-managed, Compute Optimizer, Lambda Function URL
