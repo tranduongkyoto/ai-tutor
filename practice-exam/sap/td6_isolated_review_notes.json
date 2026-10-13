@@ -1,0 +1,32 @@
+{
+ "title": "TD Set 6 (16 questions, Gate 1)",
+ "analysis_file": "td6_isolated_analysis.md",
+ "wrong_review_file": "td6_isolated_review.md",
+ "wrong": {
+  "groups": {"A": "Overbuilt — cheapest/lightest managed option wins", "B": "Governance & security tooling scope"},
+  "questions": {
+   "1": {"group": "A", "keywords": "queries only 6 PM–2 AM, ORC format, most cost-effective", "trap": "Redshift = always-on cluster + data loading; paying 24/7 for a nightly window", "rule": "Occasional SQL on ORC/Parquet → S3 + Athena + Glue Data Catalog (pay per scan)"},
+   "11": {"group": "A", "keywords": "normalize query strings, least overhead AND cost", "trap": "Lambda@Edge works but is heavier and pricier than needed", "rule": "Lightweight viewer-request rewrites → CloudFront Functions; Lambda@Edge only for network calls/body/longer runtime"},
+   "16": {"group": "A", "keywords": "steady EC2 + bursty Lambda + MemoryDB nodes, cheapest", "trap": "Compute Savings Plans do NOT cover MemoryDB", "rule": "Steady EC2 → EC2 Instance SP; Lambda → Compute SP; MemoryDB/ElastiCache/RDS → reserved nodes"},
+   "6": {"group": "B", "keywords": "CVEs in functions + layers, code scans on a subset only", "trap": "A+B right; IAM (C) isn't how you exclude Inspector targets; missed standard scanning (F) for CVEs", "rule": "Inspector Lambda = standard scan (CVEs) + code scan (code flaws) + InspectorCodeExclusion tag"},
+   "15": {"group": "B", "keywords": "ENFORCE approved project tag values on new resources, org-wide", "trap": "Config + automation detects after creation; can't block CreateStack", "rule": "Enforce at creation → tag policy (allowed values) + SCP denying cloudformation:CreateStack without the tag"}
+  }
+ },
+ "right": {
+  "groups": {"A": "Cost & performance", "B": "Governance & multi-account", "C": "Architecture & resilience"},
+  "questions": {
+   "2": {"group": "A", "keywords": "bursty CPU-heavy reads on Redshift, cheapest", "watch": "EMR/RDS offload = overbuilt", "rule": "Redshift read bursts → concurrency scaling"},
+   "5": {"group": "C", "keywords": "centralized 3rd-party firewalls, HA", "watch": "single-AZ options / NLB+interface endpoint", "rule": "Appliance fleet → GWLB + GWLB endpoint, appliances in 2+ AZs"},
+   "3": {"group": "B", "keywords": "only burstable instances, block other services", "watch": "detective guardrail only flags", "rule": "Block = preventive guardrail (SCP) on the OU"},
+   "4": {"group": "C", "keywords": "alert on any Task/Map/Parallel failure with input", "watch": "States.Runtime misses task errors", "rule": "Catch States.ALL → SNS Task state"},
+   "7": {"group": "C", "keywords": "private hosted zone + public DNS hostnames", "watch": "instanceTenancy/NAU metrics irrelevant", "rule": "enableDnsSupport + enableDnsHostnames; DHCP options = AmazonProvidedDNS"},
+   "8": {"group": "C", "keywords": "custom ports 5000/8080, latency routing, global sync", "watch": "ALB is HTTP/HTTPS only", "rule": "Non-HTTP ports → NLB; global data → DynamoDB global tables"},
+   "9": {"group": "B", "keywords": "unmapped deps on port 1000", "watch": "migrating first then discovering", "rule": "Use discovery dependency/network data (+ Athena) to group waves"},
+   "10": {"group": "C", "keywords": "95% reads, EU latency", "watch": "DMS CDC = heavier", "rule": "Read-heavy multi-Region → latency routing + cross-Region read replica"},
+   "12": {"group": "B", "keywords": "central backup view, custom retention, cross-Region copy, failure alerts", "watch": "DLM/Lambda = custom glue", "rule": "AWS Backup plan rules + copy action + SNS notifications"},
+   "13": {"group": "B", "keywords": "S3 Access Points VPC-only across 600 accounts", "watch": "Config revert is reactive", "rule": "SCP deny s3:CreateAccessPoint unless s3:AccessPointNetworkOrigin = VPC"},
+   "14": {"group": "B", "keywords": "ECR org-only access, keep 5 untagged", "watch": "public repo / PrincipalIsAWSService", "rule": "Private ECR + aws:PrincipalOrgID policy + lifecycle policy"}
+  },
+  "inconsistent": [["Q3", "Q15", "Preventive enforcement: right with guardrail SCP, missed with tag policy + SCP"], ["Q2", "Q1", "Analytics cost: concurrency scaling right, Athena-over-Redshift missed"], ["Q12", "Q16", "Native managed feature beats custom glue, but Savings Plan scope missed"]]
+ }
+}
