@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAP-C02 Flashcards — Design for New Solutions</title>
+<style>
+:root{
+  --bg:#EDF0F3; --paper:#FFFFFF; --ink:#1B2230; --muted:#5B6676; --line:#D5DBE3; --soft:#F5F7F9;
+  --accent:#23507A; --accent-ink:#FFFFFF;
+  --good:#1E7A46; --good-bg:#E6F4EC; --bad:#B42318; --bad-bg:#FBEAE8; --tip:#FFF6D6; --tip-line:#E8B400;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#141922; --paper:#1C2330; --ink:#E6EAF0; --muted:#9AA5B4; --line:#2E3848; --soft:#222A38;
+    --accent:#86B6E6; --accent-ink:#0E1620;
+    --good:#5CC98A; --good-bg:rgba(92,201,138,.12); --bad:#FF8A7A; --bad-bg:rgba(255,138,122,.12); --tip:rgba(255,214,90,.10); --tip-line:#C99A12;
+    color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+code{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:13px}
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 18px;background:var(--paper);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{font-weight:700;font-size:17px;margin-right:auto}
+.brand small{font-weight:500;color:var(--muted);font-size:13px;margin-left:8px}
+.wrap{max-width:820px;margin:24px auto;padding:0 16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-bottom:16px}
+.btn{border:1px solid var(--line);background:var(--paper);padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13.5px;background:var(--soft);cursor:pointer;user-select:none}
+.chip input{margin:0}
+.muted{color:var(--muted);font-size:13.5px}
+.bar{height:6px;background:var(--soft);border-radius:999px;overflow:hidden;margin:6px 0 14px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+.q{font-size:17px;font-weight:600;margin:6px 0 16px}
+.opt{display:flex;gap:12px;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:15px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt b{flex:none;width:26px;height:26px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:13px}
+.opt.ok{border-color:var(--good);background:var(--good-bg)}
+.opt.no{border-color:var(--bad);background:var(--bad-bg)}
+.opt:disabled{cursor:default}
+.fb{border-left:4px solid var(--tip-line);background:var(--tip);border-radius:6px;padding:10px 14px;margin-top:6px}
+.fb .v{font-weight:700}
+.fb .v.ok{color:var(--good)} .fb .v.no{color:var(--bad)}
+.big{font-size:40px;font-weight:800;line-height:1.1}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.miss{border-top:1px solid var(--line);padding:10px 0}
+.miss:first-child{border-top:0}
+.tag{font-size:12px;color:var(--muted)}
+.copy{font-family:ui-monospace,monospace;font-size:13px;background:var(--soft);padding:8px 10px;border-radius:6px;word-break:break-all}
+.good{color:var(--good)} .badc{color:var(--bad)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">SAP-C02 Flashcards<small>Domain 2 · Design for New Solutions</small></div>
+  <button class="btn" id="homeBtn">Home</button>
+</div>
+<div class="wrap" id="app"></div>
+
+<script>
+/*
+ * Card data — mirrors aws-sap/new-solutions-flashcards.md.
+ * Fields: id, question, correct option, trap option, why (rule), source tag, repeat-miss flag.
+ * The trap is the wrong answer you actually picked (or the distractor named in the review notes).
+ */
+const CARDS = [
+ ["A1","Event-driven job runs ~30 min per file. Least operational overhead?","Containerize it and run a Fargate task started by EventBridge/Lambda (<code>ecs:RunTask</code>)","Run it in Lambda with the maximum timeout and SQS retries","Lambda max = 15 min. An EC2 ASG on SQS depth also works when the stem says cost-effective, but you still manage EC2.","TD5 W14/W35, TD3 W1",0],
+ ["A2","Expose one function over HTTPS, simplest possible.","Lambda Function URL","Fargate service behind an ALB, fronted by API Gateway","Function URL = built-in HTTPS endpoint. The other option is overbuilt.","TD5 W73",0],
+ ["A3","Nightly HPC batch jobs, least overhead, cost matters.","AWS Batch managed compute environment on Spot + S3 for input/output","SQS queue + Spot Auto Scaling group running your own scheduler scripts","SQS + Spot ASG = a DIY scheduler. Batch handles queues, retries and Spot for you.","TD1 W69",1],
+ ["A4","Tightly coupled HPC, max performance.","Cluster placement group + EFA + FSx for Lustre (lazy-load from S3)","Spread placement group + EFS as shared scratch","Tightly coupled = low latency between nodes → cluster PG + EFA. EFS is too slow for HPC scratch.","TD3 R12/R36",0],
+ ["A5","Dozens of small, intermittently used apps, each on its own instance. Cut cost.","Containerize, bin-pack the tasks on ECS on EC2 behind one ALB, scale on memory","Keep one instance per app and buy Reserved Instances sized to the ASG maximum","Bin-packing removes idle instances. RIs sized to the max lock in waste.","TD5 W49, Udemy2 R5",0],
+ ["A6","Instances take 20 min to boot because user data installs everything.","Golden AMI (Image Builder / SSM Automation <code>AWS-CreateImage</code>)","Use a larger instance type and a longer health-check grace period","Bake the software into the AMI; boot time drops to minutes.","TD5 R39",0],
+ ["A7","Stateful web tier on EC2 + Aurora must scale.","ALB with sticky sessions + ASG (or move session state to ElastiCache)","NLB with cookie stickiness + Aurora Auto Scaling for the writer","NLB only has source-IP stickiness, no cookies. Aurora Auto Scaling adds readers only.","TD5 W13, TD2 R48",0],
+ ["A8","Steady EC2 fleet + bursty Lambda + MemoryDB nodes. Cheapest commitment?","EC2 Instance SP (EC2) + Compute SP (Lambda) + MemoryDB reserved nodes","One Compute Savings Plan covering EC2, Lambda and MemoryDB","Compute SP covers EC2/Fargate/Lambda only — never databases or caches.","TD6 W16",1],
+ ["B1","Lambda functions overwhelm RDS with connections.","RDS Proxy + open the DB connection outside the handler (reuse it)","Raise <code>max_connections</code> and open a new connection inside the handler","RDS Proxy pools connections. Add SQS to buffer if writes spike.","TD5 W5/W58/R40",1],
+ ["B2","Spiky writes overwhelm a slow DB / throttle DynamoDB.","SQS buffer + a consumer that writes at a steady rate","Raise provisioned WCU / scale the DB up to the peak","Buffering flattens the peak; scaling to peak costs more.","TD3 W24/R21/R27",0],
+ ["B3","One noisy Lambda function starves the others of concurrency.","Reserved concurrency on that function","Move the function to a separate account and front it with SQS","Reserved concurrency caps (and guarantees) one function's share.","TD2 W59",0],
+ ["B4","Too many Lambda invocations for the same reads behind API Gateway. Cheapest fix?","API Gateway caching","CloudFront in front of API Gateway + DAX in front of DynamoDB","The cache is a built-in stage setting; the other option adds two paid services.","TD1 W64",1],
+ ["B5","Multi-step order process that must track state.","Step Functions (+ DynamoDB)","A scheduled Lambda polls SQS and tracks state itself","Stateful workflow = Step Functions.","TD2 W38",0],
+ ["B6","Delay one message by 2 min, others go immediately.","Message timer (<code>DelaySeconds</code> on that send)","Configure the queue as a 2-minute delay queue","A delay queue delays every message.","Udemy2 W12",0],
+ ["B7","Notify by email when a batch finishes.","SNS topic with an email subscription","Send a message to an SQS queue that users subscribe to by email","SQS can't send email.","TD3 W19",0],
+ ["B8","React to new DynamoDB items.","DynamoDB Streams → Lambda","Scheduled Lambda scans the table every minute","Streams are event-driven; scans cost RCUs and add delay.","TD3 R67",0],
+ ["B9","Ordered queue, serverless consumer.","SQS FIFO + Lambda/Fargate","Amazon MQ broker","Amazon MQ isn't serverless; use it only for JMS/AMQP compatibility.","Udemy3 R15",0],
+ ["C1","Many apps must read the SAME records and replay them.","Kinesis Data Streams","SQS standard queue that every app polls","SQS: one consumer deletes the message. KDS keeps records for replay.","Udemy2 W8",0],
+ ["C2","Many Kinesis Data Streams consumers are lagging.","Enhanced Fan-Out (2 MB/s per shard per consumer)","Add a Firehose delivery stream for the apps to read from","Apps can't consume from Firehose.","Udemy2 W1",0],
+ ["C3","IoT stream → transform → S3, minutes of latency OK.","IoT rule → Data Firehose with a Lambda transform","IoT rule → Step Functions execution per data point → S3","Firehose buffers and transforms; Step Functions per point is costly overkill.","TD2 W24, Udemy3 R10",0],
+ ["C4","Near-real-time ingest + analytics, results in Redshift.","Kinesis Data Streams + consumers, Firehose for the Redshift hop","Land files in S3, send SQS notifications, run batch COPY jobs","S3 + SQS is batch-ish. (Redshift streaming ingestion can also read KDS directly.)","TD3 W32, Udemy3 R27",0],
+ ["C5","ETL that new fields can extend with least overhead.","Glue crawler + classifier + Glue ETL job","Lambda → SQS → Fargate custom parser","Custom pipeline = redeploy for every new field.","TD5 W1",0],
+ ["C6","One-off 8-hour EMR job, cheapest without losing data.","On-Demand master + core nodes, Spot task nodes","Reserved Instances for all nodes","RIs are 1–3 year terms. Core holds HDFS data → On-Demand.","TD3 W20/W29",1],
+ ["C7","Query-heavy logs on S3 with Athena. Cut scan cost.","Store as Parquet + partition by hour/day","Keep raw JSON in one prefix and run Athena over all of it","Columnar + partitions = scan less data = pay less.","TD5 R37, Udemy2 R14",0],
+ ["C8","OpenSearch cost too high, old data rarely read.","Fewer hot nodes + UltraWarm + ISM to cold; audit copy in Glacier Deep Archive","Add bigger hot data nodes with more EBS and keep everything hot","Ingest needs hot; old data moves to cheaper tiers.","TD5 W48",1],
+ ["C9","Read-heavy RDS MySQL, quick + cheap latency fix.","ElastiCache in front of the database","Migrate to Aurora MySQL to get a reader endpoint","Migration isn't quick. RDS MySQL replicas have no shared reader endpoint.","TD3 W30, TD1 W25",1],
+ ["C10","Reports change once a day, read heavily.","Batch-generate to S3 + CloudFront with a daily TTL","ElastiCache cluster in front of the reporting database","Static daily output = cache at the edge; no cluster needed.","TD1 W72",0],
+ ["C11","SQL on ORC files, queries only 6 PM–2 AM. Most cost-effective?","S3 + Athena + Glue Data Catalog (pay per TB scanned)","Load the data into an Amazon Redshift cluster","Redshift = always-on cluster + loading, idle 16 h a day.","TD6 W1",1],
+ ["C12","Bursty CPU-heavy read queries slow down Redshift. Cheapest fix?","Redshift concurrency scaling","Offload the read queries to an EMR cluster","Concurrency scaling adds capacity only during bursts.","TD6 R2",0],
+ ["D1","CloudFront returns 504 when the origin is down. Minimal cost.","CloudFront origin group (origin failover)","Multi-Region app + Route 53 latency routing","Origin failover is a distribution setting — no second full stack.","TD1 W17",1],
+ ["D2","Custom domain on CloudFront with HTTPS.","ACM certificate in us-east-1 attached to the distribution","ACM certificate in the origin's Region attached to the distribution","CloudFront only reads certs from us-east-1. Default cert covers <code>*.cloudfront.net</code> only.","TD3 W23/W50",0],
+ ["D3","ALB serves many different domains, no cert rework per new domain.","SNI: multiple certificates on one HTTPS listener","One wildcard certificate <code>*.example.com</code> for all domains","Wildcard = sub-domains of one domain only.","TD3 W10",0],
+ ["D4","Data in an EU bucket, North America users are slow.","S3 CRR to a US bucket + Lambda@Edge to switch the origin","Global Accelerator in front of the S3 bucket","GA endpoints = ALB, NLB, EC2, EIP. It can't front S3.","TD5 W12",1],
+ ["D5","Shift traffic fast, but clients cache DNS.","Global Accelerator endpoint weights / traffic dials","Route 53 weighted records with a low TTL","GA uses static anycast IPs — no DNS change, so caching doesn't matter.","Udemy2 W20",0],
+ ["D6","Route each user to one specific EC2 instance deterministically.","Global Accelerator custom routing + VPC subnet endpoints","NLB with sticky sessions","An NLB load-balances; custom routing maps a port to a specific instance.","Udemy3 W26",0],
+ ["D7","Video-on-demand to many devices, smooth playback.","MediaConvert (adaptive bitrate) + HLS manifest + CloudFront","S3 + CloudFront serving the original video files","No transcoding = no adaptive bitrate.","Udemy3 W11, TD5 W72",0],
+ ["D8","Different content for mobile vs desktop at the edge.","Lambda@Edge on the request (device detection)","Route 53 geolocation routing to separate stacks","Geolocation routes by location, not device.","TD2 R6, Udemy3 R23",0],
+ ["D9","Only one specific partner may download files.","Signed URLs (1 file) / signed cookies (many) + block direct S3 access","Origin access control (OAC) on the S3 origin only","OAC alone still lets anyone with the CloudFront URL in.","TD2 W44, Udemy2 R25",0],
+ ["D10","Normalize query strings / rewrite headers at the edge, least overhead and cost.","CloudFront Functions on viewer request","Lambda@Edge on viewer request","Lambda@Edge only for network calls, body access or longer runtime — it costs more.","TD6 W11",1],
+ ["D11","Global app on custom TCP ports 5000/8080, latency routing, data synced worldwide.","NLB per Region + Route 53 latency + DynamoDB global tables","ALB per Region on ports 5000/8080 + Aurora Global Database","ALB = HTTP/HTTPS only; Aurora Global has one writer Region.","TD6 R8",0],
+ ["E1","Company must own the S3 key and rotate it.","SSE-KMS with a customer managed key (+ <code>aws:SecureTransport</code> for transit)","SSE-S3","SSE-S3 keys are owned by AWS.","TD3 W13",0],
+ ["E2","Key material comes from the company's own on-prem HSM.","KMS key with Origin = EXTERNAL + import key material","KMS custom key store backed by AWS CloudHSM","A CloudHSM key store generates keys in AWS CloudHSM, not your own HSM.","TD3 W28",0],
+ ["E3","Keys must never leave a dedicated HSM, highly available.","CloudHSM cluster across ≥2 AZs","One CloudHSM HSM in a single AZ","One HSM = single point of failure.","TD1 W47",0],
+ ["E4","API Gateway: only IAM users/roles, trace each request end-to-end.","AWS_IAM authorization (SigV4) + X-Ray","Enable CORS + CloudWatch access logging","CORS isn't authentication; logs aren't tracing.","TD3 W7",0],
+ ["E5","App tier → DB access, least privilege.","DB security group allows inbound from the app security group","NACL that allows the app subnet CIDR","SG-to-SG reference = only app instances, not the whole subnet.","TD3 W55",0],
+ ["E6","Prevent man-in-the-middle on a public site.","Route 53 DNSSEC + ACM cert on the ALB + CloudFront HTTP→HTTPS redirect","AWS WAF + Shield Standard on the ALB","MITM = spoofed DNS / plain HTTP. WAF/Shield don't fix that.","TD1 W68",0],
+ ["E7","DB password rotated automatically, used by ECS tasks.","Secrets Manager referenced in the task definition <code>secrets</code> (<code>valueFrom</code>)","SSM Parameter Store SecureString injected as an env var","Parameter Store has no built-in rotation.","TD1 W74",1],
+ ["E8","Public website on ALB/CloudFront needs a TLS cert, cheapest.","Public ACM certificate (free) on the ALB/CloudFront","Certificate from AWS Private CA","Private CA has a monthly fee and browsers don't trust it.","TD2 W1",0],
+ ["E9","Find CVEs in Lambda functions + layers, code-scan only some functions.","Inspector standard scan + code scan + <code>InspectorCodeExclusion</code> tag on skipped functions","Inspector code scan + IAM policy to exclude functions","The exclusion mechanism is a tag, not IAM; CVEs need the standard scan.","TD6 W6",0],
+ ["F1","Mobile/SPA app with Google/Facebook login reads DynamoDB.","Cognito / web identity federation → temporary STS creds scoped to the user","IAM user access keys embedded in the app","Never ship long-term keys in a client.","TD1 W21/W65, TD3 W57",1],
+ ["F2","Corporate SAML IdP users need AWS access.","IAM Identity Center / <code>AssumeRoleWithSAML</code>","<code>AssumeRoleWithWebIdentity</code>","WebIdentity is for social / OIDC IdPs.","TD2 W31",1],
+ ["F3","GitHub Actions deploys to AWS.","IAM OIDC identity provider + role trusting <code>AssumeRoleWithWebIdentity</code>","IAM user access keys stored as GitHub secrets","OIDC = short-lived creds, no stored keys.","TD5 R70",0],
+ ["G1","DR tier for RTO: hours / tens of minutes / minutes / ~0.","Backup & restore / pilot light / warm standby / multi-site","Pilot light / backup & restore / multi-site / warm standby","Pilot light still has to build the web/app tiers → can't meet a 5-min RTO.","TD2 W9",0],
+ ["G2","RTO 30 min, cost-effective.","Backup/restore for stateless tiers (AMIs) + cross-Region read replica for the DB","Hot standby: full stack running in a second Region","Match the tier to the RTO; hot standby is overbuilt.","TD3 W16",1],
+ ["G3","RTO < 1 h, RDS cross-Region.","Cross-Region read replica + automated promotion + Route 53 failover","Copy snapshots cross-Region and restore on failure","Snapshot restore of a large DB can exceed the RTO.","TD5 W9/W61",0],
+ ["G4","RPO < 1 min, cross-Region relational.","Aurora Global Database","RDS cross-Region automated backup replication","Backup replication RPO is minutes; Aurora Global replicates in < 1 s.","TD5 R53, TD3 R15",0],
+ ["G5","Multi-Region active-active writes, NoSQL.","DynamoDB global tables","Aurora Global Database","Aurora Global has one writer Region.","TD1 R16, TD3 R38",0],
+ ["G6","Is RDS Multi-AZ a DR plan?","No — Multi-AZ is HA in one Region; DR needs another Region","Yes — the standby in another AZ covers DR","DR = backups/replica in a different Region.","TD2 W14",1],
+ ["G7","Route 53: active-active Regions vs active-passive.","Active-active → latency + Evaluate Target Health; active-passive → failover","Active-active → failover; active-passive → weighted 100/0","Weighted ≠ failover.","TD5 W42/W61, TD3 R43",0],
+ ["G8","Health check for a resource with only a private IP.","CloudWatch metric → alarm → Route 53 health check on the alarm state","Route 53 health check pointed at the private IP","Route 53 checkers can't reach private IPs.","Udemy3 W21",0],
+ ["H1","Keep full capacity during a Beanstalk deploy.","Immutable or blue/green (swap CNAMEs)","Rolling deployment","Rolling takes batches out of service.","TD3 W53/R54",0],
+ ["H2","Lambda traffic shift with automatic rollback.","SAM + CodeDeploy canary/linear + CloudWatch alarms","Script that changes Lambda alias weights by hand","CodeDeploy rolls back on alarms; canary = 2 steps, linear = many.","Udemy2 R18, TD3 R31",0],
+ ["H3","Replace ASG instances on a CloudFormation update.","UpdatePolicy <code>AutoScalingRollingUpdate</code>","CreationPolicy on the ASG","CreationPolicy only waits for signals at create time.","TD3 R46, TD1 R45",0],
+ ["I1","Sensors speak MQTT to a self-managed broker on EC2 that can't keep up.","AWS IoT Core endpoint + IoT rule → DynamoDB","Bigger EC2 broker cluster in an Auto Scaling group","Managed > DIY.","TD3 W26",0],
+ ["I2","Offline ML inference on a local server at the edge.","AWS IoT Greengrass (+ ML components)","SageMaker real-time endpoint in the nearest Region","Offline = no Region endpoint.","TD2 W32",0],
+ ["I3","Speech → text → another language → speech.","Transcribe → Translate → Polly","Comprehend → Translate → Lex","Comprehend analyses text; Lex is a chatbot, not text-to-speech.","TD2 W50",0],
+ ["I4","Contact center + conversational bot.","Amazon Connect + Lex (+ Lambda for backends)","Amazon Chime SDK + Comprehend","Connect = managed contact center; Lex = bot.","TD1 W62",0],
+ ["I5","Scanned forms, extract fields, reduce human work.","Textract (+ Comprehend, orchestrated by Step Functions)","Rekognition text detection","Rekognition isn't document OCR with forms/tables.","TD3 R11",0],
+ ["I6","Archived video must get face tagging.","File Gateway → S3 + Rekognition face collection via Lambda","Tape Gateway → Glacier + Rekognition","Tape Gateway is for backup, not processing.","TD1 W57, TD3 W14",1],
+ ["I7","Users need a few desktop apps streamed, not full desktops. Cheapest?","Amazon AppStream 2.0","Amazon WorkSpaces per user","WorkSpaces = full persistent desktops, costs more.","TD3 W63",0],
+ ["I8","Legacy app sends mail over SMTP.","SES SMTP credentials + SES SMTP endpoint (port 587 STARTTLS)","IAM role on the instance to authenticate to the SES SMTP endpoint","SMTP needs SMTP credentials; roles don't work for SMTP.","TD5 W74",0],
+ ["I9","Blockchain ledger that holds PII.","Hash on-chain, PII off-chain (DynamoDB)","Store the PII on-chain encrypted with KMS","An immutable chain means you can never delete the PII.","TD5 R25",0],
+].map(([id,q,ok,bad,why,src,rep]) => ({id,sec:id[0],q,ok,bad,why,src,rep:!!rep}));
+
+const SECTIONS = {A:"Compute choice & limits",B:"Decoupling, serverless & workflow",C:"Data, streaming & analytics",
+  D:"Edge, delivery & media",E:"Security design",F:"Identity for apps",G:"Reliability & DR",H:"Deployment",I:"Service fit"};
+const STORE = "sap-ns-flashcards-rounds";
+const app = document.getElementById("app");
+let run = null; // {deck, i, answers:[{id,correct}], order:[0|1], picked}
+
+const loadRounds = () => JSON.parse(localStorage.getItem(STORE) || "[]");
+const saveRounds = r => localStorage.setItem(STORE, JSON.stringify(r));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const byId = id => CARDS.find(c => c.id === id);
+const pct = (a, b) => b ? Math.round(a * 100 / b) : 0;
+const today = () => new Date().toISOString().slice(0, 10);
+
+/* Home: choose which cards to drill, see round history. */
+function home() {
+  run = null;
+  const rounds = loadRounds();
+  const last = rounds[rounds.length - 1];
+  const secChips = Object.entries(SECTIONS).map(([k, v]) =>
+    `<label class="chip"><input type="checkbox" name="sec" value="${k}" checked>${k}. ${v} (${CARDS.filter(c => c.sec === k).length})</label>`).join("");
+  const hist = rounds.length ? `<table><tr><th>#</th><th>Date</th><th>Set</th><th>Score</th><th>Missed</th></tr>${
+    rounds.map((r, i) => `<tr><td>${i + 1}</td><td>${r.date}</td><td>${r.set}</td><td>${r.score}/${r.total} (${pct(r.score, r.total)}%)</td><td class="tag">${r.missed.join(", ") || "—"}</td></tr>`).join("")
+  }</table><div class="row" style="margin-top:10px"><button class="btn" id="clearBtn">Clear history</button></div>` : `<p class="muted">No rounds yet.</p>`;
+  app.innerHTML = `
+  <div class="card">
+    <h2 style="margin:0 0 4px">Start a round</h2>
+    <p class="muted">${CARDS.length} cards from your own wrong/right answers. Pick one of two options; feedback after each card, summary at the end.</p>
+    <div class="row" style="margin:12px 0">${secChips}</div>
+    <div class="row" style="margin-bottom:14px">
+      <label class="chip"><input type="checkbox" id="repOnly">Only 🔁 repeat misses (${CARDS.filter(c => c.rep).length})</label>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="startBtn">Start round</button>
+      <button class="btn" id="missBtn" ${last && last.missed.length ? "" : "disabled"}>Retry last round's misses (${last ? last.missed.length : 0})</button>
+    </div>
+  </div>
+  <div class="card"><h3 style="margin-top:0">Round history</h3>${hist}</div>`;
+  document.getElementById("startBtn").onclick = () => {
+    const secs = [...document.querySelectorAll("input[name=sec]:checked")].map(x => x.value);
+    const rep = document.getElementById("repOnly").checked;
+    const deck = CARDS.filter(c => secs.includes(c.sec) && (!rep || c.rep));
+    if (!deck.length) return alert("No cards match that filter.");
+    start(deck, rep ? "🔁 only" : secs.length === 9 ? "All" : secs.join(""));
+  };
+  document.getElementById("missBtn").onclick = () => start(last.missed.map(byId).filter(Boolean), "Retry misses");
+  const clr = document.getElementById("clearBtn");
+  if (clr) clr.onclick = () => { if (confirm("Delete all saved rounds?")) { saveRounds([]); home(); } };
+}
+
+function start(deck, set) {
+  run = { deck: shuffle(deck), i: 0, answers: [], set };
+  show();
+}
+
+/* One card: two options in random order. */
+function show() {
+  const c = run.deck[run.i];
+  run.order = Math.random() < 0.5 ? [c.ok, c.bad] : [c.bad, c.ok];
+  run.picked = null;
+  const done = run.answers.filter(a => a.correct).length;
+  app.innerHTML = `
+  <div class="card">
+    <div class="meta"><span>Card ${run.i + 1} / ${run.deck.length} · ${c.id} · ${SECTIONS[c.sec]} ${c.rep ? "· 🔁" : ""}</span><span>${done} correct so far</span></div>
+    <div class="bar"><i style="width:${pct(run.i, run.deck.length)}%"></i></div>
+    <div class="q">${c.q}</div>
+    ${run.order.map((t, k) => `<button class="opt" data-k="${k}"><b>${"AB"[k]}</b><span>${t}</span></button>`).join("")}
+    <div id="fb"></div>
+  </div>
+  <p class="muted">Keys: <code>A</code>/<code>B</code> or <code>1</code>/<code>2</code> to pick, <code>Enter</code> for next.</p>`;
+  app.querySelectorAll(".opt").forEach(b => b.onclick = () => pick(+b.dataset.k));
+}
+
+function pick(k) {
+  if (run.picked !== null) return;
+  const c = run.deck[run.i];
+  run.picked = k;
+  const correct = run.order[k] === c.ok;
+  run.answers.push({ id: c.id, correct });
+  app.querySelectorAll(".opt").forEach((b, j) => {
+    b.disabled = true;
+    if (run.order[j] === c.ok) b.classList.add("ok");
+    else if (j === k) b.classList.add("no");
+  });
+  const last = run.i === run.deck.length - 1;
+  document.getElementById("fb").innerHTML = `
+    <div class="fb"><span class="v ${correct ? "ok" : "no"}">${correct ? "✅ Correct" : "❌ Trap"}</span> — ${c.why}
+    <div class="tag">Source: ${c.src}</div></div>
+    <div class="row" style="margin-top:12px"><button class="btn primary" id="nextBtn">${last ? "See summary" : "Next →"}</button></div>`;
+  document.getElementById("nextBtn").onclick = next;
+}
+
+function next() {
+  if (run.picked === null) return;
+  if (++run.i < run.deck.length) show(); else summary();
+}
+
+/* Final summary: score, per-section breakdown, missed cards, round log line. Saves the round. */
+function summary() {
+  const total = run.answers.length;
+  const score = run.answers.filter(a => a.correct).length;
+  const missed = run.answers.filter(a => !a.correct).map(a => a.id);
+  const rounds = loadRounds();
+  rounds.push({ date: today(), set: run.set, score, total, missed });
+  saveRounds(rounds);
+  const rows = Object.keys(SECTIONS).map(s => {
+    const a = run.answers.filter(x => x.id[0] === s);
+    if (!a.length) return "";
+    const ok = a.filter(x => x.correct).length;
+    return `<tr><td>${s}. ${SECTIONS[s]}</td><td>${ok}/${a.length}</td><td class="${pct(ok, a.length) >= 80 ? "good" : "badc"}">${pct(ok, a.length)}%</td></tr>`;
+  }).join("");
+  const missList = missed.length ? missed.map(byId).map(c => `
+    <div class="miss"><b>${c.id}${c.rep ? " 🔁" : ""}.</b> ${c.q}<br>
+    <span class="good">✓ ${c.ok}</span><br><span class="badc">✗ ${c.bad}</span><br>
+    <span class="muted">${c.why}</span> <span class="tag">(${c.src})</span></div>`).join("") : `<p class="good">No misses — clean round.</p>`;
+  const logLine = `| ${rounds.length} | ${today()} | ${score}/${total} | ${missed.join(", ") || "—"} |`;
+  const p = pct(score, total);
+  app.innerHTML = `
+  <div class="card">
+    <div class="muted">Round ${rounds.length} · ${run.set}</div>
+    <div class="big ${p >= 80 ? "good" : "badc"}">${score} / ${total} <small style="font-size:20px">(${p}%)</small></div>
+    <p class="muted">Target ≥ 80%. ${missed.length ? `Retry the ${missed.length} missed card(s) in 2 days.` : ""}</p>
+    <div class="row">
+      <button class="btn primary" id="retryBtn" ${missed.length ? "" : "disabled"}>Retry missed now</button>
+      <button class="btn" id="againBtn">New round</button>
+    </div>
+  </div>
+  <div class="card"><h3 style="margin-top:0">By section</h3><table><tr><th>Section</th><th>Score</th><th>%</th></tr>${rows}</table></div>
+  <div class="card"><h3 style="margin-top:0">Missed cards (${missed.length})</h3>${missList}</div>
+  <div class="card"><h3 style="margin-top:0">Round log line</h3>
+    <p class="muted">Paste into the table at the end of <code>new-solutions-flashcards.md</code>.</p>
+    <div class="copy" id="logLine">${logLine}</div>
+    <div class="row" style="margin-top:8px"><button class="btn" id="copyBtn">Copy</button></div></div>`;
+  document.getElementById("retryBtn").onclick = () => start(missed.map(byId), "Retry misses");
+  document.getElementById("againBtn").onclick = home;
+  document.getElementById("copyBtn").onclick = e => navigator.clipboard.writeText(logLine).then(() => e.target.textContent = "Copied ✓");
+  run = null;
+}
+
+document.addEventListener("keydown", e => {
+  if (!run || e.target.tagName === "BUTTON" && e.key === "Enter") return; // button Enter already fires click
+  const k = e.key.toLowerCase();
+  if (k === "a" || k === "1") pick(0);
+  else if (k === "b" || k === "2") pick(1);
+  else if (k === "enter") next();
+});
+document.getElementById("homeBtn").onclick = () => { if (!run || confirm("Leave this round? Progress won't be saved.")) home(); };
+home();
+</script>
+</body>
+</html>
