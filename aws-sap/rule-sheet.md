@@ -2,14 +2,16 @@
 
 Built 2026-10-13 from 376 per-question rules: TD1, TD2, TD3, TD5, TD6 + Udemy #2/#3 unseen (`practice-exam/sap/*_review_notes.json`). Validated 2026-10-13 (see § Corrections).
 🔁 = missed 2+ times. Format: **trigger in the stem → answer** (✗ = the trap you picked).
+HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this file: `python3 aws-sap/build_study_pages.py`.
 
-## 0. Read the stem first (6 meta-rules behind most repeat misses)
+## 0. Read the stem first (7 meta-rules behind most repeat misses)
 1. **Find the constraint word** — *least overhead · most cost-effective · quickest · minimal changes · no code changes*. It picks between 2 working options.
 2. **Managed service > DIY.** Lambda/SQS/EC2 pipeline when Glue, MediaConvert, Transfer Family, Patch Manager, Service Catalog, IoT Core or Batch exists → ✗.
 3. **Don't overbuild.** One-off / short deadline / "quick" → no RIs, no full migration, no hot standby. Match the DR tier to the RTO. Pick the **lightest feature** that works: Athena > Redshift for a nightly window, CloudFront Functions > Lambda@Edge for rewrites. 🔁×3 (TD3, Udemy3, TD6)
 4. **Detect ≠ prevent.** "Don't block developers" / "detect" → Config rule + remediation. "Prevent" / "**enforce**" / "block" → SCP / IAM deny (+ tag policy). 🔁
 5. **Multi-select:** both picks must complete the **same** solution. Kill any option with one wrong clause or an internal contradiction.
 6. **"Serverless" in the stem** → Aurora Serverless, Redshift Serverless, Fargate, DynamoDB, EventBridge.
+7. **Twin options:** when 2 options are almost word-for-word the same, find the ONE phrase that differs and judge only that (IA vs Deep Archive, public vs VPC endpoint, ALB vs NLB, which account). 🔁 (TD5 marathon 5/10)
 
 ## 1. Identity & governance
 - Corporate **SAML** → Identity Center / `AssumeRoleWithSAML` ✗ WebIdentity 🔁 · **social/mobile/SPA** → Cognito / `AssumeRoleWithWebIdentity`, temp creds, never access keys 🔁

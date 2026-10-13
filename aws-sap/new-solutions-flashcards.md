@@ -3,6 +3,8 @@
 Built 2026-10-13, validated + TD6 cards added the same day. New Solutions scores: TD5 36.4% → TD1 53.6% → TD2 50.0% → TD3 56.5% → Udemy3 58% → TD6 3/3. It's the biggest domain, so it's worth the most points.
 Every card comes from a question you answered (source tag). 🔁 = missed 2+ times. Answers are folded, so say yours out loud first.
 
+**Interactive version:** open `new-solutions-flashcards.html` in a browser (2 options per card, feedback, summary, saved rounds).
+
 **How to use:** 1 round = all cards, ~30 min. Mark misses with ❌ in the log at the bottom. Round 2 = only ❌ cards (+2 days).
 
 ## A. Compute choice & limits
@@ -387,5 +389,5 @@ Apps → **AppStream 2.0**. Full per-user desktops → WorkSpaces (costs more). 
 
 | Round | Date | Score | ❌ cards |
 |---|---|---|---|
-| 1 | | /72 | |
-| 2 | | | |
+| 1 | 2026-10-13 | 69/72 (96%) | D11, H3, A3 🔁 |
+| 2 (due 10-15) | | /3 | |

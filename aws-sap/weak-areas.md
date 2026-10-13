@@ -2,6 +2,7 @@
 
 Built 2026-10-13 from the wrong-answer notes of TD5, TD1, TD2, TD3, TD6 and Udemy #2/#3 unseen (165 misses). Validated + TD6 added 2026-10-13.
 Companion files: `rule-sheet.md` (1-line rules), `new-solutions-flashcards.md` (Domain 2 self-test).
+HTML view: `weak-areas.html` (search + self-test + pair drill); rebuild after editing this file: `python3 aws-sap/build_study_pages.py`.
 Ranking = repeat misses first, then miss count, then the sprint day it's scheduled for.
 
 ## Priority map
@@ -146,7 +147,15 @@ Before picking, write the **constraint word** on the whiteboard. Then eliminate:
 
 Redo these from the review files, every answer justified out loud:
 - TD5: Q10, Q12, Q21, Q22, Q23, Q29, Q32, Q48, Q62, Q69
+  - Round 1 (10-13): **5/10** ✅ Q21 Q22 Q23 Q32 Q62 · ❌ Q10 Q12 Q29 Q48 Q69 → redo 10-14 with the question text, not cards
 - TD1: Q17, Q25, Q26, Q57, Q69, Q74
 - TD3: Q6, Q10, Q14, Q63, Q71
 - TD6: Q1, Q11, Q16 (overbuild 🔁), Q6, Q15 — Pass 1 not done yet
 - Udemy2 unseen Pass 1 misses (14) · Udemy3 unseen misses (8, Pass 1 not done yet)
+
+## Pair drill log (`weak-areas.html` → Pair drill)
+
+| Round | Date | Score | Weakest sections | ❌ pairs |
+|---|---|---|---|---|
+| 1 | 2026-10-13 | 55/66 (83%) | Hybrid networking 7/10 · Migration + DR 9/12 | Redshift snapshot copy grant 🔁 · warm standby for RTO 5 min · DX Gateway for 2 Regions · CloudFront/WAF geo block · NLB/GWLB endpoint service 🔁 · instance profile alone · ECR endpoints (api + dkr + S3 gateway) · PHZ association authorization 🔁 · AssumeRoleWithSAML 🔁 · Snowball Edge ×N · backup/restore for RTO 30 min 🔁 |
+| 2 (due 10-15) | | /11 | | |
