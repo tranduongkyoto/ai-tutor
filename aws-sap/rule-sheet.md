@@ -52,6 +52,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - API GW + IAM principals → `AWS_IAM` (SigV4) + X-Ray (CORS isn't auth) · per-client quotas → usage plans + API keys
 - Batch, least ops → **AWS Batch** + Spot + S3 🔁 · tight HPC → cluster PG + EFA + FSx Lustre · many small apps → bin-pack on ECS
 - Full capacity during deploy → Beanstalk **immutable**/blue-green · Lambda canary/linear → SAM + CodeDeploy
+- Always-on prod tier → On-Demand/RI, **never Spot** · slow boot + big static data → bake AMI + mount **EFS** (✗ user-data download)
 - ASG: debug → suspend **Terminate** 🔁 · save data first → lifecycle hook · in-flight → deregistration delay · slow boot → golden AMI
 - Savings Plans scope: steady EC2 → **EC2 Instance SP** (up to 72%) · EC2/Fargate/Lambda mix → **Compute SP** (up to 66%) · Compute SP never covers DBs/caches → RDS/ElastiCache/MemoryDB **reserved nodes**
 
@@ -65,6 +66,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 
 ## 6. Storage, hybrid, migration, DR
 - Tape + **process** the content → **File Gateway** + Rekognition ✗ Tape GW 🔁×3 · Windows SMB **in AWS** → FSx Windows + DataSync 🔁 · EFS = Linux only
+- S3 website = **static files only** (✗ interactive NGINX+MySQL app 🔁) · site shows nothing → bucket **public read** (✗ "wait for DNS propagation")
 - Volume GW cached (hot subset) vs stored (full copy) · recover → snapshot → EBS · replication SLA → **S3 RTC** 🔁 · far uploads → Transfer Acceleration
 - Snow math: 1 Gbps ≈ 10.8 TB/day; > 1 week → Snowball Edge (80 TB usable; newer 210 TB model); ≥ 10 PB → Snowmobile (retired 2024, may still appear as a distractor); lands in S3, then lifecycle
 - VM as-is → VM Import · continuous block replication → **MGN** · TCO → Migration Evaluator · discovery → ADS / AWS Transform

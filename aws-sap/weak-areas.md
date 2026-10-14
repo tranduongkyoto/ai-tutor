@@ -147,8 +147,9 @@ Before picking, write the **constraint word** on the whiteboard. Then eliminate:
 
 Redo these from the review files, every answer justified out loud:
 - TD5: Q10, Q12, Q21, Q22, Q23, Q29, Q32, Q48, Q62, Q69
-  - Round 1 (10-13): **5/10** ✅ Q21 Q22 Q23 Q32 Q62 · ❌ Q10 Q12 Q29 Q48 Q69 → redo 10-14 with the question text, not cards
+  - Round 1 (10-13): **5/10** ✅ Q21 Q22 Q23 Q32 Q62 · ❌ Q10 Q12 Q29 Q48 Q69 → retry 10-14 (full text, shuffled letters) **5/5** ✅
 - TD1: Q17, Q25, Q26, Q57, Q69, Q74
+  - Round 1 (10-14, shuffled letters): **5/6** ✅ Q17 Q25 Q57 Q69 Q74 · ❌ Q26 (picked S3 static site for a dynamic NGINX+MySQL app)
 - TD3: Q6, Q10, Q14, Q63, Q71
 - TD6: Q1, Q11, Q16 (overbuild 🔁), Q6, Q15 — Pass 1 not done yet
 - Udemy2 unseen Pass 1 misses (14) · Udemy3 unseen misses (8, Pass 1 not done yet)

@@ -101,6 +101,7 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 <li>API GW + IAM principals →<span class="ans"> <code>AWS_IAM</code> (SigV4) + X-Ray (CORS isn't auth)</span> · per-client quotas →<span class="ans"> usage plans + API keys</span></li>
 <li>Batch, least ops →<span class="ans"> <strong>AWS Batch</strong> + Spot + S3 🔁</span> · tight HPC →<span class="ans"> cluster PG + EFA + FSx Lustre</span> · many small apps →<span class="ans"> bin-pack on ECS</span></li>
 <li>Full capacity during deploy →<span class="ans"> Beanstalk <strong>immutable</strong>/blue-green</span> · Lambda canary/linear →<span class="ans"> SAM + CodeDeploy</span></li>
+<li>Always-on prod tier →<span class="ans"> On-Demand/RI, <strong>never Spot</strong></span> · slow boot + big static data →<span class="ans"> bake AMI + mount <strong>EFS</strong> (✗ user-data download)</span></li>
 <li>ASG: debug →<span class="ans"> suspend <strong>Terminate</strong> 🔁</span> · save data first →<span class="ans"> lifecycle hook</span> · in-flight →<span class="ans"> deregistration delay</span> · slow boot →<span class="ans"> golden AMI</span></li>
 <li>Savings Plans scope: steady EC2 →<span class="ans"> <strong>EC2 Instance SP</strong> (up to 72%)</span> · EC2/Fargate/Lambda mix →<span class="ans"> <strong>Compute SP</strong> (up to 66%)</span> · Compute SP never covers DBs/caches →<span class="ans"> RDS/ElastiCache/MemoryDB <strong>reserved nodes</strong></span></li>
 </ul>
@@ -116,6 +117,7 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 <h2>6. Storage, hybrid, migration, DR</h2>
 <ul>
 <li>Tape + <strong>process</strong> the content →<span class="ans"> <strong>File Gateway</strong> + Rekognition ✗ Tape GW 🔁×3</span> · Windows SMB <strong>in AWS</strong> →<span class="ans"> FSx Windows + DataSync 🔁</span> · EFS = Linux only</li>
+<li>S3 website = <strong>static files only</strong> (✗ interactive NGINX+MySQL app 🔁) · site shows nothing →<span class="ans"> bucket <strong>public read</strong> (✗ "wait for DNS propagation")</span></li>
 <li>Volume GW cached (hot subset) vs stored (full copy) · recover →<span class="ans"> snapshot → EBS</span> · replication SLA →<span class="ans"> <strong>S3 RTC</strong> 🔁</span> · far uploads →<span class="ans"> Transfer Acceleration</span></li>
 <li>Snow math: 1 Gbps ≈ 10.8 TB/day; &gt; 1 week →<span class="ans"> Snowball Edge (80 TB usable; newer 210 TB model); ≥ 10 PB → Snowmobile (retired 2024, may still appear as a distractor); lands in S3, then lifecycle</span></li>
 <li>VM as-is →<span class="ans"> VM Import</span> · continuous block replication →<span class="ans"> <strong>MGN</strong></span> · TCO →<span class="ans"> Migration Evaluator</span> · discovery →<span class="ans"> ADS / AWS Transform</span></li>
