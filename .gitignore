@@ -166,3 +166,6 @@ cert/
 # Python
 ######################
 *.py[cod]
+
+# Saved TD result web pages (contain login-session nonces)
+practice-exam/sap/*-Results.html
