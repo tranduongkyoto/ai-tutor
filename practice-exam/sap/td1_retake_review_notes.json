@@ -1,0 +1,24 @@
+{
+  "title": "TD Set 1 — Timed retake (2026-10-14)",
+  "analysis_file": "td1_retake_analysis.md",
+  "wrong_review_file": "td1_retake_review.md",
+  "wrong": {
+    "groups": {
+      "A": "Read what the workload really needs (dynamic vs static, prod vs Spot, root cause)",
+      "B": "Edge & DNS (CloudFront geo-restriction, Global Accelerator + public alias)",
+      "C": "Hybrid networking (dedicated private links = Direct Connect)",
+      "D": "Governance & app identity (Config vs GuardDuty, Cognito for mobile federation)"
+    },
+    "questions": {
+      "53": {"group": "A", "keywords": "INTERACTIVE web system, NGINX + MySQL, load balancer required, most efficient", "trap": "🔁 Same question missed in the 10-14 marathon: S3 only serves static files (can't run NGINX logic), and the option points Route 53 at an ELB it never creates", "rule": "Dynamic app + DB → EC2 in 2 AZs + DMS + ELB + Route 53 alias. Reject options with a step that contradicts another step."},
+      "70": {"group": "A", "keywords": "S3 static website, alias record created, users see no content", "trap": "'Wait 12 hours for propagation' — Route 53 propagates in ~60 s; waiting is never the fix", "rule": "S3 website returns nothing → bucket policy must allow public s3:GetObject (and Block Public Access off). Fix the real cause, never 'just wait'."},
+      "10": {"group": "A", "keywords": "flagship product page, highly available, 300,000 peak users, cost-effective", "trap": "Spot Instances can be reclaimed — not for the always-on production web tier", "rule": "Production HA web tier → ASG of On-Demand EC2 behind ALB + Aurora Multi-AZ (retain on delete). Spot only for interruptible work."},
+      "39": {"group": "A", "keywords": "500 GB static dataset at boot, scale in/out, deploy code several times a day, patch within 48 h", "trap": "User data downloading 500 GB from S3 on every launch makes scale-out slow; patching live instances drifts from the AMI", "rule": "Patch → bake new AMI (SSM) → replace instances; shared static data → mount EFS; app updates → CodeDeploy."},
+      "68": {"group": "B", "keywords": "report files must NOT be accessible in listed countries, global low latency", "trap": "🔁 Route 53 geolocation only ROUTES by location — it does not block (same miss as the 10-13 Pair drill)", "rule": "Block countries → CloudFront geo restriction (or WAF geo match). Route 53 geolocation = routing, not access control."},
+      "59": {"group": "B", "keywords": "multi-Region ALBs, apex domain, public DNS, most operationally efficient", "trap": "Twin options: Resolver INBOUND endpoint is for on-prem → AWS private DNS queries, not public records", "rule": "Global Accelerator in front of regional ALBs + Route 53 public ALIAS record (apex OK) to the accelerator DNS name."},
+      "22": {"group": "C", "keywords": "many VPCs in many Regions ↔ on-prem, private DEDICATED network, predictable performance", "trap": "🔁 Site-to-Site VPN runs over the internet — not dedicated (same miss as the 10-13 Pair drill)", "rule": "Dedicated private connectivity to many VPCs/Regions → Direct Connect + DX Gateway + private VIF (VGW per VPC)."},
+      "21": {"group": "D", "keywords": "latest patches, check approved AMIs, must NOT impede developers, notify", "trap": "🔁 GuardDuty detects threats (malicious activity), not patch level or AMI compliance", "rule": "Patching → SSM Patch Manager baseline. Detect non-approved AMI without blocking → AWS Config managed rule approved-amis-by-id + alert."},
+      "45": {"group": "D", "keywords": "mobile app, custom-built authentication, federated access, IAM roles for permissions", "trap": "IAM Identity Center is for workforce SSO to accounts/business apps, not mobile app federation", "rule": "Custom auth for a mobile app → custom SAML IdP + IAM SAML provider, or custom OIDC + Cognito Identity Pools (temp creds via IAM roles)."}
+    }
+  }
+}
