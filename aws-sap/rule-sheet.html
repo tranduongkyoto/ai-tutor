@@ -62,7 +62,7 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 <ul>
 <li>Corporate <strong>SAML</strong> →<span class="ans"> Identity Center / <code>AssumeRoleWithSAML</code> ✗ WebIdentity 🔁</span> · <strong>social/mobile/SPA</strong> →<span class="ans"> Cognito / <code>AssumeRoleWithWebIdentity</code>, temp creds, never access keys 🔁</span></li>
 <li><strong>LDAP, no SAML</strong> →<span class="ans"> custom identity broker → STS</span> · <strong>3rd party</strong> →<span class="ans"> trust policy + <code>sts:ExternalId</code></span> · <strong>GitHub CI</strong> →<span class="ans"> IAM OIDC provider</span></li>
-<li>Cross-account role lives in the <strong>TARGET</strong> account; fix access = its <strong>trust policy</strong> · EC2 →<span class="ans"> AWS API = instance profile, nothing else</span></li>
+<li>Cross-account role lives in the <strong>TARGET</strong> account; fix access = its <strong>trust policy</strong> →<span class="ans"> trust the caller's <strong>role ARN</strong>, not the account root (least privilege)</span> · EC2 →<span class="ans"> AWS API = instance profile, nothing else</span></li>
 <li><strong>SCP never grants</strong>; allow-list SCP must list every action; doesn't affect the mgmt account or service-linked roles 🔁 · team access = IAM policy</li>
 <li>Deny at root hits every OU →<span class="ans"> attach at the OU</span> · protect tagged resources →<span class="ans"> SCP deny + <code>aws:ResourceTag</code></span> · MFA ≠ authorization</li>
 <li><strong>Enforce tag values</strong> →<span class="ans"> tag policy (allowed values) + SCP deny <code>CreateStack</code>/create without <code>aws:RequestTag</code> ✗ Config 🔁</span> · VPC-only access points →<span class="ans"> SCP + <code>s3:AccessPointNetworkOrigin</code></span> · org-only ECR/S3 →<span class="ans"> <code>aws:PrincipalOrgID</code></span></li>
@@ -74,9 +74,9 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 </ul>
 <h2>2. Networking, DNS, edge</h2>
 <ul>
-<li>IPsec VPN over DX →<span class="ans"> <strong>PUBLIC VIF</strong> 🔁×4</span> · cheapest DX backup →<span class="ans"> S2S VPN</span> · many VPCs/Regions →<span class="ans"> DX Gateway (allowed prefixes ⊇ VPC CIDRs)</span></li>
+<li>IPsec VPN over DX →<span class="ans"> <strong>PUBLIC VIF</strong> 🔁×5</span> · cheapest DX backup →<span class="ans"> S2S VPN</span> · many VPCs/Regions →<span class="ans"> DX Gateway (allowed prefixes ⊇ VPC CIDRs)</span></li>
 <li>VPN HA →<span class="ans"> 2nd <strong>CGW</strong> (VGW already has 2 tunnels; 1 VGW per VPC)</span></li>
-<li>PrivateLink service = <strong>NLB</strong>/GWLB, never ALB 🔁 · appliance fleet →<span class="ans"> <strong>GWLB + ASG</strong> 🔁</span> · central inspection →<span class="ans"> TGW + GWLB VPC</span> · URL filter →<span class="ans"> proxy / Network Firewall</span></li>
+<li>PrivateLink service = <strong>NLB</strong>/GWLB, never ALB 🔁×5 · appliance fleet →<span class="ans"> <strong>GWLB + ASG</strong> 🔁</span> · central inspection →<span class="ans"> TGW + GWLB VPC</span> · URL filter →<span class="ans"> proxy / Network Firewall</span></li>
 <li>S3 from private subnet →<span class="ans"> <strong>gateway endpoint</strong> ✗ NAT 🔁</span> · lock it down →<span class="ans"> endpoint policy + access point + bucket policy (<code>aws:sourceVpce</code>) 🔁</span></li>
 <li>Packet contents →<span class="ans"> <strong>Traffic Mirroring</strong> ✗ Flow Logs 🔁</span> · block an IP →<span class="ans"> NACL deny</span> · REJECT + source IP →<span class="ans"> Flow Logs</span></li>
 <li>Cross-account PHZ →<span class="ans"> <code>create-vpc-association-authorization</code> + <code>associate-vpc-with-hosted-zone</code> ✗ NS delegation 🔁</span> · Resolver outbound = AWS →<span class="ans"> on-prem</span></li>
@@ -91,11 +91,13 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 <ul>
 <li>Own key + rotation →<span class="ans"> <strong>SSE-KMS</strong></span> · key from own HSM →<span class="ans"> KMS <code>Origin=EXTERNAL</code></span> · key never leaves + HA →<span class="ans"> CloudHSM ≥2 AZ</span> · force TLS →<span class="ans"> <code>aws:SecureTransport</code></span></li>
 <li>Stop public objects →<span class="ans"> Block Public Access</span> · DDoS L3/L4 →<span class="ans"> Shield Advanced</span> · SQLi/XSS →<span class="ans"> WAF</span> · GuardDuty only detects</li>
+<li>Alert near a service quota →<span class="ans"> CloudWatch alarm on the <strong>AWS/Usage</strong> metric with <code>SERVICE_QUOTA()</code> math (✗ SampleCount) + SNS</span></li>
 <li>PII →<span class="ans"> Macie</span> · CVEs →<span class="ans"> Inspector</span> · config drift →<span class="ans"> Config</span> · who read what →<span class="ans"> CloudTrail data events</span> · app →<span class="ans"> DB → SG-to-SG reference</span></li>
 <li>Inspector for Lambda = <strong>standard scan</strong> (CVEs in packages/layers) + <strong>code scan</strong> (code flaws) + <code>InspectorCodeExclusion</code> tag to skip functions (✗ IAM)</li>
 </ul>
 <h2>4. Compute, serverless, deployment</h2>
 <ul>
+<li>VPC Lambda →<span class="ans"> <strong>private subnets</strong> + gateway endpoint/NAT (✗ public subnet: Lambda ENIs never get public IPs)</span> · containers also on other clouds →<span class="ans"> <strong>EKS</strong> (✗ ECS = AWS-only) 🔁</span></li>
 <li>Job &gt; 15 min →<span class="ans"> Fargate task (Lambda/EventBridge <code>RunTask</code>) or EC2 ASG on SQS depth</span> · simple HTTPS for a function →<span class="ans"> Function URL</span></li>
 <li>Lambda floods RDS →<span class="ans"> <strong>RDS Proxy</strong> + connection outside the handler 🔁</span> · isolate a function →<span class="ans"> reserved concurrency</span> · cut calls →<span class="ans"> API GW cache</span></li>
 <li>API GW + IAM principals →<span class="ans"> <code>AWS_IAM</code> (SigV4) + X-Ray (CORS isn't auth)</span> · per-client quotas →<span class="ans"> usage plans + API keys</span></li>

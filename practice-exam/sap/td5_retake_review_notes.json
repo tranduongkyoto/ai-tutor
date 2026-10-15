@@ -1,0 +1,23 @@
+{
+  "title": "TD Set 5 — Timed retake (2026-10-15)",
+  "analysis_file": "td5_retake_analysis.md",
+  "wrong_review_file": "td5_retake_review.md",
+  "wrong": {
+    "groups": {
+      "A": "Hybrid networking & VPC routing (PrivateLink, Direct Connect gateway, prefixes, Lambda in VPC)",
+      "B": "Cheapest / least-overhead design fit (edge features, serverless, EKS for multi-cloud, PII off-chain)",
+      "C": "Least privilege in cross-account trust"
+    },
+    "questions": {
+      "48": {"group": "A", "keywords": "expose services to other AWS customers privately, off the internet", "trap": "🔁 5th miss — ALB cannot back a VPC endpoint service (twin options differ only NLB vs ALB)", "rule": "PrivateLink endpoint service → Network Load Balancer (or GWLB), never ALB."},
+      "17": {"group": "A", "keywords": "add DX redundancy + reach a NEW VPC in another Region over the same network", "trap": "🔁 A transit gateway per Region adds parts; DX private VIFs reach other Regions only through a Direct Connect gateway", "rule": "2nd DX connection + one Direct Connect gateway; a private VIF per connection associated to the DX gateway; VGW per VPC (any Region)."},
+      "55": {"group": "A", "keywords": "transit VIF, DX gateway + transit gateway, local servers must reach VPCs", "trap": "MACsec / more bandwidth don't fix reachability — it's a routing (prefix) problem", "rule": "DX gateway ↔ TGW association: allowed prefixes must cover (≥) the VPC CIDRs and the VPC prefixes must be advertised."},
+      "38": {"group": "A", "keywords": "Lambda must reach Neptune (private subnets) AND DynamoDB", "trap": "Lambda ENIs in a VPC never get public IPs — public subnet + IGW gives no internet/AWS-API access", "rule": "VPC Lambda → private subnets + SG rule to the DB; reach DynamoDB via gateway VPC endpoint or NAT gateway."},
+      "22": {"group": "B", "keywords": "users in Asia/Middle East, lower latency, MOST cost-effective", "trap": "Multi-Region copies + geolocation routing = overbuilt; a second stack costs far more", "rule": "Global latency, cheapest → edge features: S3 Transfer Acceleration for uploads + edge-optimized API Gateway endpoint."},
+      "39": {"group": "B", "keywords": "monolith REST API, spiky traffic, components use different resources, cost-effective, least operational overhead", "trap": "ASG + ALB still runs and patches EC2 for idle hours", "rule": "Spiky API + least overhead → split into Lambda functions behind API Gateway (custom domain), scale per function."},
+      "70": {"group": "B", "keywords": "event-driven serverless + additional clusters on OTHER cloud providers", "trap": "🔁 ECS is AWS-only; 'multi-cloud clusters' points to Kubernetes", "rule": "Containers that must also run on other clouds → EKS (Kubernetes) on Fargate; ECS only when AWS-only."},
+      "44": {"group": "B", "keywords": "patient records on Managed Blockchain, secure, transparent, immutable", "trap": "Name and ID are still PII — any PII on an immutable chain can never be deleted", "rule": "Blockchain + PII → store only a HASH on-chain; PII off-chain (DynamoDB)."},
+      "8": {"group": "C", "keywords": "EC2 in Account B must assume role in Account A; permission error", "trap": "Trusting Account B's root lets ANY identity in B assume the role — not least privilege (twin options: root vs role ARN)", "rule": "Cross-account: edit the trust policy in the role's own account (A) and trust the specific role ARN of the caller."}
+    }
+  }
+}

@@ -16,7 +16,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 ## 1. Identity & governance
 - Corporate **SAML** → Identity Center / `AssumeRoleWithSAML` ✗ WebIdentity 🔁 · **social/mobile/SPA** → Cognito / `AssumeRoleWithWebIdentity`, temp creds, never access keys 🔁
 - **LDAP, no SAML** → custom identity broker → STS · **3rd party** → trust policy + `sts:ExternalId` · **GitHub CI** → IAM OIDC provider
-- Cross-account role lives in the **TARGET** account; fix access = its **trust policy** · EC2 → AWS API = instance profile, nothing else
+- Cross-account role lives in the **TARGET** account; fix access = its **trust policy** → trust the caller's **role ARN**, not the account root (least privilege) · EC2 → AWS API = instance profile, nothing else
 - **SCP never grants**; allow-list SCP must list every action; doesn't affect the mgmt account or service-linked roles 🔁 · team access = IAM policy
 - Deny at root hits every OU → attach at the OU · protect tagged resources → SCP deny + `aws:ResourceTag` · MFA ≠ authorization
 - **Enforce tag values** → tag policy (allowed values) + SCP deny `CreateStack`/create without `aws:RequestTag` ✗ Config 🔁 · VPC-only access points → SCP + `s3:AccessPointNetworkOrigin` · org-only ECR/S3 → `aws:PrincipalOrgID`
@@ -27,9 +27,9 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - Tamper-proof CloudTrail → log file validation + MFA Delete (KMS = confidentiality only)
 
 ## 2. Networking, DNS, edge
-- IPsec VPN over DX → **PUBLIC VIF** 🔁×4 · cheapest DX backup → S2S VPN · many VPCs/Regions → DX Gateway (allowed prefixes ⊇ VPC CIDRs)
+- IPsec VPN over DX → **PUBLIC VIF** 🔁×5 · cheapest DX backup → S2S VPN · many VPCs/Regions → DX Gateway (allowed prefixes ⊇ VPC CIDRs)
 - VPN HA → 2nd **CGW** (VGW already has 2 tunnels; 1 VGW per VPC)
-- PrivateLink service = **NLB**/GWLB, never ALB 🔁 · appliance fleet → **GWLB + ASG** 🔁 · central inspection → TGW + GWLB VPC · URL filter → proxy / Network Firewall
+- PrivateLink service = **NLB**/GWLB, never ALB 🔁×5 · appliance fleet → **GWLB + ASG** 🔁 · central inspection → TGW + GWLB VPC · URL filter → proxy / Network Firewall
 - S3 from private subnet → **gateway endpoint** ✗ NAT 🔁 · lock it down → endpoint policy + access point + bucket policy (`aws:sourceVpce`) 🔁
 - Packet contents → **Traffic Mirroring** ✗ Flow Logs 🔁 · block an IP → NACL deny · REJECT + source IP → Flow Logs
 - Cross-account PHZ → `create-vpc-association-authorization` + `associate-vpc-with-hosted-zone` ✗ NS delegation 🔁 · Resolver outbound = AWS → on-prem
@@ -43,10 +43,12 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 ## 3. Security & data protection
 - Own key + rotation → **SSE-KMS** · key from own HSM → KMS `Origin=EXTERNAL` · key never leaves + HA → CloudHSM ≥2 AZ · force TLS → `aws:SecureTransport`
 - Stop public objects → Block Public Access · DDoS L3/L4 → Shield Advanced · SQLi/XSS → WAF · GuardDuty only detects
+- Alert near a service quota → CloudWatch alarm on the **AWS/Usage** metric with `SERVICE_QUOTA()` math (✗ SampleCount) + SNS
 - PII → Macie · CVEs → Inspector · config drift → Config · who read what → CloudTrail data events · app → DB → SG-to-SG reference
 - Inspector for Lambda = **standard scan** (CVEs in packages/layers) + **code scan** (code flaws) + `InspectorCodeExclusion` tag to skip functions (✗ IAM)
 
 ## 4. Compute, serverless, deployment
+- VPC Lambda → **private subnets** + gateway endpoint/NAT (✗ public subnet: Lambda ENIs never get public IPs) · containers also on other clouds → **EKS** (✗ ECS = AWS-only) 🔁
 - Job > 15 min → Fargate task (Lambda/EventBridge `RunTask`) or EC2 ASG on SQS depth · simple HTTPS for a function → Function URL
 - Lambda floods RDS → **RDS Proxy** + connection outside the handler 🔁 · isolate a function → reserved concurrency · cut calls → API GW cache
 - API GW + IAM principals → `AWS_IAM` (SigV4) + X-Ray (CORS isn't auth) · per-client quotas → usage plans + API keys
