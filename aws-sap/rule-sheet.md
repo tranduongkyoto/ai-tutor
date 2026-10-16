@@ -21,6 +21,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - Deny at root hits every OU → attach at the OU · protect tagged resources → SCP deny + `aws:ResourceTag` · MFA ≠ authorization
 - **Enforce tag values** → tag policy (allowed values) + SCP deny `CreateStack`/create without `aws:RequestTag` ✗ Config 🔁 · VPC-only access points → SCP + `s3:AccessPointNetworkOrigin` · org-only ECR/S3 → `aws:PrincipalOrgID`
 - Central backups + retention + cross-Region copy + alerts → **AWS Backup** plan (copy action + SNS) ✗ DLM/Lambda glue
+- Existing Microsoft AD → **Directory Service** (Managed AD + trust) → SSO; don't recreate users in Identity Center
 - Rotation/lifecycle → **Secrets Manager** (ECS `secrets`/`valueFrom`) ✗ Parameter Store 🔁 · CFN → `{{resolve:secretsmanager:…}}`
 - Org: RAM needs **trusted access** · StackSets **service-managed** + auto-deploy · org trail + Config aggregator + Security Hub delegated admin
 - Cost by tag → activate tags in the **mgmt account** + CUR 🔁 · org dashboard → CUR → QuickSight · alerts → Budgets · self-service → Service Catalog + launch constraint
@@ -32,7 +33,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - PrivateLink service = **NLB**/GWLB, never ALB 🔁×5 · appliance fleet → **GWLB + ASG** 🔁 · central inspection → TGW + GWLB VPC · URL filter → proxy / Network Firewall
 - S3 from private subnet → **gateway endpoint** ✗ NAT 🔁 · lock it down → endpoint policy + access point + bucket policy (`aws:sourceVpce`) 🔁
 - Packet contents → **Traffic Mirroring** ✗ Flow Logs 🔁 · block an IP → NACL deny · REJECT + source IP → Flow Logs
-- Cross-account PHZ → `create-vpc-association-authorization` + `associate-vpc-with-hosted-zone` ✗ NS delegation 🔁 · Resolver outbound = AWS → on-prem
+- Cross-account PHZ → `create-vpc-association-authorization` + `associate-vpc-with-hosted-zone` ✗ NS delegation 🔁 · Resolver **outbound** + forwarding rule = queries leaving the VPC (on-prem / custom AD domain) · inbound = into the VPC
 - Private-IP health check → CloudWatch alarm → Route 53 health check on the alarm · PHZ resolution → `enableDnsSupport` + `enableDnsHostnames`
 - R53: failover = active-passive · latency + Evaluate Target Health = active-active · geolocation doesn't block · apex → alias
 - **DNS caching blocks a fast shift** → Global Accelerator dials/weights · user → specific instance → GA custom routing · **GA can't front S3** 🔁
@@ -73,6 +74,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - Snow math: 1 Gbps ≈ 10.8 TB/day; > 1 week → Snowball Edge (80 TB usable; newer 210 TB model); ≥ 10 PB → Snowmobile (retired 2024, may still appear as a distractor); lands in S3, then lifecycle
 - VM as-is → VM Import · continuous block replication → **MGN** · TCO → Migration Evaluator · discovery → ADS / AWS Transform
 - Heterogeneous DB → SCT + DMS (CDC) · replatform = managed platform, no code rewrite · SFTP → Transfer Family (VPC endpoint for EIP + SG)
+- RDS Multi-AZ failover = **CNAME** flips to the standby (not the IP) · IaC → CloudFormation (✗ Beanstalk) · app push → SNS **Mobile Push** (✗ SMS)
 - DR by RTO: hours → backup/restore · tens of min → pilot light · minutes → warm standby · ~0 → multi-site. **Multi-AZ ≠ DR** 🔁
 - Fit: VOD → MediaConvert + HLS · MQTT → IoT Core · offline edge ML → Greengrass · speech → Transcribe · OCR → Textract · bot → Lex · stateful workflow → Step Functions
 

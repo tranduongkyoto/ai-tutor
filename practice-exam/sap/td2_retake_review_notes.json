@@ -1,0 +1,22 @@
+{
+  "title": "TD Set 2 — Timed retake (2026-10-16)",
+  "analysis_file": "td2_retake_analysis.md",
+  "wrong_review_file": "td2_retake_review.md",
+  "wrong": {
+    "groups": {
+      "A": "Identity & directory (AD trust, IAM role vs SCP)",
+      "B": "DNS & edge protection (Resolver endpoints, OAC + custom header on ALB)",
+      "C": "Read the deciding detail (push vs SMS, IaC, Multi-AZ failover, stateless tiers)"
+    },
+    "questions": {
+      "42": {"group": "A", "keywords": "existing Microsoft AD, employees use their Windows password for AWS SSO", "trap": "Creating users in IAM Identity Center ignores the existing AD — Identity Center still needs Directory Service to reach Microsoft AD", "rule": "Existing on-prem Microsoft AD → AWS Directory Service (Managed Microsoft AD + trust) → SSO; don't recreate users."},
+      "26": {"group": "A", "keywords": "business units share a production account; developers terminate other units' resources", "trap": "🔁 An SCP never grants access — the fix is an IAM role with resource-level (tag) permissions in the production account", "rule": "Grant scoped access → IAM role in the target account + resource-level/tag conditions; SCPs only restrict."},
+      "17": {"group": "B", "keywords": "VPC must resolve both AWS endpoints and the custom AD domain (Managed Microsoft AD)", "trap": "Inbound endpoint is for on-prem/other networks → VPC; resolving a custom domain FROM the VPC needs an outbound endpoint", "rule": "Route 53 Resolver: queries leaving the VPC → OUTBOUND endpoint + forwarding rule to the domain controllers; inbound = into the VPC."},
+      "58": {"group": "B", "keywords": "S3 static + ALB/Fargate dynamic behind CloudFront; block direct access to both origins", "trap": "A NACL can't allow 'CloudFront only' (too many changing IPs); twin options differ only in where the WAF web ACL is attached", "rule": "Private S3 origin → OAC + bucket policy; ALB origin → CloudFront custom header + WAF web ACL on the ALB (not on the distribution)."},
+      "15": {"group": "C", "keywords": "push notifications to iOS/Android apps, cost-effective, under a minute", "trap": "SNS SMS sends text messages to phone numbers, not push notifications to the app", "rule": "Mobile app push → SNS Mobile Push; read the delivery channel word (push vs SMS vs email)."},
+      "45": {"group": "C", "keywords": "manage infrastructure as code for CI/CD + CDN", "trap": "Elastic Beanstalk deploys apps but doesn't manage infrastructure as code", "rule": "Infrastructure as code → CloudFormation (or CDK); CDN → CloudFront; CloudWatch is never a CDN."},
+      "53": {"group": "C", "keywords": "RDS Multi-AZ primary fails — what happens", "trap": "The IP isn't moved — RDS flips the DNS record", "rule": "RDS Multi-AZ failover → the CNAME is switched to the standby (apps reconnect to the same endpoint)."},
+      "62": {"group": "C", "keywords": "large unpredictable traffic, millions of reads, web/app/DB tiers, scalable + available", "trap": "Stateful instances can't scale freely; Multi-AZ alone doesn't add read capacity (twin options differ in stateless + cache + replicas)", "rule": "Scale web/app tiers → stateless ASG + ElastiCache for state; DB reads → read replicas, availability → Multi-AZ."}
+    }
+  }
+}
