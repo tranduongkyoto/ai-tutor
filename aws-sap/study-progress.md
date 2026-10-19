@@ -194,7 +194,7 @@ Pearson global free-retake offer (09-29 – 11-17) excludes SAP — not usable. 
 | **10-16** | ✅ TD5 flashcards R1 **75/75 (100%)** · ✅ **TD2 full timed retake 67/75 (89.3%)** (was 43/75) — 31/32 old misses fixed, 7 regressions; misses Q15 Q17 Q26🔁 Q42 Q45 Q53 Q58 Q62 · ✅ TD2 review 🇻🇳 + flashcards · redo TD2 misses tonight |
 | **10-17** | **TD3 full timed retake** + review · redo TD3 misses · TD2 misses Pass 2 |
 | 10-18 | TD3 misses Pass 2 · one pass over all retake misses (TD1/5/2/3) · rule sheet self-test · light evening, sleep early |
-| **10-19** | **TD Set 4 timed — Gate 2 (final, unseen)** → `test-review --vi` |
+| **10-19** | ✅ TD2 retake redo Pass 1 **13/13** (8 misses + 5 unsure-right, shuffled) · **TD Set 4 timed — Gate 2 (final, unseen)** → `test-review --vi` |
 | **10-20** | TD4 review + redo Pass 1 · **decide**: TD4 ≥75% + ≥2/3 retakes ≥85% → reschedule exam to 10-23 / 10-24 |
 | 10-21 – 10-22 | TD4 misses Pass 2 · rule sheet + weak-areas self-test · light review (no new material) |
 | **10-23 / 10-24** | **Exam attempt 1 (210 min with ESL +30)** — fallback: 11-02 booking kept |
