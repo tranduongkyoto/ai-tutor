@@ -45,7 +45,7 @@ body.selftest .ans.shown{filter:none}
 <button class="btn" id="selftest" aria-pressed="false">Self-test</button></div>
 <div id="view" style="max-width:820px;margin:20px auto;padding:0 16px"></div>
 <div class="layout" id="main"><nav class="toc" id="toc"><b>Sections</b></nav><article class="doc" id="doc"><h1>SAP-C02 Rule Sheet (1 page)</h1>
-<p>Built 2026-10-13 from 376 per-question rules: TD1, TD2, TD3, TD5, TD6 + Udemy #2/#3 unseen (<code>practice-exam/sap/*_review_notes.json</code>). Validated 2026-10-13 (see § Corrections).
+<p>Built 2026-10-13 from 376 per-question rules: TD1, TD2, TD3, TD5, TD6 + Udemy #2/#3 unseen; TD4 (Gate 2) rules added 2026-10-19 (<code>practice-exam/sap/*_review_notes.json</code>). Validated 2026-10-13 (see § Corrections).
 🔁 = missed 2+ times. Format: <strong>trigger in the stem → answer</strong> (✗ = the trap you picked).
 HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after editing this file: <code>python3 aws-sap/build_study_pages.py</code>.</p>
 <h2>0. Read the stem first (7 meta-rules behind most repeat misses)</h2>
@@ -56,7 +56,7 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 <li><strong>Detect ≠ prevent.</strong> "Don't block developers" / "detect" → Config rule + remediation. "Prevent" / "<strong>enforce</strong>" / "block" → SCP / IAM deny (+ tag policy). 🔁</li>
 <li><strong>Multi-select:</strong> both picks must complete the <strong>same</strong> solution. Kill any option with one wrong clause or an internal contradiction.</li>
 <li><strong>"Serverless" in the stem</strong> → Aurora Serverless, Redshift Serverless, Fargate, DynamoDB, EventBridge.</li>
-<li><strong>Twin options:</strong> when 2 options are almost word-for-word the same, find the ONE phrase that differs and judge only that (IA vs Deep Archive, public vs VPC endpoint, ALB vs NLB, which account). 🔁 (TD5 marathon 5/10)</li>
+<li><strong>Twin options:</strong> when 2 options are almost word-for-word the same, find the ONE phrase that differs and judge only that (IA vs Deep Archive, public vs VPC endpoint, ALB vs NLB, which account). 🔁 (TD5 marathon 5/10; TD4 Q14 CodeDeploy clause, Q63 SQS→Step Functions, Q41 behavior vs ALB rule)</li>
 </ol>
 <h2>1. Identity &amp; governance</h2>
 <ul>
@@ -72,11 +72,13 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 <li>Org: RAM needs <strong>trusted access</strong> · StackSets <strong>service-managed</strong> + auto-deploy · org trail + Config aggregator + Security Hub delegated admin</li>
 <li>Cost by tag →<span class="ans"> activate tags in the <strong>mgmt account</strong> + CUR 🔁</span> · org dashboard →<span class="ans"> CUR → QuickSight</span> · alerts →<span class="ans"> Budgets</span> · self-service →<span class="ans"> Service Catalog + launch constraint</span></li>
 <li>Tamper-proof CloudTrail →<span class="ans"> log file validation + MFA Delete (KMS = confidentiality only)</span></li>
+<li>"Notify + auto-fix on an API call" (CreateUser…) →<span class="ans"> CloudTrail → <strong>EventBridge rule</strong> → Step Functions/Lambda remediate + SNS 🔁 (TD4 Q5)</span> · zonal RIs share across consolidated-billing accounts only in the <strong>same AZ + type</strong></li>
 </ul>
 <h2>2. Networking, DNS, edge</h2>
 <ul>
-<li>IPsec VPN over DX →<span class="ans"> <strong>PUBLIC VIF</strong> 🔁×5</span> · cheapest DX backup →<span class="ans"> S2S VPN</span> · many VPCs/Regions →<span class="ans"> DX Gateway (allowed prefixes ⊇ VPC CIDRs)</span></li>
+<li>IPsec VPN over DX →<span class="ans"> <strong>PUBLIC VIF</strong> 🔁×5</span> · cheapest DX backup →<span class="ans"> S2S VPN</span> · one DX →<span class="ans"> many VPCs/Regions → <strong>DX Gateway</strong> + VGW per VPC (allowed prefixes ⊇ VPC CIDRs) 🔁×3 (TD1, TD5, TD4 Q58)</span></li>
 <li>VPN HA →<span class="ans"> 2nd <strong>CGW</strong> (VGW already has 2 tunnels; 1 VGW per VPC)</span></li>
+<li>Remote workstations →<span class="ans"> peered VPCs → <strong>Client VPN</strong> client + ONE endpoint in the main VPC (✗ new TGW)</span> · UDP →<span class="ans"> <strong>NLB</strong> + NACL deny non-UDP (WAF/ALB = L7)</span></li>
 <li>PrivateLink service = <strong>NLB</strong>/GWLB, never ALB 🔁×5 · appliance fleet →<span class="ans"> <strong>GWLB + ASG</strong> 🔁</span> · central inspection →<span class="ans"> TGW + GWLB VPC</span> · URL filter →<span class="ans"> proxy / Network Firewall</span></li>
 <li>S3 from private subnet →<span class="ans"> <strong>gateway endpoint</strong> ✗ NAT 🔁</span> · lock it down →<span class="ans"> endpoint policy + access point + bucket policy (<code>aws:sourceVpce</code>) 🔁</span></li>
 <li>Packet contents →<span class="ans"> <strong>Traffic Mirroring</strong> ✗ Flow Logs 🔁</span> · block an IP →<span class="ans"> NACL deny</span> · REJECT + source IP →<span class="ans"> Flow Logs</span></li>
@@ -85,6 +87,7 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 <li>R53: failover = active-passive · latency + Evaluate Target Health = active-active · geolocation doesn't block · apex →<span class="ans"> alias</span></li>
 <li><strong>DNS caching blocks a fast shift</strong> →<span class="ans"> Global Accelerator dials/weights</span> · user →<span class="ans"> specific instance → GA custom routing</span> · <strong>GA can't front S3</strong> 🔁</li>
 <li>CloudFront: custom domain →<span class="ans"> ACM in <strong>us-east-1</strong></span> · 504 →<span class="ans"> <strong>origin group failover</strong> 🔁</span> · custom origin →<span class="ans"> header + WAF on ALB</span> · S3 →<span class="ans"> OAC</span> · one client →<span class="ans"> signed URL/cookies</span></li>
+<li>Add S3 content to an ALB-origin distribution →<span class="ans"> new <strong>S3 origin (OAC) + path-pattern behavior</strong> (✗ ALB rule forwarding to S3)</span></li>
 <li>Simple header/URL/query rewrite →<span class="ans"> <strong>CloudFront Functions</strong> ✗ Lambda@Edge (only for network calls, body access, longer runtime)</span></li>
 <li>Many domains on one ALB →<span class="ans"> <strong>SNI</strong> multi-cert (wildcard = one domain only)</span> · route by hostname →<span class="ans"> ALB <strong>host</strong> condition</span> · static IP for ALB →<span class="ans"> NLB in front</span> · non-HTTP ports →<span class="ans"> NLB (ALB = HTTP/HTTPS only)</span></li>
 </ul>
@@ -100,11 +103,14 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 <ul>
 <li>VPC Lambda →<span class="ans"> <strong>private subnets</strong> + gateway endpoint/NAT (✗ public subnet: Lambda ENIs never get public IPs)</span> · containers also on other clouds →<span class="ans"> <strong>EKS</strong> (✗ ECS = AWS-only) 🔁</span></li>
 <li>Job &gt; 15 min →<span class="ans"> Fargate task (Lambda/EventBridge <code>RunTask</code>) or EC2 ASG on SQS depth</span> · simple HTTPS for a function →<span class="ans"> Function URL</span></li>
-<li>Lambda floods RDS →<span class="ans"> <strong>RDS Proxy</strong> + connection outside the handler 🔁</span> · isolate a function →<span class="ans"> reserved concurrency</span> · cut calls →<span class="ans"> API GW cache</span></li>
+<li>Lambda floods RDS →<span class="ans"> <strong>RDS Proxy</strong> + connection outside the handler 🔁</span> · faster failover + keep connections →<span class="ans"> <strong>RDS Proxy + Aurora replicas</strong> 🔁 (TD4 Q28)</span> · isolate a function →<span class="ans"> reserved concurrency</span> · cut calls →<span class="ans"> API GW cache</span></li>
 <li>API GW + IAM principals →<span class="ans"> <code>AWS_IAM</code> (SigV4) + X-Ray (CORS isn't auth)</span> · per-client quotas →<span class="ans"> usage plans + API keys</span></li>
 <li>Batch, least ops →<span class="ans"> <strong>AWS Batch</strong> + Spot + S3 🔁</span> · tight HPC →<span class="ans"> cluster PG + EFA + FSx Lustre</span> · many small apps →<span class="ans"> bin-pack on ECS</span></li>
 <li>Full capacity during deploy →<span class="ans"> Beanstalk <strong>immutable</strong>/blue-green</span> · Lambda canary/linear →<span class="ans"> SAM + CodeDeploy</span></li>
 <li>Always-on prod tier →<span class="ans"> On-Demand/RI, <strong>never Spot</strong></span> · slow boot + big static data →<span class="ans"> bake AMI + mount <strong>EFS</strong> (✗ user-data download)</span></li>
+<li>Cheapest resilient web tier →<span class="ans"> <strong>Spot Fleet</strong> (On-Demand baseline + Spot) across AZs + ALB (✗ all Spot)</span> · dynamic web + queue jobs →<span class="ans"> Fargate web + Spot workers</span></li>
+<li>Move instance into a placement group →<span class="ans"> <strong>stop → modify placement → start</strong></span> · latest AMI in CFN →<span class="ans"> <strong>SSM parameter type</strong> + update-stack</span> · CFN CI/CD →<span class="ans"> CodePipeline + change set + CodeBuild (✗ CodeDeploy)</span></li>
+<li>Real-time push to clients →<span class="ans"> <strong>AppSync</strong> subscriptions (WebSockets)</span> · MAC-bound license →<span class="ans"> pre-licensed <strong>ENI pool</strong> + config in Parameter Store</span></li>
 <li>ASG: debug →<span class="ans"> suspend <strong>Terminate</strong> 🔁</span> · save data first →<span class="ans"> lifecycle hook</span> · in-flight →<span class="ans"> deregistration delay</span> · slow boot →<span class="ans"> golden AMI</span></li>
 <li>Savings Plans scope: steady EC2 →<span class="ans"> <strong>EC2 Instance SP</strong> (up to 72%)</span> · EC2/Fargate/Lambda mix →<span class="ans"> <strong>Compute SP</strong> (up to 66%)</span> · Compute SP never covers DBs/caches →<span class="ans"> RDS/ElastiCache/MemoryDB <strong>reserved nodes</strong></span></li>
 </ul>
@@ -115,6 +121,8 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 <li>Same record to many apps →<span class="ans"> <strong>KDS</strong> ✗ SQS</span> · lagging consumers →<span class="ans"> Enhanced Fan-Out</span> · transform + land →<span class="ans"> Firehose + Lambda</span> · KDS →<span class="ans"> Redshift: Firehose is the usual exam answer (Redshift streaming ingestion can also read KDS directly)</span></li>
 <li>ETL →<span class="ans"> Glue</span> · ad-hoc / nightly SQL on S3 (ORC/Parquet) →<span class="ans"> <strong>Athena</strong> + Glue Catalog ✗ Redshift cluster 🔁</span> · WAF logs →<span class="ans"> Firehose → S3 → Athena</span> · search →<span class="ans"> OpenSearch</span></li>
 <li>Redshift read bursts →<span class="ans"> <strong>concurrency scaling</strong> ✗ offload to EMR/RDS</span></li>
+<li>Read-heavy RDS on a budget →<span class="ans"> read replicas + <strong>ElastiCache</strong> + sharding (✗ bigger instance / PIOPS)</span> · Step Functions can't take <strong>SQS</strong> as direct input</li>
+<li>DynamoDB time-series →<span class="ans"> <strong>table per period</strong> (drop old whole) + device PK + timestamp SK</span> · steady throughput →<span class="ans"> <strong>reserved capacity</strong></span> · Redshift DR other Region →<span class="ans"> automated snapshots + <strong>cross-Region snapshot copy</strong> 🔁 (TD4 Q64)</span></li>
 <li>One-off EMR →<span class="ans"> On-Demand master/core + <strong>Spot task</strong>, never RI 🔁</span> · OpenSearch →<span class="ans"> hot + UltraWarm + cold 🔁</span> · Redshift KMS cross-Region →<span class="ans"> snapshot copy grant</span></li>
 </ul>
 <h2>6. Storage, hybrid, migration, DR</h2>
@@ -125,6 +133,7 @@ HTML view: <code>rule-sheet.html</code> (search + self-test); rebuild after edit
 <li>Snow math: 1 Gbps ≈ 10.8 TB/day; &gt; 1 week →<span class="ans"> Snowball Edge (80 TB usable; newer 210 TB model); ≥ 10 PB → Snowmobile (retired 2024, may still appear as a distractor); lands in S3, then lifecycle</span></li>
 <li>VM as-is →<span class="ans"> VM Import</span> · continuous block replication →<span class="ans"> <strong>MGN</strong></span> · TCO →<span class="ans"> Migration Evaluator</span> · discovery →<span class="ans"> ADS / AWS Transform</span></li>
 <li>Heterogeneous DB →<span class="ans"> SCT + DMS (CDC)</span> · replatform = managed platform, no code rewrite · SFTP →<span class="ans"> Transfer Family (VPC endpoint for EIP + SG)</span></li>
+<li>Shared dataset copied to many EBS →<span class="ans"> one <strong>EFS, Provisioned Throughput</strong> (✗ Max I/O = more latency)</span> · RDS MySQL →<span class="ans"> on-prem replica → VPN + mysqldump + external replica</span> · docs + versions + ACL →<span class="ans"> WorkDocs (retired 2025, still an exam answer)</span></li>
 <li>RDS Multi-AZ failover = <strong>CNAME</strong> flips to the standby (not the IP) · IaC →<span class="ans"> CloudFormation (✗ Beanstalk)</span> · app push →<span class="ans"> SNS <strong>Mobile Push</strong> (✗ SMS)</span></li>
 <li>DR by RTO: hours →<span class="ans"> backup/restore</span> · tens of min →<span class="ans"> pilot light</span> · minutes →<span class="ans"> warm standby</span> · ~0 →<span class="ans"> multi-site. <strong>Multi-AZ ≠ DR</strong> 🔁</span></li>
 <li>Fit: VOD →<span class="ans"> MediaConvert + HLS</span> · MQTT →<span class="ans"> IoT Core</span> · offline edge ML →<span class="ans"> Greengrass</span> · speech →<span class="ans"> Transcribe</span> · OCR →<span class="ans"> Textract</span> · bot →<span class="ans"> Lex</span> · stateful workflow →<span class="ans"> Step Functions</span></li>

@@ -1,0 +1,166 @@
+{
+ "title": "TD Set 4 — Timed (Gate 2, 2026-10-19)",
+ "analysis_file": "td4_analysis.md",
+ "wrong_review_file": "td4_review.md",
+ "wrong": {
+  "groups": {
+   "A": "Known rule, new wording (EventBridge, RDS Proxy/Aurora, DX gateway, Redshift snapshot copy, placement group, SSM parameters)",
+   "B": "Storage & performance fit (DynamoDB key/table design, EFS vs Lambda/OpenSearch, sharding/cache vs IOPS)",
+   "C": "Cost choice (reserved capacity, Spot Fleet mix, RI sharing by AZ, Fargate+Spot)",
+   "D": "Near-identical options - one phrase decides (CodeDeploy extra, Lambda/SQS vs Step Functions, behavior vs ALB rule)",
+   "E": "Service fit / app design (AppSync, Client VPN, MGN, ENI licenses, cert at ALB, WorkDocs, NLB+NACL, DB replication)"
+  },
+  "questions": {
+   "5": {
+    "group": "A",
+    "keywords": "CreateUser, auto remove permissions, notify security team; select three",
+    "trap": "🔁 Picked E (CloudTrail cannot send SNS notifications) and F (EventBridge cannot invoke Fargate tasks directly); missed the EventBridge CreateUser rule (A) and Step Functions (C).",
+    "rule": "CloudTrail API event -> EventBridge rule -> Step Functions (remediate) + SNS (notify). CloudTrail alone does not notify."
+   },
+   "13": {
+    "group": "B",
+    "keywords": "20,000 sensors every 15 min, query one sensor past week, delete older than 8 weeks, cost-effective DynamoDB",
+    "trap": "One table forever grows enormous and slows search; deleting old data needs table-per-period. Option C lacks the week split.",
+    "rule": "Time-series DynamoDB: one table per period (drop old whole) with sensor ID partition key + timestamp sort key; never concatenate timestamp into key."
+   },
+   "14": {
+    "group": "D",
+    "keywords": "automate testing of CloudFormation templates from private GitHub, prevent bad executions",
+    "trap": "Picked the twin that executes the change set via CodeDeploy, an unneeded service; CodePipeline itself executes the change set and CodeBuild tests.",
+    "rule": "CFN CI/CD = CodePipeline (GitHub source) + change set + CodeBuild tests. CodeDeploy is not for CloudFormation deployment."
+   },
+   "15": {
+    "group": "C",
+    "keywords": "re-architect: reduce cost, drop third-party analysis, less management, dynamic web app, SQS workers",
+    "trap": "Picked S3 static website hosting for the web app; S3 has no server-side processing, but the app is dynamic. Fargate web + Spot workers + Rekognition fits.",
+    "rule": "Dynamic web app cannot run on S3 website hosting. Fargate for web, Spot for queue workers, Rekognition for video analysis, S3 for storage."
+   },
+   "17": {
+    "group": "E",
+    "keywords": "real-time comments, serverless API Gateway Lambda DynamoDB, reduce comment latency",
+    "trap": "Picked CloudFront caching of API responses; cached comments may not be new, so not real-time. Real-time push needs WebSocket subscriptions.",
+    "rule": "Real-time updates pushed to clients = AWS AppSync GraphQL subscriptions over WebSockets, not caching or polling."
+   },
+   "19": {
+    "group": "E",
+    "keywords": "Client VPN for remote employees, existing Site-to-Site VPN and VPC peering, most cost-effective, minimal change",
+    "trap": "Picked installing Client VPN at the data center with Transit Gateway, which reconfigures peering. Client software goes on employee workstations; one endpoint in main account.",
+    "rule": "Client VPN: client on workstations, ONE endpoint in the main account reaching peered VPCs; no Transit Gateway rework needed."
+   },
+   "21": {
+    "group": "C",
+    "keywords": "lower DynamoDB cost, predictable daily batch, select two",
+    "trap": "Picked ElastiCache (A) instead of dropping the daily table after the S3 export; reserved capacity plus dropping the old table cut cost, not caching.",
+    "rule": "Predictable DynamoDB throughput: reserved capacity; also drop or expire data already exported to S3 to cut storage cost."
+   },
+   "28": {
+    "group": "A",
+    "keywords": "cut RDS Multi-AZ failover from 40s to under 20s, keep connections alive, queue writes; choose three",
+    "trap": "🔁 Picked E (Redis cache) and F (read replicas on RDS MySQL); caches cannot queue writes and RDS replicas don't give fast failover. Need RDS Proxy + Aurora Multi-AZ replicas.",
+    "rule": "Faster failover, preserved connections, queued writes = RDS Proxy + Aurora with Aurora Replicas. Caches do not queue writes."
+   },
+   "29": {
+    "group": "E",
+    "keywords": "500 physical servers, Windows and Linux, separate staging/launch accounts, migrate off data centers",
+    "trap": "Picked VM Import/Export, which is manual per-server image conversion; MGN replicates physical servers continuously with agent, test launch and cutover.",
+    "rule": "Large-scale physical or virtual server rehost = AWS Application Migration Service (MGN) with replication agent."
+   },
+   "34": {
+    "group": "E",
+    "keywords": "legacy app, license tied to MAC address, static DB IPs, new license takes 15 hours",
+    "trap": "Picked B (license baked into one AMI); each instance needs its own MAC-bound license. Need a pool of licensed ENIs (licenses in S3) and DB IPs in Parameter Store.",
+    "rule": "MAC-bound license: pre-license a pool of ENIs, keep license files in S3, attach via bootstrap; config values (DB IPs) in SSM Parameter Store."
+   },
+   "38": {
+    "group": "B",
+    "keywords": "20GB forecast overwritten every 15 min, 1,500 users/s spiking 10x, under 2 seconds",
+    "trap": "Picked OpenSearch + API Gateway + Lambda; Lambda burst concurrency cannot scale fast enough for peak. EFS on Auto Scaling EC2 behind CloudFront with 15-minute cache fits.",
+    "rule": "Spiky high request rate with periodically overwritten data: EFS + Auto Scaling EC2 + ELB + CloudFront cache matching refresh interval; Lambda burst limits."
+   },
+   "40": {
+    "group": "C",
+    "keywords": "Reserved + On-Demand EC2 on one instance, recover from zone outage, most cost-effective",
+    "trap": "Picked all On-Demand ASG: resilient but costs more. Spot Fleet mixing On-Demand and Spot across AZs is cheaper while staying available; all-Spot risks interruption.",
+    "rule": "Cheapest multi-AZ resilience = Spot Fleet mixing On-Demand (baseline) and Spot across AZs behind ALB; all-Spot risks interruption."
+   },
+   "41": {
+    "group": "D",
+    "keywords": "CloudFront with ALB default origin, S3 static assets with OAC return 404, select two",
+    "trap": "Picked A (ALB path rule to S3); OAC only allows CloudFront to read S3, so ALB cannot serve S3. Fix is in CloudFront: add S3 origin and a path-pattern behavior.",
+    "rule": "OAC-protected S3 content must be reached from CloudFront: add an S3 origin and a path-pattern behavior. ALB cannot forward to S3."
+   },
+   "44": {
+    "group": "E",
+    "keywords": "enable SSL on HTTP-only site, separate Development and Security team roles for the certificate",
+    "trap": "Picked CloudHSM on the EC2 instances; clients hit the load balancer, not instances, and CloudHSM adds cost. Store cert in IAM, restrict by policy, terminate SSL at ALB.",
+    "rule": "Separation of duties for SSL cert: store cert in IAM/ACM with IAM policy for Security team and attach it to the ALB, not EC2."
+   },
+   "51": {
+    "group": "B",
+    "keywords": "120GB dataset on PIOPS EBS 3000 IOPS per instance, cut cost without hurting performance or durability",
+    "trap": "Picked 1TB gp2 per instance to reach 3000 IOPS; many 1TB volumes cost more. Shared EFS with Provisioned Throughput is cheaper; Max I/O adds latency.",
+    "rule": "Same dataset duplicated on per-instance EBS: use one shared EFS with Provisioned Throughput mode, not Max I/O (higher latency)."
+   },
+   "54": {
+    "group": "C",
+    "keywords": "consolidated billing, PROD bought 10 RIs in us-west-2a, DEV runs in us-west-2a, UAT in us-west-1a, who benefits",
+    "trap": "Picked none since PROD has no instances. RI discount applies to other member accounts in the same AZ; only DEV runs in us-west-2a.",
+    "rule": "In consolidated billing, zonal RIs discount matching instances in any member account only if in the same AZ and type."
+   },
+   "56": {
+    "group": "E",
+    "keywords": "replicate RDS MySQL to on-premises MySQL for read-only analytics, most secure",
+    "trap": "Picked A (replicate to an EC2 MySQL first), claiming RDS cannot replicate on-premises; a secure IPSec VPN to the VPC makes direct replication to on-premises MySQL feasible.",
+    "rule": "RDS MySQL to on-premises replication: IPSec VPN or VGW, external MySQL as replica, mysqldump seed, start replication. SSL endpoint alone is not it."
+   },
+   "57": {
+    "group": "A",
+    "keywords": "cluster controller outside placement group, improve network between it and HPC instances, keep low latency",
+    "trap": "Picked terminating and stopping everything; you only stop the controller, move it into the existing placement group, and restart it. No need to touch others.",
+    "rule": "Move an existing instance into a placement group: stop it, modify placement group, start. No terminate, no ENA/EIP effect on bandwidth."
+   },
+   "58": {
+    "group": "A",
+    "keywords": "low latency high bandwidth link from Texas data center to VPCs in US East and US West",
+    "trap": "🔁 Picked two separate Direct Connect connections (one per VPC), costly; one Direct Connect connection plus a Direct Connect gateway with two VGWs reaches both Regions.",
+    "rule": "One DX connection to multiple VPCs/Regions = Direct Connect gateway with a VGW per VPC and private virtual interfaces."
+   },
+   "62": {
+    "group": "A",
+    "keywords": "automate mapping latest AMI IDs in CloudFormation templates",
+    "trap": "Picked CloudFormation with Service Catalog; Service Catalog only manages approved product catalogs and doesn't fetch the latest AMI. Parameter Store parameters resolve AMI IDs.",
+    "rule": "Latest AMI in CloudFormation = SSM Parameter Store parameter type, then update-stack. Not Service Catalog, Config, or State Manager."
+   },
+   "63": {
+    "group": "D",
+    "keywords": "Lambda metadata extraction takes 45 min, split by metadata type, reduce extraction time",
+    "trap": "Picked Lambda feeding SQS as Step Functions input; an SQS queue cannot directly invoke a Step Functions workflow. Use a workflow that runs the extraction workflow per photo.",
+    "rule": "SQS cannot be a direct Step Functions input. Parallel state for per-type functions, plus an orchestration workflow iterating over photos."
+   },
+   "64": {
+    "group": "A",
+    "keywords": "Redshift RPO 24 hours, RTO 1 hour, survive a Regional outage",
+    "trap": "🔁 Picked Redshift replication to a secondary-Region cluster with DNS switch; Redshift has no direct replication, only snapshots. Cross-Region snapshot copy is not enabled by default.",
+    "rule": "Redshift DR across Regions = automated snapshots with cross-Region snapshot copy enabled (no cross-Region replication)."
+   },
+   "65": {
+    "group": "E",
+    "keywords": "UDP gaming service, Shield Advanced enabled, migrate to AWS, select two",
+    "trap": "Picked CloudFront (E), which does not fit a UDP service; WAF can't protect NLB either. Use NLB for UDP and NACL to deny non-UDP.",
+    "rule": "UDP traffic = Network Load Balancer (Layer 4). Block non-UDP with NACLs; WAF and ALB are Layer 7 and don't apply."
+   },
+   "66": {
+    "group": "B",
+    "keywords": "slow reads on Multi-AZ RDS MySQL, eventual consistency, budget-optimized instances; select three",
+    "trap": "Picked F (provisioned IOPS): increases IOPS but very expensive. Sharding scales horizontally and is cheaper than upsizing or paying for IOPS.",
+    "rule": "Read-heavy RDS bottleneck on a budget: read replicas + ElastiCache + sharding; avoid costly vertical or Provisioned IOPS upgrades."
+   },
+   "74": {
+    "group": "E",
+    "keywords": "secure content management via API, version download, API rollback, external custom apps",
+    "trap": "Picked S3 with client-side encryption and shared keys, a security risk and custom rollback; WorkDocs gives access management, versioning and encryption built in.",
+    "rule": "Document management with versioning, user access control and encryption, API access = Amazon WorkDocs. Never share encryption keys with customers."
+   }
+  }
+ }
+}

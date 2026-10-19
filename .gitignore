@@ -169,4 +169,5 @@ cert/
 
 # Saved TD result web pages (contain login-session nonces)
 practice-exam/sap/*-Results.html
+practice-exam/sap/*-results.html
 practice-exam/sap/*ketqua.html
