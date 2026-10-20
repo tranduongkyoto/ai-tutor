@@ -195,7 +195,7 @@ Pearson global free-retake offer (09-29 – 11-17) excludes SAP — not usable. 
 | **10-17** | **TD3 full timed retake** + review · redo TD3 misses · TD2 misses Pass 2 |
 | 10-18 | TD3 misses Pass 2 · one pass over all retake misses (TD1/5/2/3) · rule sheet self-test · light evening, sleep early |
 | **10-19** | ✅ TD2 retake redo Pass 1 **13/13** (8 misses + 5 unsure-right, shuffled) · ✅ TD2 flashcards R1 **74/75** (❌ F12 S3 Transfer Acceleration vs multipart) · ⚠️ **TD Set 4 timed — Gate 2: 50/75 (66.7%)** in 180 min — **first attempt, unseen** — Migration 100%, Org 100%, New Solutions 68%, **Continuous Improvement 56%**; multi-select 9/16 (all 7 misses partial); thirds 18/18/**14** · **Gate rule <70% → keep 11-02, no earlier reschedule** |
-| **10-20** | ✅ TD4 review 🇻🇳 built 10-19 (25 misses, `td4_review.md`) + flashcards `td4-flashcards.html` · TD4 redo Pass 1 · ~~reschedule to 10-23/24~~ → **decided 10-19: keep 11-02** (TD4 <70%) · new 13-day plan |
+| **10-20** | ✅ TD4 review 🇻🇳 built 10-19 (25 misses, `td4_review.md`) + flashcards `td4-flashcards.html` · ✅ TD4 redo Pass 1 **25/25** (all groups, shuffled order + letters, ~5 h after reading 🇻🇳) · ✅ TD4 flashcards R1 **74/75 (99%)** (❌ E17 read-heavy RDS → ElastiCache + read replicas, not CloudFront — TD4 Q72) · ~~reschedule to 10-23/24~~ → **decided 10-19: keep 11-02** (TD4 <70%) · new 13-day plan |
 | 10-21 – 10-22 | TD4 misses Pass 2 · rule sheet + weak-areas self-test · light review (no new material) |
 | **10-23 / 10-24** | **Exam attempt 1 (210 min with ESL +30)** — fallback: 11-02 booking kept |
 | (~11-07) | Earliest C02 retake if needed (14 days) · last C02 day 11-16 |
