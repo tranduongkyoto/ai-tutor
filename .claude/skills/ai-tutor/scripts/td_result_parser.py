@@ -62,7 +62,8 @@ def _parse_block(number: int, correct: bool, block: str) -> Question:
     stem = block.split("### Các phương án")[0].replace("### Câu hỏi", "").strip()
     option_section = block.split("### Các phương án")[1].split("> **Bạn chọn")[0]
     options = [(k, _clean(v)) for k, v in OPTION_LINE.findall(option_section)]
-    picked = re.search(r"Bạn chọn:\*\* ([A-G, ]+)", block)
+    # "—" = left unanswered (e.g. time ran out in the exam page)
+    picked = re.search(r"Bạn chọn:\*\* ([A-G, ]+|—)", block)
     answer = re.search(r"Đáp án đúng:\*\* ([A-G, ]+)", block)
     if not (options and picked and answer):
         raise ValueError(f"Q{number}: could not parse options/picked/answer")
