@@ -1,0 +1,68 @@
+{
+ "title": "TD Set 3 — Timed retake (2026-10-21)",
+ "analysis_file": "td3_retake_analysis.md",
+ "wrong_review_file": "td3_retake_review.md",
+ "wrong": {
+  "groups": {
+   "A": "Repeat misses (missed before, again now)",
+   "B": "Regressions - half-right multi-select (one pick correct, second wrong)",
+   "C": "Regressions - one detail decides (storage class, update mechanism)"
+  },
+  "questions": {
+   "1": {
+    "group": "A",
+    "keywords": "on-premises database; page load latency; quickly and cost-effectively; Spot EC2 behind ALB; reduce latency",
+    "trap": "🔁 Picked B: Aurora migration via DMS/SCT is slow and costly, engine support not guaranteed. Question wants quick, cheap fix; ElastiCache in VPC cuts trips to on-prem DB.",
+    "rule": "DB latency plus quick and cost-effective: add ElastiCache cache in front of DB; do not migrate the database."
+   },
+   "40": {
+    "group": "A",
+    "keywords": "strict RPO/RTO; highly available fault-tolerant; Route 53 record type pointing to ELB; Aurora Replicas",
+    "trap": "🔁 Picked B: CNAME to ELB is wrong. Route 53 must use an Alias record for ELB; ElastiCache and four AZs do not fix the record type.",
+    "rule": "All options look highly available: the Route 53 record decides. Point to ELB with Alias, not A record or CNAME."
+   },
+   "41": {
+    "group": "A",
+    "keywords": "Aurora 40 TB; RTO 30 minutes; RPO 5 minutes; stateless web/app tiers; cost-effective; Select TWO",
+    "trap": "🔁 Picked A and D: D right, but hot-standby web/app tier is not cost-effective. Stateless tiers only need daily EBS snapshot copied cross-Region; 30-minute RTO is enough.",
+    "rule": "Stateless tiers: cheap cross-Region snapshot copy. Aurora data tier: cross-Region read replica for RPO, promote on disaster."
+   },
+   "56": {
+    "group": "A",
+    "keywords": "fully managed; encryption at rest and in transit; own key rotated; highly durable; Redshift Spectrum",
+    "trap": "🔁 Picked B: File Gateway adds management overhead, and SSE-S3 keys are AWS-managed not customer-controlled. Direct S3 with SSE-KMS plus HTTPS-only policy fits better.",
+    "rule": "Fully managed, customer key, durable: S3 with SSE-KMS and bucket policy denying aws:SecureTransport false."
+   },
+   "62": {
+    "group": "A",
+    "keywords": "Redshift DR; KMS-encrypted cluster; recovery site 500 miles away; cross-region snapshot; snapshot copy grant",
+    "trap": "🔁 Picked B: custom CloudFormation plus S3 replication is not the Redshift-native way. KMS keys are Region-specific, so encrypted cross-Region copy needs a snapshot copy grant.",
+    "rule": "KMS-encrypted Redshift cross-Region snapshot copy: create snapshot copy grant for destination-Region key first."
+   },
+   "34": {
+    "group": "B",
+    "keywords": "SSE-C; Select TWO; presigned URLs; REST API headers; data in transit",
+    "trap": "Picked A and E: A right, but for presigned URLs the algorithm header is x-amz-server-side-encryption-customer-algorithm, not the key-MD5 header. B was the correct second pick.",
+    "rule": "SSE-C: REST calls need algorithm, key, key-MD5 headers; presigned URLs specify the customer-algorithm header. HTTPS required."
+   },
+   "47": {
+    "group": "B",
+    "keywords": "tags always added at creation; centralized provisioning tools; infrastructure-as-code templates; AWS Organization; Select TWO",
+    "trap": "Picked C and E: C right, but AWS-generated cost allocation tags in Billing are not proactive tagging at creation. Service Catalog tags provisioned resources automatically, so A was needed.",
+    "rule": "Proactive tag-on-create: CloudFormation Resource Tags plus Service Catalog. Config only detects; Billing tags do not enforce."
+   },
+   "38": {
+    "group": "C",
+    "keywords": "200 TB shared file system; monthly 72-hour job; reduce storage cost; S3 plus FSx for Lustre lazy-loading",
+    "trap": "Picked C: S3 Glacier Instant Retrieval suits archive data accessed about once a quarter, not monthly processing. S3 Intelligent-Tiering plus temporary FSx for Lustre was right.",
+    "rule": "Monthly batch on huge data: S3 Intelligent-Tiering for storage, temporary FSx for Lustre linked to S3, delete after the job."
+   },
+   "68": {
+    "group": "C",
+    "keywords": "CloudFormation AMI update; no downtime; UpdateStack replaces instances; AutoScalingGroup UpdatePolicy",
+    "trap": "Picked B: change set only previews changes and does not deploy instances. Zero-downtime AMI rollout needs an UpdatePolicy with AutoScalingRollingUpdate on the AutoScalingGroup.",
+    "rule": "Replace ASG instances with new AMI without downtime: UpdatePolicy AutoScalingRollingUpdate on AutoScalingGroup, not change set or new stack."
+   }
+  }
+ }
+}

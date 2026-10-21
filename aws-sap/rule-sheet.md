@@ -60,7 +60,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - Full capacity during deploy → Beanstalk **immutable**/blue-green · Lambda canary/linear → SAM + CodeDeploy
 - Always-on prod tier → On-Demand/RI, **never Spot** · slow boot + big static data → bake AMI + mount **EFS** (✗ user-data download)
 - Cheapest resilient web tier → **Spot Fleet** (On-Demand baseline + Spot) across AZs + ALB (✗ all Spot) · dynamic web + queue jobs → Fargate web + Spot workers
-- Move instance into a placement group → **stop → modify placement → start** · latest AMI in CFN → **SSM parameter type** + update-stack · CFN CI/CD → CodePipeline + change set + CodeBuild (✗ CodeDeploy)
+- Move instance into a placement group → **stop → modify placement → start** · latest AMI in CFN → **SSM parameter type** + update-stack · new AMI to an ASG, no downtime → CFN **UpdatePolicy rolling update** (✗ change set = preview only) · CFN CI/CD → CodePipeline + change set + CodeBuild (✗ CodeDeploy)
 - Real-time push to clients → **AppSync** subscriptions (WebSockets) · MAC-bound license → pre-licensed **ENI pool** + config in Parameter Store
 - ASG: debug → suspend **Terminate** 🔁 · save data first → lifecycle hook · in-flight → deregistration delay · slow boot → golden AMI
 - Savings Plans scope: steady EC2 → **EC2 Instance SP** (up to 72%) · EC2/Fargate/Lambda mix → **Compute SP** (up to 66%) · Compute SP never covers DBs/caches → RDS/ElastiCache/MemoryDB **reserved nodes**
@@ -71,8 +71,8 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - Same record to many apps → **KDS** ✗ SQS · lagging consumers → Enhanced Fan-Out · transform + land → Firehose + Lambda · KDS → Redshift: Firehose is the usual exam answer (Redshift streaming ingestion can also read KDS directly)
 - ETL → Glue · ad-hoc / nightly SQL on S3 (ORC/Parquet) → **Athena** + Glue Catalog ✗ Redshift cluster 🔁 · WAF logs → Firehose → S3 → Athena · search → OpenSearch
 - Redshift read bursts → **concurrency scaling** ✗ offload to EMR/RDS
-- Read-heavy RDS on a budget → read replicas + **ElastiCache** + sharding (✗ bigger instance / PIOPS) · Step Functions can't take **SQS** as direct input
-- DynamoDB time-series → **table per period** (drop old whole) + device PK + timestamp SK · steady throughput → **reserved capacity** · Redshift DR other Region → automated snapshots + **cross-Region snapshot copy** 🔁 (TD4 Q64)
+- "Quick + cost-effective" DB latency → **add ElastiCache**, don't migrate the DB 🔁 (TD3 Q1) · Read-heavy RDS on a budget → read replicas + **ElastiCache** + sharding (✗ bigger instance / PIOPS) · Step Functions can't take **SQS** as direct input
+- DynamoDB time-series → **table per period** (drop old whole) + device PK + timestamp SK · steady throughput → **reserved capacity** · Redshift DR other Region → automated snapshots + **cross-Region snapshot copy** (KMS → **snapshot copy grant** first) 🔁×3 (TD4 Q64, TD3 Q62)
 - One-off EMR → On-Demand master/core + **Spot task**, never RI 🔁 · OpenSearch → hot + UltraWarm + cold 🔁 · Redshift KMS cross-Region → snapshot copy grant
 
 ## 6. Storage, hybrid, migration, DR
