@@ -2,7 +2,7 @@
 
 Built 2026-10-13 from 376 per-question rules: TD1, TD2, TD3, TD5, TD6 + Udemy #2/#3 unseen; TD4 (Gate 2) rules added 2026-10-19 (`practice-exam/sap/*_review_notes.json`). Validated 2026-10-13 (see § Corrections).
 🔁 = missed 2+ times. Format: **trigger in the stem → answer** (✗ = the trap you picked).
-HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this file: `python3 aws-sap/build_study_pages.py`.
+HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this file: `python3 aws-sap/build_study_pages.py`. Drill: `rule-sheet-flashcards.html` (133 two-option cards, deck `decks/rule-sheet-deck.json`).
 
 ## 0. Read the stem first (7 meta-rules behind most repeat misses)
 1. **Find the constraint word** — *least overhead · most cost-effective · quickest · minimal changes · no code changes*. It picks between 2 working options.

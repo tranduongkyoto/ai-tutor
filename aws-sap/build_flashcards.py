@@ -4,6 +4,7 @@
 Deck JSON:
   {"sections": {"A": "Topic", ...},
    "cards": [{"id": "A1", "q": 7, "ans": "B", "scenario": "...", "ok": "...", "bad": "...", "why": "..."}, ...]}
+  Optional per card: "src" (source label, replaces "<source> Q<q>") and "rep" (1 = mark 🔁).
 
 Usage:
   python3 aws-sap/build_flashcards.py --deck deck.json --out aws-sap/td1-flashcards.html \
@@ -38,7 +39,9 @@ def build(args):
     if args.export:
         check_against_export(cards, args.export)
     repeat = {int(x) for x in args.repeat.split(",") if x.strip()}
-    rows = [[c["id"], c["scenario"], c["ok"], c["bad"], c["why"], f'{args.source} Q{c["q"]}', int(c["q"] in repeat)]
+    # Cards may carry their own "src" label and "rep" flag (e.g. rule-sheet cards that have no test question).
+    rows = [[c["id"], c["scenario"], c["ok"], c["bad"], c["why"], c.get("src") or f'{args.source} Q{c["q"]}',
+             int(bool(c.get("rep")) or c.get("q") in repeat)]
             for c in cards]
     page = TEMPLATE.read_text(encoding="utf-8")
     cards_js = "const CARDS = [\n" + ",\n".join(" " + json.dumps(r, ensure_ascii=False) for r in rows) + ",\n].map("
