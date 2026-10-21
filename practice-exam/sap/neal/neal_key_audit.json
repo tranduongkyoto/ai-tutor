@@ -1,0 +1,832 @@
+[
+ {
+  "id": "T1Q4",
+  "mine": [
+   "B",
+   "C"
+  ],
+  "key": [
+   "A",
+   "C"
+  ],
+  "verdict": "ambiguous",
+  "reason": "Hot standby not cost-optimal vs pilot-light via replicated AMIs; both meet 30-min RTO plausibly."
+ },
+ {
+  "id": "T1Q28",
+  "mine": [
+   "A",
+   "D"
+  ],
+  "key": [
+   "A",
+   "E"
+  ],
+  "verdict": "key_wrong",
+  "reason": "EndUserReadOnly cannot provision products; launching needs servicecatalog:ProvisionProduct, i.e. EndUserFullAccess plus launch constraint (D)."
+ },
+ {
+  "id": "T2Q3",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "ambiguous",
+  "reason": "NLB options invalid; ALB round_robin vs least_outstanding_requests both defensible; stickiness not addressed."
+ },
+ {
+  "id": "T2Q4",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "ambiguous",
+  "reason": "Both valid-ish; current AWS pattern is Gateway Load Balancer with TGW appliance mode, neither option states it."
+ },
+ {
+  "id": "T2Q18",
+  "mine": [
+   "A",
+   "D"
+  ],
+  "key": [
+   "A",
+   "C"
+  ],
+  "verdict": "ambiguous",
+  "reason": "Config auto-remediation (D) equal to Lambda (C); also S3 default encryption is now on for all buckets."
+ },
+ {
+  "id": "T2Q28",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "C"
+  ],
+  "verdict": "ambiguous",
+  "reason": "Nested Step Functions (A) is simpler than SQS-to-StartExecution (C); both defensible."
+ },
+ {
+  "id": "T2Q31",
+  "mine": [
+   "A",
+   "E",
+   "F"
+  ],
+  "key": [
+   "A",
+   "D",
+   "F"
+  ],
+  "verdict": "ambiguous",
+  "reason": "Global Accelerator with NLB (E) arguably stronger than NACL (D), which adds little for UDP-only listener."
+ },
+ {
+  "id": "T2Q35",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "expl_error",
+  "reason": "Says public VIF is necessary; since 2021 private-IP VPN over DX via transit VIF is possible. Key B still valid."
+ },
+ {
+  "id": "T2Q10",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "expl_error",
+  "reason": "Says NLBs have no security groups; NLB supports SGs since 2023. Key B still correct."
+ },
+ {
+  "id": "T1Q20",
+  "mine": [
+   "A",
+   "D",
+   "F"
+  ],
+  "key": [
+   "A",
+   "D",
+   "F"
+  ],
+  "verdict": "flaw",
+  "reason": "Option set includes discontinued SMS; CART questionable/retired; estimating cost not clearly served."
+ },
+ {
+  "id": "T1Q23",
+  "mine": [
+   "C"
+  ],
+  "key": [
+   "C"
+  ],
+  "verdict": "flaw",
+  "reason": "Relies on gp2 burst I/O credits; RDS default now gp3 without credits."
+ },
+ {
+  "id": "T1Q32",
+  "mine": [
+   "C"
+  ],
+  "key": [
+   "C"
+  ],
+  "verdict": "flaw",
+  "reason": "Relies on gp2 burst I/O credits; RDS default now gp3 without credits."
+ },
+ {
+  "id": "T1Q27",
+  "mine": [
+   "B",
+   "C"
+  ],
+  "key": [
+   "B",
+   "C"
+  ],
+  "verdict": "flaw",
+  "reason": "Relies on Classic Inspector assessment packages; Inspector v2 scans continuously. Approval/scan options vague."
+ },
+ {
+  "id": "T1Q25",
+  "mine": [
+   "B",
+   "D",
+   "E"
+  ],
+  "key": [
+   "B",
+   "D",
+   "E"
+  ],
+  "verdict": "flaw",
+  "reason": "Uses legacy OAI; OAC is current recommendation."
+ },
+ {
+  "id": "T1Q22",
+  "mine": [
+   "D"
+  ],
+  "key": [
+   "D"
+  ],
+  "verdict": "flaw",
+  "reason": "Discovery Connector superseded by Agentless Collector."
+ },
+ {
+  "id": "T2Q5",
+  "mine": [
+   "C"
+  ],
+  "key": [
+   "C"
+  ],
+  "verdict": "flaw",
+  "reason": "Snowball client workflow; Snow Family closed to new customers."
+ },
+ {
+  "id": "T2Q34",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "flaw",
+  "reason": "Public exposure via ACL vs bucket policy unspecified; IgnorePublicAcls only fixes ACLs."
+ },
+ {
+  "id": "T3Q4",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "key_correct",
+  "reason": "OAI is legacy (OAC preferred); answer unaffected.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T3Q9",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "key_correct",
+  "reason": "Reserved capacity on a dev table is poor value; on-demand fits dev/spiky use. Residual ambiguity: provisioned autoscaling can be cheaper at steady load.",
+  "flags": [
+   "weak"
+  ]
+ },
+ {
+  "id": "T3Q14",
+  "mine": [
+   "C"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "key_wrong",
+  "reason": "Firehose has no RDS destination; Lambda transform cannot deliver to RDS. ECS option (C) is the workable design."
+ },
+ {
+  "id": "T3Q16",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "key_correct",
+  "reason": "Key matches but Aurora Serverless v1 was retired Mar 2025; stem relies on retired service.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T3Q17",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "key_correct",
+  "reason": "Option D uses OpsWorks (EOL 2024) as distractor only.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T3Q18",
+  "mine": [
+   "A",
+   "E"
+  ],
+  "key": [
+   "A",
+   "E"
+  ],
+  "verdict": "ambiguous",
+  "reason": "Vague scenario; several pairs defensible (A with D or E).",
+  "flags": [
+   "flaw"
+  ]
+ },
+ {
+  "id": "T3Q19",
+  "mine": [
+   "A",
+   "C",
+   "F"
+  ],
+  "key": [
+   "A",
+   "C",
+   "F"
+  ],
+  "verdict": "key_correct",
+  "reason": "CodeCommit closed to new customers Jul 2024 (reportedly reopened late 2025); verify. Answer pattern still valid.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T3Q20",
+  "mine": [
+   "D"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "key_correct",
+  "reason": "Rekognition covers celebrity recognition and is more managed; wording about custom software is the only ambiguity.",
+  "flags": [
+   "weak"
+  ]
+ },
+ {
+  "id": "T3Q22",
+  "mine": [
+   "C",
+   "D",
+   "E"
+  ],
+  "key": [
+   "C",
+   "D",
+   "E"
+  ],
+  "verdict": "key_correct",
+  "reason": "Key CDE matches the explanation's three CORRECT quotes (C, D, E). Automated mismatch was a false positive.",
+  "flags": [
+   "expl_error",
+   "weak"
+  ],
+  "expl_note": "FIFO rejection cites a 3,000 msg/s limit; FIFO high-throughput mode is higher. Ordering of create/delete is unaddressed."
+ },
+ {
+  "id": "T3Q27",
+  "mine": [
+   "D",
+   "E"
+  ],
+  "key": [
+   "D",
+   "E"
+  ],
+  "verdict": "key_correct",
+  "reason": "AWS SSO renamed IAM Identity Center; distractor only.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T3Q29",
+  "mine": [
+   "A",
+   "C",
+   "D"
+  ],
+  "key": [
+   "A",
+   "C",
+   "D"
+  ],
+  "verdict": "key_correct",
+  "reason": "Key matches.",
+  "flags": [
+   "expl_error"
+  ],
+  "expl_note": "Lambda does not use the Kinesis Consumer Library; it uses an event source mapping."
+ },
+ {
+  "id": "T4Q1",
+  "mine": [
+   "C"
+  ],
+  "key": [
+   "C"
+  ],
+  "verdict": "key_correct",
+  "reason": "Kinesis Data Analytics renamed Managed Service for Apache Flink.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T4Q4",
+  "mine": [
+   "C"
+  ],
+  "key": [
+   "C"
+  ],
+  "verdict": "key_correct",
+  "reason": "Gateway endpoint is correct.",
+  "flags": [
+   "expl_error"
+  ],
+  "expl_note": "Says NAT gateways become unnecessary; stem still requires internet access, so endpoint only removes S3 traffic from NAT."
+ },
+ {
+  "id": "T4Q5",
+  "mine": [
+   "A",
+   "C",
+   "E"
+  ],
+  "key": [
+   "A",
+   "C",
+   "E"
+  ],
+  "verdict": "key_correct",
+  "reason": "Explanation has three CORRECT blocks (A, C, E) matching the key; first block lacks a closing quote, so the checker counted two.",
+  "flags": [
+   "weak"
+  ]
+ },
+ {
+  "id": "T4Q7",
+  "mine": [
+   "A",
+   "B"
+  ],
+  "key": [
+   "A",
+   "B"
+  ],
+  "verdict": "key_correct",
+  "reason": "cloudhsm_mgmt_util is legacy; CloudHSM CLI replaces it. Answer unaffected.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T4Q8",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "key_correct",
+  "reason": "Option B relies on discontinued Server Migration Service; distractor only.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T4Q9",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "D"
+  ],
+  "verdict": "key_correct",
+  "reason": "WAF rate rules cannot enforce per-day limits (B invalid); IP allow-list plus usage plan is cheapest.",
+  "flags": [
+   "expl_error"
+  ],
+  "expl_note": "Explanation conflates WAF rate-based rules with usage plans; API keys are throttling/metering, not authentication."
+ },
+ {
+  "id": "T4Q12",
+  "mine": [
+   "A",
+   "D"
+  ],
+  "key": [
+   "A",
+   "B"
+  ],
+  "verdict": "key_correct",
+  "reason": "Org best practice: no users or resources in management account; centralise CloudTrail there. Option D contradicts that."
+ },
+ {
+  "id": "T4Q14",
+  "mine": [
+   "C"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "key_correct",
+  "reason": "Pilot light needs the DB running in DR; option C is not pilot light and its 'active-active failover' is incoherent.",
+  "flags": [
+   "expl_error"
+  ],
+  "expl_note": "Cross-Region Aurora replica does not auto-promote; promotion or global-database failover is required."
+ },
+ {
+  "id": "T4Q16",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "key_correct",
+  "reason": "Agentless Discovery Connector superseded by Agentless Collector; Migration Hub closed to new customers late 2025.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T4Q21",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "D"
+  ],
+  "verdict": "key_wrong",
+  "reason": "Tag-based access control (ABAC) needs no policy edits when resources are added; key D requires policy updates, violating the stated requirement."
+ },
+ {
+  "id": "T4Q22",
+  "mine": [
+   "D"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "ambiguous",
+  "reason": "B drops the ALB/dynamic tier and assumes Lambda image processing, unstated; D keeps the app tier. Both defensible."
+ },
+ {
+  "id": "T4Q26",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "key_correct",
+  "reason": "Key matches.",
+  "flags": [
+   "expl_error"
+  ],
+  "expl_note": "Claims FSx has no cross-Region sync; FSx supports cross-Region backups and replication."
+ },
+ {
+  "id": "T4Q29",
+  "mine": [
+   "B",
+   "C"
+  ],
+  "key": [
+   "B",
+   "C"
+  ],
+  "verdict": "key_correct",
+  "reason": "Option E relies on discontinued Server Migration Service; distractor only.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T4Q31",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "key_correct",
+  "reason": "Cost Anomaly Detection is the right service.",
+  "flags": [
+   "flaw"
+  ],
+  "expl_note": "Baseline window and 15% against a 45-day average are not user-configurable."
+ },
+ {
+  "id": "T4Q32",
+  "mine": [
+   "C"
+  ],
+  "key": [
+   "D"
+  ],
+  "verdict": "key_correct",
+  "reason": "Both gateways give SMB; S3 File Gateway with Standard-IA is cheaper for infrequent access. FSx File Gateway closed to new customers Oct 2024.",
+  "flags": [
+   "outdated"
+  ]
+ },
+ {
+  "id": "T4Q33",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "D"
+  ],
+  "verdict": "key_wrong",
+  "reason": "Current EFS docs recommend General Purpose with Elastic throughput; Max I/O is legacy. Key reflects older guidance.",
+  "flags": [
+   "outdated"
+  ],
+  "expl_note": "Claim that General Purpose lacks the needed throughput is outdated."
+ },
+ {
+  "id": "T4Q34",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "C"
+  ],
+  "verdict": "key_wrong",
+  "reason": "RDS has only storage autoscaling, not compute/capacity scaling; key rationale invalid. No option is fully clean (B or D closer).",
+  "flags": [
+   "flaw"
+  ]
+ },
+ {
+  "id": "T5Q1",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "C"
+  ],
+  "verdict": "key_correct",
+  "reason": "SG on endpoint ENI must allow client traffic; private DNS is an endpoint setting, on by default; option B wording imprecise."
+ },
+ {
+  "id": "T5Q13",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "C"
+  ],
+  "verdict": "key_correct",
+  "reason": "Endpoint-policy-plus-VPCE-only bucket policy lets any VPC resource in; role-scoped bucket policy limits to app instances."
+ },
+ {
+  "id": "T5Q21",
+  "mine": [
+   "D"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "ambiguous",
+  "reason": "AMI-baked data (faster, cheaper) vs EFS both defensible; also expl implies launch templates ok but launch configs deprecated."
+ },
+ {
+  "id": "T5Q33",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "ambiguous",
+  "reason": "API Gateway stage cache also absorbs repeated GETs with no code change; ElastiCache equally valid; edge-optimized step irrelevant."
+ },
+ {
+  "id": "T6Q15",
+  "mine": [
+   "A",
+   "E"
+  ],
+  "key": [
+   "C",
+   "E"
+  ],
+  "verdict": "ambiguous",
+  "reason": "KMS customer-managed CMK (incl. imported material) with KMS interface endpoint also meets 'provided and controlled'; EMR has no native CloudHSM; expl_error."
+ },
+ {
+  "id": "T6Q30",
+  "mine": [
+   "C",
+   "D",
+   "F"
+  ],
+  "key": [
+   "B",
+   "E",
+   "F"
+  ],
+  "verdict": "key_correct",
+  "reason": "API Gateway path serves HTTPS only so HTTP requirement fails; CloudFront+Lambda@Edge+ACM accepts both."
+ },
+ {
+  "id": "T5Q9",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "expl_error",
+  "reason": "SMS discontinued (retired 2022); expl also mislabels SMS as 'DMS'. Outdated-service reliance."
+ },
+ {
+  "id": "T5Q12",
+  "mine": [
+   "A",
+   "B",
+   "D"
+  ],
+  "key": [
+   "A",
+   "B",
+   "D"
+  ],
+  "verdict": "expl_error",
+  "reason": "No official AWS X-Ray SDK for PHP exists; option B relies on non-existent SDK. Also legacy CloudWatch Logs agent."
+ },
+ {
+  "id": "T6Q28",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "expl_error",
+  "reason": "Expl praises LOCAL cache then selects S3 cache; reasoning inconsistent, 'pipeline for the bucket' meaningless."
+ },
+ {
+  "id": "T6Q31",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "expl_error",
+  "reason": "Expl cites cloud.example.com, a leftover from another question; reasoning otherwise ok."
+ },
+ {
+  "id": "T5Q7",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "flaw",
+  "reason": "Relies on OpsWorks, end of life 2024; blue/green still best choice."
+ },
+ {
+  "id": "T5Q8",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "flaw",
+  "reason": "Legacy awslogs agent (batch_count) superseded by unified CloudWatch agent; answer concept still valid."
+ },
+ {
+  "id": "T5Q10",
+  "mine": [
+   "D"
+  ],
+  "key": [
+   "D"
+  ],
+  "verdict": "flaw",
+  "reason": "Dated approach; now Service Quotas native CloudWatch usage alarms. Answer D still best of options."
+ },
+ {
+  "id": "T5Q11",
+  "mine": [
+   "D"
+  ],
+  "key": [
+   "D"
+  ],
+  "verdict": "flaw",
+  "reason": "Relies on CodeCommit (closed to new customers 2024; reportedly reopened late 2025, verify); trigger only scans new pushes, not existing keys."
+ },
+ {
+  "id": "T6Q4",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "flaw",
+  "reason": "Relies on CodeCommit availability (see T5Q11 note)."
+ },
+ {
+  "id": "T6Q14",
+  "mine": [
+   "A"
+  ],
+  "key": [
+   "A"
+  ],
+  "verdict": "flaw",
+  "reason": "Relies on CodeCommit availability; OpsWorks decoy EOL."
+ },
+ {
+  "id": "T6Q10",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "ambiguous",
+  "reason": "SCP at org root also satisfies the requirement and is fewer steps; OU variant not uniquely best."
+ },
+ {
+  "id": "T5Q27",
+  "mine": [
+   "B"
+  ],
+  "key": [
+   "B"
+  ],
+  "verdict": "flaw",
+  "reason": "Option B schedules a Lambda that was never created; wording sloppy but intent clear."
+ }
+]

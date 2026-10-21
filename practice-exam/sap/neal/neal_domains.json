@@ -1,0 +1,927 @@
+[
+{
+"id": "T1Q1",
+"domain": "NEW",
+"topic": "serverless-integration"
+},
+{
+"id": "T1Q2",
+"domain": "NEW",
+"topic": "cost"
+},
+{
+"id": "T1Q3",
+"domain": "NEW",
+"topic": "storage"
+},
+{
+"id": "T1Q5",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T1Q6",
+"domain": "CI",
+"topic": "analytics-streaming"
+},
+{
+"id": "T1Q7",
+"domain": "ORG",
+"topic": "dns-edge"
+},
+{
+"id": "T1Q8",
+"domain": "MIG",
+"topic": "serverless-integration"
+},
+{
+"id": "T1Q9",
+"domain": "NEW",
+"topic": "database"
+},
+{
+"id": "T1Q10",
+"domain": "MIG",
+"topic": "serverless-integration"
+},
+{
+"id": "T1Q11",
+"domain": "NEW",
+"topic": "dr-backup"
+},
+{
+"id": "T1Q12",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T1Q13",
+"domain": "ORG",
+"topic": "cost"
+},
+{
+"id": "T1Q14",
+"domain": "ORG",
+"topic": "networking-hybrid"
+},
+{
+"id": "T1Q15",
+"domain": "NEW",
+"topic": "serverless-integration"
+},
+{
+"id": "T1Q16",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T1Q17",
+"domain": "NEW",
+"topic": "analytics-streaming"
+},
+{
+"id": "T1Q18",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T1Q19",
+"domain": "NEW",
+"topic": "dns-edge"
+},
+{
+"id": "T1Q21",
+"domain": "NEW",
+"topic": "dr-backup"
+},
+{
+"id": "T1Q22",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T1Q23",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T1Q24",
+"domain": "ORG",
+"topic": "cost"
+},
+{
+"id": "T1Q26",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T1Q29",
+"domain": "CI",
+"topic": "identity-org"
+},
+{
+"id": "T1Q30",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T1Q31",
+"domain": "NEW",
+"topic": "serverless-integration"
+},
+{
+"id": "T1Q32",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T1Q33",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T1Q34",
+"domain": "CI",
+"topic": "dns-edge"
+},
+{
+"id": "T1Q35",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T2Q1",
+"domain": "CI",
+"topic": "monitoring-ops"
+},
+{
+"id": "T2Q2",
+"domain": "MIG",
+"topic": "compute-containers"
+},
+{
+"id": "T2Q5",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T2Q6",
+"domain": "CI",
+"topic": "storage"
+},
+{
+"id": "T2Q7",
+"domain": "CI",
+"topic": "dns-edge"
+},
+{
+"id": "T2Q8",
+"domain": "NEW",
+"topic": "deployment-iac"
+},
+{
+"id": "T2Q9",
+"domain": "ORG",
+"topic": "cost"
+},
+{
+"id": "T2Q10",
+"domain": "CI",
+"topic": "networking-hybrid"
+},
+{
+"id": "T2Q11",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T2Q12",
+"domain": "MIG",
+"topic": "storage"
+},
+{
+"id": "T2Q13",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T2Q14",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T2Q15",
+"domain": "NEW",
+"topic": "serverless-integration"
+},
+{
+"id": "T2Q16",
+"domain": "NEW",
+"topic": "serverless-integration"
+},
+{
+"id": "T2Q17",
+"domain": "CI",
+"topic": "networking-hybrid"
+},
+{
+"id": "T2Q19",
+"domain": "ORG",
+"topic": "cost"
+},
+{
+"id": "T2Q20",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T2Q21",
+"domain": "NEW",
+"topic": "database"
+},
+{
+"id": "T2Q22",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T2Q23",
+"domain": "NEW",
+"topic": "dr-backup"
+},
+{
+"id": "T2Q24",
+"domain": "CI",
+"topic": "storage"
+},
+{
+"id": "T2Q25",
+"domain": "CI",
+"topic": "deployment-iac"
+},
+{
+"id": "T2Q26",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T2Q27",
+"domain": "MIG",
+"topic": "compute-containers"
+},
+{
+"id": "T2Q29",
+"domain": "ORG",
+"topic": "cost"
+},
+{
+"id": "T2Q30",
+"domain": "NEW",
+"topic": "compute-containers"
+},
+{
+"id": "T2Q32",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T2Q33",
+"domain": "ORG",
+"topic": "cost"
+},
+{
+"id": "T2Q35",
+"domain": "ORG",
+"topic": "networking-hybrid"
+},
+{
+"id": "T3Q1",
+"domain": "NEW",
+"topic": "dns-edge"
+},
+{
+"id": "T3Q2",
+"domain": "MIG",
+"topic": "deployment-iac"
+},
+{
+"id": "T3Q3",
+"domain": "MIG",
+"topic": "database"
+},
+{
+"id": "T3Q4",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T3Q5",
+"domain": "CI",
+"topic": "storage"
+},
+{
+"id": "T3Q6",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T3Q7",
+"domain": "MIG",
+"topic": "dns-edge"
+},
+{
+"id": "T3Q8",
+"domain": "CI",
+"topic": "cost"
+},
+{
+"id": "T3Q9",
+"domain": "CI",
+"topic": "cost"
+},
+{
+"id": "T3Q10",
+"domain": "MIG",
+"topic": "serverless-integration"
+},
+{
+"id": "T3Q11",
+"domain": "ORG",
+"topic": "networking-hybrid"
+},
+{
+"id": "T3Q12",
+"domain": "CI",
+"topic": "analytics-streaming"
+},
+{
+"id": "T3Q13",
+"domain": "ORG",
+"topic": "dns-edge"
+},
+{
+"id": "T3Q15",
+"domain": "NEW",
+"topic": "other"
+},
+{
+"id": "T3Q17",
+"domain": "CI",
+"topic": "deployment-iac"
+},
+{
+"id": "T3Q19",
+"domain": "CI",
+"topic": "compute-containers"
+},
+{
+"id": "T3Q20",
+"domain": "CI",
+"topic": "storage"
+},
+{
+"id": "T3Q21",
+"domain": "ORG",
+"topic": "networking-hybrid"
+},
+{
+"id": "T3Q22",
+"domain": "NEW",
+"topic": "serverless-integration"
+},
+{
+"id": "T3Q23",
+"domain": "NEW",
+"topic": "deployment-iac"
+},
+{
+"id": "T3Q24",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T3Q25",
+"domain": "CI",
+"topic": "serverless-integration"
+},
+{
+"id": "T3Q26",
+"domain": "NEW",
+"topic": "database"
+},
+{
+"id": "T3Q27",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T3Q28",
+"domain": "CI",
+"topic": "serverless-integration"
+},
+{
+"id": "T3Q29",
+"domain": "MIG",
+"topic": "analytics-streaming"
+},
+{
+"id": "T3Q30",
+"domain": "CI",
+"topic": "dns-edge"
+},
+{
+"id": "T3Q31",
+"domain": "CI",
+"topic": "deployment-iac"
+},
+{
+"id": "T3Q32",
+"domain": "NEW",
+"topic": "dr-backup"
+},
+{
+"id": "T3Q33",
+"domain": "NEW",
+"topic": "analytics-streaming"
+},
+{
+"id": "T3Q34",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T3Q35",
+"domain": "MIG",
+"topic": "database"
+},
+{
+"id": "T4Q1",
+"domain": "NEW",
+"topic": "monitoring-ops"
+},
+{
+"id": "T4Q2",
+"domain": "ORG",
+"topic": "networking-hybrid"
+},
+{
+"id": "T4Q3",
+"domain": "NEW",
+"topic": "deployment-iac"
+},
+{
+"id": "T4Q4",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T4Q5",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T4Q6",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T4Q7",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T4Q8",
+"domain": "MIG",
+"topic": "compute-containers"
+},
+{
+"id": "T4Q9",
+"domain": "CI",
+"topic": "serverless-integration"
+},
+{
+"id": "T4Q10",
+"domain": "CI",
+"topic": "compute-containers"
+},
+{
+"id": "T4Q11",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T4Q12",
+"domain": "ORG",
+"topic": "security-data"
+},
+{
+"id": "T4Q13",
+"domain": "MIG",
+"topic": "compute-containers"
+},
+{
+"id": "T4Q14",
+"domain": "NEW",
+"topic": "dr-backup"
+},
+{
+"id": "T4Q15",
+"domain": "MIG",
+"topic": "database"
+},
+{
+"id": "T4Q16",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T4Q17",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T4Q18",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T4Q19",
+"domain": "CI",
+"topic": "deployment-iac"
+},
+{
+"id": "T4Q20",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T4Q23",
+"domain": "CI",
+"topic": "cost"
+},
+{
+"id": "T4Q24",
+"domain": "ORG",
+"topic": "networking-hybrid"
+},
+{
+"id": "T4Q25",
+"domain": "NEW",
+"topic": "database"
+},
+{
+"id": "T4Q26",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T4Q27",
+"domain": "CI",
+"topic": "deployment-iac"
+},
+{
+"id": "T4Q28",
+"domain": "NEW",
+"topic": "serverless-integration"
+},
+{
+"id": "T4Q29",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T4Q30",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T4Q31",
+"domain": "ORG",
+"topic": "cost"
+},
+{
+"id": "T4Q35",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T5Q1",
+"domain": "CI",
+"topic": "dns-edge"
+},
+{
+"id": "T5Q2",
+"domain": "MIG",
+"topic": "compute-containers"
+},
+{
+"id": "T5Q3",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T5Q4",
+"domain": "MIG",
+"topic": "database"
+},
+{
+"id": "T5Q5",
+"domain": "CI",
+"topic": "analytics-streaming"
+},
+{
+"id": "T5Q6",
+"domain": "CI",
+"topic": "dns-edge"
+},
+{
+"id": "T5Q7",
+"domain": "CI",
+"topic": "deployment-iac"
+},
+{
+"id": "T5Q8",
+"domain": "CI",
+"topic": "monitoring-ops"
+},
+{
+"id": "T5Q10",
+"domain": "CI",
+"topic": "monitoring-ops"
+},
+{
+"id": "T5Q11",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T5Q13",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T5Q14",
+"domain": "CI",
+"topic": "storage"
+},
+{
+"id": "T5Q15",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T5Q16",
+"domain": "CI",
+"topic": "serverless-integration"
+},
+{
+"id": "T5Q17",
+"domain": "MIG",
+"topic": "compute-containers"
+},
+{
+"id": "T5Q18",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T5Q19",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T5Q20",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T5Q22",
+"domain": "CI",
+"topic": "analytics-streaming"
+},
+{
+"id": "T5Q23",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T5Q24",
+"domain": "CI",
+"topic": "database"
+},
+{
+"id": "T5Q25",
+"domain": "CI",
+"topic": "networking-hybrid"
+},
+{
+"id": "T5Q26",
+"domain": "CI",
+"topic": "deployment-iac"
+},
+{
+"id": "T5Q27",
+"domain": "CI",
+"topic": "serverless-integration"
+},
+{
+"id": "T5Q28",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T5Q29",
+"domain": "CI",
+"topic": "security-data"
+},
+{
+"id": "T5Q30",
+"domain": "CI",
+"topic": "deployment-iac"
+},
+{
+"id": "T5Q31",
+"domain": "NEW",
+"topic": "dr-backup"
+},
+{
+"id": "T5Q32",
+"domain": "CI",
+"topic": "serverless-integration"
+},
+{
+"id": "T5Q34",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T5Q35",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T6Q1",
+"domain": "NEW",
+"topic": "analytics-streaming"
+},
+{
+"id": "T6Q2",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T6Q3",
+"domain": "NEW",
+"topic": "database"
+},
+{
+"id": "T6Q4",
+"domain": "NEW",
+"topic": "deployment-iac"
+},
+{
+"id": "T6Q5",
+"domain": "NEW",
+"topic": "serverless-integration"
+},
+{
+"id": "T6Q6",
+"domain": "NEW",
+"topic": "dr-backup"
+},
+{
+"id": "T6Q7",
+"domain": "NEW",
+"topic": "database"
+},
+{
+"id": "T6Q8",
+"domain": "MIG",
+"topic": "compute-containers"
+},
+{
+"id": "T6Q9",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T6Q11",
+"domain": "NEW",
+"topic": "networking-hybrid"
+},
+{
+"id": "T6Q12",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T6Q13",
+"domain": "ORG",
+"topic": "networking-hybrid"
+},
+{
+"id": "T6Q14",
+"domain": "CI",
+"topic": "deployment-iac"
+},
+{
+"id": "T6Q16",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T6Q17",
+"domain": "ORG",
+"topic": "identity-org"
+},
+{
+"id": "T6Q18",
+"domain": "CI",
+"topic": "networking-hybrid"
+},
+{
+"id": "T6Q19",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T6Q20",
+"domain": "ORG",
+"topic": "networking-hybrid"
+},
+{
+"id": "T6Q21",
+"domain": "MIG",
+"topic": "migration-transfer"
+},
+{
+"id": "T6Q22",
+"domain": "NEW",
+"topic": "security-data"
+},
+{
+"id": "T6Q23",
+"domain": "NEW",
+"topic": "dr-backup"
+},
+{
+"id": "T6Q24",
+"domain": "NEW",
+"topic": "database"
+},
+{
+"id": "T6Q25",
+"domain": "MIG",
+"topic": "compute-containers"
+},
+{
+"id": "T6Q26",
+"domain": "NEW",
+"topic": "compute-containers"
+},
+{
+"id": "T6Q27",
+"domain": "CI",
+"topic": "dr-backup"
+},
+{
+"id": "T6Q28",
+"domain": "CI",
+"topic": "cost"
+},
+{
+"id": "T6Q29",
+"domain": "MIG",
+"topic": "serverless-integration"
+},
+{
+"id": "T6Q30",
+"domain": "NEW",
+"topic": "dns-edge"
+},
+{
+"id": "T6Q31",
+"domain": "ORG",
+"topic": "dns-edge"
+},
+{
+"id": "T6Q32",
+"domain": "MIG",
+"topic": "serverless-integration"
+},
+{
+"id": "T6Q33",
+"domain": "CI",
+"topic": "dr-backup"
+},
+{
+"id": "T6Q34",
+"domain": "ORG",
+"topic": "networking-hybrid"
+},
+{
+"id": "T6Q35",
+"domain": "ORG",
+"topic": "identity-org"
+}
+]

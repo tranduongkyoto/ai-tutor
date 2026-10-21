@@ -1,0 +1,1102 @@
+{
+ "title": "Neal Exam C — final check, 35 questions",
+ "store": "sap-neal-exam-c",
+ "minutes": 98,
+ "questions": [
+  {
+   "id": "T3Q25",
+   "type": "Select Multiple",
+   "stem": "A security team uses a ticketing system to capture suspicious events that require investigation. The security team has created a system where events are captured using CloudTrail Logs and saved to Amazon S3. A scheduled AWS Lambda function then uses Amazon Athena to query the logs for any API actions performed by the root user. The results are then submitted to the ticketing system by the Lambda function.\nThe ticketing system has a monthly 4-hour maintenance window when the system is offline and cannot log new tickets and an audit revealed that several tickets were not created due to the ticketing system being unavailable.\nWhich combination of steps should a solutions architect take to ensure that the incidents are reported to the ticketing system even during planned maintenance? (Select TWO.)",
+   "opts": [
+    [
+     "A",
+     "Create an Amazon SNS topic to which Amazon CloudWatch alarms will be published. Configure a CloudWatch alarm to invoke the Lambda function."
+    ],
+    [
+     "B",
+     "Create an Amazon SQS queue to which Amazon CloudWatch alarms will be published. Configure a CloudWatch alarm to publish to the SQS queue."
+    ],
+    [
+     "C",
+     "Update the Lambda function to be triggered by messages published to an Amazon SNS topic. Update the existing application code to retry every 5 minutes if the ticketing system's API endpoint is unavailable."
+    ],
+    [
+     "D",
+     "Update the Lambda function to poll the Amazon SQS queue for messages and to return successfully when the ticketing system API has processed the request."
+    ],
+    [
+     "E",
+     "Create an Amazon EventBridge rule with a pattern that looks for AWS CloudTrail events where the API calls involve the root user account. Configure an Amazon SQS queue as a target for the rule."
+    ]
+   ],
+   "correct": [
+    "D",
+    "E"
+   ],
+   "expl": "The existing system can be modified to use Amazon EventBridge instead of using AWS CloudTrail with Amazon Athena. Eventbridge can be configured with a rule that checks all AWS API calls via CloudTrail. The rule can be configured to look for the usage or the root user account. Eventbridge can then be configured with an Amazon SQS queue as a target that puts a message in the queue waiting to be processed.\nThe Lambda function can then be configured to poll the queue for messages (event-source mapping), process the event synchronously and only return a successful result when the ticketing system has processed the request. The message will be deleted only if the result is successful, allowing for retries.\nThis system will ensure that the important events are not missed when the ticketing system is unavailable.\nCORRECT:\n\"Create an Amazon EventBridge rule with a pattern that looks for AWS CloudTrail events where the API calls involve the root user account. Configure an Amazon SQS queue as a target for the rule\" is a correct answer.\nCORRECT:\n\"Update the Lambda function to poll the Amazon SQS queue for messages and to return successfully when the ticketing system API has processed the request\" is also a correct answer.\nINCORRECT:\n\"Update the Lambda function to be triggered by messages published to an Amazon SNS topic. Update the existing application code to retry every 5 minutes if the ticketing system's API endpoint is unavailable\" is incorrect. SNS does not store messages so if the Lambda function is unable to successfully process the message it will be lost.\nINCORRECT:\n\"Create an Amazon SNS topic to which Amazon CloudWatch alarms will be published. Configure a CloudWatch alarm to invoke the Lambda function\" is incorrect. SQS should be used instead of SNS as SNS will not store messages for subsequent attempts at processing.\nINCORRECT:\n\"Create an Amazon SQS queue to which Amazon CloudWatch alarms will be published. Configure a CloudWatch alarm to publish to the SQS queue\" is incorrect. EventBridge rules should be used (CloudWatch Events) as they can look for patterns in events. CloudWatch alarms will alarm based on metrics.\nReferences:\nhttps://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-application-integration-sap/\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-management-tools-sap/",
+   "domain": "CI",
+   "topic": "serverless-integration",
+   "note": ""
+  },
+  {
+   "id": "T2Q24",
+   "type": "Single Choice",
+   "stem": "An application runs on an Amazon EC2 instance with an attached Amazon EBS Provisioned IOPS (PIOPS) volume. The volume is configured at 200-GB in size and has 3,000 IOPS provisioned. The application requires low latency and random access to the data. A Solutions Architect has been asked to consider options for lowering the cost of the storage without impacting performance and durability.\nWhat should the Solutions Architect recommend?",
+   "opts": [
+    [
+     "A",
+     "Change the PIOPS volume for a 1-TB EBS General Purpose SSD (gp2) volume."
+    ],
+    [
+     "B",
+     "Change the PIOPS volume for a 1-TB Throughput Optimized HDD (st1) volume."
+    ],
+    [
+     "C",
+     "Create an Amazon EFS file system with the performance mode set to Max I/O. Mount the EFS file system to the EC2 operating system."
+    ],
+    [
+     "D",
+     "Create an Amazon EFS file system with the throughput mode set to Provisioned. Mount the EFS file system to the EC2 operating system."
+    ]
+   ],
+   "correct": [
+    "A"
+   ],
+   "expl": "The most cost-effective solution is to use an Amazon EBS General Purpose SSD (gp2) volume. The volume should be configured with 1-TB as gp2 volumes provide 3 IOPS per GB, which will allow the full 3,000 IOPS to be achieved.\nCORRECT:\n\"Change the PIOPS volume for a 1-TB EBS General Purpose SSD (gp2) volume\" is the correct answer.\nINCORRECT:\n\"Change the PIOPS volume for a 1-TB Throughput Optimized HDD (st1) volume\" is incorrect. This volume type supports a maximum of 500 IOPS per volume.\nINCORRECT:\n\"Create an Amazon EFS file system with the performance mode set to Max I/O. Mount the EFS file system to the EC2 operating system\" is incorrect. EFS will be much more expensive than using a gp2 volume.\nINCORRECT:\n\"Create an Amazon EFS file system with the throughput mode set to Provisioned. Mount the EFS file system to the EC2 operating system\" is incorrect. EFS will be much more expensive than using a gp2 volume.\nReferences:\nhttps://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-storage-sap/",
+   "domain": "CI",
+   "topic": "storage",
+   "note": ""
+  },
+  {
+   "id": "T4Q14",
+   "type": "Single Choice",
+   "stem": "A company runs a two-tier application that uses EBS-backed Amazon EC2 instances in an Auto Scaling group and an Amazon Aurora PostgreSQL database. The company intends to use a pilot light approach for disaster recovery in a different AWS Region. The company has an RTO of 6 hours and an RPO of 24 hours.\nWhich solution would achieve the requirements with MINIMAL cost?",
+   "opts": [
+    [
+     "A",
+     "Use AWS Lambda to create daily EBS snapshots and copy them to the disaster recovery Region. Implement an Aurora Replica in the DR Region. Use Amazon Route 53 with an active-passive failover configuration. Use Amazon EC2 in an Auto Scaling group with the capacity set to 0 in the disaster recovery Region."
+    ],
+    [
+     "B",
+     "Use EBS cross-region snapshot copy capability to create snapshots in the disaster recovery (DR) Region. Implement an Aurora Replica in the DR Region. Use Amazon Route 53 with an active-passive failover configuration. Use Amazon EC2 in an Auto Scaling group configured the same as the primary Region."
+    ],
+    [
+     "C",
+     "Use EBS and RDS cross-Region snapshot copy capability to create snapshots in the disaster recovery (DR) Region. Use Amazon Route 53 with an active-active failover configuration. Use Amazon EC2 in an Auto Scaling group with the capacity set to 0 in the disaster recovery Region."
+    ],
+    [
+     "D",
+     "Use AWS Lambda to create daily EBS and RDS snapshots and copy them to the disaster recovery Region. Use Amazon Route 53 with an active-active failover configuration. Use Amazon EC2 in an Auto Scaling group configured the same as the primary Region."
+    ]
+   ],
+   "correct": [
+    "A"
+   ],
+   "expl": "The correct answer must be the lowest cost option that delivers the RPO and RTO requirements and is in line with a pilot light strategy. Please note the AWS definition of a pilot light scenario:\n“In this DR approach, you simply replicate part of your IT structure for a limited set of core services so that the AWS cloud environment seamlessly takes over in the event of a disaster. A small part of your infrastructure is always running simultaneously syncing mutable data (as databases or documents), while other parts of your infrastructure are switched off and used only during testing. Unlike a backup and recovery approach, you must ensure that your most critical core elements are already configured and running in AWS (the pilot light).”\nThe mutable data in this case is the Aurora database so this should be running in the DR Region. The best way to achieve that is to create an Aurora replica in the DR Region. This increases cost compared to replicating snapshots but is in line with the pilot light strategy.\nFor the EC2 instances AWS Lambda can be used to automate the replication of snapshots to the DR Region. These can be daily snapshots as the RPO is 24 hours. Auto Scaling can be configured with the capacity set to 0 and Route 53 failover records can be created in an active-passive configuration.\nIn the event of a disaster it would then be easy to create AMIs from the EC2 snapshots, add them to a launch config and then increase the capacity of the ASG. The Aurora Replica will automatically become a writable database and the entire configuration can be up and running well within the RTO.\nCORRECT:\n\"Use AWS Lambda to create daily EBS snapshots and copy them to the disaster recovery Region. Implement an Aurora Replica in the DR Region. Use Amazon Route 53 with an active-passive failover configuration. Use Amazon EC2 in an Auto Scaling group with the capacity set to 0 in the disaster recovery Region\" is the correct answer.\nINCORRECT:\n\"Use EBS cross-region snapshot copy capability to create snapshots in the disaster recovery (DR) Region. Implement an Aurora Replica in the DR Region. Use Amazon Route 53 with an active-passive failover configuration. Use Amazon EC2 in an Auto Scaling group configured the same as the primary Region\" is incorrect.\nYou cannot create snapshots of an instance in one Region directly into another Region as the wording suggests. You must create the snapshot in the same Region and then copy it across Regions. You would also not configure the ASG the same as in the primary Region as it would be more costly.\nINCORRECT:\n\"Use EBS and RDS cross-Region snapshot copy capability to create snapshots in the disaster recovery (DR) Region. Use Amazon Route 53 with an active-active failover configuration. Use Amazon EC2 in an Auto Scaling group with the capacity set to 0 in the disaster recovery Region\" is incorrect.\nAs above, you cannot create snapshots of an instance in one Region directly into another Region as the wording suggests. You must create the snapshot in the same Region and then copy it across Regions.\nINCORRECT:\n\"Use AWS Lambda to create daily EBS and RDS snapshots and copy them to the disaster recovery Region. Use Amazon Route 53 with an active-active failover configuration. Use Amazon EC2 in an Auto Scaling group configured the same as the primary Region\" is incorrect.\nYou would not configure the ASG the same as in the primary Region as it would be more costly.\nReferences:\nhttps://aws.amazon.com/blogs/publicsector/rapidly-recover-mission-critical-systems-in-a-disaster/\nhttps://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-types.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-storage-sap/\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-networking-content-delivery-sap/",
+   "domain": "NEW",
+   "topic": "dr-backup",
+   "note": "A cross-Region Aurora replica is not auto-promoted; promotion is manual (or use Global Database failover)."
+  },
+  {
+   "id": "T1Q7",
+   "type": "Select Multiple",
+   "stem": "A company is using multiple AWS accounts. The company’s DNS records are stored in a private Amazon Route 53 hosted zone in the management account and their applications are running in a production account.\nA Solutions Architect is attempting to deploy an application into the production account. The application must resolve a CNAME record set for an Amazon RDS endpoint. The CNAME record set was created in a private hosted zone in the management account.\nThe deployment failed to start and the Solutions Architect has discovered that the CNAME record is not resolvable on the application EC2 instance despite being correctly created in Route 53.\nWhich combination of steps should the Solutions Architect take to resolve this issue? (Select TWO.)",
+   "opts": [
+    [
+     "A",
+     "Deploy the database on a separate EC2 instance in the new VPC. Create a record set for the instance's private IP in the private hosted zone."
+    ],
+    [
+     "B",
+     "Hardcode the DNS name and IP address of the RDS database instance into the /etc/resolv.conf file on the application server."
+    ],
+    [
+     "C",
+     "Create an authorization to associate the private hosted zone in the management account with the new VPC in the production account."
+    ],
+    [
+     "D",
+     "Create a private hosted zone for the record set in the production account. Configure Route 53 replication between AWS accounts."
+    ],
+    [
+     "E",
+     "Associate a new VPC in the production account with a hosted zone in the management account. Delete the association authorization in the management account."
+    ]
+   ],
+   "correct": [
+    "C",
+    "E"
+   ],
+   "expl": "An application cannot resolve record sets created in the private hosted zone of another AWS account. The solution to this problem is to associate the Route 53 private hosted zone in the management account with the VPC in the production account.\nTo associate a Route 53 private hosted zone in one AWS account (Account A) with a virtual private cloud that belongs to another AWS account (Account B), follow these steps using the AWS CLI:\n1. From an instance in Account A, authorize the association between the private hosted zone in Account A and the virtual private cloud in Account B.\n2. From an instance in Account B, create the association between the private hosted zone in Account A and the virtual private cloud in Account B.\n3. Delete the association authorization after the association is created.\nCORRECT:\n\"Create an authorization to associate the private hosted zone in the management account with the new VPC in the production account\" is a correct answer.\nCORRECT:\n\"Associate a new VPC in the production account with a hosted zone in the management account. Delete the association authorization in the management account\" is also a correct answer.\nINCORRECT:\n\"Deploy the database on a separate EC2 instance in the new VPC. Create a record set for the instance's private IP in the private hosted zone\" is incorrect. The record should be a CNAME record that points to the DNS endpoint of the RDS database, not to a private IP address.\nINCORRECT:\n\"Hardcode the DNS name and IP address of the RDS database instance into the /etc/resolv.conf file on the application server\" is incorrect. This is not a best practice as the IP address of the RDS instance should not be used, a CNAME pointing to its DNS endpoint is preferred.\nINCORRECT:\n\"Create a private hosted zone for the record set in the production account. Configure Route 53 replication between AWS accounts\" is incorrect. You cannot configure replication for hosted zones in Route 53.\nReferences:\nhttps://aws.amazon.com/premiumsupport/knowledge-center/private-hosted-zone-different-account/\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-networking-content-delivery-sap/",
+   "domain": "ORG",
+   "topic": "dns-edge",
+   "note": ""
+  },
+  {
+   "id": "T4Q13",
+   "type": "Single Choice",
+   "stem": "A Solutions Architect has been tasked with migrating an application to AWS. The application includes a desktop client application and web application. The web application has an uptime SLA of 99.5%. The Solutions Architect must re-architect the application to meet or exceed this SLA.\nThe application contains a MySQL database running on a single virtual machine. The web application uses multiple virtual machines with a load balancer. Remote users complain about slow load times while using this latency-sensitive application.\nThe Solutions Architect must minimize changes to the application whilst improving the user experience, minimizing costs, and ensuring the availability requirements are met. Which solutions best meets these requirements?",
+   "opts": [
+    [
+     "A",
+     "Migrate the database to a MySQL database in Amazon EC2. Host the web application on automatically scaled Amazon ECS containers behind an Application Load Balancer. Allocate an Amazon WorkSpaces WorkSpace for each end user to improve the user experience."
+    ],
+    [
+     "B",
+     "Migrate the database to an Amazon RDS Aurora MySQL configuration. Host the web application on an Auto Scaling configuration of Amazon EC2 instances behind an Application Load Balancer. Use Amazon AppStream 2.0 to improve the user experience."
+    ],
+    [
+     "C",
+     "Migrate the database to an Amazon EMR cluster with at least two nodes. Deploy the web application on automatically scaled Amazon ECS containers behind an Application Load Balancer. Use Amazon CloudFront to improve the user experience."
+    ],
+    [
+     "D",
+     "Migrate the database to an Amazon RDS MySQL Multi-AZ configuration. Host the web application on automatically scaled AWS Fargate containers behind a Network Load Balancer. Use Amazon ElastiCache to improve the user experience."
+    ]
+   ],
+   "correct": [
+    "B"
+   ],
+   "expl": "The uptime SLA for Amazon RDS is 99.5%. Therefore, it is not necessary to add a Multi-AZ configuration which will increase the solution cost. For the compute layer this could be containers or EC2 instances. To minimize changes to the application using EC2 instances may be slightly easier, but could work. To solve the user experience issues Amazon AppStream 2.0 should be used.\nAmazon AppStream 2.0 is a fully managed non-persistent application and desktop streaming service. You centrally manage your desktop applications on AppStream 2.0 and securely deliver them to any computer. Each end user has a fluid and responsive experience because applications run on virtual machines optimized for specific use cases and each streaming sessions automatically adjust to network conditions.\nCORRECT:\n\"Migrate the database to an Amazon RDS Aurora MySQL configuration. Host the web application on an Auto Scaling configuration of Amazon EC2 instances behind an Application Load Balancer. Use Amazon AppStream 2.0 to improve the user experience\" is the correct answer.\nINCORRECT:\n\"Migrate the database to a MySQL database in Amazon EC2. Host the web application on automatically scaled Amazon ECS containers behind an Application Load Balancer. Allocate an Amazon WorkSpaces WorkSpace for each end user to improve the user experience\" is incorrect. An RDS managed service would be better for the database and AppStream 2.0 is a better fit for an optimized desktop application.\nINCORRECT:\n\"Migrate the database to an Amazon EMR cluster with at least two nodes. Deploy the web application on automatically scaled Amazon ECS containers behind an Application Load Balancer. Use Amazon CloudFront to improve the user experience\" is incorrect. EMR is a hosted Hadoop framework for running analytics on big data and is not suitable for this workload. CloudFront is not well suited to optimizing performance for desktop applications.\nINCORRECT:\n\"Migrate the database to an Amazon RDS MySQL Multi-AZ configuration. Host the web application on automatically scaled AWS Fargate containers behind a Network Load Balancer. Use Amazon ElastiCache to improve the user experience\" is incorrect. AppStream 2.0 is a better fit for the desktop application. ElastiCache will just improve database query performance.\nReferences:\nhttps://aws.amazon.com/rds/sla/\nhttps://aws.amazon.com/appstream2/\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-front-end-web-and-mobile-sap/\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-database-sap/",
+   "domain": "MIG",
+   "topic": "compute-containers",
+   "note": ""
+  },
+  {
+   "id": "T5Q18",
+   "type": "Single Choice",
+   "stem": "A Solutions Architect wants to make sure that only IAM users with appropriate permissions can access a new Amazon API Gateway endpoint. How can the Solutions Architect design the API Gateway access control to meet this requirement?",
+   "opts": [
+    [
+     "A",
+     "Set the authorization to AWS_IAM for the API Gateway method. Create a permissions policy that grants execute-api:Invoke permission on the REST API resource and attach it to a group containing the IAM user accounts."
+    ],
+    [
+     "B",
+     "Create an AWS Lambda function as a custom authorizer and ask the API client to pass the key and secret when making the call, and then use Lambda to validate the key/secret pair against the IAM system."
+    ],
+    [
+     "C",
+     "Set the authorization to AWS_IAM for the API Gateway method. Create a permissions policy that grants lambda:InvokeFunction permission on the REST API resource and attach it to a group containing the IAM user accounts."
+    ],
+    [
+     "D",
+     "Create a client certificate for API Gateway. Distribute the certificate to the AWS users that need to access the endpoint. Enable the API caller to pass the client certificate when accessing the endpoint."
+    ]
+   ],
+   "correct": [
+    "A"
+   ],
+   "expl": "To allow an API caller to invoke the API or refresh its caching, you must create IAM policies that permit a specified API caller to invoke the API method for which the IAM user authentication is enabled. The API developer sets the method's authorizationType property to AWS_IAM to require that the caller submit the IAM user's access keys to be authenticated. Then, you attach the policy to an IAM user representing the API caller, to an IAM group containing the user, or to an IAM role assumed by the user.\nIn this IAM permissions policy statement, the IAM Resource element contains a list of deployed API methods identified by given HTTP verbs and API Gateway resource paths. The IAM Action element contains the required API Gateway API executing actions. These actions include execute-api:Invoke or execute-api:InvalidateCache, where execute-api designates the underlying API execution component of API Gateway.\nCORRECT:\n\"Set the authorization to AWS_IAM for the API Gateway method. Create a permissions policy that grants execute-api:Invoke permission on the REST API resource and attach it to a group containing the IAM user accounts\" is the correct answer.\nINCORRECT:\n\"Create an AWS Lambda function as a custom authorizer and ask the API client to pass the key and secret when making the call, and then use Lambda to validate the key/secret pair against the IAM system\" is incorrect. This solution does is not a valid method of integrating the REST API with IAM.\nINCORRECT:\n\"Set the authorization to AWS_IAM for the API Gateway method. Create a permissions policy that grants lambda:InvokeFunction permission on the REST API resource and attach it to a group containing the IAM user accounts\" is incorrect. The permission that is being granted here is for invoking a Lambda function, not a REST API.\nINCORRECT:\n\"Create a client certificate for API Gateway. Distribute the certificate to the AWS users that need to access the endpoint. Enable the API caller to pass the client certificate when accessing the endpoint\" is incorrect. Client certificates are a different way to authenticate, this is not using IAM user accounts.\nReferences:\nhttps://docs.aws.amazon.com/apigateway/latest/developerguide/permissions.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-networking-content-delivery-sap/",
+   "domain": "NEW",
+   "topic": "security-data",
+   "note": ""
+  },
+  {
+   "id": "T3Q9",
+   "type": "Single Choice",
+   "stem": "A company uses Amazon DynamoDB as the backend for the development environment of a new serverless application. While benchmarking the load, they have configured the RCU and WCU for DynamoDB based on the maximum anticipated load for peak usage.\nPeak usage runs over several hours each weekend and is twice the usual load across the week. Within this duration, write operations are significant and take up most of the traffic.\nThe company must optimize the cost of running the application before releasing to production. Which solution will meet these requirements?",
+   "opts": [
+    [
+     "A",
+     "Purchase reserved RCU and WCU for the DynamoDB table and use AWS Application Auto scaling to match the increased load during the peak usage period."
+    ],
+    [
+     "B",
+     "Configure on-demand capacity mode for the table to enable pay-per-request pricing for read and write requests."
+    ],
+    [
+     "C",
+     "Reduce the provisioned read capacity to match the new peak load on the table and configure DynamoDB Accelerator (DAX) in front of the table."
+    ],
+    [
+     "D",
+     "Configure on-demand capacity mode for the table and configure DynamoDB Accelerator (DAX) in front of the table."
+    ]
+   ],
+   "correct": [
+    "B"
+   ],
+   "expl": "With a manually set scaling policy, you can set the upper and low limits of the scaling. So, for example, you could set it at a minimum of 1 and a max of 20 read capacity. This would mean that no matter what you would always have at least 1 read capacity but never more than 20.\nSo now if you receive that same spike but have the max throughput to 20, DynamoDB will throttle those requests and prevent you from going over your max auto scaled threshold.\nWith On-Demand Scaling you don't need to think about provisioning throughput. Instead, your table will scale all behind the scenes automatically. Extreme spikes in load can occur and be handled seamlessly by AWS. This also brings a change in the cost structure for DynamoDB. With On-Demand Scaling, instead of paying for provisioned throughput, you pay per read or write request.\nRemember for Provisioned with Auto-Scaling you are basically paying for throughput 24/7. Whereas for On-Demand Scaling you pay per request. This means for applications still in development or low traffic applications, it might be more economical to use On-Demand Scaling and not worry about provisioning throughput. However, at scale, this can quickly shift once you have a more consistent usage pattern.\nCORRECT:\n\"Configure on-demand capacity mode for the table to enable pay-per-request pricing for read and write requests\" is the correct answer (as explained above.)\nINCORRECT:\n\"Purchase reserved RCU and WCU for the DynamoDB table and use AWS Application Auto scaling to match the increased load during the peak usage period\" is incorrect.\nThis is a close option however extremely rapid spikes in load could still occur faster than the table could scale.\nINCORRECT:\n\"Reduce the provisioned read capacity to match the new peak load on the table and configure DynamoDB Accelerator (DAX) in front of the table\" is incorrect.\nThe question doesn’t ask about repeated load, hence caching isn’t appropriate in this case.\nINCORRECT:\n\" Configure on-demand capacity mode for the table and configure DynamoDB Accelerator (DAX) in front of the table\" is incorrect.\nAs mentioned above, since the application doesn’t have repeated load or hot data, caching isn’t appropriate in this case.\nReferences:\nhttps://aws.amazon.com/blogs/aws/amazon-dynamodb-on-demand-no-capacity-planning-and-pay-per-request-pricing/\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/amazon-dynamodb/",
+   "domain": "CI",
+   "topic": "cost",
+   "note": ""
+  },
+  {
+   "id": "T5Q16",
+   "type": "Single Choice",
+   "stem": "A serverless application uses an AWS Lambda function behind and Amazon API Gateway REST API. During busy periods thousands of simultaneous invocations are required and requests fail multiple times before succeeding. The operations team has checked for AWS Lambda errors and did not find any. A Solutions Architect must investigate the root cause of the issue. What is the most likely cause of this problem?",
+   "opts": [
+    [
+     "A",
+     "The Lambda is configured with too little memory causing the function to fail at peak load."
+    ],
+    [
+     "B",
+     "The Lambda function is set to use synchronous invocation and the REST API is calling the function using asynchronous invocation."
+    ],
+    [
+     "C",
+     "The throttle limit on the REST API is configured too low. During busy periods some requests are being throttled and are not reaching the Lambda function."
+    ],
+    [
+     "D",
+     "The API is using the non-proxy integration with Lambda when it should be using proxy integration."
+    ]
+   ],
+   "correct": [
+    "C"
+   ],
+   "expl": "Throttling can be configured for API Gateway at the stage or usage plan level. Amazon API Gateway provides two basic types of throttling-related settings:\n•\nServer-side throttling limits\nare applied across all clients. These limit settings exist to prevent your API—and your account—from being overwhelmed by too many requests.\n•\nPer-client throttling limits\nare applied to clients that use API keys associated with your usage policy as client identifier.\nIn this case it is likely that the server-side throttling limits are configured to a value that is too low for the periods of peak usage. This is causing requests to fail repeatedly before they finally make it through to the Lambda function.\nThis is the most likely cause of the issue as it is clear the requests are not reaching Lambda or there would be errors logged by the function.\nCORRECT:\n\"The throttle limit on the REST API is configured too low. During busy periods some requests are being throttled and are not reaching the Lambda function\" is the correct answer.\nINCORRECT:\n\"The Lambda is configured with too little memory causing the function to fail at peak load\" is incorrect. If this was the case we would see errors being logged by Lambda but there aren’t any.\nINCORRECT:\n\"The Lambda function is set to use synchronous invocation and the REST API is calling the function using asynchronous invocation\" is incorrect. API Gateway can be configured to invoke a Lambda function both synchronously and asynchronously.\nINCORRECT:\n\"The API is using the non-proxy integration with Lambda when it should be using proxy integration\" is incorrect. API Gateway can be configured to connect to Lambda using both proxy and non-proxy integrations.\nReferences:\nhttps://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-request-throttling.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-networking-content-delivery-sap/\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-compute-sap/",
+   "domain": "CI",
+   "topic": "serverless-integration",
+   "note": ""
+  },
+  {
+   "id": "T5Q1",
+   "type": "Single Choice",
+   "stem": "A company has a security policy that requires that all internal application connectivity must use private IP addresses. A Solutions Architect has created interface endpoints in private subnets to connect to AWS public services. The Solutions Architect tested the configuration and the connectivity failed.\nWhich configuration change should the Solutions Architect make to resolve the issue?",
+   "opts": [
+    [
+     "A",
+     "Update the route table for the subnets with a route to the interface endpoint."
+    ],
+    [
+     "B",
+     "Enable the private DNS option on the VPC attributes."
+    ],
+    [
+     "C",
+     "Configure the security group on the interface endpoint to allow connectivity to the AWS services."
+    ],
+    [
+     "D",
+     "Configure an Amazon Route 53 private hosted zone with a conditional forwarder for the internal application."
+    ]
+   ],
+   "correct": [
+    "C"
+   ],
+   "expl": "You must ensure that the security group that's associated with the endpoint network interface allows communication between the endpoint network interface and the resources in your VPC that communicate with the service.\nWhen you create an interface endpoint, endpoint-specific DNS hostnames are generated. For AWS services and AWS Marketplace Partner services, the private DNS option (enabled by default) associates a private hosted zone with your VPC.\nThe hosted zone contains a record set for the default DNS name for the service (for example, ec2.us-east-1.amazonaws.com) that resolves to the private IP addresses of the endpoint network interfaces in your VPC. This enables you to make requests to the service using its default DNS hostname instead of the endpoint-specific DNS hostnames.\nWith Private DNS enabled on the endpoint, instances can send requests AWS services through the interface endpoint using either the default DNS hostname or the endpoint-specific DNS hostname.\nCORRECT:\n\"Configure the security group on the interface endpoint to allow connectivity to the AWS services\" is the correct answer.\nINCORRECT:\n\"Enable the private DNS option on the VPC attributes\" is incorrect. Private DNS is enabled by default for endpoints created for AWS services and AWS Marketplace Partner services.\nINCORRECT:\n\"Update the route table for the subnets with a route to the interface endpoint\" is incorrect. You do not need to update the route table for interface endpoints.\nINCORRECT:\n\"Configure an Amazon Route 53 private hosted zone with a conditional forwarder for the internal application\" is incorrect. This is unnecessary, a private hosted zone is a private hosted zone is associated with the VPC by default when the private DNS option is enabled (which is a default).\nReferences:\nhttps://docs.aws.amazon.com/vpc/latest/userguide/vpce-interface.html\nhttps://docs.aws.amazon.com/vpc/latest/userguide/verify-domains.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-networking-content-delivery-sap/",
+   "domain": "CI",
+   "topic": "dns-edge",
+   "note": ""
+  },
+  {
+   "id": "T3Q17",
+   "type": "Single Choice",
+   "stem": "A financial services company is looking to enhance its web application deployment process to ensure rapid and safe updates. The application, which handles sensitive financial transactions, is hosted on a cluster of Amazon EC2 instances behind an Application Load Balancer (ALB). The source code is maintained in a Bitbucket repository, and they use AWS CodeBuild for building the application. The company plans to integrate AWS CodePipeline for automating the deployment process from Bitbucket commits.\nThe key requirements are to minimize downtime during updates and provide a mechanism for quick rollback in case the new version introduces bugs or security vulnerabilities.\nWhich CI/CD setup would best fulfill these requirements?",
+   "opts": [
+    [
+     "A",
+     "Configure CodePipeline with a deployment stage using AWS CodeDeploy for blue/green deployments. After deploying the new version, monitor its performance and security, and use CodeDeploy's rollback feature in case of any issues."
+    ],
+    [
+     "B",
+     "Configure CodePipeline to deploy using AWS Elastic Beanstalk with rolling updates. Continuously monitor the application, and manually redeploy the previous version if problems are detected."
+    ],
+    [
+     "C",
+     "Configure CodePipeline with a deployment stage that uses AWS CloudFormation to manage separate stacks for testing and production. Monitor the application post-deployment, and push updates if issues arise."
+    ],
+    [
+     "D",
+     "Configure CodePipeline to deploy through AWS OpsWorks using rolling deployments. Keep an eye on the new deployment and revert to a previous stack configuration if necessary."
+    ]
+   ],
+   "correct": [
+    "A"
+   ],
+   "expl": "AWS CodeDeploy's blue/green deployment method is ideal for this scenario. It allows the new version of the application to be deployed alongside the old version, ensuring minimal downtime. Traffic is gradually shifted from the old version to the new version, allowing for monitoring and quick rollback if needed.\nThis approach is particularly suitable for applications where reliability and quick recovery are crucial, such as financial services applications. CodeDeploy's built-in rollback capabilities provide an additional safety net, ensuring that the application can quickly revert to the previous stable version if the new deployment introduces any critical issues.\nCORRECT:\n\"Configure CodePipeline with a deployment stage using AWS CodeDeploy for blue/green deployments. After deploying the new version, monitor its performance and security, and use CodeDeploy's rollback feature in case of any issues\" is the correct answer (as explained above.)\nINCORRECT:\n\"Configure CodePipeline to deploy using AWS Elastic Beanstalk with rolling updates. Continuously monitor the application, and manually redeploy the previous version if problems are detected\" is incorrect.\nWhile Elastic Beanstalk supports rolling updates, this method involves replacing instances with new versions, which can cause temporary downtime and does not provide as immediate a rollback mechanism as blue/green deployments.\nINCORRECT:\n\"Configure CodePipeline with a deployment stage that uses AWS CloudFormation to manage separate stacks for testing and production. Monitor the application post-deployment, and push updates if issues arise\" is incorrect.\nUsing CloudFormation for managing separate stacks is more about infrastructure management and does not inherently provide the rapid deployment and quick rollback capabilities of blue/green deployments.\nINCORRECT:\n\"Configure CodePipeline to deploy through AWS OpsWorks using rolling deployments. Keep an eye on the new deployment and revert to a previous stack configuration if necessary\" is incorrect.\nOpsWorks offers more control over the configuration of the application stack but does not specialize in minimizing downtime or quick rollback in the same way as blue/green deployments in CodeDeploy.\nReferences:\nhttps://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/aws-developer-tools/",
+   "domain": "CI",
+   "topic": "deployment-iac",
+   "note": ""
+  },
+  {
+   "id": "T6Q26",
+   "type": "Single Choice",
+   "stem": "A business is in the process of setting up an Amazon Elastic Kubernetes Service (Amazon EKS) cluster to manage a specific workload. This workload is expected to generate a highly variable number of stateless pods, with a significant number of these pods being launched in a brief timeframe due to automatic scaling of replicas.\nWhat approach should be taken to optimize the resilience of the nodes in this scenario?",
+   "opts": [
+    [
+     "A",
+     "Implement a distinct launch template for deploying the EKS control plane in a secondary cluster, separate from the node groups that handle the workload."
+    ],
+    [
+     "B",
+     "Modify the node groups for the workload by reducing the number of node groups but opting for larger instances within these groups."
+    ],
+    [
+     "C",
+     "Set up the Kubernetes Cluster Autoscaler to maintain the compute capacity of the workload node groups at a consistently under provisioned level."
+    ],
+    [
+     "D",
+     "Adjust the workload configuration to utilize topology spread constraints based on different Availability Zones."
+    ]
+   ],
+   "correct": [
+    "D"
+   ],
+   "expl": "Using topology spread constraints based on Availability Zones is a strategic approach to enhance node resilience in an Amazon EKS cluster.\nThis method ensures that the pods are evenly distributed across different Availability Zones.\nBy doing so, it reduces the risk of a significant impact on the workload if one Availability Zone experiences issues, thereby maximizing node resilience and ensuring better fault tolerance and high availability.\nCORRECT:\n\"Adjust the workload configuration to utilize topology spread constraints based on different Availability Zones\" is the correct answer (as explained above.)\nINCORRECT:\n\"Implement a distinct launch template for deploying the EKS control plane in a secondary cluster, separate from the node groups that handle the workload\" is incorrect.\nDeploying a separate EKS control plane in a different cluster does not directly contribute to the resilience of the nodes within the workload node groups. The control plane's location and configuration are more about management and orchestration rather than node resilience.\nINCORRECT:\n\"Modify the node groups for the workload by reducing the number of node groups but opting for larger instances within these groups\" is incorrect.\nUsing fewer node groups with larger instances might improve performance but does not necessarily maximize node resilience. Larger instances can still be susceptible to zone-specific issues, and having fewer groups could reduce the distribution and fault tolerance capabilities.\nINCORRECT:\n\"Set up the Kubernetes Cluster Autoscaler to maintain the compute capacity of the workload node groups at a consistently under provisioned level\" is incorrect.\nKeeping the compute capacity of the workload node groups under provisioned is counterproductive for maximizing node resilience. Under provisioning can lead to insufficient resources during peak demand, potentially causing performance issues or even service disruptions.\nReferences:\nhttps://aws.github.io/aws-eks-best-practices/\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/amazon-ecs-and-eks/",
+   "domain": "NEW",
+   "topic": "compute-containers",
+   "note": ""
+  },
+  {
+   "id": "T4Q5",
+   "type": "Select Multiple",
+   "stem": "A media publishing company has created an online bookstore which gives users access to books and other reference material. These materials can be downloaded by users and new materials can also be uploaded on the portal. According to company requirements, all data must be encrypted in transit and at rest. A solutions architect is building the solution by using Amazon S3 and Amazon CloudFront.\nWhich combination of steps will meet the encryption requirements? (Select THREE.)",
+   "opts": [
+    [
+     "A",
+     "Turn on the S3 server-side encryption for the S3 bucket in use."
+    ],
+    [
+     "B",
+     "For the read and write operations in the S3 ACLs, add condition \"aws:SecureTransport\": \"true\"."
+    ],
+    [
+     "C",
+     "Create a bucket policy that denies any unencrypted operations in the S3 bucket that the web application uses."
+    ],
+    [
+     "D",
+     "Configure encryption at rest on CloudFront by using server-side encryption with AWS KMS keys (SSE-KMS)."
+    ],
+    [
+     "E",
+     "Configure redirection of HTTP requests to HTTPS requests in CloudFront."
+    ],
+    [
+     "F",
+     "Use the RequireSSL option in the creation of presigned URLS for the S3 bucket that the web application uses"
+    ]
+   ],
+   "correct": [
+    "A",
+    "C",
+    "E"
+   ],
+   "expl": "For object encryption at rest, you can set the default encryption behavior on an Amazon S3 bucket so that all objects are encrypted when they are stored in the bucket. The objects are encrypted using server-side encryption with either Amazon S3-managed keys (SSE-S3) or AWS Key Management Service (AWS KMS) keys.\nTo deny unencrypted objects, \"s3:x-amz-server-side-encryption\" can be added which allows only encrypted object upload and can restrict to a specific KMS key as well.\nAmazon CloudFront can use 301 response code to redirect HTTP requests to HTTPS and allows only secured traffic.\nCORRECT:\n\"Turn on S3 server-side encryption for the S3 bucket that the web application uses is a correct answer (as explained above.)\nCORRECT:\n\"Create a bucket policy that denies any unencrypted operations in the S3 bucket that the web application uses\" is also a correct answer (as explained above.)\nCORRECT:\n\"Configure redirection of HTTP requests to HTTPS requests in CloudFront\" is also a correct answer (as explained above.)\nINCORRECT:\n\"For the read and write operations in the S3 ACLs , add condition \"aws:SecureTransport\": \"true\"\" is incorrect.\nTo only allow HTTPS requests, set “true” for key \"aws:SecureTransport\". When this key is true, the request is sent through HTTPS. This option configures encryption in transit and does not enforce encryption at rest.\nINCORRECT:\n\"Configure encryption at rest on CloudFront by using server-side encryption with AWS KMS keys (SSE-KMS)\" is incorrect.\nThe data must be encrypted at rest in the Amazon S3 origin that is the source for the CloudFront distribution. This configuration does not ensure encryption at rest in the S3 bucket.\nINCORRECT:\n\"Use the RequireSSL option in the creation of presigned URLs for the S3 bucket that the web application uses\" is incorrect.\nPre-signed URLs are used to provide short-term access to a private object in your S3 bucket. They work by appending an AWS Access Key, expiration time, and Sigv4 signature as query parameters to the S3 object. Encryption cannot be configured through the pre-signed URL.\nReferences:\nhttps://aws.amazon.com/blogs/networking-and-content-delivery/serving-sse-kms-encrypted-content-from-s3-using-cloudfront/\nhttps://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/data-protection-summary.html\nhttps://aws.amazon.com/blogs/security/how-to-prevent-uploads-of-unencrypted-objects-to-amazon-s3\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/amazon-s3-and-glacier/",
+   "domain": "NEW",
+   "topic": "security-data",
+   "note": ""
+  },
+  {
+   "id": "T1Q12",
+   "type": "Select Multiple",
+   "stem": "A company has deployed an eCommerce application that is used by thousands of customers to place online orders. The application runs on Amazon ECS tasks behind an Application Load Balancer (ALB) and data is stored in an Amazon DynamoDB table.\nThe application has recently experienced attacks that caused application slowdowns and outages. The company must prevent attacks and ensure business continuity with minimal service interruptions.\nWhich combination of steps will meet these requirements MOST cost-effectively? (Select TWO.)",
+   "opts": [
+    [
+     "A",
+     "Create an Amazon CloudFront distribution with the ALB as the origin and configure a custom header and secret value. Configure the ALB to conditionally forward traffic only if the header and value match."
+    ],
+    [
+     "B",
+     "Deploy the application in two AWS Regions. Configure Amazon Route 53 to route to both Regions with equal weight."
+    ],
+    [
+     "C",
+     "Configure AWS Auto Scaling for Amazon ECS tasks. Create an Amazon DynamoDB Accelerator (DAX) cluster in front of the DynamoDB table."
+    ],
+    [
+     "D",
+     "Configure AWS Auto Scaling for Amazon ECS tasks. Configure an Amazon ElastiCache cluster in front of the DynamoDB table."
+    ],
+    [
+     "E",
+     "Deploy an AWS WAF web ACL that includes a rule group that blocks the attack traffic. Associate the web ACL with the Amazon CloudFront distribution."
+    ]
+   ],
+   "correct": [
+    "A",
+    "E"
+   ],
+   "expl": "Amazon CloudFront comes with AWS Shield standard by default which will provide some protection against DDoS attacks. For malicious web attacks an AWS WAF ACL should be associated with the distribution so that it can protect against the attacks using an appropriate rule group.\nIn this configuration it is important to ensure that the attacks cannot circumvent CloudFront and connect directly to the public ALB. For this, we can create a custom header and secret value in CloudFront. This will be forwarded in requests that originate from CloudFront. The ALB can conditionally forward only if this HTTP header information is present in the request.\nCORRECT:\n\"Create an Amazon CloudFront distribution with the ALB as the origin and configure a custom header and secret value. Configure the ALB to conditionally forward traffic only if the header and value match\" is a correct answer (as explained above.)\nCORRECT:\n\"Deploy an AWS WAF web ACL that includes a rule group that blocks the attack traffic. Associate the web ACL with the Amazon CloudFront distribution\" is also a correct answer (as explained above.)\nINCORRECT:\n\"Deploy the application in two AWS Regions. Configure Amazon Route 53 to route to both Regions with equal weight\" is incorrect. This is not the most cost-effective option as the entire application stack is deployed in two Regions.\nINCORRECT:\n\"Configure AWS Auto Scaling for Amazon ECS tasks. Create an Amazon DynamoDB Accelerator (DAX) cluster in front of the DynamoDB table\" is incorrect. DAX may assist with performance when caching requests but doesn’t help with preventing web attacks from reaching the ALB or application servers.\nINCORRECT:\n\"Configure AWS Auto Scaling for Amazon ECS tasks. Configure an Amazon ElastiCache cluster in front of the DynamoDB table\" is incorrect. As with the previous answer this solution does not assist with mitigating the impact of the attacks.\nReferences:\nhttps://aws.amazon.com/premiumsupport/knowledge-center/elb-route-traffic-custom-http-header/\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/aws-waf-shield/",
+   "domain": "CI",
+   "topic": "database",
+   "note": ""
+  },
+  {
+   "id": "T4Q16",
+   "type": "Single Choice",
+   "stem": "A company plans to migrate physical servers and VMs from an on-premises data center to the AWS Cloud using AWS Migration Hub. The VMs run on a combination of VMware and Hyper-V hypervisors. A Solutions Architect must determine the best services for data collection and discovery. The company has also requested the ability to generate reports from the collected data.\nWhich solution meets these requirements?",
+   "opts": [
+    [
+     "A",
+     "Use the AWS Agentless Discovery Connector for data collection on physical servers and all VMs. Store the collected data in Amazon S3. Query the data with S3 Select. Generate reports by using Kibana hosted on Amazon EC2."
+    ],
+    [
+     "B",
+     "Use the AWS Application Discovery Service agent for data collection on physical servers and Hyper-V. Use the AWS Agentless Discovery Connector for data collection on VMware. Store the collected data in Amazon S3. Query the data with Amazon Athena. Generate reports by using Amazon QuickSight."
+    ],
+    [
+     "C",
+     "Use the AWS Application Discovery Service agent for data collection on physical servers and all VMs. Store the collected data in Amazon Elastic File System (Amazon EFS). Query the data and generate reports with Amazon Athena."
+    ],
+    [
+     "D",
+     "Use the AWS Systems Manager agent for data collection on physical servers. Use the AWS Agentless Discovery Connector for data collection on all VMs. Store, query, and generate reports from the collected data by using Amazon Redshift."
+    ]
+   ],
+   "correct": [
+    "B"
+   ],
+   "expl": "AWS Application Discovery Service helps you plan your migration to the AWS cloud by collecting usage and configuration data about your on-premises servers. Application Discovery Service is integrated with AWS Migration Hub, which simplifies your migration tracking as it aggregates your migration status information into a single console.\nApplication Discovery Service offers two ways of performing discovery and collecting data about your on-premises servers:\n•\nAgentless discovery\n– Identifies VMs running on VMware.\n•\nAgent-based discovery\n– Used for physical servers and VMs running on Hyper-V.\nFor reporting the data can be saved to Amazon S3 and queried using Amazon Athena and Amazon QuickSight.\nMigration Hub can then be used to manage the migration process using AWS DMS.\nCORRECT:\n\"Use the AWS Application Discovery Service agent for data collection on physical servers and Hyper-V. Use the AWS Agentless Discovery Connector for data collection on VMware. Store the collected data in Amazon S3. Query the data with Amazon Athena. Generate reports by using Amazon QuickSight\" is the correct answer.\nINCORRECT:\n\"Use the AWS Agentless Discovery Connector for data collection on physical servers and all VMs. Store the collected data in Amazon S3. Query the data with S3 Select. Generate reports by using Kibana hosted on Amazon EC2\" is incorrect. You cannot use the agentless connector on physical servers or Hyper-V VMs.\nINCORRECT:\n\"Use the AWS Application Discovery Service agent for data collection on physical servers and all VMs. Store the collected data in Amazon Elastic File System (Amazon EFS). Query the data and generate reports with Amazon Athena\" is incorrect. It is more efficient to use the agentless connector on VMware VMs. Athena cannot query data in EFS.\nINCORRECT:\n\"Use the AWS Systems Manager agent for data collection on physical servers. Use the AWS Agentless Discovery Connector for data collection on all VMs. Store, query, and generate reports from the collected data by using Amazon Redshift\" is incorrect. You cannot use the agentless discovery connector on Hyper-V VMs. RedShift will be an expensive solution and requires application components to read/write data.\nReferences:\nhttps://docs.aws.amazon.com/application-discovery/latest/userguide/what-is-appdiscovery.html\nhttps://aws.amazon.com/quicksight/\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-migration-sap/\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-analytics-sap/",
+   "domain": "MIG",
+   "topic": "migration-transfer",
+   "note": "Discovery Connector is superseded by the Agentless Collector; Migration Hub availability changed in 2025."
+  },
+  {
+   "id": "T2Q12",
+   "type": "Single Choice",
+   "stem": "A company runs applications on Microsoft Windows servers in an on-premises data center. The servers access a file system shared from one of the Windows servers. Several gigabytes of new data are produced daily. The company is migrating to the cloud and requires the data to be accessible on a file system in the AWS cloud.\nWhich data migration strategy should the company use?",
+   "opts": [
+    [
+     "A",
+     "Use an AWS Storage Gateway file gateway and point the existing on-premises application servers to the new file gateway."
+    ],
+    [
+     "B",
+     "Use AWS DataPipeline to schedule a daily task to replicate data between the on-premises file share and Amazon EFS."
+    ],
+    [
+     "C",
+     "Use AWS DataSync to schedule a daily task that replicates data between the on-premises file share and Amazon FSX."
+    ],
+    [
+     "D",
+     "Use an AWS Storage Gateway volume gateway and point the existing on-premises application servers to the new volume gateway."
+    ]
+   ],
+   "correct": [
+    "C"
+   ],
+   "expl": "AWS recommends using AWS DataSync to transfer data between FSx for Windows File Server file systems. DataSync is a data transfer service that simplifies, automates, and accelerates moving and replicating data between on-premises storage systems and other AWS storage services over the internet or AWS Direct Connect. DataSync can transfer your file system data and metadata, such as ownership, timestamps, and access permissions.\nDataSync supports copying NTFS access control lists (ACLs), and also supports copying file audit control information, also known as NTFS system access control lists (SACLs), which are used by administrators to control audit logging of user attempts to access files.\nCORRECT:\n\"Use AWS DataSync to schedule a daily task that replicates data between the on-premises file share and Amazon FSX\" is the correct answer (as explained above.)\nINCORRECT:\n\"Use an AWS Storage Gateway file gateway and point the existing on-premises application servers to the new file gateway\" is incorrect. When using a file gateway the data is accessible via SMB locally in the on-premises data and is synchronized to Amazon S3. Therefore, there the data is not accessible in the AWS cloud on a file system.\nINCORRECT:\n\"Use AWS DataPipeline to schedule a daily task to replicate data between the on-premises file share and Amazon EFS\" is incorrect. AWS DataSync is designed for this use case whereas DataPipeline is more suitable to ETL use cases.\nINCORRECT:\n\"Use an AWS Storage Gateway volume gateway and point the existing on-premises application servers to the new volume gateway\" is incorrect. A volume gateway is used for block-based storage not file-based storage. You access a volume gateway over iSCSI rather than SMB.\nReferences:\nhttps://docs.aws.amazon.com/fsx/latest/WindowsGuide/migrate-files-to-fsx-datasync.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/aws-migration-services/",
+   "domain": "MIG",
+   "topic": "storage",
+   "note": ""
+  },
+  {
+   "id": "T4Q17",
+   "type": "Single Choice",
+   "stem": "A company runs an eCommerce web application on a pair of Amazon EC2 instances behind an Application Load Balancer. The application stores data in an Amazon DynamoDB table. Traffic has been increasing with some major sales events and read and write traffic has slowed down considerably over the busiest periods.\nWhich option provides a scalable application architecture to handle peak traffic loads with the LEAST development effort?",
+   "opts": [
+    [
+     "A",
+     "Use AWS Lambda for the web application. Increase the read and write capacity of DynamoDB."
+    ],
+    [
+     "B",
+     "Use AWS Lambda for the web application. Configure DynamoDB to use global tables."
+    ],
+    [
+     "C",
+     "Use Auto Scaling groups for the web application and use DynamoDB auto scaling."
+    ],
+    [
+     "D",
+     "Use Auto Scaling groups for the web application and use Amazon Simple Queue Service (Amazon SQS) and an AWS Lambda function to write to DynamoDB."
+    ]
+   ],
+   "correct": [
+    "C"
+   ],
+   "expl": "This is a simple case of needing to add elasticity to the application. The question specifically states that the chosen option must incur the least development effort. Therefore, the best option is to simply use Amazon EC2 Auto Scaling for the web application and enable auto scaling for DynamoDB.\nThis solution provides a simple way to enable elasticity and does not require any refactoring of the application or updates to code.\nCORRECT:\n\"Use Auto Scaling groups for the web application and use DynamoDB auto scaling\" is the correct answer.\nINCORRECT:\n\"Use Auto Scaling groups for the web application and use Amazon Simple Queue Service (Amazon SQS) and an AWS Lambda function to write to DynamoDB\" is incorrect. In this scenario it would be simpler and require less development effort to use Auto Scaling for both layers.\nINCORRECT:\n\"Use AWS Lambda for the web application. Increase the read and write capacity of DynamoDB\" is incorrect. This requires major updates to the application code which is more development effort.\nINCORRECT:\n\"Use AWS Lambda for the web application. Configure DynamoDB to use global tables\" is incorrect. This requires major updates to the application code which is more development effort.\nReferences:\nhttps://aws.amazon.com/ec2/autoscaling/\nhttps://docs.aws.amazon.com/amazondynamodb/latest/developerguide/AutoScaling.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-database-sap/",
+   "domain": "CI",
+   "topic": "database",
+   "note": ""
+  },
+  {
+   "id": "T2Q1",
+   "type": "Single Choice",
+   "stem": "A company is updating their operating system patching processes. The company manages both on-premises servers and Amazon EC2 instances using multiple toolsets. A solutions architect wants to utilize a single tool for all servers and instances that can deploy patches and report on patch status.\nWhich set of actions should the solutions architect take to meet these requirements?",
+   "opts": [
+    [
+     "A",
+     "Use AWS Systems Manager Patch Manager to deploy patches on the on-premises servers and EC2 instances. Use Systems Manager to generate patch compliance reports."
+    ],
+    [
+     "B",
+     "Use an Amazon EventBridge rule to apply patches by scheduling an AWS Systems Manager patch remediation job. Use Amazon Inspector to generate patch compliance reports."
+    ],
+    [
+     "C",
+     "Use AWS OpsWorks to deploy patches on the on-premises servers and EC2 instances. Use Amazon Athena to generate patch compliance reports."
+    ],
+    [
+     "D",
+     "Use AWS Systems Manager Patch Manager to deploy patches on the EC2 instances and use Run Command for the on-premises servers. Use Systems Manager to generate patch compliance reports."
+    ]
+   ],
+   "correct": [
+    "A"
+   ],
+   "expl": "AWS Systems Manager Patch Manager can be used for both on-premises servers and EC2 instances. Systems Manager can be configured for hybrid environments that include on-premises servers, edge devices, and virtual machines (VMs) that are configured for AWS Systems Manager, including VMs in other cloud environments.\nThere are several steps that must be taken to configure your on-premises nodes to be managed by AWS Systems Manager. Please refer to the link in the references below to learn more.\nCORRECT:\n\"Use AWS Systems Manager Patch Manager to deploy patches on the on-premises servers and EC2 instances. Use Systems Manager to generate patch compliance reports\" is the correct answer (as explained above.)\nINCORRECT:\n\"Use AWS Systems Manager Patch Manager to deploy patches on the EC2 instances and use Run Command for the on-premises servers. Use Systems Manager to generate patch compliance reports\" is incorrect. The patch manager capability of systems manager can be used for the on-premises servers and the EC2 instances, there is no need to use Run Command.\nINCORRECT:\n\"Use an Amazon EventBridge rule to apply patches by scheduling an AWS Systems Manager patch remediation job. Use Amazon Inspector to generate patch compliance reports\" is incorrect. EventBridge is not needed as Systems Manager has its own capabilities for Patch Management. Systems Manager also has its own reporting, so Inspector is not needed here.\nINCORRECT:\n\"Use AWS OpsWorks to deploy patches on the on-premises servers and EC2 instances. Use Amazon Athena to generate patch compliance reports\" is incorrect. OpsWorks is not the tool to use for deploying patches across servers and instances. Also, Athena runs queries against S3 buckets so the patch compliance data would need to be stored in S3 somehow.\nReferences:\nhttps://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-managedinstances.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/aws-systems-manager/",
+   "domain": "CI",
+   "topic": "monitoring-ops",
+   "note": ""
+  },
+  {
+   "id": "T2Q21",
+   "type": "Single Choice",
+   "stem": "A company is deploying a web service that will provide read and write access to structured data. The company expects there to be variable usage patterns with some short but significant spikes. The service must dynamically scale and must be fault tolerant across multiple AWS Regions.\nWhich actions should a Solutions Architect take to meet these requirements?",
+   "opts": [
+    [
+     "A",
+     "Store the data in Amazon DocumentDB in two Regions. Use AWS DMS to synchronize data between databases. Run the web service on Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer in each Region. In Amazon Route 53, configure an alias record and a failover routing policy."
+    ],
+    [
+     "B",
+     "Store the data in Amazon S3 buckets in two Regions and configure cross-Region replication. Create an Amazon CloudFront distribution that points to multiple origins. Use Amazon API Gateway and AWS Lambda for the web frontend and configure Amazon Route 53 with an alias record pointing to the REST API."
+    ],
+    [
+     "C",
+     "Store the data in an Amazon DynamoDB global table in two Regions using on-demand capacity mode. Run the web service in both Regions as Amazon ECS Fargate tasks in an Auto Scaling ECS service behind an Application Load Balancer (ALB). In Amazon Route 53, configure an alias record and a latency-based routing policy with health checks to distribute traffic between the two ALBs."
+    ],
+    [
+     "D",
+     "Store the data in Amazon Aurora Multi-Master databases. Add Auto Scaling replicas to both Regions. Run the web service on Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer in each Region. In Amazon Route 53, configure an alias record and a multi-value routing policy."
+    ]
+   ],
+   "correct": [
+    "C"
+   ],
+   "expl": "The DynamoDB global tables solution is the only database solution that will allow writes in both AWS Regions. Using Amazon ECS Fargate tasks with Auto Scaling will ensure the compute layer scales appropriately and an ALB will distribute connections across multiple tasks.\nThis solution is active-active and so a latency-based routing policy will direct users to the closest Region to improve performance. Health checks are enabled which means that if a Region outage occurs, traffic will be directed to the second Region.\nCORRECT:\n\"Store the data in an Amazon DynamoDB global table in two Regions using on-demand capacity mode. Run the web service in both Regions as Amazon ECS Fargate tasks in an Auto Scaling ECS service behind an Application Load Balancer (ALB). In Amazon Route 53, configure an alias record and a latency-based routing policy with health checks to distribute traffic between the two ALBs\" is correct.\nINCORRECT:\n\"Store the data in Amazon Aurora Multi-Master databases. Add Auto Scaling replicas to both Regions. Run the web service on Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer in each Region. In Amazon Route 53, configure an alias record and a multi-value routing policy\" is incorrect. Aurora Multi-Master works within a Region only, it cannot be used to synchronize writes across Regions.\nINCORRECT:\n\"Store the data in Amazon DocumentDB in two Regions. Use AWS DMS to synchronize data between databases. Run the web service on Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer in each Region. In Amazon Route 53, configure an alias record and a failover routing policy\" is incorrect. DocumentDB is used for storing JSON data not structured data so is not suitable.\nINCORRECT:\n\"Store the data in Amazon S3 buckets in two Regions and configure cross-Region replication. Create an Amazon CloudFront distribution that points to multiple origins. Use Amazon API Gateway and AWS Lambda for the web frontend and configure Amazon Route 53 with an alias record pointing to the REST API\" is incorrect. When using CloudFront with multiple origins, behaviors must be configured to direct traffic to a specific origin, this would not work when the content is the same – it does not function as a load balancer or provide automatic failover.\nReferences:\nhttps://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GlobalTables.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/security-identity-compliance-sap/\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-database-sap/",
+   "domain": "NEW",
+   "topic": "database",
+   "note": ""
+  },
+  {
+   "id": "T5Q28",
+   "type": "Single Choice",
+   "stem": "A financial company stores personally identifiable information (PII) in an Amazon S3 bucket which currently does not have versioning enabled. The current configuration has server-side encryption with S3 managed encryption keys (SSE-S3) enabled to encrypt the objects. According to a new requirement, all current and future objects in the S3 bucket must be encrypted by keys that the company's security team manages.\nWhich solution will meet these requirements?",
+   "opts": [
+    [
+     "A",
+     "Change the default encryption to SSE-S3 with a customer managed key. Use the AWS CLI to re-upload all objects in the S3 bucket. Set an S3 bucket policy to deny unencrypted PutObject requests."
+    ],
+    [
+     "B",
+     "Change the default encryption to server-side encryption with AWS KMS managed encryption keys (SSE-KMS) in S3 bucket. Set an S3 bucket policy to deny unencrypted PutObject requests. Use the AWS CLI to re-upload all objects in the S3 bucket."
+    ],
+    [
+     "C",
+     "In the S3 bucket properties, change the default encryption to server-side encryption with AWS KMS managed encryption keys (SSE-KMS). Set an S3 bucket policy to automatically encrypt objects on GetObject and PutObject requests."
+    ],
+    [
+     "D",
+     "Change the default encryption to AES-256 with a customer managed key. Attach a policy to deny unencrypted PutObject requests to any entities that access the S3 bucket. Use the AWS CLI to re-upload all objects in the S3 bucket."
+    ]
+   ],
+   "correct": [
+    "B"
+   ],
+   "expl": "You can configure your bucket to use an S3 Bucket Key for SSE-KMS on new objects by using the Amazon S3 console, REST API, Amazon SDK, Amazon CLI, or Amazon CloudFormation. If you want to enable or disable an S3 Bucket Key for existing objects, you can use a COPY operation.\nSwitching to AWS KMS from AWS SSE-S3 can provide some additional benefits, including protection from policies that may be overly permissive. For example, adding a bucket policy allowing overly broad access to the data instead of individual users or roles. By implementing encryption using KMS keys, the accessor of the resources would need Amazon S3 policy access and access to a KMS key to decrypt data.\nThe KMS key is managed by the company. To encrypt existing objects with this key they would need to be uploaded again and this operation can be performed using the AWS CLI.\nCORRECT:\n\"Change the default encryption to server-side encryption with AWS KMS managed encryption keys (SSE-KMS) in S3 bucket. Set an S3 bucket policy to deny unencrypted PutObject requests. Use the AWS CLI to re-upload all objects in the S3 bucket\" is the correct answer (as explained above.)\nINCORRECT:\n\"In the S3 bucket properties, change the default encryption to SSE-S3 with a customer managed key. Use the AWS CLI to re-upload all objects in the S3 bucket. Set an S3 bucket policy to deny unencrypted PutObject requests\" is incorrect.\nYou cannot manage your own encryption key with SSE-S3.\nINCORRECT:\n\"Change the default encryption to server-side encryption with AWS KMS managed encryption keys (SSE-KMS) in S3 bucket. Set an S3 bucket policy to automatically encrypt objects on GetObject and PutObject requests\" is incorrect.\nYou cannot encrypt using GetObject requests as this is downloading objects and they are first decrypted. The bucket policy should be setup to enforce encryption for PutObject requests only.\nINCORRECT:\n\"Change the default encryption to AES-256 with a customer managed key. Attach a policy to deny unencrypted PutObject requests to any entities that access the S3 bucket. Use the AWS CLI to re-upload all objects in the S3 bucket\" is incorrect.\nServer-Side Encryption in S3 is always AES256, whether you are using SSE-S3 or SSE-KMS.\nWhen changing the encryption type, we choose among AWS/ S3 managed or customer managed but the algorithm remains the same hence this is also incorrect.\nReferences:\nhttps://docs.amazonaws.cn/en_us/AmazonS3/latest/userguide/replication-config-for-kms-objects.html\nhttps://aws.amazon.com/blogs/storage/changing-your-amazon-s3-encryption-from-s3-managed-encryption-sse-s3-to-aws-key-management-service-sse-kms/\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/amazon-s3-and-glacier/",
+   "domain": "CI",
+   "topic": "security-data",
+   "note": ""
+  },
+  {
+   "id": "T2Q29",
+   "type": "Select Multiple",
+   "stem": "A company uses multiple AWS accounts. There are separate accounts for development, staging, and production environments. Some new requirements have been issued to control costs and improve the overall governance of the AWS accounts. The company must be able to calculate costs associated with each project and each environment. Commonly deployed IT services must be centrally managed and business units should be restricted to deploying pre-approved IT services only.\nWhich combination of actions should be taken to meet these requirements? (Select TWO.)",
+   "opts": [
+    [
+     "A",
+     "Apply environment, cost center, and application name tags to all resources that accept tags."
+    ],
+    [
+     "B",
+     "Configure custom budgets and define thresholds using AWS Cost Explorer."
+    ],
+    [
+     "C",
+     "Use AWS Savings Plans to configure budget thresholds and send alerts to management."
+    ],
+    [
+     "D",
+     "Create an AWS Service Catalog portfolio for each business unit and add products to the portfolios using AWS CloudFormation templates."
+    ],
+    [
+     "E",
+     "Use Amazon CloudWatch to create a billing alarm that notifies managers when a billing threshold is reached or exceeded."
+    ]
+   ],
+   "correct": [
+    "A",
+    "D"
+   ],
+   "expl": "AWS Service Catalog enables organizations to create and manage catalogs of IT services that are approved for AWS. These IT services can include everything from virtual machine images, servers, software, and databases to complete multi-tier application architectures.\nAWS Service Catalog allows organizations to centrally manage commonly deployed IT services, and helps organizations achieve consistent governance and meet compliance requirements. End users can quickly deploy only the approved IT services they need, following the constraints set by the organization.\nTo track the costs associated with projects and environments cost allocation tags should be applied to the relevant resources. Cost allocation tags are used to track AWS costs on a detailed level. After you activate cost allocation tags, AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.\nCORRECT:\n\"Apply environment, cost center, and application name tags to all resources that accept tags\" is a correct answer.\nCORRECT:\n\"Create an AWS Service Catalog portfolio for each business unit and add products to the portfolios using AWS CloudFormation templates\" is also a correct answer.\nINCORRECT:\n\"Configure custom budgets and define thresholds using AWS Cost Explorer\" is incorrect. Cost Explorer is used for viewing cost related information but not for creating budgets.\nINCORRECT:\n\"Use AWS Savings Plans to configure budget thresholds and send alerts to management\" is incorrect as this is not a service but a pricing model and cannot be used for sending alerts.\nINCORRECT:\n\"Use Amazon CloudWatch to create a billing alarm that notifies managers when a billing threshold is reached or exceeded\" is incorrect. There is no requirement to create billing alarms specified in the scenario.\nReferences:\nhttps://docs.aws.amazon.com/servicecatalog/latest/adminguide/introduction.html\nhttps://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-management-tools-sap/",
+   "domain": "ORG",
+   "topic": "cost",
+   "note": ""
+  },
+  {
+   "id": "T2Q15",
+   "type": "Single Choice",
+   "stem": "A company utilizing Amazon Connect for their contact center is encountering a surge in automated calls, affecting both operational costs and agent productivity. They need a system where agents can easily mark a call as spam, subsequently preventing such numbers from being routed to agents in the future.\nWhat is the most effective and operationally efficient solution for this scenario?",
+   "opts": [
+    [
+     "A",
+     "Implement a machine learning model within Amazon Connect to automatically detect and flag spam calls. Store these numbers in an Amazon DynamoDB table and configure contact flows to use an AWS Lambda function for consulting this table to block future spam calls."
+    ],
+    [
+     "B",
+     "Add a custom 'flag as spam' button to the Contact Control Panel (CCP) in Amazon Connect. This button triggers an AWS Lambda function to update call attributes and log the number in an Amazon DynamoDB table. Adapt the contact flows to reference these attributes and interact with the DynamoDB table for future call filtering."
+    ],
+    [
+     "C",
+     "Develop a special feature in the Amazon Connect CCP that allows agents to transfer spam calls to a designated queue. This queue triggers an AWS Lambda function to add the caller's number to a spam list in Amazon DynamoDB, with contact flows adjusted to check this list for incoming calls."
+    ],
+    [
+     "D",
+     "Introduce a voice command feature in the Amazon Connect CCP for agents to verbally mark calls as spam. This command activates an AWS Lambda function to record the number in an Amazon DynamoDB table, and the contact flow is modified to use this table for blocking subsequent calls from these numbers."
+    ]
+   ],
+   "correct": [
+    "B"
+   ],
+   "expl": "This solution is operationally efficient as it integrates directly into the existing Amazon Connect CCP, allowing agents to mark calls as spam with a simple button click.\nThe use of AWS Lambda ensures automated processing, and Amazon DynamoDB provides a scalable way to store and retrieve spam numbers.\nBy modifying the contact flows to reference the updated attributes and DynamoDB table, the system can effectively prevent future calls from flagged numbers, enhancing productivity and reducing costs.\nCORRECT:\n\"Add a custom 'flag as spam' button to the Contact Control Panel (CCP) in Amazon Connect. This button triggers an AWS Lambda function to update call attributes and log the number in an Amazon DynamoDB table. Adapt the contact flows to reference these attributes and interact with the DynamoDB table for future call filtering\" is the correct answer (as explained above.)\nINCORRECT:\n\"Implement a machine learning model within Amazon Connect to automatically detect and flag spam calls. Store these numbers in an Amazon DynamoDB table and configure contact flows to use an AWS Lambda function for consulting this table to block future spam calls\" is incorrect.\nWhile a machine learning model could potentially automate the detection of spam calls, implementing and maintaining such a system requires significant resources and expertise. It may not be as operationally efficient compared to a simpler, direct solution like a custom button in the CCP.\nINCORRECT:\n\"Develop a special feature in the Amazon Connect CCP that allows agents to transfer spam calls to a designated queue. This queue triggers an AWS Lambda function to add the caller's number to a spam list in Amazon DynamoDB, with contact flows adjusted to check this list for incoming calls\" is incorrect.\nCreating a special feature for transferring spam calls to a designated queue adds additional steps to the agent's workflow and may not be as immediate or straightforward as directly flagging a call as spam. This could lead to inefficiencies in handling calls.\nINCORRECT:\n\"Introduce a voice command feature in the Amazon Connect CCP for agents to verbally mark calls as spam. This command activates an AWS Lambda function to record the number in an Amazon DynamoDB table, and the contact flow is modified to use this table for blocking subsequent calls from these numbers\" is incorrect.\nIntroducing a voice command feature for marking spam calls is an innovative approach but may face challenges in terms of accuracy and ease of use, especially in a noisy call center environment. This might not be as reliable or efficient as a more traditional interface-based solution.\nReferences:\nhttps://aws.amazon.com/connect/features/",
+   "domain": "NEW",
+   "topic": "serverless-integration",
+   "note": ""
+  },
+  {
+   "id": "T5Q7",
+   "type": "Single Choice",
+   "stem": "A company runs a Java application on Amazon EC2 instances. The DevOps team uses a combination of Amazon CloudFormation and AWS OpsWorks to update the infrastructure and application stacks respectively. During recent updates the DevOps team reported service disruption issues that affected the Java application running on the Amazon EC2 instances.\nWhich solution will increase the reliability of application updates?",
+   "opts": [
+    [
+     "A",
+     "Implement a blue/green deployment strategy."
+    ],
+    [
+     "B",
+     "Implement the canary release strategy."
+    ],
+    [
+     "C",
+     "Implement CloudFormation change sets."
+    ],
+    [
+     "D",
+     "Implement CloudFormation Stack sets."
+    ]
+   ],
+   "correct": [
+    "A"
+   ],
+   "expl": "AWS OpsWorks is performing the updates to the application. There is no report of the infrastructure stack having any errors and therefore CloudFormation is not relevant.\nAWS OpsWorks supports a blue-green deployment strategy. It does not support a canary deployment strategy.\nA\nblue-green\ndeployment strategy is a common way to efficiently use separate stacks to deploy an application update to production.\n• The blue environment is the production stack, which hosts the current application.\n• The green environment is the staging stack, which hosts the updated application.\nWhen you are ready to deploy the updated app to production, you switch user traffic from the blue stack to the green stack, which becomes the new production stack. You then retire the old blue stack.\nThis deployment strategy offers the ability to perform testing on the green environment before fully cutting over and this can improve reliability for updates.\nCORRECT:\n\"Implement a blue/green deployment strategy\" is the correct answer.\nINCORRECT:\n\"Implement the canary release strategy\" is incorrect. OpsWorks does not support a canary release methodology.\nINCORRECT:\n\"Implement CloudFormation change sets\" is incorrect. CloudFormation is used to deploy the underlying infrastructure stack (e.g. Amazon EC2 and related infrastructure), OpsWorks is being used to deploy the application updates.\nINCORRECT:\n\"Implement CloudFormation Stack sets\" is incorrect. As above.\nReferences:\nhttps://docs.aws.amazon.com/opsworks/latest/userguide/best-deploy.html#best-deploy-environments-blue-green\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-management-tools-sap/",
+   "domain": "CI",
+   "topic": "deployment-iac",
+   "note": "Relies on OpsWorks, end of life 2024; blue/green still best choice."
+  },
+  {
+   "id": "T1Q15",
+   "type": "Single Choice",
+   "stem": "An application stores user comment data in multiple Amazon DynamoDB tables. A solutions architect must use a serverless architecture to make the data accessible publicly through a simple and cost-effective API over HTTPS. The solution must scale automatically in response to demand.\nWhich solutions meet these requirements?",
+   "opts": [
+    [
+     "A",
+     "Create an Amazon API Gateway REST API. Configure this API with direct integrations to DynamoDB by using API Gateway's AWS Service integration type."
+    ],
+    [
+     "B",
+     "Create an Amazon API Gateway HTTP API. Configure this API with direct integrations to DynamoDB by using API Gateway's AWS Service integration type."
+    ],
+    [
+     "C",
+     "Create an Amazon API Gateway REST API. Configure this API with integrations to AWS Lambda functions that return data from the DynamoDB tables."
+    ],
+    [
+     "D",
+     "Create an Amazon API Gateway HTTP API. Configure this API with integrations to AWS Lambda functions that return data from the DynamoDB tables."
+    ]
+   ],
+   "correct": [
+    "D"
+   ],
+   "expl": "A REST API must be used to provide a direct AWS Service integration to Amazon DynamoDB. An AWS Lambda function is not needed in that case as direct integration is possible and API Gateway will scale seamlessly.\nHowever, in this case the requirement is for a simple and cost-effective API. This is therefore a good use case for an HTTP API which is lower cost. With an HTTP API direct integration to DynamoDB is not possible but you can connect to multiple Lambda functions and configure methods and paths. This solution meets all requirements.\nCORRECT:\n\"Create an Amazon API Gateway HTTP API. Configure this API with integrations to AWS Lambda functions that return data from the DynamoDB tables\" is the correct answer (as explained above.)\nINCORRECT:\n\"Create an Amazon API Gateway HTTP API. Configure this API with direct integrations to DynamoDB by using API Gateway's AWS Service integration type\" is incorrect.\nYou cannot create a direct integration to DynamoDB when using an HTTP API.\nINCORRECT:\n\"Create an Amazon API Gateway REST API. Configure this API with integrations to AWS Lambda functions that return data from the DynamoDB tables\" is incorrect.\nThis is a less cost-effective solution as explained above.\nINCORRECT:\n\"Create an Amazon API Gateway REST API. Configure this API with direct integrations to DynamoDB by using API Gateway's AWS Service integration type\" is incorrect.\nThis is a less cost-effective solution as explained above.\nReferences:\nhttps://aws.amazon.com/blogs/compute/using-amazon-api-gateway-as-a-proxy-for-dynamodb/\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/amazon-api-gateway/",
+   "domain": "NEW",
+   "topic": "serverless-integration",
+   "note": ""
+  },
+  {
+   "id": "T3Q11",
+   "type": "Single Choice",
+   "stem": "A pharmaceutical company has deployed an application on their private Amazon VPC. They need to use a third-party software-as-a-service (SaaS) application which is hosted in another AWS account inside an Amazon VPC.\nThey need to connect applications to the third-party SaaS from private subnets in the company VPC. The company’s security team has mandated policies that private network needs to be used without internet propagation. No resources that run in the company VPC are allowed to be accessed from outside the company's VPC. All permissions must conform to the principles of least privilege.\nWhich solution meets these requirements?",
+   "opts": [
+    [
+     "A",
+     "Create an AWS PrivateLink interface VPC endpoint. Connect this endpoint to the endpoint service that the third-party SaaS application provides. Create a security group to limit the access to the endpoint and associate the security group with the endpoint."
+    ],
+    [
+     "B",
+     "Create an AWS Site-to-Site VPN connection between the third-party SaaS application and the company VPC. Configure network ACLs to limit access across the VPN tunnels."
+    ],
+    [
+     "C",
+     "Create a VPC peering connection between the third-party SaaS application and the company VPC. Update route tables by adding the required routes for the peering connection."
+    ],
+    [
+     "D",
+     "Create an AWS PrivateLink endpoint service. Ask the third-party SaaS provider to create an interface VPC endpoint for this endpoint service. Grant permissions for the endpoint service to the specific account of the third-party SaaS provider."
+    ]
+   ],
+   "correct": [
+    "A"
+   ],
+   "expl": "AWS PrivateLink provides you option to connect to SaaS products privately, as if it is running on customer’s VPC itself.\nA service consumer creates a\nVPC endpoint\nto connect their VPC to an endpoint service. A service consumer must specify the service name of the endpoint service when creating a VPC endpoint. There are multiple types of VPC endpoints. You must create the type of VPC endpoint that's required by the endpoint service.\n-\nInterface\n- Create an\ninterface endpoint\nto send traffic to endpoint services that use a Network Load Balancer to distribute traffic. Traffic destined for the endpoint service is resolved using DNS.\n-\nGatewayLoadBalancer\n- Create a\nGateway Load Balancer endpoint\nto send traffic to a fleet of virtual appliances using private IP addresses. You route traffic from your VPC to the Gateway Load Balancer endpoint using route tables. The Gateway Load Balancer distributes traffic to the virtual appliances and can scale with demand.\n-\nGateway\n- Create a\ngateway endpoint\nto send traffic to Amazon S3 or DynamoDB using private IP addresses. You route traffic from your VPC to the gateway endpoint using route tables. Gateway endpoints do not enable AWS PrivateLink.\nIn this case the AWS PrivateLink service must already be published by the service provider. The company then acts as the service consumer by creating an interface endpoint to connect to the service provider’s service.\nCORRECT:\n\"Create an AWS PrivateLink interface VPC endpoint. Connect this endpoint to the endpoint service that the third-party SaaS application provides. Create a security group to limit the access to the endpoint. Associate the security group with the endpoint\" is the correct answer (as explained above.)\nINCORRECT:\n\"Create an AWS Site-to-Site VPN connection between the third-party SaaS application and the company VPC. Configure network ACLs to limit access across the VPN tunnels\" is incorrect.\nYou cannot create S2S VPNs between VPCs or applications using AWS services. This would need to be configured using 3rd party software.\nINCORRECT:\n\"Create a VPC peering connection between the third-party SaaS application and the company VPC. Update route tables by adding the required routes for the peering connection\" is incorrect.\nWhile VPC peering enables you to privately connect VPCs, AWS PrivateLink enables you to configure applications or services in VPCs as endpoints that your VPC peering connections can connect to. This is a more secure solution as there is less trust required.\nINCORRECT:\n\"Create an AWS PrivateLink endpoint service. Ask the third-party SaaS provider to create an interface VPC endpoint for this endpoint service. Grant permissions for the endpoint service to the specific account of the third-party SaaS provider\" is incorrect.\nThe AWS PrivateLink endpoint service is published by the service provider which in this case is the third-party SaaS provider. The company is then acting as the service consumer and needs to create a VPC interface endpoint.\nReferences:\nhttps://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-access-saas.html\nhttps://docs.aws.amazon.com/vpc/latest/privatelink/interface-endpoints.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/amazon-vpc/",
+   "domain": "ORG",
+   "topic": "networking-hybrid",
+   "note": ""
+  },
+  {
+   "id": "T1Q6",
+   "type": "Single Choice",
+   "stem": "A media company streams live events and records viewership metrics in real-time. The data is ingested through Amazon Kinesis Data Streams and then stored in Amazon S3. The company uses Amazon Athena to analyze viewership trends from the stored data. Initially, the Athena queries performed well, but as the data volume has grown over several months, query performance has degraded.\nThe solutions architect needs to optimize the query performance while keeping operational overhead low.\nWhich solution will effectively address the performance issue?",
+   "opts": [
+    [
+     "A",
+     "Create an AWS Glue job to aggregate daily viewership data into summary tables and modify the Athena queries to use these summary tables."
+    ],
+    [
+     "B",
+     "Configure the Kinesis Data Streams to categorize data into different S3 buckets based on the event type. Update the Athena queries to scan data from specific buckets based on the query requirements."
+    ],
+    [
+     "C",
+     "Configure the Kinesis Data Firehose delivery stream to partition the data in Amazon S3 by date and event type. Redefine the Athena table to include these partitions and modify the queries to specifically target relevant partitions."
+    ],
+    [
+     "D",
+     "Create an Amazon Redshift cluster and use Redshift Spectrum to query the S3 data. Modify the Athena queries to run against the Redshift Spectrum layer for improved performance."
+    ]
+   ],
+   "correct": [
+    "C"
+   ],
+   "expl": "Partitioning the data by date and event type using Kinesis Data Firehose and then updating the Athena table definitions to reflect these partitions can significantly improve query performance.\nBy doing so, Athena queries can be tailored to scan only the relevant partitions instead of the entire dataset, reducing the amount of data scanned and thus improving query efficiency.\nThis approach is operationally efficient as it leverages existing AWS services and structures without the need for extensive data processing or additional infrastructure management.\nCORRECT:\n\"Configure the Kinesis Data Firehose delivery stream to partition the data in Amazon S3 by date and event type. Redefine the Athena table to include these partitions and modify the queries to specifically target relevant partitions\" is the correct answer (as explained above.)\nINCORRECT:\n\"Create an AWS Glue job to aggregate daily viewership data into summary tables and modify the Athena queries to use these summary tables\" is incorrect.\nWhile creating summary tables can improve performance, it introduces additional complexity and operational overhead in maintaining these tables.\nINCORRECT:\n\"Configure the Kinesis Data Streams to categorize data into different S3 buckets based on the event type. Update the Athena queries to scan data from specific buckets based on the query requirements\" is incorrect.\nDistributing data across multiple buckets can complicate data management and may not significantly improve query performance compared to partitioning.\nINCORRECT:\n\"Create an Amazon Redshift cluster and use Redshift Spectrum to query the S3 data. Modify the Athena queries to run against the Redshift Spectrum layer for improved performance\" is incorrect.\nWhile Redshift Spectrum can enhance performance for certain workloads, setting up and maintaining a Redshift cluster introduces more operational complexity and cost, which may not align with the goal of minimizing operational overhead.\nReferences:\nhttps://docs.aws.amazon.com/firehose/latest/dev/basic-deliver.html#s3-object-format\nhttps://docs.aws.amazon.com/athena/latest/ug/partitions.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/amazon-kinesis/",
+   "domain": "CI",
+   "topic": "analytics-streaming",
+   "note": ""
+  },
+  {
+   "id": "T1Q8",
+   "type": "Single Choice",
+   "stem": "A company runs a data processing application on-premises and plans to move it to the AWS Cloud. Files are uploaded by users to a web application which then stores the files on an NFS-based storage system and places a message on a queue. The files are then processed from the queue and the results are returned to the user (and stored in long-term storage). This process can take up to 30 minutes. The processing times vary significantly and can be much higher during business hours.\nWhat is the MOST cost-effective migration recommendation?",
+   "opts": [
+    [
+     "A",
+     "Create a queue using Amazon SQS. Run the web application on Amazon EC2 and configure it to publish to the new queue. Use an AWS Lambda function to poll the queue, pull requests, and process the files. Store the processed files in an Amazon S3 bucket."
+    ],
+    [
+     "B",
+     "Create a queue using Amazon MQ. Run the web application on Amazon EC2 and configure it to publish to the new queue. Launch an Amazon EC2 instance from a preconfigured AMI to poll the queue, pull requests, and process the files. Store the processed files in Amazon EFS. Terminate the EC2 instance after the task is complete."
+    ],
+    [
+     "C",
+     "Create a queue using Amazon SQS. Run the web application on Amazon EC2 and configure it to publish to the new queue. Use Amazon EC2 instances in an EC2 Auto Scaling group to pull requests from the queue and process the files. Scale the EC2 instances based on the SQS queue length. Store the processed files in an Amazon S3 bucket."
+    ],
+    [
+     "D",
+     "Create a queue using Amazon MQ. Run the web application on Amazon EC2 and configure it to publish to the new queue. Use an AWS Lambda function to poll the queue, pull requests, and process the files. Store the processed files in Amazon EFS."
+    ]
+   ],
+   "correct": [
+    "C"
+   ],
+   "expl": "The best solution is to use Amazon SQS for the message queue, Amazon EC2 Auto Scaling for the processing layer, and Amazon S3 for the storage layer. This solution meets all requirements and is the lowest cost option available.\nThe ASG should also be configured to scale based on the ApproximateNumberOfMessages queue attribute. This is used in combination with an acceptable backlog per instance metric which defines the number of messages in the queue to use as scaling criteria.\nThe following diagram illustrates the architecture of this configuration.\nCORRECT:\n\"Create a queue using Amazon SQS. Run the web application on Amazon EC2 and configure it to publish to the new queue. Use Amazon EC2 instances in an EC2 Auto Scaling group to pull requests from the queue and process the files. Scale the EC2 instances based on the SQS queue length. Store the processed files in an Amazon S3 bucket\" is the correct answer.\nINCORRECT:\n\"Create a queue using Amazon SQS. Run the web application on Amazon EC2 and configure it to publish to the new queue. Use an AWS Lambda function to poll the queue, pull requests, and process the files. Store the processed files in an Amazon S3 bucket\" is incorrect. Lambda cannot process files for 30 minutes; it has a maximum execution time of 15 minutes.\nINCORRECT:\n\"Create a queue using Amazon MQ. Run the web application on Amazon EC2 and configure it to publish to the new queue. Launch an Amazon EC2 instance from a preconfigured AMI to poll the queue, pull requests, and process the files. Store the processed files in Amazon EFS. Terminate the EC2 instance after the task is complete\" is incorrect. If the instance is terminated each time then how can it poll the queue? This is not a workable solution.\nINCORRECT:\n\"Create a queue using Amazon MQ. Run the web application on Amazon EC2 and configure it to publish to the new queue. Use an AWS Lambda function to poll the queue, pull requests, and process the files. Store the processed files in Amazon EFS\" is incorrect. Lambda cannot be used as mentioned previously (max execution limit).\nReferences:\nhttps://docs.aws.amazon.com/autoscaling/ec2/userguide/as-using-sqs-queue.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-compute-sap/\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-application-integration-sap/",
+   "domain": "MIG",
+   "topic": "serverless-integration",
+   "note": ""
+  },
+  {
+   "id": "T4Q35",
+   "type": "Single Choice",
+   "stem": "A multinational corporation with offices in different regions has several AWS accounts, each managed by local IT teams. The corporation's central IT department, based in their headquarters, needs to gain oversight, and implement standardized security policies across all these regional AWS accounts.\nA solutions architect is tasked with enabling the central IT department to efficiently manage security policies and monitor compliance across all regional AWS accounts. After setting up AWS Organizations and inviting all regional accounts to join, what should be the next step to meet these requirements?",
+   "opts": [
+    [
+     "A",
+     "In each regional account, set up a dedicated IAM user for the central IT department with administrative privileges."
+    ],
+    [
+     "B",
+     "In each regional account, create a SecurityAudit IAM policy and apply it to the respective regional administrators."
+    ],
+    [
+     "C",
+     "In each regional account, establish the SecurityAudit IAM role and grant permission to the central account to assume this role."
+    ],
+    [
+     "D",
+     "In the central account, develop a custom AWS Lambda function that automatically applies security policies to all regional accounts."
+    ]
+   ],
+   "correct": [
+    "C"
+   ],
+   "expl": "By establishing a SecurityAudit IAM role (or a similarly purposed role) in each regional account and granting permissions to the central account to assume this role, the central IT department can efficiently manage and monitor security policies across all accounts.\nThis approach is aligned with AWS best practices for centralized management and governance in a multi-account environment.\nCORRECT:\n\"In each regional account, establish the SecurityAudit IAM role and grant permission to the central account to assume this role\" is the correct answer (as explained above.)\nINCORRECT:\n\"In each regional account, set up a dedicated IAM user for the central IT department with administrative privileges\" is incorrect.\nSetting up individual IAM users in each regional account for the central IT department is not efficient and does not leverage the centralized management capabilities of AWS Organizations.\nINCORRECT:\n\"In each regional account, create a SecurityAudit IAM policy and apply it to the respective regional administrators\" is incorrect.\nCreating a SecurityAudit IAM policy and applying it to regional administrators does not provide the central IT department with the ability to directly enforce and monitor security policies across accounts.\nINCORRECT:\n\"In the central account, develop a custom AWS Lambda function that automatically applies security policies to all regional accounts\" is incorrect.\nDeveloping a custom AWS Lambda function for policy application is unnecessary when AWS Organizations and IAM roles can be used to accomplish this task more effectively and with less complexity.\nReferences:\nhttps://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/aws-organizations/",
+   "domain": "ORG",
+   "topic": "identity-org",
+   "note": ""
+  },
+  {
+   "id": "T3Q7",
+   "type": "Select Multiple",
+   "stem": "A company plans to migrate a content management system (CMS) to AWS. The CMS will use Amazon CloudFront to ensure optimum performance for users from around the world. The CMS includes both static and dynamic content and has been placed behind an Application Load Balancer (ALB) which is the default origin for the CloudFront distribution. The static assets are served from an Amazon S3 bucket.\nWhen users attempt to access the static assets HTTP status code 404 errors are generated. Which actions should a Solutions Architect take to resolve the issue? (Select TWO.)",
+   "opts": [
+    [
+     "A",
+     "Add another origin to the CloudFront distribution for the static assets."
+    ],
+    [
+     "B",
+     "Add a rule to the distribution to forward GET method requests to Amazon S3."
+    ],
+    [
+     "C",
+     "Add a CachePolicyConfig to allow HTTP headers to be included in requests to the origin."
+    ],
+    [
+     "D",
+     "Add a behavior to the CloudFront distribution for the path pattern and the origin of the static assets."
+    ],
+    [
+     "E",
+     "Add a host header condition to the ALB listener and forward the header from CloudFront to add traffic to the allow list."
+    ]
+   ],
+   "correct": [
+    "A",
+    "D"
+   ],
+   "expl": "The configuration of Amazon CloudFront is such that all requests are being directed to the default origin, which in this case is the ALB. As the static assets do not exist on the ALB (more specifically, on its targets), the requests fail with a 404. A 404 HTTP status code indicates that the object has not been found.\nThe resolution to this issue is to add an additional origin that points to the S3 bucket and then use a path pattern behavior to direct requests for these URLs to the S3 origin. The pattern (for example, images/*.jpg) specifies which requests to apply the behavior to. When CloudFront receives a viewer request, the requested path is compared with path patterns in the order in which cache behaviors are listed in the distribution. This will resolve the 404 Not Found error messages.\nCORRECT:\n\"Add another origin to the CloudFront distribution for the static assets\" is a correct answer.\nCORRECT:\n\"Add a behavior to the CloudFront distribution for the path pattern and the origin of the static assets\" is a correct answer.\nINCORRECT:\n\"Add a rule to the distribution to forward GET method requests to Amazon S3\" is incorrect. GET method requests also need to be directed to the ALB, and you cannot configure rules to direct methods to different origins. You can configure the AllowedMethods parameter which controls which methods are available.\nINCORRECT:\n\"Add a CachePolicyConfig to allow HTTP headers to be included in requests to the origin\" is incorrect. This parameter specifies the values that CloudFront includes in the cache key. These values can include HTTP headers, cookies, and URL query strings. CloudFront uses the cache key to find an object in its cache that it can return to the viewer. This cannot be used to ensure that requests for the static assets will be directed to S3.\nINCORRECT:\n\"Add a host header condition to the ALB listener and forward the header from CloudFront to add traffic to the allow list\" is incorrect. This will not resolve the 404 Not Found errors. The only way to resolve these errors is to direct traffic to the correct origin.\nReferences:\nhttps://docs.aws.amazon.com/cloudfront/latest/APIReference/API_CacheBehavior.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-networking-content-delivery-sap/",
+   "domain": "MIG",
+   "topic": "dns-edge",
+   "note": ""
+  },
+  {
+   "id": "T3Q35",
+   "type": "Select Multiple",
+   "stem": "An eCommerce company runs a successful website with a growing base of customers. The website is becoming popular internationally and demand is increasing quickly. The website is currently hosted in an on-premises data center with web servers and a MySQL database. The company plans to migrate the workloads to AWS. A Solutions Architect has been asked to create a solution that:\n- Improves security\n- Improves reliability\n- Improves availability\n- Reduces latency\n- Reduces maintenance\nWhich combination of steps should the Solutions Architect take to meet these requirements? (Select THREE.)",
+   "opts": [
+    [
+     "A",
+     "Create an Auto Scaling group of Amazon EC2 instances in two Availability Zones and attach an Application Load Balancer."
+    ],
+    [
+     "B",
+     "Launch Amazon EC2 instances in two Availability Zones to host a highly available MySQL database cluster."
+    ],
+    [
+     "C",
+     "Migrate the database to an Amazon Aurora MySQL DB cluster configured for Multi-AZ."
+    ],
+    [
+     "D",
+     "Host static website content in Amazon S3. Use Amazon CloudFront to reduce latency while serving webpages. Use AWS WAF to improve website security."
+    ],
+    [
+     "E",
+     "Host static website content in Amazon S3. Use S3 Transfer Acceleration to reduce latency while serving webpages. Use AWS WAF to improve website security."
+    ],
+    [
+     "F",
+     "Migrate the database to a single-AZ Amazon RDS for MySQL DB instance."
+    ]
+   ],
+   "correct": [
+    "A",
+    "C",
+    "D"
+   ],
+   "expl": "This is a simple migration to cloud that requires a standard set of security, performance, and reliability requirements. To meet these requirements an ASG should be created across multiple AZs for the web layer. This should be behind an ALB for distributing incoming connections.\nFor the database layer an Aurora MySQL DB cluster with an Aurora Replica in another AZ will provide Multi-AZ failover. This ensures the DB layer is highly available, and reduces maintenance.\nAnother way to improve performance for global users is to host static content in Amazon S3 and use the Amazon CloudFront CDN to cache the content in Edge Locations around the world. Adding AWS WAF adds additional security.\nCORRECT:\n\"Create an Auto Scaling group of Amazon EC2 instances in two Availability Zones and attach an Application Load Balancer\" is a correct answer.\nCORRECT:\n\"Migrate the database to an Amazon Aurora MySQL DB cluster configured for Multi-AZ\" is a correct answer.\nCORRECT:\n\"Host static website content in Amazon S3. Use Amazon CloudFront to reduce latency while serving webpages. Use AWS WAF to improve website security\" is a correct answer.\nINCORRECT:\n\"Launch Amazon EC2 instances in two Availability Zones to host a highly available MySQL database cluster\" is incorrect. This requires more maintenance to maintain so is not the best solution.\nINCORRECT:\n\"Host static website content in Amazon S3. Use S3 Transfer Acceleration to reduce latency while serving webpages. Use AWS WAF to improve website security\" is incorrect. Transfer Acceleration is for uploading data using the CloudFront Edge network. For serving static assets use a CloudFront distribution.\nINCORRECT:\n\"Migrate the database to a single-AZ Amazon RDS for MySQL DB instance\" is incorrect. This does not provide the availability required, deploying an Aurora Replica in another AZ provides high availability.\nReferences:\nhttps://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Replication.html\nhttps://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-web-awswaf.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-compute-sap/\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-database-sap/",
+   "domain": "MIG",
+   "topic": "database",
+   "note": ""
+  },
+  {
+   "id": "T2Q10",
+   "type": "Single Choice",
+   "stem": "A Solutions Architect has deployed an application on Amazon EC2 instances in a private subnet behind a Network Load Balancer (NLB) in a public subnet. Customers have attempted to connect from their office location and are unable to access the application. The targets were registered by instance-id and are all healthy in the associated target group.\nWhat step should the Solutions Architect take to resolve the issue and enable access for the customers?",
+   "opts": [
+    [
+     "A",
+     "Check the security group for the EC2 instances to ensure it allows ingress from the NLB subnets."
+    ],
+    [
+     "B",
+     "Check the security group for the EC2 instances to ensure it allows ingress from the customer office."
+    ],
+    [
+     "C",
+     "Check the security group for the NLB to ensure it allows ingress from the EC2 instances’ security group."
+    ],
+    [
+     "D",
+     "Check the security group for the NLB to ensure it allows ingress from the NLB elastic IP addresses."
+    ]
+   ],
+   "correct": [
+    "B"
+   ],
+   "expl": "The Solutions Architect should check that the security group of the EC2 instances is allowing inbound connections from the customer office IP ranges. Note that NLBs do not have security groups configured and pass connections straight to EC2 instances with the source IP of the client preserved (when registered by instance-id).\nWith NLBs, when you register EC2 instances as targets, you must ensure that the security groups for these instances allow traffic on both the listener port and the health check port. We know that the health check port is already configured correctly as the targets are all healthy.\nCORRECT:\n\"Check the security group for the EC2 instances to ensure it allows ingress from the customer office\" is the correct answer.\nINCORRECT:\n\"Check the security group for the EC2 instances to ensure it allows ingress from the NLB subnets\" is incorrect. This is not necessary as the source IPs of clients are preserved.\nINCORRECT:\n\"Check the security group for the NLB to ensure it allows ingress from the EC2 instances’ security group\" is incorrect. The NLB security group does not receive incoming traffic from EC2, the traffic would come from the client.\nINCORRECT:\n\"Check the security group for the NLB to ensure it allows ingress from the NLB elastic IP addresses. There is no security group associated with an NLB. If using EIPs, these are associated with the nodes in the AZ but the NLB security group would not need to receive incoming traffic from the nodes.\nReferences:\nhttps://docs.aws.amazon.com/elasticloadbalancing/latest/network/target-group-register-targets.html#target-security-groups\nhttps://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/security-identity-compliance-sap/",
+   "domain": "CI",
+   "topic": "networking-hybrid",
+   "note": "Says NLBs have no security groups; NLB supports SGs since 2023. Key B still correct."
+  },
+  {
+   "id": "T1Q14",
+   "type": "Single Choice",
+   "stem": "A company has established a 10 Gbps AWS Direct Connect (DX) connection to a single VPC in an AWS Region. A single private VIF has been created for the existing DX connection. The company requires redundancy for the existing DX connection and needs to connect to an additional VPC in a second Region.\nWhich solution meets these requirements?",
+   "opts": [
+    [
+     "A",
+     "Create a new DX connection to the same Region. Provision a Direct Connect gateway and establish new private VIFs to a virtual private gateway in the VPCs in each Region."
+    ],
+    [
+     "B",
+     "Create a new DX connection to the same Region. Provision a Direct Connect gateway and establish new private VIFs to a transit gateway in the VPCs in each Region."
+    ],
+    [
+     "C",
+     "Create a new DX connection to the second Region. Create a new private VIF across the new DX connection to a virtual private gateway in the VPC in the second Region."
+    ],
+    [
+     "D",
+     "Create a new DX connection to the second Region. Provision a transit gateway and establish new private VIFs to a virtual private gateway in the VPCs in each Region."
+    ]
+   ],
+   "correct": [
+    "A"
+   ],
+   "expl": "Use AWS Direct Connect gateway to connect your VPCs. You associate an AWS Direct Connect gateway with either of the following gateways:\nA transit gateway when you have multiple VPCs in the same Region\nA virtual private gateway\nA Direct Connect gateway is a globally available resource. You can create the Direct Connect gateway in any Region and access it from all other Regions.\nIn this case the architecture should include a second DX connection from the on-premises network to the same Region as the existing DX connection to add redundancy. A DX GW can be provisioned and private VIFs can be created to virtual private gateways (VGWs) in the two AWS Regions the company wants to access.\nCORRECT:\n\"Create a new DX connection to the same Region. Provision a Direct Connect gateway and establish new private VIFs to a virtual private gateway in the VPCs in each Region\" is the correct answer (as explained above.)\nINCORRECT:\n\"Create a new DX connection to the same Region. Provision a Direct Connect gateway and establish new private VIFs to a transit gateway in the VPCs in each Region\" is incorrect.\nThe transit gateway is not required in this scenario as the company only has a single VPC they need to connect to in each Region.\nINCORRECT:\n\"Create a new DX connection to the second Region. Create a new private VIF across the new DX connection to a virtual private gateway in the VPC in the second Region\" is incorrect.\nThis does not provide the DX redundancy the company requires for the existing DX connection as the connection goes to a different Region and VPC.\nINCORRECT:\n\"Create a new DX connection to the second Region. Provision a transit gateway and establish new private VIFs to a virtual private gateway in the VPCs in each Region\" is incorrect.\nThe company requires redundancy for the existing DX connection in the same Region and will then need ta DX gateway to connect across Regions.\nReferences:\nhttps://docs.aws.amazon.com/directconnect/latest/UserGuide/direct-connect-gateways-intro.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/aws-direct-connect/",
+   "domain": "ORG",
+   "topic": "networking-hybrid",
+   "note": ""
+  },
+  {
+   "id": "T6Q4",
+   "type": "Single Choice",
+   "stem": "A company uses AWS CodeCommit for source control and AWS CodePipeline for continuous integration. The pipeline has a build stage which uses an Amazon S3 bucket for artifacts. The company requires a new development pipeline for testing new features. The new pipeline should be isolated from the production pipeline and incorporate continuous testing for unit tests.\nHow can a Solutions Architect meet these requirements?",
+   "opts": [
+    [
+     "A",
+     "Create a separate pipeline in CodePipeline and trigger execution using CodeCommit branches. Use AWS CodeBuild for running unit tests and stage the artifacts in an S3 bucket in a separate testing account."
+    ],
+    [
+     "B",
+     "Create a separate pipeline in CodePipeline and trigger execution using CodeCommit branches. Use AWS Lambda for running unit tests. Use AWS CodeDeploy to stage the artifacts within an S3 bucket in a separate testing account."
+    ],
+    [
+     "C",
+     "Create a separate pipeline in CodePipeline and trigger execution using CodeCommit tags. Use Jenkins for running unit tests. Create a stage in the pipeline with S3 as the target for staging the artifacts with an S3 bucket in a separate testing account."
+    ],
+    [
+     "D",
+     "Create a separate CodeCommit repository for feature development and use it to trigger the pipeline. Use AWS Lambda for running unit tests. Use AWS CodeBuild to stage the artifacts within different S3 buckets in the same production account."
+    ]
+   ],
+   "correct": [
+    "A"
+   ],
+   "expl": "Branches are pointers or references to a commit. In development, they're a convenient way to organize your work. You can use branches to separate work on a new or different version of files without affecting work in other branches. In this case a branch can trigger a separate pipeline and CodeBuild can be used for running unit tests in that pipeline. The artifacts can be stored in a separate account for isolation from the production environment.\nCORRECT:\n\"Create a separate pipeline in CodePipeline and trigger execution using CodeCommit branches. Use AWS CodeBuild for running unit tests and stage the artifacts in an S3 bucket in a separate testing account\" is the correct answer.\nINCORRECT:\n\"Create a separate pipeline in CodePipeline and trigger execution using CodeCommit branches. Use AWS Lambda for running unit tests. Use AWS CodeDeploy to stage the artifacts within an S3 bucket in a separate testing account\" is incorrect. CodeBuild should be used for running the units tests instead of Lambda.\nINCORRECT:\n\"Create a separate pipeline in CodePipeline and trigger execution using CodeCommit tags. Use Jenkins for running unit tests. Create a stage in the pipeline with S3 as the target for staging the artifacts with an S3 bucket in a separate testing account\" is incorrect. CodeCommit branches rather than tags should be used to trigger the pipeline and CodeBuild should be used for running the units tests instead of Jenkins.\nINCORRECT:\n\"Create a separate CodeCommit repository for feature development and use it to trigger the pipeline. Use AWS Lambda for running unit tests. Use AWS CodeBuild to stage the artifacts within different S3 buckets in the same production account\" is incorrect. Branches can be used instead of a separate CodeCommit repository, CodeBuild should run unit tests and a separate account should be used for storing artifacts.\nReferences:\nhttps://docs.aws.amazon.com/codecommit/latest/userguide/branches.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/aws-developer-tools-sap/",
+   "domain": "NEW",
+   "topic": "deployment-iac",
+   "note": "Relies on CodeCommit availability (see T5Q11 note)."
+  },
+  {
+   "id": "T6Q22",
+   "type": "Single Choice",
+   "stem": "A healthcare company has developed a series of microservices for processing patient data, hosted on AWS. These microservices are accessed through REST APIs managed by Amazon API Gateway. To comply with healthcare regulations, the company needs to ensure that these APIs are only accessible from their internal application, which runs on an Amazon EC2 instance within their AWS VPC. The application must securely access these APIs without exposing them to the public internet.\nWhich step should a solutions architect take to ensure that the REST APIs are securely accessible by the internal application, while complying with the healthcare regulations?",
+   "opts": [
+    [
+     "A",
+     "Set up an Elastic Load Balancer (ELB) in front of the API Gateway and restrict access to the ELB from the EC2 instance's security group."
+    ],
+    [
+     "B",
+     "Create an interface VPC endpoint for API Gateway in the VPC. Enable private DNS naming for the VPC endpoint and configure an API resource policy that allows access from the VPC endpoint. Use the API endpoint's DNS names to access the API from the EC2 instance."
+    ],
+    [
+     "C",
+     "Configure the API Gateway with a resource policy that restricts access to the IP range of the VPC in which the EC2 instance is running. Ensure the EC2 instance accesses the API Gateway using its public DNS name."
+    ],
+    [
+     "D",
+     "Deploy a reverse proxy server in the VPC and configure it to forward requests to the API Gateway. Restrict access to the proxy server from the EC2 instance only."
+    ]
+   ],
+   "correct": [
+    "B"
+   ],
+   "expl": "Creating an interface VPC endpoint for API Gateway enables the internal application on the EC2 instance to access the REST APIs directly through the AWS private network.\nEnabling private DNS naming for the VPC endpoint ensures the internal application can resolve the API Gateway endpoint within the VPC.\nThe API resource policy that allows access from the VPC endpoint ensures that the APIs are not accessible from the public internet, adhering to the healthcare regulations.\nCORRECT:\n\"Create an interface VPC endpoint for API Gateway in the VPC. Enable private DNS naming for the VPC endpoint and configure an API resource policy that allows access from the VPC endpoint. Use the API endpoint's DNS names to access the API from the EC2 instance\" is the correct answer (as explained above.)\nINCORRECT:\n\"Set up an Elastic Load Balancer (ELB) in front of the API Gateway and restrict access to the ELB from the EC2 instance's security group\" is incorrect.\nAn Elastic Load Balancer is typically used for balancing incoming internet or internal traffic and does not provide the necessary restriction for API Gateway access within a VPC.\nINCORRECT:\n\"Configure the API Gateway with a resource policy that restricts access to the IP range of the VPC in which the EC2 instance is running. Ensure the EC2 instance accesses the API Gateway using its public DNS name\" is incorrect.\nRestricting access based on IP range does not prevent the possibility of exposing the API to the public internet, and using the public DNS name for API access contradicts the requirement for internal-only access.\nINCORRECT:\n\"Deploy a reverse proxy server in the VPC and configure it to forward requests to the API Gateway. Restrict access to the proxy server from the EC2 instance only\" is incorrect.\nDeploying a reverse proxy server adds unnecessary complexity and does not leverage AWS's built-in capabilities for securing API Gateway access within a VPC.\nReferences:\nhttps://docs.aws.amazon.com/vpc/latest/privatelink/interface-endpoints.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/amazon-vpc/",
+   "domain": "NEW",
+   "topic": "security-data",
+   "note": ""
+  },
+  {
+   "id": "T1Q26",
+   "type": "Single Choice",
+   "stem": "A company uses AWS Organizations. The company recently acquired a new business unit and invited the new unit’s existing account to the company’s organization. The organization uses a deny list SCP in the root of the organization and all accounts are members of a single OU named Production.\nThe administrators of the new business unit discovered that they are unable to access AWS Database Migration Service (DMS) to complete an in-progress migration.\nWhich option will temporarily allow administrators to access AWS DMS and complete the migration project?",
+   "opts": [
+    [
+     "A",
+     "Remove the organization's root SCPs that limit access to AWS DMS. Create an SCP that allows AWS DMS actions and apply the SCP to the Production OU."
+    ],
+    [
+     "B",
+     "Create a temporary OU named Staging for the new account. Apply an SCP to the Staging OU to allow AWS DMS actions. Move the new account to the Production OU when the migration project is complete."
+    ],
+    [
+     "C",
+     "Convert the organization's root SCPs from deny list SCPs to allow list SCPs to allow the required services only. Temporarily apply an SCP to the organization's root that allows AWS DMS actions for principals only in the new account."
+    ],
+    [
+     "D",
+     "Create a temporary OU named Staging for the new account. Apply an SCP to the Staging OU to allow AWS DMS actions. Move the organization's deny list SCP to the Production OU. Move the new account to the Production OU when adjustments to AWS DMS are complete."
+    ]
+   ],
+   "correct": [
+    "D"
+   ],
+   "expl": "A deny list strategy uses an implicit deny and has an SCP named AWSFullAccess applied at the root level (by default) which allows all actions. In this case the company has applied a deny list SCP at the root level which denies access to specific services.\nIn AWS Organizations any account has only those permissions permitted by\nevery\nparent above it. If a permission is blocked at any level above the account, either implicitly (by not being included in an Allow policy statement) or explicitly (by being included in a Deny policy statement), a user or role in the affected account can't use that permission.\nTherefore, it will not be possible to allow services in an OU that have been denied at the root level. The only solution is to move the deny list from the root level to the Production OU (which means it is still effective for all other accounts) and then create a temporary OU with an SCP that allows AWS DMS (the AWSFullAccess would do this if it has not been removed).\nThe diagram below depicts the temporary configuration after the DenyList SCP has been moved to the Production OU:\nCORRECT:\n\"Create a temporary OU named Staging for the new account. Apply an SCP to the Staging OU to allow AWS DMS actions. Move the organization's deny list SCP to the Production OU. Move the new account to the Production OU when adjustments to AWS DMS are complete\" is the correct answer.\nINCORRECT:\n\"Remove the organization's root SCPs that limit access to AWS DMS. Create an SCP that allows AWS DMS actions and apply the SCP to the Production OU\" is incorrect. This would enabled AWS DMS for all member accounts which is more permissions than is required so this is not the best option.\nINCORRECT:\n\"Create a temporary OU named Staging for the new account. Apply an SCP to the Staging OU to allow AWS DMS actions. Move the new account to the Production OU when the migration project is complete\" is incorrect. The deny list SCP at the root level will not allow the restricted actions to be allowed at any level beneath so this will not work.\nINCORRECT:\n\"Convert the organization's root SCPs from deny list SCPs to allow list SCPs to allow the required services only. Temporarily apply an SCP to the organization's root that allows AWS DMS actions for principals only in the new account\" is incorrect. There is considerably more work involved with converting the SCPs, it would be much simpler to move the deny list SCP from the root to the Production OU to remove restrictions from higher in the hierarchy.\nReferences:\nhttps://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/category/aws-cheat-sheets/aws-solutions-architect-professional/security-identity-compliance-sap/",
+   "domain": "ORG",
+   "topic": "identity-org",
+   "note": ""
+  },
+  {
+   "id": "T1Q19",
+   "type": "Single Choice",
+   "stem": "A company is building a web application hosted on Amazon EC2 instances within an Auto Scaling group, fronted by a public-facing Application Load Balancer (ALB). The application should be accessible only to users from a designated country, and the company wants to log any access attempts that are blocked. The desired solution should be low maintenance.\nWhat approach should be taken to meet these requirements?",
+   "opts": [
+    [
+     "A",
+     "Create an IPSet with IP ranges specific to the target country. Set up an AWS WAF web ACL with a rule to deny requests not originating from these IP ranges. Link this rule to the web ACL and associate the web ACL with the ALB."
+    ],
+    [
+     "B",
+     "Create an AWS WAF web ACL with a geo-match rule to block requests from outside the specified country. Associate this rule with the web ACL, and then attach the web ACL to the ALB."
+    ],
+    [
+     "C",
+     "Implement AWS Shield with a configuration to reject requests not coming from the specified country. Integrate AWS Shield with the ALB."
+    ],
+    [
+     "D",
+     "Create a security group for the ALB that only permits traffic on ports 80 and 443 from IP ranges within the specified country."
+    ]
+   ],
+   "correct": [
+    "B"
+   ],
+   "expl": "AWS WAF (Web Application Firewall) provides the functionality to create custom web access control lists (ACLs) with specific rules. Using a geo-match rule in AWS WAF, the company can easily restrict access to users from a specific country.\nThis approach is not only effective but also low maintenance, as it doesn't require the manual upkeep of IP ranges. AWS WAF also offers logging capabilities, allowing the company to monitor and log any blocked access attempts. Associating this web ACL with the ALB ensures that the traffic filtering is applied directly to the incoming web traffic.\nCORRECT:\n\"Create an AWS WAF web ACL with a geo-match rule to block requests from outside the specified country. Associate this rule with the web ACL, and then attach the web ACL to the ALB\" is the correct answer (as explained above.)\nINCORRECT:\n\"Create an IPSet with IP ranges specific to the target country. Set up an AWS WAF web ACL with a rule to deny requests not originating from these IP ranges. Link this rule to the web ACL and associate the web ACL with the ALB\" is incorrect.\nWhile creating an IPSet and associating it with a web ACL can work, maintaining an up-to-date list of IP ranges for a specific country can be cumbersome and high maintenance.\nINCORRECT:\n\"Implement AWS Shield with a configuration to reject requests not coming from the specified country. Integrate AWS Shield with the ALB\" is incorrect.\nAWS Shield is primarily used for protection against DDoS attacks and does not offer the granular country-based traffic filtering required in this scenario.\nINCORRECT:\n\"Create a security group for the ALB that only permits traffic on ports 80 and 443 from IP ranges within the specified country\" is incorrect.\nSecurity groups are not designed for complex filtering based on geographic location. Maintaining a list of IP ranges for a specific country in a security group would be labor-intensive and not practical for this use case.\nReferences:\nhttps://docs.aws.amazon.com/waf/latest/developerguide/what-is-aws-waf.html\nhttps://docs.aws.amazon.com/waf/latest/developerguide/logging.html\nSave time with our AWS cheat sheets:\nhttps://digitalcloud.training/aws-waf-shield/",
+   "domain": "NEW",
+   "topic": "dns-edge",
+   "note": ""
+  }
+ ]
+}
