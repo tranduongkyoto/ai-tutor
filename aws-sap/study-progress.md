@@ -178,7 +178,7 @@ Udemy Test #2/#3: 48 of 75 questions each were already seen in chapter drills, s
 
 Pearson global free-retake offer (09-29 – 11-17) excludes SAP — not usable. Use the SAA-C03 50% voucher if available.
 
-### Sprint plan (SAP-C02, 10-06 → exam ~10-23/24) — updated 10-14 (**plan A**: 1 retake + review per day, TD4 gate 10-19, earlier exam)
+### Sprint plan (SAP-C02, 10-06 → exam 11-02) — updated 10-22 (**plan N**: 10-23 dropped; 2 unseen Neal exams decide whether 11-02 stays)
 
 | Date | Focus |
 |---|---|
@@ -197,9 +197,15 @@ Pearson global free-retake offer (09-29 – 11-17) excludes SAP — not usable. 
 | **10-19** | ✅ TD2 retake redo Pass 1 **13/13** (8 misses + 5 unsure-right, shuffled) · ✅ TD2 flashcards R1 **74/75** (❌ F12 S3 Transfer Acceleration vs multipart) · ⚠️ **TD Set 4 timed — Gate 2: 50/75 (66.7%)** in 180 min — **first attempt, unseen** — Migration 100%, Org 100%, New Solutions 68%, **Continuous Improvement 56%**; multi-select 9/16 (all 7 misses partial); thirds 18/18/**14** · **Gate rule <70% → keep 11-02, no earlier reschedule** |
 | **10-20** | ✅ TD4 review 🇻🇳 built 10-19 (25 misses, `td4_review.md`) + flashcards `td4-flashcards.html` · ✅ TD4 redo Pass 1 **25/25** (all groups, shuffled order + letters, ~5 h after reading 🇻🇳) · ✅ TD4 flashcards R1 **74/75 (99%)** (❌ E17 read-heavy RDS → ElastiCache + read replicas, not CloudFront — TD4 Q72) · ~~reschedule to 10-23/24~~ → **decided 10-19: keep 11-02** (TD4 <70%) · new 13-day plan |
 | **10-21** | ✅ **TD3 full timed retake 66/75 (88%)** (was 42/75 on 10-05) — CI **87.2%** (was 51%), 29/33 old misses fixed, 5 regressions; misses Q1🔁 Q34 Q38 Q40🔁 Q41🔁 Q47 Q56🔁 Q62🔁 (Redshift DR 3rd) Q68 · ✅ TD3 retake review 🇻🇳 · **10-23 gate: GO** (TD3 ≥80% + CI ≥65%) · ✅ TD3 redo Pass 1 **9/9** (shuffled) · ✅ rule-sheet flashcards page built (133 cards, 36 🔁) |
-| 10-22 | Still-missed (TD3 + TD4) + 🔁 cards · rule sheet + weak-areas self-test · stop by 18:00 |
-| **10-23 / 10-24** | **Exam attempt 1 (210 min with ESL +30)** — fallback: 11-02 booking kept |
-| (~11-07) | Earliest C02 retake if needed (14 days) · last C02 day 11-16 |
+| **10-22** | ✅ **Neal Exam A 54/75 (72%)** unseen, 210 min (time up, all answered) — ORG 69 · NEW 73 · CI 74 · MIG 69; single 42/54, **multi 12/21 (8/9 misses half right)**; thirds **16**/19/19 · gate ≥80% not met (decision after Neal B) · ✅ review 🇻🇳 (`neal_a_review.md`, 21 misses) |
+| 10-23 | Neal A review 🇻🇳 + redo Pass 1 · rule-sheet flashcards 🔁 · weak domains from Neal A |
+| 10-24 – 10-25 | Fix Neal A weak domains (concept review + targeted drills, no retakes of seen sets) · 1 rest half-day |
+| **10-26** | **Neal Exam B** (75 unseen, 210 min) → review --vi |
+| **10-27** | **Decision (≥24 h before 11-02, uses reschedule 1 of 2):** A ≥80% **and** B ≥80% → **keep 11-02** · 75–79% → keep 11-02 if trend ↑, else move · <75% → **move to 11-06 – 11-10** (last C02 day 11-16, no retake buffer) |
+| 10-28 – 10-30 | Neal B redo + weak domains · flashcards 🔁 |
+| 10-30 / 10-31 | **Neal Exam C** (35, 98 min) final check — ≥80% confirms; <70% → consider moving (still ≥24 h before) |
+| 11-01 | Rest · logistics (ID, check-in, ESL +30) |
+| **11-02** | **Exam attempt 1 (210 min)** unless moved on 10-27 · retake from 11-16 only if a slot exists |
 
 **Dropped in plan A:** new course material, Udemy passes, extra drills, new tools. Kept: retake → review → redo misses, 15 min rule sheet/day.
 

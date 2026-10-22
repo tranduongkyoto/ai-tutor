@@ -1,0 +1,141 @@
+{
+ "title": "Neal Exam A — 75 questions (2026-10-22)",
+ "analysis_file": "neal_a_analysis.md",
+ "wrong_review_file": "neal_a_review.md",
+ "wrong": {
+  "groups": {
+   "A": "Known rule, new wording (VM Import, Budgets, Service Catalog, DR tier, WAF + usage plan)",
+   "B": "Multi-select half right (one correct pick, one plausible distractor kept)",
+   "C": "Access & security design (no open ports, multi-AZ + WAF logging, cross-account write)",
+   "D": "Service fit / hidden constraint (Lambda vs Fargate, Snowball tuning, DX carriers, licensing, PHZ association)"
+  },
+  "questions": {
+   "1": {
+    "group": "B",
+    "keywords": "redirect 10 domains by JSON route, HTTP and HTTPS, least operational effort, select three",
+    "trap": "Picked C and D: a plain Lambda or API Gateway needs code change per JSON update and misses the edge. Missed ALB HTTP/HTTPS listeners (B) and ACM SAN certificate (F).",
+    "rule": "Many domains: ACM cert with SANs + CloudFront Lambda@Edge for redirect logic; ALB needs both HTTP and HTTPS listeners."
+   },
+   "4": {
+    "group": "B",
+    "keywords": "15 GB/day statistics, S3 plus Athena, date-range queries, optimal performance, select two",
+    "trap": "Picked B: a bucket per date range is not an Athena tuning practice. Missed Hive-style date partitioning (E), which prunes scans for date queries.",
+    "rule": "Athena speed: columnar Parquet/ORC + date partitions so date-range queries scan less data."
+   },
+   "5": {
+    "group": "C",
+    "keywords": "bastion SSH replacement, auditing, increase security control, Amazon Linux 2, VPN",
+    "trap": "Picked EC2 Instance Connect: it needs inbound port 22 reachable and gives weaker audit than Session Manager. Session Manager uses IAM role, no inbound ports, logged sessions.",
+    "rule": "Auditable access without open ports or bastions: SSM role + Session Manager; remove port 22 rules."
+   },
+   "11": {
+    "group": "A",
+    "keywords": "on-premises VMware app to EC2, preserve software and configuration",
+    "trap": "🔁 Picked DataSync + FSx for Windows datastore: wrong tool, VMware data store is not a file share. Intended path is OVF export to S3 then VM Import.",
+    "rule": "VM as-is to EC2: export OVF/OVA to S3, VM Import role, import-image."
+   },
+   "13": {
+    "group": "A",
+    "keywords": "Redshift cost per team, budget threshold notification, view spend, multi-account, select two",
+    "trap": "🔁 Picked C (CloudTrail data events plus billing alarm): CloudTrail logs API calls, not cost. Missed Budgets resource in CloudFormation (A) plus Service Catalog products (E).",
+    "rule": "Cost alerts = AWS Budgets, not CloudTrail or CloudWatch agent; self-service enforced centrally = Service Catalog products with budgets attached."
+   },
+   "15": {
+    "group": "D",
+    "keywords": "batch scripts to serverless microservices, steps take seconds, most cost-effective, orchestrate",
+    "trap": "Picked Fargate containers + Step Functions: serverless but costlier than Lambda for seconds-long steps. Lambda fits under the 15-minute limit; Step Functions orchestrates.",
+    "rule": "Short steps + serverless + orchestration: Lambda + Step Functions; Fargate costs more, EventBridge is not an orchestrator."
+   },
+   "16": {
+    "group": "B",
+    "keywords": "AD domain controllers as DHCP DNS, interface endpoint names not resolving, select two",
+    "trap": "Picked E (VPC resolver as secondary DNS): a secondary DNS is only a failover, not split by query. Fix is DC forwarding of non-authoritative queries (D).",
+    "rule": "Custom DNS servers need a forward path to the VPC resolver; secondary DNS does not split queries."
+   },
+   "17": {
+    "group": "C",
+    "keywords": "highly available EC2 app, filter common vulnerabilities, send rejected requests to third-party audit",
+    "trap": "Picked B: ALB with instances but no multi-AZ Auto Scaling group, and WAF logs via CloudWatch plus Lambda polling. Needs multi-AZ ASG, managed rules, WAF logging to Firehose.",
+    "rule": "HA = multi-AZ Auto Scaling group; WAF logs go to Kinesis Data Firehose, which can deliver to third-party endpoints."
+   },
+   "22": {
+    "group": "B",
+    "keywords": "expense app Friday bursts, finance month-end reports, HA, least operational overhead, select two",
+    "trap": "Picked B (ECS behind ALB): containers still need cluster or capacity management unless Fargate. Serverless S3/CloudFront + API Gateway + Lambda (C) has least overhead.",
+    "rule": "Least overhead + bursty: serverless front/back end (S3, CloudFront, API Gateway, Lambda); S3 + Athena + QuickSight for reports."
+   },
+   "27": {
+    "group": "B",
+    "keywords": "Route 53 API throttling from Lambda at thousands of Spot instances, buffering, select three",
+    "trap": "Picked A (SQS FIFO): FIFO is not required here, ordering is irrelevant; a standard queue buffers the events. Rule intended is standard SQS as the target (E).",
+    "rule": "Route 53 API rate limit: buffer events in SQS (standard is enough), batch API calls from Lambda."
+   },
+   "32": {
+    "group": "A",
+    "keywords": "Reserved Instances should cover 70% of workload, alert DevOps if coverage drops",
+    "trap": "🔁 Picked Cost Explorer RI utilization report: utilization is purchased RI hours used, not coverage, and Cost Explorer does not alert. Use a Budgets RI coverage budget.",
+    "rule": "RI coverage threshold alert = AWS Budgets coverage budget; utilization is a different metric."
+   },
+   "34": {
+    "group": "A",
+    "keywords": "three-tier app, two Regions, failover within 1 minute, NoSQL tier, select three",
+    "trap": "🔁 Picked F (active/active on Spot): Spot capacity can be reclaimed, unacceptable for the always-on production tier. Pick active/passive ASG with zonal RIs plus On-Demand (E).",
+    "rule": "Always-on production tier: Reserved baseline + On-Demand, never Spot; DR tier matches 1-minute RTO with failover record and low TTL."
+   },
+   "37": {
+    "group": "B",
+    "keywords": "CloudHSM M of N quorum authentication first-time setup, two of four officers, select two",
+    "trap": "Picked D (IAM policy): the quorum value is set inside the HSM by a CO, not in IAM. Missed registering the signing key with registerMofnPubKey (A).",
+    "rule": "CloudHSM quorum setup: CO registers signing keys, then sets M value in the HSM; token comes after setup."
+   },
+   "41": {
+    "group": "A",
+    "keywords": "API Gateway Regional REST API, botnet traffic, few US companies twice daily, secure at minimum cost",
+    "trap": "🔁 Picked CloudFront + WAF per-day rate rule: WAF rate rules use short windows, not per day; CloudFront adds cost. Needs WAF IP allow-list plus usage plan and API key.",
+    "rule": "Known client IPs + low volume: WAF IP allow-list on the API, usage plan + API key; skip CloudFront."
+   },
+   "44": {
+    "group": "B",
+    "keywords": "SAML 2.0 federation fails for test users, what to check, select three",
+    "trap": "Picked C (users' permission policy for AssumeRoleWithSAML): federated users are not IAM users; trust and mapping matter. Missed IdP assertions mapping users to roles (F).",
+    "rule": "SAML federation checks: role trust policy names SAML provider, IdP assertion maps to roles, portal calls AssumeRoleWithSAML."
+   },
+   "53": {
+    "group": "C",
+    "keywords": "Windows and Linux EC2, RDP/SSH open to world, most secure management, no corporate connection",
+    "trap": "Picked VPN with RDP/SSH open from corporate range: ports still open and weaker auditing. Session Manager needs no inbound ports and logs sessions.",
+    "rule": "Most secure instance admin: Session Manager with IAM permissions; no inbound RDP/SSH, no bastion."
+   },
+   "55": {
+    "group": "D",
+    "keywords": "50 TB millions of small files, Snowball Edge copy slow, encryption overhead",
+    "trap": "Picked USB direct copy: Snowball Edge has no USB data interface. Intended speedup is parallel copy operations from separate Snowball client instances.",
+    "rule": "Snowball small-file speed: run multiple parallel copy commands, batch small files, copy directories."
+   },
+   "56": {
+    "group": "D",
+    "keywords": "single Direct Connect private VIF, business-critical, most resilient connectivity",
+    "trap": "Picked VPN to separate VGWs: internet VPN is a less reliable backup than a second DX. Second DX from a different carrier gives physical diversity; VGW is already redundant.",
+    "rule": "Most resilient hybrid link: second Direct Connect from a different carrier/location; VPN is a cheaper backup only."
+   },
+   "70": {
+    "group": "C",
+    "keywords": "Dev account pipeline upload to Prod S3 bucket, OAI-only policy, uploads denied",
+    "trap": "Picked bucket-owner-full-control ACL: the bucket policy allows only the OAI, so Dev role is denied before any ACL applies. Needs a Prod-account role to write.",
+    "rule": "Cross-account S3 write when bucket only trusts OAI: assume a role in the bucket account."
+   },
+   "72": {
+    "group": "D",
+    "keywords": "Oracle on EC2, eliminate licensing costs, scalability and reliability, unstructured data",
+    "trap": "Picked RDS Oracle Multi-AZ: still licensed Oracle, so licensing cost is not eliminated. Unstructured data moves to DynamoDB.",
+    "rule": "Eliminate Oracle licensing: move to open-source engine or DynamoDB; RDS Oracle keeps license cost."
+   },
+   "74": {
+    "group": "D",
+    "keywords": "hybrid DNS, private hosted zone, on-premises and all VPCs resolve internal.company.local, highest performance",
+    "trap": "Picked D: PHZ associated only to the shared services VPC, so other VPCs cannot resolve. Associate the PHZ with all VPCs and use inbound endpoint.",
+    "rule": "On-premises to PHZ = inbound resolver endpoint; PHZ must be associated with every VPC that should resolve it."
+   }
+  }
+ }
+}

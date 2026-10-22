@@ -9,7 +9,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 2. **Managed service > DIY.** Lambda/SQS/EC2 pipeline when Glue, MediaConvert, Transfer Family, Patch Manager, Service Catalog, IoT Core or Batch exists → ✗.
 3. **Don't overbuild.** One-off / short deadline / "quick" → no RIs, no full migration, no hot standby. Match the DR tier to the RTO. Pick the **lightest feature** that works: Athena > Redshift for a nightly window, CloudFront Functions > Lambda@Edge for rewrites. 🔁×3 (TD3, Udemy3, TD6)
 4. **Detect ≠ prevent.** "Don't block developers" / "detect" → Config rule + remediation. "Prevent" / "**enforce**" / "block" → SCP / IAM deny (+ tag policy). 🔁
-5. **Multi-select:** both picks must complete the **same** solution. Kill any option with one wrong clause or an internal contradiction.
+5. **Multi-select:** both picks must complete the **same** solution; after the sure pick, test every other option against **each** stem requirement (TD4 7/7, Neal A 8/9 misses were half right). Kill any option with one wrong clause or an internal contradiction.
 6. **"Serverless" in the stem** → Aurora Serverless, Redshift Serverless, Fargate, DynamoDB, EventBridge.
 7. **Twin options:** when 2 options are almost word-for-word the same, find the ONE phrase that differs and judge only that (IA vs Deep Archive, public vs VPC endpoint, ALB vs NLB, which account). 🔁 (TD5 marathon 5/10; TD4 Q14 CodeDeploy clause, Q63 SQS→Step Functions, Q41 behavior vs ALB rule)
 
@@ -25,6 +25,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - Rotation/lifecycle → **Secrets Manager** (ECS `secrets`/`valueFrom`) ✗ Parameter Store 🔁 · CFN → `{{resolve:secretsmanager:…}}`
 - Org: RAM needs **trusted access** · StackSets **service-managed** + auto-deploy · org trail + Config aggregator + Security Hub delegated admin
 - Cost by tag → activate tags in the **mgmt account** + CUR 🔁 · org dashboard → CUR → QuickSight · alerts → Budgets · self-service → Service Catalog + launch constraint
+- Alert on cost, RI/SP **coverage** or utilization → **AWS Budgets** (coverage/utilization budget) ✗ CloudWatch/CloudTrail 🔁 (Neal A Q13, Q32) · admin access with no open ports → **Session Manager** + IAM (no bastion, no inbound SSH/RDP)
 - Tamper-proof CloudTrail → log file validation + MFA Delete (KMS = confidentiality only)
 - "Notify + auto-fix on an API call" (CreateUser…) → CloudTrail → **EventBridge rule** → Step Functions/Lambda remediate + SNS 🔁 (TD4 Q5) · zonal RIs share across consolidated-billing accounts only in the **same AZ + type**
 
@@ -36,6 +37,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - S3 from private subnet → **gateway endpoint** ✗ NAT 🔁 · lock it down → endpoint policy + access point + bucket policy (`aws:sourceVpce`) 🔁
 - Packet contents → **Traffic Mirroring** ✗ Flow Logs 🔁 · block an IP → NACL deny · REJECT + source IP → Flow Logs
 - Cross-account PHZ → `create-vpc-association-authorization` + `associate-vpc-with-hosted-zone` ✗ NS delegation 🔁 · Resolver **outbound** + forwarding rule = queries leaving the VPC (on-prem / custom AD domain) · inbound = into the VPC
+- On-prem resolves a **private hosted zone** → Resolver **inbound** endpoint + PHZ associated with every VPC that needs it · most resilient hybrid link → 2nd DX at a different location/carrier (VPN = cheaper backup)
 - Private-IP health check → CloudWatch alarm → Route 53 health check on the alarm · PHZ resolution → `enableDnsSupport` + `enableDnsHostnames`
 - R53: failover = active-passive · latency + Evaluate Target Health = active-active · geolocation doesn't block · apex → alias
 - **DNS caching blocks a fast shift** → Global Accelerator dials/weights · user → specific instance → GA custom routing · **GA can't front S3** 🔁
