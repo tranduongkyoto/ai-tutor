@@ -12,27 +12,27 @@ Source: `sap-neal-exam-a-2026-10-221021-results.md` (Q# = shuffled web order). Q
 
 | Group | Q | Pass 1 | Pass 2 | Pass 3 |
 |---|---|---|---|---|
-| A | [Q11](#q11) | ☐ | ☐ | ☐ |
-| A | [Q13](#q13) | ☐ | ☐ | ☐ |
-| A | [Q32](#q32) | ☐ | ☐ | ☐ |
-| A | [Q34](#q34) | ☐ | ☐ | ☐ |
-| A | [Q41](#q41) | ☐ | ☐ | ☐ |
-| B | [Q1](#q1) | ☐ | ☐ | ☐ |
-| B | [Q4](#q4) | ☐ | ☐ | ☐ |
-| B | [Q16](#q16) | ☐ | ☐ | ☐ |
-| B | [Q22](#q22) | ☐ | ☐ | ☐ |
-| B | [Q27](#q27) | ☐ | ☐ | ☐ |
-| B | [Q37](#q37) | ☐ | ☐ | ☐ |
-| B | [Q44](#q44) | ☐ | ☐ | ☐ |
-| C | [Q5](#q5) | ☐ | ☐ | ☐ |
-| C | [Q17](#q17) | ☐ | ☐ | ☐ |
-| C | [Q53](#q53) | ☐ | ☐ | ☐ |
-| C | [Q70](#q70) | ☐ | ☐ | ☐ |
-| D | [Q15](#q15) | ☐ | ☐ | ☐ |
-| D | [Q55](#q55) | ☐ | ☐ | ☐ |
-| D | [Q56](#q56) | ☐ | ☐ | ☐ |
-| D | [Q72](#q72) | ☐ | ☐ | ☐ |
-| D | [Q74](#q74) | ☐ | ☐ | ☐ |
+| A | [Q11](#q11) | ✅ 10-23 | ☐ | ☐ |
+| A | [Q13](#q13) | ✅ 10-23 | ☐ | ☐ |
+| A | [Q32](#q32) | ✅ 10-23 | ☐ | ☐ |
+| A | [Q34](#q34) | ✅ 10-23 | ☐ | ☐ |
+| A | [Q41](#q41) | ✅ 10-23 | ☐ | ☐ |
+| B | [Q1](#q1) | ✅ 10-23 | ☐ | ☐ |
+| B | [Q4](#q4) | ✅ 10-23 | ☐ | ☐ |
+| B | [Q16](#q16) | ✅ 10-23 | ☐ | ☐ |
+| B | [Q22](#q22) | ✅ 10-23 | ☐ | ☐ |
+| B | [Q27](#q27) | ✅ 10-23 | ☐ | ☐ |
+| B | [Q37](#q37) | ✅ 10-23 | ☐ | ☐ |
+| B | [Q44](#q44) | ✅ 10-23 | ☐ | ☐ |
+| C | [Q5](#q5) | ✅ 10-23 | ☐ | ☐ |
+| C | [Q17](#q17) | ✅ 10-23 | ☐ | ☐ |
+| C | [Q53](#q53) | ✅ 10-23 | ☐ | ☐ |
+| C | [Q70](#q70) | ✅ 10-23 | ☐ | ☐ |
+| D | [Q15](#q15) | ✅ 10-23 | ☐ | ☐ |
+| D | [Q55](#q55) | ✅ 10-23 | ☐ | ☐ |
+| D | [Q56](#q56) | ✅ 10-23 | ☐ | ☐ |
+| D | [Q72](#q72) | ✅ 10-23 | ☐ | ☐ |
+| D | [Q74](#q74) | ✅ 10-23 | ☐ | ☐ |
 
 ---
 
@@ -404,6 +404,21 @@ Chọn đúng **3 mảnh ghép** cho 3 việc: DNS failover, tầng data, tầng
 
 F trông hợp lý vì active/active nghe "HA hơn". Nhưng điểm gãy là **Spot Instances cho toàn bộ tài nguyên bắt buộc**: Spot có thể bị thu hồi hoặc không có capacity khi giá vượt mức đặt. Khi đó web/app tier có thể không có instance đúng lúc cần, phá yêu cầu "minimize impact on user experience". E dùng **zonal Reserved Instances** cho mức tối thiểu (zonal RI có reserve capacity trong AZ) + **On-Demand** cho phần dư, nên capacity luôn sẵn.
 
+#### Thắc mắc: "failover trong 1 phút thì active/active (F) phải tốt hơn chứ?"
+
+Lập luận này **đúng một nửa**: active/active chuyển nhanh hơn active/passive. Nếu có phương án "active/active + On-Demand/RI" thì đó là ứng viên mạnh. Nhưng F bị loại vì **2 lý do khác**, không phải vì chữ "active/active":
+
+| Lý do | Giải thích |
+|---|---|
+| **1. Spot cho toàn bộ tài nguyên** | Spot bị thu hồi khi AWS cần lại capacity (báo trước 2 phút) hoặc không có capacity → không đảm bảo "high availability" và "minimize impact on user experience". Nếu Spot mất ở cả 2 Region thì không còn chỗ để failover |
+| **2. Không khớp với B (đã chọn)** | B = Route 53 **failover** routing = mô hình **active/passive** (chỉ chuyển khi primary unhealthy). Active/active thường đi với **latency/weighted** routing. B + C + F là ghép 2 thiết kế khác nhau → vi phạm quy tắc multi-select "mọi lựa chọn phải cùng một giải pháp" |
+
+**E vẫn đạt mục tiêu 1 phút** vì Region phụ **luôn chạy sẵn số server tối thiểu** (zonal RI = vừa rẻ vừa **đặt trước capacity**), tức là warm standby chứ không phải cold standby. Khi failover: health check phát hiện lỗi → DNS chuyển (TTL 30s) → server đã chạy sẵn nhận traffic → ASG thêm On-Demand nếu cần.
+
+📝 **Ghi chú kỹ thuật (sửa giải thích của Neal):**
+- Câu *"Due to the 1-minute RTO these must be configured in an active/passive state"* là **lập luận sai**: active/active cũng đáp ứng RTO 1 phút. Lý do thật F sai là **Spot** + **không khớp failover routing của B**.
+- Câu *"Spot instances may not be available if the maximum price configured is exceeded"* là cách hiểu **cũ**. Từ 2017, giá Spot không còn đấu giá; rủi ro chính hiện nay là **AWS thu hồi capacity** (interruption), không phải vượt giá tối đa. Kết luận "Spot không phù hợp tầng bắt buộc" vẫn đúng.
+
 #### Các phương án sai còn lại
 
 - **A:** weighted 100/0 không tự chuyển khi lỗi (phải sửa weight thủ công), và TTL 30 **phút** thì client giữ cache DNS quá lâu, vượt xa 1 phút.
@@ -429,6 +444,7 @@ F trông hợp lý vì active/active nghe "HA hơn". Nhưng điểm gãy là **S
 - **Thấy "relational + cross-Region"** → Aurora global database nhưng chỉ **1 writer Region**
 - **Thấy "failover trong ~1 phút"** → **Route 53 failover + TTL thấp (giây)**, không phải weighted/TTL phút
 - **Thấy "Spot" cho phần bắt buộc, luôn phải có** → loại; Spot chỉ cho phần dư/chịu gián đoạn
+- **"Active/active" + Spot = bẫy.** Route 53 **failover** ↔ **active/passive**; **latency/weighted** ↔ **active/active**. Chọn tầng web/app phải khớp kiểu routing đã chọn
 
 ### TD explanation
 

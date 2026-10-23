@@ -23,9 +23,9 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - Central backups + retention + cross-Region copy + alerts → **AWS Backup** plan (copy action + SNS) ✗ DLM/Lambda glue
 - Existing Microsoft AD → **Directory Service** (Managed AD + trust) → SSO; don't recreate users in Identity Center
 - Rotation/lifecycle → **Secrets Manager** (ECS `secrets`/`valueFrom`) ✗ Parameter Store 🔁 · CFN → `{{resolve:secretsmanager:…}}`
-- Org: RAM needs **trusted access** · StackSets **service-managed** + auto-deploy · org trail + Config aggregator + Security Hub delegated admin
+- Team isolation + per-team billing → **account per team** in Organizations + SCPs; security tooling in a **delegated security account**, never the management account (✗ security account as mgmt/payer) · Org: RAM needs **trusted access** · StackSets **service-managed** + auto-deploy · org trail + Config aggregator + Security Hub delegated admin
 - Cost by tag → activate tags in the **mgmt account** + CUR 🔁 · org dashboard → CUR → QuickSight · alerts → Budgets · self-service → Service Catalog + launch constraint
-- Alert on cost, RI/SP **coverage** or utilization → **AWS Budgets** (coverage/utilization budget) ✗ CloudWatch/CloudTrail 🔁 (Neal A Q13, Q32) · admin access with no open ports → **Session Manager** + IAM (no bastion, no inbound SSH/RDP)
+- Alert on cost, RI/SP **coverage** or utilization → **AWS Budgets** (coverage/utilization budget) ✗ CloudWatch/CloudTrail 🔁 (Neal A Q13, Q32) · spend **spike vs historical pattern** → **Cost Anomaly Detection** (learns baseline) ✗ Budgets = static thresholds you set · admin access with no open ports → **Session Manager** + IAM (no bastion, no inbound SSH/RDP)
 - Tamper-proof CloudTrail → log file validation + MFA Delete (KMS = confidentiality only)
 - "Notify + auto-fix on an API call" (CreateUser…) → CloudTrail → **EventBridge rule** → Step Functions/Lambda remediate + SNS 🔁 (TD4 Q5) · zonal RIs share across consolidated-billing accounts only in the **same AZ + type**
 
