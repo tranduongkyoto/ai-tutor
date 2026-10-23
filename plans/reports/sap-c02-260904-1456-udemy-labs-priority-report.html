@@ -982,13 +982,50 @@
 </div>
 
 <script>
-document.querySelectorAll('.checkbox').forEach(cb => {
-  cb.addEventListener('change', function() {
-    const row = this.closest('tr');
-    row.style.opacity = this.checked ? '0.4' : '1';
-    row.style.textDecoration = this.checked ? 'line-through' : 'none';
+/*
+ * Lab completion tracking, saved in localStorage so a refresh keeps progress.
+ * Each checkbox is keyed by its lab URL, so a lab listed in two tables stays in sync.
+ */
+const STORE = 'sap-udemy-labs-done';
+const boxes = [...document.querySelectorAll('.checkbox')];
+const keyOf = cb => { const a = cb.closest('tr').querySelector('.lab-title a'); return a ? a.href : 'row-' + boxes.indexOf(cb); };
+const load = () => JSON.parse(localStorage.getItem(STORE) || '{}');
+const style = cb => {
+  const row = cb.closest('tr');
+  row.style.opacity = cb.checked ? '0.4' : '1';
+  row.style.textDecoration = cb.checked ? 'line-through' : 'none';
+};
+
+/* Sticky counter: unique labs done / total, last change date, reset. */
+const bar = document.createElement('div');
+bar.style.cssText = 'position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;padding:8px 14px;margin-bottom:12px;background:var(--bg,#fff);border-bottom:1px solid #ccc;font:14px system-ui,sans-serif';
+document.body.prepend(bar);
+function render() {
+  const done = load(), keys = [...new Set(boxes.map(keyOf))];
+  const n = keys.filter(k => done[k]).length;
+  const last = Object.values(done).sort().pop();
+  bar.innerHTML = `<b>Labs done: ${n} / ${keys.length}</b>
+    <span style="flex:1;height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden"><i style="display:block;height:100%;width:${keys.length ? n * 100 / keys.length : 0}%;background:#1e7a46"></i></span>
+    <span style="color:#666">${last ? 'last update ' + last : 'progress saved in this browser'}</span>
+    <button id="labsReset" style="font:inherit;cursor:pointer">Reset</button>`;
+  document.getElementById('labsReset').onclick = () => {
+    if (!confirm('Clear all lab ticks?')) return;
+    localStorage.removeItem(STORE); boxes.forEach(cb => { cb.checked = false; style(cb); }); render();
+  };
+}
+
+const saved = load();
+boxes.forEach(cb => {
+  cb.checked = !!saved[keyOf(cb)]; style(cb);
+  cb.addEventListener('change', () => {
+    const done = load(), k = keyOf(cb);
+    if (cb.checked) done[k] = new Date().toISOString().slice(0, 10); else delete done[k];
+    localStorage.setItem(STORE, JSON.stringify(done));
+    boxes.filter(o => keyOf(o) === k).forEach(o => { o.checked = cb.checked; style(o); });
+    render();
   });
 });
+render();
 </script>
 
 </body>
