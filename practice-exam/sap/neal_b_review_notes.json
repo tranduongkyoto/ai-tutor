@@ -1,0 +1,135 @@
+{
+ "title": "Neal Exam B — 75 questions (2026-10-26)",
+ "analysis_file": "neal_b_analysis.md",
+ "wrong_review_file": "neal_b_review.md",
+ "wrong": {
+  "groups": {
+   "A": "Over-built or DIY pick where a simpler managed fit existed",
+   "B": "Identity/org scope: wrong account, level, principal or SCP mode",
+   "C": "Right service family, wrong feature variant for the stated need",
+   "D": "Misread stem or rushed (Q41, Q68-74): symptom or constraint overlooked"
+  },
+  "questions": {
+   "10": {
+    "group": "A",
+    "keywords": "25 TB, 1 Gbps internet, 500 Mbps Direct Connect, fastest, Snowball vs Transfer Acceleration",
+    "trap": "🔁 Chose Snowball; 25 TB at 1 Gbps takes ~2-3 days, shipping both ways is slower. Transfer Acceleration uses the faster internet link; Direct Connect is slower.",
+    "rule": "Do the transfer math first: 1 Gbps is about 10 TB/day; Snowball only pays off past ~1 week. Fastest link wins."
+   },
+   "14": {
+    "group": "B",
+    "keywords": "S3 gateway endpoint, only app instances may write, endpoint policy, bucket policy, IAM role",
+    "trap": "Bucket policy limited to the VPC endpoint lets any instance in the subnet with S3 permissions write; it does not isolate the application instances.",
+    "rule": "Restrict who via IAM role plus bucket policy naming that role; endpoint policy restricts which bucket. VPC endpoint condition alone is network, not identity."
+   },
+   "17": {
+    "group": "C",
+    "keywords": "DynamoDB auto scaling 70% target, predictable spike up to 300%, ProvisionedThroughputExceeded, scheduled scaling",
+    "trap": "Retrying the DLQ later does not stop throttling; and reactive target tracking or step scaling lags a sudden spike. Predictable spike needs capacity ready beforehand.",
+    "rule": "Predictable spike: Application Auto Scaling scheduled action scales ahead. Target tracking and step scaling react after the breach."
+   },
+   "22": {
+    "group": "C",
+    "keywords": "serverless, global users, low latency, baseline DDoS, social IdP login, CloudFront S3 origin, Cognito",
+    "trap": "🔁 Picked WAF Web ACL for DDoS. WAF filters L7 rules; baseline DDoS comes free with CloudFront through Shield Standard, which also cuts latency by caching S3.",
+    "rule": "Global low latency plus baseline DDoS means CloudFront (Shield Standard included). WAF is for SQLi/XSS. Social IdP means Cognito."
+   },
+   "23": {
+    "group": "B",
+    "keywords": "Organizations SCP deny list, exceptions per OU, minimal overhead, default FullAWSAccess, allow list",
+    "trap": "🔁 Chose allow-list SCP, which needs every permitted action listed and removal of FullAWSAccess; high overhead. Deny list keeps FullAWSAccess; exception OU sits under root with fewer denies.",
+    "rule": "Many services blocked plus exceptions: deny list, keep FullAWSAccess, exceptions via a separate OU. Allow list needs every action listed."
+   },
+   "28": {
+    "group": "B",
+    "keywords": "Organizations multi-account, CloudTrail centralised in management account, users in member accounts (select two)",
+    "trap": "🔁 Picked A correctly but also E, putting resources in the management account. SCPs do not restrict management account, so keep resources and users in member accounts.",
+    "rule": "Management account holds only org-level tasks and CloudTrail. Users and resources live in member accounts; SCPs never cover management."
+   },
+   "34": {
+    "group": "C",
+    "keywords": "membership, download all files in secured S3 bucket, CloudFront signed cookies vs signed URL",
+    "trap": "Signed URL grants one file at a time; many files would need many URLs. Signed cookies cover multiple files without changing URLs.",
+    "rule": "One file or non-cookie clients: signed URL. Many restricted files, keep URLs: signed cookies. OAI/OAC only locks S3 to CloudFront."
+   },
+   "35": {
+    "group": "C",
+    "keywords": "350 staff remote, Windows and Linux desktops, on-premises AD, MFA, WorkSpaces AD Connector RADIUS",
+    "trap": "AppStream 2.0 streams applications, not full desktops that replicate the existing environment. WorkSpaces gives desktops; MFA with AD Connector needs RADIUS, not console toggle.",
+    "rule": "Full remote desktop plus on-prem AD: WorkSpaces + AD Connector + RADIUS MFA. AppStream 2.0 is app streaming only."
+   },
+   "37": {
+    "group": "C",
+    "keywords": "CodeBuild many projects slow, large S3 dataset, S3 cache in buildspec, EFS in VPC",
+    "trap": "Moving data to EFS in a new VPC is heavy rework. Vendor explanation is muddled (flagged); the intended fix is the lighter S3 cache of the data directory in buildspec.",
+    "rule": "CodeBuild slowed by repeated dependency or data downloads: add S3 cache to buildspec. Reach for EFS and VPC only for shared mounts."
+   },
+   "41": {
+    "group": "D",
+    "keywords": "ECS app stopped uploading to S3, 403 errors, no policy changes, task role vs container instance role",
+    "trap": "Picked insufficient memory; memory causes OOM or throttling, not 403. A 403 is authorization; best practice puts S3 permissions in the task role, so it was modified.",
+    "rule": "403 means access denied: check the role the code runs under. On ECS that is the task role, not the instance role."
+   },
+   "45": {
+    "group": "C",
+    "keywords": "EFS backups to S3 other Region, failed uploads cost, multipart upload, lifecycle abort incomplete",
+    "trap": "Archiving to Glacier does not remove incomplete multipart parts, which still bill. Lifecycle rule to abort incomplete multipart uploads cleans them and stops new ones.",
+    "rule": "Growing S3 cost from failed large uploads: multipart upload plus lifecycle rule aborting incomplete multipart uploads. Archiving cannot clear hidden parts."
+   },
+   "51": {
+    "group": "B",
+    "keywords": "mobile app, custom authentication, IAM roles authorization, OIDC with Cognito, SAML with LDAP (select two)",
+    "trap": "Picked B (LDAP connector with Lambda authorizer JWT); that only authorizes API calls and gives no IAM role credentials. Needed OIDC plus Cognito, or SAML assertion to IAM IdP.",
+    "rule": "Custom IdP to IAM roles: OIDC provider plus Cognito identity pool, or SAML assertion via IAM IdP. API Gateway authorizers do not issue AWS credentials."
+   },
+   "56": {
+    "group": "B",
+    "keywords": "separate identity account, IAM users, roles in prod/test with trust policy, central security identities",
+    "trap": "🔁 Picked IAM users per account with SCPs; SCPs only restrict, never grant, and users stay scattered. Central identities need an identity account trusted by roles in each target account.",
+    "rule": "Central identities: users in one identity account, roles in target accounts whose trust policy names the identity account. SCPs never grant."
+   },
+   "59": {
+    "group": "B",
+    "keywords": "Organizations, only management account may buy Reserved Instances, SCP Deny at root, current and future members",
+    "trap": "SCP on a new OU covers only current moved accounts, missing future ones. SCP never affects the management account, so Deny at root blocks all members and spares management.",
+    "rule": "Block for every present and future member: Deny SCP at root. Management account is exempt from SCPs anyway."
+   },
+   "61": {
+    "group": "A",
+    "keywords": "Paris data center migration, 99.9% SLA, Europe and US users, ElastiCache, Aurora, EFS, CloudFront price class",
+    "trap": "🔁 Chose two Regions with global Aurora and FSx. A single Region over three AZs already meets 99.9%; CloudFront covers US/Europe latency, so multi-Region is overbuilt.",
+    "rule": "Match design to stated SLA: 99.9% needs Multi-AZ in one Region. CloudFront handles global latency; skip multi-Region."
+   },
+   "63": {
+    "group": "A",
+    "keywords": "two-tier app, PostgreSQL, highly available across three AZs, Aurora replicas, Aurora Global",
+    "trap": "🔁 Aurora Global database spans Regions, overbuilt for three-AZ availability. Aurora writer plus replicas in two other AZs gives automatic failover; Multi-AZ is not DR across Regions.",
+    "rule": "Three AZs in one Region: Aurora cluster with replicas in different AZs. Global database is for cross-Region DR and RPO."
+   },
+   "68": {
+    "group": "D",
+    "keywords": "IAM secret keys in CodeCommit, find and remediate ongoing, CodeCommit trigger Lambda",
+    "trap": "Trusted Advisor and Secrets Manager do not scan repository contents; Macie scans S3, not CodeCommit. Pick needed an event-driven scan of pushes. Vendor notes it covers only new pushes.",
+    "rule": "Scan code on commit: CodeCommit trigger to Lambda. Macie is S3-only, Trusted Advisor does not read repos, rotation does not find keys."
+   },
+   "70": {
+    "group": "D",
+    "keywords": "EC2 critical app, EBS backup to S3, no SSH keys, least impact, DLM snapshot, EBS direct APIs",
+    "trap": "Session Manager copying data from the live instance loads the critical app. Snapshot plus EBS direct APIs reads data off-instance with least impact.",
+    "rule": "Least impact on the running instance: snapshot then read via EBS direct APIs. Avoid copying from the live host."
+   },
+   "71": {
+    "group": "A",
+    "keywords": "multi-account, delegated admin, SCP guardrails, Microsoft AD, minimal overhead, Control Tower, Identity Center",
+    "trap": "🔁 Picked manual accounts with per-account SAML; high overhead. Control Tower landing zone with Account Factory and Identity Center gives guardrails and AD access with minimal setup.",
+    "rule": "Multi-account governance with minimal overhead: Control Tower plus Account Factory plus Identity Center. Manual per-account federation is the DIY trap."
+   },
+   "74": {
+    "group": "D",
+    "keywords": "service quotas every 15 minutes, 80% utilization alert, Trusted Advisor, Lambda, SNS",
+    "trap": "🔁 Chose Budgets for the alert; Budgets tracks cost and usage spend, not quota utilization. Alert should publish to SNS. Vendor flags native Usage alarms as modern route.",
+    "rule": "Quota alerts: SNS notification (or CloudWatch alarm on AWS/Usage with SERVICE_QUOTA()). Budgets cost-tracks, never quotas."
+   }
+  }
+ }
+}

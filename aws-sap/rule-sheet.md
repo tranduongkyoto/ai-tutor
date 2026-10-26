@@ -18,6 +18,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - **LDAP, no SAML** → custom identity broker → STS · **3rd party** → trust policy + `sts:ExternalId` · **GitHub CI** → IAM OIDC provider
 - Cross-account role lives in the **TARGET** account; fix access = its **trust policy** → trust the caller's **role ARN**, not the account root (least privilege) · EC2 → AWS API = instance profile, nothing else
 - **SCP never grants**; allow-list SCP must list every action; doesn't affect the mgmt account or service-linked roles 🔁 · team access = IAM policy
+- Block a few services org-wide → **deny-list SCP** + keep FullAWSAccess (exceptions via separate OU) · management account: org tasks only, no workloads/users · central identities in one account, roles in target accounts · multi-account setup with least ops → **Control Tower + Account Factory** (Neal B)
 - Deny at root hits every OU → attach at the OU · protect tagged resources → SCP deny + `aws:ResourceTag` · MFA ≠ authorization
 - **Enforce tag values** → tag policy (allowed values) + SCP deny `CreateStack`/create without `aws:RequestTag` ✗ Config 🔁 · VPC-only access points → SCP + `s3:AccessPointNetworkOrigin` · org-only ECR/S3 → `aws:PrincipalOrgID`
 - Central backups + retention + cross-Region copy + alerts → **AWS Backup** plan (copy action + SNS) ✗ DLM/Lambda glue
@@ -42,6 +43,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - R53: failover = active-passive · latency + Evaluate Target Health = active-active · geolocation doesn't block · apex → alias
 - **DNS caching blocks a fast shift** → Global Accelerator dials/weights · user → specific instance → GA custom routing · **GA can't front S3** 🔁
 - CloudFront: custom domain → ACM in **us-east-1** · 504 → **origin group failover** 🔁 · custom origin → header + WAF on ALB · S3 → OAC · one client → signed URL/cookies
+- One file / non-cookie client → **signed URL**; many files, keep URLs → **signed cookies** (OAC only locks S3 to CloudFront)
 - Add S3 content to an ALB-origin distribution → new **S3 origin (OAC) + path-pattern behavior** (✗ ALB rule forwarding to S3)
 - Simple header/URL/query rewrite → **CloudFront Functions** ✗ Lambda@Edge (only for network calls, body access, longer runtime)
 - Many domains on one ALB → **SNI** multi-cert (wildcard = one domain only) · route by hostname → ALB **host** condition · static IP for ALB → NLB in front · non-HTTP ports → NLB (ALB = HTTP/HTTPS only)
@@ -61,6 +63,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - Batch, least ops → **AWS Batch** + Spot + S3 🔁 · tight HPC → cluster PG + EFA + FSx Lustre · many small apps → bin-pack on ECS
 - Full capacity during deploy → Beanstalk **immutable**/blue-green · Lambda canary/linear → SAM + CodeDeploy
 - Always-on prod tier → On-Demand/RI, **never Spot** · slow boot + big static data → bake AMI + mount **EFS** (✗ user-data download)
+- Predictable spike → **scheduled scaling** (target tracking reacts after) · CodeBuild repeated downloads → **S3 cache** in buildspec · full desktop + AD → **WorkSpaces** (AppStream = apps only)
 - Cheapest resilient web tier → **Spot Fleet** (On-Demand baseline + Spot) across AZs + ALB (✗ all Spot) · dynamic web + queue jobs → Fargate web + Spot workers
 - Move instance into a placement group → **stop → modify placement → start** · latest AMI in CFN → **SSM parameter type** + update-stack · new AMI to an ASG, no downtime → CFN **UpdatePolicy rolling update** (✗ change set = preview only) · CFN CI/CD → CodePipeline + change set + CodeBuild (✗ CodeDeploy)
 - Real-time push to clients → **AppSync** subscriptions (WebSockets) · MAC-bound license → pre-licensed **ENI pool** + config in Parameter Store
@@ -81,6 +84,7 @@ HTML view: `rule-sheet.html` (search + self-test); rebuild after editing this fi
 - Tape + **process** the content → **File Gateway** + Rekognition ✗ Tape GW 🔁×3 · Windows SMB **in AWS** → FSx Windows + DataSync 🔁 · EFS = Linux only
 - S3 website = **static files only** (✗ interactive NGINX+MySQL app 🔁) · site shows nothing → bucket **public read** (✗ "wait for DNS propagation")
 - Volume GW cached (hot subset) vs stored (full copy) · recover → snapshot → EBS · replication SLA → **S3 RTC** 🔁 · far uploads → Transfer Acceleration
+- Growing S3 cost from failed uploads → multipart + lifecycle **abort incomplete multipart uploads**
 - Snow math: 1 Gbps ≈ 10.8 TB/day; > 1 week → Snowball Edge (80 TB usable; newer 210 TB model); ≥ 10 PB → Snowmobile (retired 2024, may still appear as a distractor); lands in S3, then lifecycle
 - VM as-is → VM Import · continuous block replication → **MGN** · TCO → Migration Evaluator · discovery → ADS / AWS Transform
 - Heterogeneous DB → SCT + DMS (CDC) · replatform = managed platform, no code rewrite · SFTP → Transfer Family (VPC endpoint for EIP + SG)
