@@ -1,0 +1,689 @@
+{
+ "sections": {
+  "A": "Identity & governance",
+  "B": "Networking & hybrid",
+  "C": "Edge, DNS & global delivery",
+  "D": "Compute, containers & deployment",
+  "E": "Data, analytics & app integration",
+  "F": "Storage, migration & DR",
+  "G": "Security",
+  "H": "Monitoring, cost & operations"
+ },
+ "cards": [
+  {
+   "id": "A1",
+   "q": 1,
+   "ans": "A",
+   "scenario": "Many accounts; centralize identities and permissions, synced with on-prem IdP.",
+   "ok": "Central-account SAML IdP mapped to IAM roles; cross-account role access.",
+   "bad": "Separate SAML provider and IAM roles configured in every account.",
+   "why": "One central federation point centralizes identity and permissions; per-account setups or Lambda replication do not."
+  },
+  {
+   "id": "A2",
+   "q": 2,
+   "ans": "B, C, F",
+   "scenario": "Dev accounts need fixed budgets and no expensive services.",
+   "ok": "Budget + SCP denying costly services + SNS-triggered Lambda to terminate resources.",
+   "bad": "SCP that defines a fixed monthly resource usage limit.",
+   "why": "SCPs only allow or deny actions, never cap spend; built-in Budgets actions only stop EC2/RDS or attach policies."
+  },
+  {
+   "id": "A3",
+   "q": 16,
+   "ans": "C, D",
+   "scenario": "IAM user with S3 read-only policy gets access denied in a member account.",
+   "ok": "Check OU service control policies + the user's permissions boundary.",
+   "bad": "Check bucket policies and bucket ACLs.",
+   "why": "ListAllMyBuckets is account-level; bucket policies/ACLs never control it. SCPs and permissions boundaries cap IAM permissions."
+  },
+  {
+   "id": "A4",
+   "q": 23,
+   "ans": "C",
+   "scenario": "Block many services org-wide, yet allow per-business-unit exceptions with minimal overhead.",
+   "ok": "Deny-list SCP at OU level, keep default allow; exception OU gets an SCP denying fewer services.",
+   "bad": "Allow-list SCP at root; remove default allow; add allowed services per OU.",
+   "why": "Allow lists need explicit allows at every level (high overhead); deny lists keep the default allow."
+  },
+  {
+   "id": "A5",
+   "q": 28,
+   "ans": "A, B",
+   "scenario": "Organizations with management, production, development accounts; audit all API actions.",
+   "ok": "Centralized CloudTrail logging (org trail) + users in member accounts, not management.",
+   "bad": "Create all resources in the management account, granting members access.",
+   "why": "Management account only for org-level tasks; workloads and users live in member accounts (modern: Log Archive account, Identity Center)."
+  },
+  {
+   "id": "A6",
+   "q": 44,
+   "ans": "B, D",
+   "scenario": "Single bill per business unit plus central limits on allowed services.",
+   "ok": "One organization in parent account (all features) + SCP allowing approved services.",
+   "bad": "Permissions boundaries applied to each business-unit account.",
+   "why": "Boundaries attach to IAM identities, not accounts; SCPs centrally cap member accounts."
+  },
+  {
+   "id": "A7",
+   "q": 51,
+   "ans": "D, E",
+   "scenario": "Mobile app uses custom-built authentication and IAM roles for authorization.",
+   "ok": "Custom SAML IdP with LDAP via IAM provider + custom OIDC with Cognito.",
+   "bad": "Custom LDAP connector with API Gateway and a Lambda JWT authorizer.",
+   "why": "Roles need IAM SAML/OIDC federation or Cognito identity pools; a Lambda authorizer issues no IAM credentials."
+  },
+  {
+   "id": "A8",
+   "q": 56,
+   "ans": "A",
+   "scenario": "Prod and test accounts need centrally controlled identities and permissions.",
+   "ok": "Separate identity account; roles in prod/test trust it.",
+   "bad": "IAM users in prod and test accounts, controlled by SCPs.",
+   "why": "Best practice: users in one identity account assume cross-account roles. SCPs do not grant permissions."
+  },
+  {
+   "id": "A9",
+   "q": 59,
+   "ans": "D",
+   "scenario": "Only the management account may buy Reserved Instances, including future accounts.",
+   "ok": "Deny ec2:PurchaseReservedInstancesOffering SCP attached to the organization root.",
+   "bad": "Deny SCP attached to a new OU of current members.",
+   "why": "Root attachment is inherited by all current and future accounts; SCPs skip the management account."
+  },
+  {
+   "id": "A10",
+   "q": 71,
+   "ans": "B",
+   "scenario": "Multi-account landing zone with guardrails, AD login and minimal custom work.",
+   "ok": "Control Tower landing zone + Account Factory + IAM Identity Center with AD.",
+   "bad": "Manual Organizations accounts with SAML federation per account.",
+   "why": "Control Tower automates governance and guardrails; manual accounts add per-account setup overhead."
+  },
+  {
+   "id": "B1",
+   "q": 9,
+   "ans": "C",
+   "scenario": "Large daily S3 image volume flows through NAT gateways; cut cost, stay secure.",
+   "ok": "S3 gateway endpoint with endpoint policy scoped to the bucket.",
+   "bad": "Move EC2 to public subnets and remove NAT gateways.",
+   "why": "Gateway endpoint is free and keeps S3 traffic off NAT; NAT still serves other internet access."
+  },
+  {
+   "id": "B2",
+   "q": 12,
+   "ans": "A, C",
+   "scenario": "15 VPCs plus Direct Connect need transitive connectivity, least complexity.",
+   "ok": "Transit gateway with VPC attachments + DX gateway attached to the transit gateway.",
+   "bad": "Full-mesh VPC peering + DX gateway associated with a VGW per VPC.",
+   "why": "Transit gateway gives transitive hub routing; peering is not transitive and meshes get complex."
+  },
+  {
+   "id": "B3",
+   "q": 15,
+   "ans": "A",
+   "scenario": "Enable IPv6; public subnets stay reachable, private instances stay unreachable from the internet.",
+   "ok": "IPv6 CIDRs; public routes ::/0 to internet gateway, private routes ::/0 to egress-only gateway.",
+   "bad": "Route ::/0 for public and private subnets through the existing NAT gateway.",
+   "why": "IPv4 NAT gateways do not handle IPv6; egress-only gateway allows outbound IPv6 but blocks inbound."
+  },
+  {
+   "id": "B4",
+   "q": 32,
+   "ans": "C, E",
+   "scenario": "Private hosted zone in management account must resolve from new production VPC.",
+   "ok": "Create association authorization in owner account, then associate the production VPC.",
+   "bad": "Create a second private hosted zone and configure Route 53 cross-account replication.",
+   "why": "Cross-account association needs owner authorization, then association from the VPC account; Route 53 has no replication."
+  },
+  {
+   "id": "B5",
+   "q": 40,
+   "ans": "C",
+   "scenario": "Custom TCP port app needs fixed whitelisted IPs, multi-AZ, behind a DNS name.",
+   "ok": "One Elastic IP per AZ on an NLB, plus alias A record.",
+   "bad": "ECS public IPs behind an Application Load Balancer.",
+   "why": "NLB handles TCP with static EIPs per AZ; ALB is HTTP/S with no static IPs."
+  },
+  {
+   "id": "B6",
+   "q": 42,
+   "ans": "A",
+   "scenario": "Offer on-premises IT services to other AWS customers over Direct Connect, no internet.",
+   "ok": "VPC endpoint service behind an NLB (TCP), reached over DX.",
+   "bad": "VPC endpoint service fronted by an Application Load Balancer.",
+   "why": "PrivateLink endpoint services require an NLB (or GWLB); the NLB can target on-premises IPs."
+  },
+  {
+   "id": "B7",
+   "q": 46,
+   "ans": "A",
+   "scenario": "On-premises app writes DynamoDB; needs multi-Region and consistent network performance.",
+   "ok": "Second DX connection + DynamoDB global tables, app fails over.",
+   "bad": "Managed VPN to second Region with Streams and Lambda copy.",
+   "why": "VPN rides the internet so performance varies; global tables replicate natively."
+  },
+  {
+   "id": "B8",
+   "q": 53,
+   "ans": "D, E",
+   "scenario": "Latency routing sends users to a Region whose RDS is blocked; no failover occurred.",
+   "ok": "Custom health check on DB endpoints + Evaluate Target Health on latency aliases.",
+   "bad": "Switch to failover routing active-active with ALB checks.",
+   "why": "Health checks never tested the database; add DB-level checks and target health to latency records."
+  },
+  {
+   "id": "B9",
+   "q": 61,
+   "ans": "A",
+   "scenario": "Paris web app with NAS and MySQL moves to AWS: 99.9% SLA, Europe and US latency.",
+   "ok": "One Region, three AZs: ALB, ASG, ElastiCache, Aurora Multi-AZ, EFS, CloudFront.",
+   "bad": "Two Regions with three AZs each and global database.",
+   "why": "Multi-AZ in one Region meets 99.9%; CloudFront serves US users. Extra Region only adds cost."
+  },
+  {
+   "id": "C1",
+   "q": 22,
+   "ans": "B",
+   "scenario": "Serverless global web app: low latency, baseline DDoS protection, social login.",
+   "ok": "API Gateway + Lambda, S3 static site behind CloudFront, Cognito for social login.",
+   "bad": "API Gateway + Lambda with S3 static site, WAF web ACL for DDoS, no CloudFront.",
+   "why": "Global low latency needs CloudFront edge caching, which includes Shield Standard; WAF adds no edge delivery."
+  },
+  {
+   "id": "C2",
+   "q": 34,
+   "ans": "B",
+   "scenario": "Members download all files in a CloudFront-fronted private S3 bucket.",
+   "ok": "CloudFront signed cookies set by the application.",
+   "bad": "Signed URL generated per file.",
+   "why": "Signed cookies grant access to many files without changing URLs; signed URLs fit one file each."
+  },
+  {
+   "id": "C3",
+   "q": 43,
+   "ans": "A",
+   "scenario": "Bursts of identical API requests overload Aurora behind API Gateway and Lambda.",
+   "ok": "Edge-optimized endpoint plus API Gateway stage caching.",
+   "bad": "Larger Aurora instance with more memory.",
+   "why": "Stage caching absorbs repeated queries before Lambda or the database; scaling up only masks it."
+  },
+  {
+   "id": "C4",
+   "q": 62,
+   "ans": "A",
+   "scenario": "CloudFront cache hit ratio falls: query strings arrive unordered and mixed-case.",
+   "ok": "Lambda@Edge viewer-request function sorting and lowercasing query strings.",
+   "bad": "WAF web ACL rewriting URLs to lowercase through Lambda.",
+   "why": "WAF cannot rewrite requests; normalizing at viewer request makes cache keys consistent. (Today CloudFront Functions is the lighter fit.)"
+  },
+  {
+   "id": "C5",
+   "q": 65,
+   "ans": "A, E",
+   "scenario": "CloudFront with S3 website endpoint origin returns 403 Access Denied.",
+   "ok": "Check S3 Block Public Access + check SSE-KMS encryption on objects.",
+   "bad": "Check object lock, versioning or storage class.",
+   "why": "Website endpoint needs public objects and no KMS encryption; Block Public Access overrides."
+  },
+  {
+   "id": "C6",
+   "q": 75,
+   "ans": "A, D",
+   "scenario": "European users upload images slowly to a bucket in us-west-1.",
+   "ok": "S3 Transfer Acceleration + multipart upload.",
+   "bad": "CloudFront with S3 origin, or byte-range fetches.",
+   "why": "Transfer Acceleration uses edge locations; multipart parallelises uploads. CloudFront and ranges are downloads."
+  },
+  {
+   "id": "D1",
+   "q": 4,
+   "ans": "A, D",
+   "scenario": "10-node Linux HPC cluster needs low-latency, high-speed inter-node networking.",
+   "ok": "Cluster placement group + EFA-capable instance types.",
+   "bad": "Partition placement group + instances spread across three AZs.",
+   "why": "Cluster group packs nodes close in one AZ for low latency; EFA accelerates HPC traffic."
+  },
+  {
+   "id": "D2",
+   "q": 5,
+   "ans": "A, C, E",
+   "scenario": "Java app with MySQL and local sessions needs high availability.",
+   "ok": "ElastiCache sessions behind ALB + RDS MySQL Multi-AZ + Auto Scaling group.",
+   "bad": "Self-managed MySQL on EC2 with a Multi-AZ setting.",
+   "why": "Externalize sessions, use managed Multi-AZ database, self-healing ASG; Multi-AZ is an RDS feature."
+  },
+  {
+   "id": "D3",
+   "q": 6,
+   "ans": "D",
+   "scenario": "TypeScript/JavaScript developers want infrastructure as code without learning new languages.",
+   "ok": "Define resources in TypeScript with AWS CDK; synthesize CloudFormation in a CodeBuild stage.",
+   "bad": "AWS SAM with the application code embedded as template metadata.",
+   "why": "CDK synthesizes CloudFormation from real languages; SAM is serverless-only and metadata cannot run code."
+  },
+  {
+   "id": "D4",
+   "q": 19,
+   "ans": "B",
+   "scenario": "Private GitHub repo, Jenkins builds; alert on failed builds, zero-downtime deploys, easy rollback.",
+   "ok": "GitHub webhooks trigger CodePipeline; Jenkins CodeBuild plugin tests; SNS alerts; CodeDeploy blue/green.",
+   "bad": "GitHub websockets trigger the pipeline; X-Ray used for unit testing.",
+   "why": "CodePipeline is triggered by webhooks, not websockets; X-Ray traces requests and does not run tests."
+  },
+  {
+   "id": "D5",
+   "q": 20,
+   "ans": "A",
+   "scenario": "ECS cluster: minimize instance cost while limiting interruption risk.",
+   "ok": "Spot instances with Spot Instance Draining enabled.",
+   "bad": "Reserved instances with termination protection.",
+   "why": "Spot is cheapest; draining moves tasks off on the two-minute interruption notice. Reserved costs more."
+  },
+  {
+   "id": "D6",
+   "q": 21,
+   "ans": "B, C",
+   "scenario": "Migrate 10-node HPC cluster with high-speed inter-node connectivity.",
+   "ok": "Placement group (cluster) + EFA-capable instances.",
+   "bad": "Instances across multiple AZs + burstable performance instances.",
+   "why": "Tightly coupled HPC needs nodes close together; EFA cuts latency; multi-AZ adds latency."
+  },
+  {
+   "id": "D7",
+   "q": 25,
+   "ans": "C",
+   "scenario": "CodeDeploy for Lambda: send the update to a subset of users first.",
+   "ok": "Canary deployment: small traffic percentage first, remainder after an interval.",
+   "bad": "Linear deployment.",
+   "why": "Canary shifts in two steps (small share, then the rest); linear shifts in equal increments."
+  },
+  {
+   "id": "D8",
+   "q": 27,
+   "ans": "A",
+   "scenario": "Lambda updates through CloudFormation caused outages; need gradual traffic shifting.",
+   "ok": "Alias with weighted routing-config via update-alias for canary traffic.",
+   "bad": "update-function-configuration with routing-config on new versions.",
+   "why": "Weighted traffic shifting is an alias feature set with update-alias; function configuration does not route traffic."
+  },
+  {
+   "id": "D9",
+   "q": 31,
+   "ans": "B",
+   "scenario": "Modernized app needs multiple releases per hour and easy rollback via CI/CD.",
+   "ok": "Elastic Beanstalk blue/green: deploy to a secondary environment, swap CNAMEs.",
+   "bad": "Bake AMIs and replace Auto Scaling instances in a staged approach.",
+   "why": "CNAME swap is instant and reversible; AMI rebake and instance replacement is too slow for hourly releases."
+  },
+  {
+   "id": "D10",
+   "q": 33,
+   "ans": "A, C, F",
+   "scenario": "ECS image needs a manual tool update; automate image rebuild on code change.",
+   "ok": "ECR repo + CodeBuild rebuilds image + CodePipeline from tool code source triggers CodeBuild.",
+   "bad": "CodeDeploy application that builds the updated container image.",
+   "why": "CodeBuild builds images, CodeDeploy only deploys. CodeCommit availability has shifted; pattern holds with any Git source."
+  },
+  {
+   "id": "D11",
+   "q": 35,
+   "ans": "C",
+   "scenario": "Quickly enable 350 remote staff: existing AD logins, MFA, familiar desktop UI.",
+   "ok": "WorkSpaces with AD Connector over VPN and a RADIUS server for MFA.",
+   "bad": "AppStream 2.0 streaming apps, integrated with AD FS and MFA.",
+   "why": "WorkSpaces gives full desktops matching the office; AppStream streams individual apps. AD Connector + RADIUS gives MFA."
+  },
+  {
+   "id": "D12",
+   "q": 36,
+   "ans": "B",
+   "scenario": "Template changes via CodePipeline risk downtime in an Auto Scaling group app.",
+   "ok": "CodeBuild tests + CloudFormation change sets preview + CodeDeploy blue/green.",
+   "bad": "CodeCommit source with CodeBuild tests and CloudFormation StackSets updates.",
+   "why": "Change sets preview replacements before deploy; blue/green avoids downtime; StackSets is multi-account deployment, not safety."
+  },
+  {
+   "id": "D13",
+   "q": 37,
+   "ans": "A",
+   "scenario": "Many CodeBuild projects re-download a large third-party S3 dataset, slowing the pipeline.",
+   "ok": "S3 cache for CodeBuild with the data directory in the cache definition.",
+   "bad": "EFS in a new VPC mounted at the data directory.",
+   "why": "S3 cache persists across builds and hosts; EFS adds VPC, cost and copying of third-party data."
+  },
+  {
+   "id": "D14",
+   "q": 41,
+   "ans": "D",
+   "scenario": "S3 uploads from ECS tasks suddenly return 403; bucket policy and roles unchanged.",
+   "ok": "ECS task IAM role was modified.",
+   "bad": "Tasks have insufficient memory assigned.",
+   "why": "403 is authorization; best practice puts S3 permissions in the task role. Memory never causes 403."
+  },
+  {
+   "id": "D15",
+   "q": 50,
+   "ans": "A",
+   "scenario": "Fargate task in private subnet fails pulling ECR image: CannotPullContainerError.",
+   "ok": "Auto-assign public IP disabled, NAT gateway in a public subnet.",
+   "bad": "NAT gateway placed in a private subnet.",
+   "why": "Task ENI needs an internet route; the NAT must sit in a public subnet."
+  },
+  {
+   "id": "D16",
+   "q": 55,
+   "ans": "B",
+   "scenario": "Speed up Lambda version rollout and error detection for serverless API.",
+   "ok": "AWS SAM with CodeDeploy gradual traffic shifting, pre/post-traffic hooks, alarm rollback.",
+   "bad": "Consolidate the CLI scripts into one deploy-and-revert script.",
+   "why": "CodeDeploy shifts Lambda aliases gradually and auto-rolls back on CloudWatch alarms."
+  },
+  {
+   "id": "D17",
+   "q": 73,
+   "ans": "C, E",
+   "scenario": "Sensor Lambda slows past 2 minutes and throws TooManyRequestsException.",
+   "ok": "Increase Lambda memory + buffer API data in Kinesis with batch processing.",
+   "bad": "Increase Lambda CPU units or use an SQS FIFO trigger.",
+   "why": "Lambda CPU scales with memory; Kinesis buffering tames concurrency throttling."
+  },
+  {
+   "id": "E1",
+   "q": 3,
+   "ans": "C",
+   "scenario": "Orders processed immediately, in order, always available, variable load.",
+   "ok": "SQS FIFO queue with Reserved Instances across multiple AZs.",
+   "bad": "SQS FIFO queue with Spot Instances across multiple AZs.",
+   "why": "FIFO queue preserves order; Spot can be reclaimed, risking availability; SNS is notification, not queueing."
+  },
+  {
+   "id": "E2",
+   "q": 11,
+   "ans": "C",
+   "scenario": "Credit-card feed in S3 needs automatic masking and JSON conversion on delivery.",
+   "ok": "S3 event triggers Lambda that starts a Glue ETL job to mask and output JSON.",
+   "bad": "Athena query on delivery that starts an EMR ETL job.",
+   "why": "Glue ETL is serverless and built for batch transforms; Athena queries do not launch EMR jobs."
+  },
+  {
+   "id": "E3",
+   "q": 13,
+   "ans": "B",
+   "scenario": "Thousands of sensors at 8 KB/s each; near-real-time analytics, durable, warehouse output.",
+   "ok": "Kinesis Data Streams with Kinesis clients analyzing, results loaded to Redshift.",
+   "bad": "Kinesis Data Firehose with Kinesis clients, results saved to RDS.",
+   "why": "Streams is durable with custom consumers for real-time analysis; Firehose only delivers to destinations."
+  },
+  {
+   "id": "E4",
+   "q": 17,
+   "ans": "D",
+   "scenario": "DynamoDB auto scaling at 70% still throttles during short predictable write bursts.",
+   "ok": "Application Auto Scaling scheduled action to raise write capacity before the peaks.",
+   "bad": "CloudWatch Events monitors the dead letter queue and Lambda retries failed records.",
+   "why": "Reactive scaling lags sudden spikes; scheduled scaling pre-provisions for predictable peaks; retries add no capacity."
+  },
+  {
+   "id": "E5",
+   "q": 18,
+   "ans": "A, B, C",
+   "scenario": "Weekday upload surges; scale image processing and notify users when done.",
+   "ok": "S3 event to SQS + Lambda consumer + SNS push notification.",
+   "bad": "S3 events to an Amazon MQ queue, S3 Batch Operations for processing.",
+   "why": "S3 to SQS to Lambda decouples and scales with load; Batch Operations is not event-driven processing."
+  },
+  {
+   "id": "E6",
+   "q": 26,
+   "ans": "C",
+   "scenario": "IoT JSON data, ODBC analytics tool, compute bottleneck; migrate cost-effectively.",
+   "ok": "S3 + Glue transform + Glue Data Catalog + Athena for ODBC queries.",
+   "bad": "S3 + Lambda transform + DynamoDB global table.",
+   "why": "Serverless S3, Glue and Athena remove compute limits and support ODBC; DynamoDB is not an analytics warehouse."
+  },
+  {
+   "id": "E7",
+   "q": 30,
+   "ans": "B, D",
+   "scenario": "DynamoDB slows at peak with no errors; improve with minimal application changes.",
+   "ok": "DynamoDB auto scaling + DAX cache cluster.",
+   "bad": "ElastiCache for Redis cluster in front of the table.",
+   "why": "Auto scaling adds capacity and DAX is a drop-in cache; ElastiCache and retry logic need code changes."
+  },
+  {
+   "id": "E8",
+   "q": 49,
+   "ans": "B",
+   "scenario": "Web fleet fires async metadata jobs; scale to tens of thousands in under a minute, cheaply.",
+   "ok": "SQS queue as Lambda event source.",
+   "bad": "Step Functions invoked for every job.",
+   "why": "SQS plus Lambda is serverless, buffered and cheap; Step Functions adds per-transition cost."
+  },
+  {
+   "id": "E9",
+   "q": 57,
+   "ans": "B, D",
+   "scenario": "Scale photo processing and delivery globally, cost-effectively.",
+   "ok": "Lambda for image processing + CloudFront in front of the S3 images.",
+   "bad": "Auto Scaling group for EC2 processing or move all to ECS.",
+   "why": "Lambda is cheap and scales massively; CloudFront caches images at the edge globally."
+  },
+  {
+   "id": "E10",
+   "q": 60,
+   "ans": "D",
+   "scenario": "Move REST API with session data to AWS; keep API model, scale with variable load.",
+   "ok": "API Gateway + Lambda + DynamoDB on-demand.",
+   "bad": "ALB with Lambda and DynamoDB on-demand.",
+   "why": "API Gateway preserves the REST API model; ALB lacks API management features."
+  },
+  {
+   "id": "E11",
+   "q": 72,
+   "ans": "C",
+   "scenario": "Log all DynamoDB item changes within 30 minutes to catch fraud.",
+   "ok": "DynamoDB Streams to Lambda, Kinesis, analytics and SNS.",
+   "bad": "CloudTrail API events filtered for anomalies.",
+   "why": "CloudTrail logs control-plane calls, not item-level data changes; Streams capture each modification."
+  },
+  {
+   "id": "F1",
+   "q": 7,
+   "ans": "A",
+   "scenario": "150 VMs, 50 TB, saturated internet; critical VMs need minimal downtime.",
+   "ok": "Direct Connect private VIF plus Application Migration Service (MGN) replication.",
+   "bad": "Export VMs, ship via Snowball, then VM Import/Export.",
+   "why": "MGN replicates continuously for minimal cutover downtime; Snowball export leaves VMs offline for days."
+  },
+  {
+   "id": "F2",
+   "q": 10,
+   "ans": "B",
+   "scenario": "Move 25 TB to S3 urgently; 1 Gbps internet, 500 Mbps Direct Connect.",
+   "ok": "S3 Transfer Acceleration over the faster internet link.",
+   "bad": "Copy data to an 80 TB Snowball device.",
+   "why": "Internet link outruns Direct Connect; Snowball shipping both ways takes longer than uploading."
+  },
+  {
+   "id": "F3",
+   "q": 39,
+   "ans": "A, C, F",
+   "scenario": "DR site in a second Region: EC2/ELB web tier, S3 images, DynamoDB data.",
+   "ok": "Route 53 health-check failover + S3 cross-Region replication + DynamoDB global tables.",
+   "bad": "DynamoDB Streams with a Lambda copy, or multi-Region ELB targets.",
+   "why": "ELBs are Regional; global tables and CRR replicate natively, Route 53 fails over."
+  },
+  {
+   "id": "F4",
+   "q": 45,
+   "ans": "D",
+   "scenario": "Failed S3 multipart backups keep raising storage costs.",
+   "ok": "Multipart upload + lifecycle rule to abort incomplete multipart uploads.",
+   "bad": "Multipart upload + lifecycle archive to Glacier daily.",
+   "why": "Incomplete parts are invisible, not objects; only AbortIncompleteMultipartUpload lifecycle removes them."
+  },
+  {
+   "id": "F5",
+   "q": 47,
+   "ans": "D",
+   "scenario": "RDS MySQL needing multi-Region availability with the highest practical resilience.",
+   "ok": "Cross-Region read replica, promote on outage.",
+   "bad": "RDS global tables or multi-master across Regions.",
+   "why": "Global tables are DynamoDB only; RDS MySQL has no cross-Region multi-master."
+  },
+  {
+   "id": "F6",
+   "q": 48,
+   "ans": "D",
+   "scenario": "Map on-premises dependencies and right-size VMware plus physical servers for migration.",
+   "ok": "ADS Connector in vCenter + Discovery Agent on physical servers.",
+   "bad": "Discovery Agent only on every system, or import a CMDB.",
+   "why": "Connector covers VMware VMs; agents add dependencies and performance. Connector now succeeded by Agentless Collector."
+  },
+  {
+   "id": "F7",
+   "q": 54,
+   "ans": "C",
+   "scenario": "Small 100GB gp RDS slows at peak with low CPU, ample memory and free space.",
+   "ok": "I/O credit balance exhausted on small General Purpose SSD volume.",
+   "bad": "Network bandwidth of the instance was exhausted.",
+   "why": "gp2 gives 3 IOPS/GB and bursts on credits; gp3 now has none."
+  },
+  {
+   "id": "F8",
+   "q": 58,
+   "ans": "B, C",
+   "scenario": "Move 150 custom VMs and 50TB NAS in 90 days, minimal downtime.",
+   "ok": "Application Migration Service for VMs + Storage Gateway for NAS data.",
+   "bad": "Reinstall applications on new EC2 instances.",
+   "why": "MGN replicates block-level for near-zero downtime; Storage Gateway moves NAS data over the idle link."
+  },
+  {
+   "id": "F9",
+   "q": 63,
+   "ans": "A",
+   "scenario": "Two-tier app must be highly available across three AZs in one Region.",
+   "ok": "Aurora writer plus Aurora Replicas in two other AZs.",
+   "bad": "Aurora Global Database.",
+   "why": "Aurora storage spans 3 AZs and replicas fail over; Global Database is cross-Region DR."
+  },
+  {
+   "id": "F10",
+   "q": 67,
+   "ans": "B",
+   "scenario": "15TB database: RPO under 5 minutes, RTO under 15 minutes, cheap cross-Region failover.",
+   "ok": "RDS cross-Region read replica, promote on failure.",
+   "bad": "Aurora with DMS replication between Regional clusters.",
+   "why": "Async replica gives low RPO and fast promotion; DMS adds a second cluster's cost."
+  },
+  {
+   "id": "F11",
+   "q": 69,
+   "ans": "C",
+   "scenario": "Fargate and RDS MySQL app needs fast DR recovery in another Region.",
+   "ok": "Warm standby ECS plus cross-Region read replica; Lambda promotes it, updates Route 53.",
+   "bad": "Rebuild ECS and restore RDS from copied snapshots after failure.",
+   "why": "Replica promotion beats snapshot restore for RTO; standby ECS shortens recovery."
+  },
+  {
+   "id": "F12",
+   "q": 70,
+   "ans": "C",
+   "scenario": "Back up EBS data to company S3 bucket with no SSH access, minimal app impact.",
+   "ok": "Data Lifecycle Manager snapshot, then EBS direct APIs copy to S3.",
+   "bad": "Session Manager to the live instance, copy data to S3.",
+   "why": "Snapshot-based backup avoids touching the critical instance; DLM automates snapshots."
+  },
+  {
+   "id": "G1",
+   "q": 8,
+   "ans": "B",
+   "scenario": "403 from S3 through VPC endpoint; bucket uses SSE-KMS; IAM S3 permissions verified.",
+   "ok": "Verify the role has permission to use the bucket's KMS key.",
+   "bad": "Verify the role's trust relationship.",
+   "why": "Role was already assumed, so trust works; KMS-encrypted objects also need kms:Decrypt on the key."
+  },
+  {
+   "id": "G2",
+   "q": 14,
+   "ans": "C",
+   "scenario": "EC2 in private subnet writes to one S3 bucket; no internet, only app instances.",
+   "ok": "Gateway endpoint policy limited to the bucket + bucket policy allowing only the instance role.",
+   "bad": "Endpoint policy to the bucket + bucket policy allowing only the VPC endpoint.",
+   "why": "Endpoint-only bucket policy admits anything in the VPC via that endpoint; a role principal restricts to app instances."
+  },
+  {
+   "id": "G3",
+   "q": 24,
+   "ans": "B",
+   "scenario": "Lambda to Aurora MySQL in dev and prod; no hardcoded credentials, automated rotation.",
+   "ok": "Secrets Manager secret per environment with automatic rotation enabled.",
+   "bad": "Credentials stored in KMS with automatic key rotation.",
+   "why": "Secrets Manager rotates database passwords natively; KMS manages keys, and key rotation is not password rotation."
+  },
+  {
+   "id": "G4",
+   "q": 29,
+   "ans": "D",
+   "scenario": "Confidential S3 bucket: identify requester IPs and auto-remediate policy changes.",
+   "ok": "S3 server access logs queried in Athena + Config rule with auto-remediation.",
+   "bad": "Macie to identify request IPs and remediate bucket policy changes.",
+   "why": "Access logs record requester IPs; Config auto-remediation reverses policy drift. Macie classifies data, not request IPs."
+  },
+  {
+   "id": "G5",
+   "q": 66,
+   "ans": "A, D",
+   "scenario": "Lock down security groups for ALB fronting private-subnet EC2 instances.",
+   "ok": "WebAppSG allows port 80 from ALB-SG + ALB-SG allows 80 from 0.0.0.0/0.",
+   "bad": "ALB-SG allowing port 80 inbound from WebAppSG.",
+   "why": "Clients reach the ALB from anywhere; instances admit only the ALB security group."
+  },
+  {
+   "id": "G6",
+   "q": 68,
+   "ans": "D",
+   "scenario": "Detect and remediate IAM secret keys committed to CodeCommit continuously.",
+   "ok": "CodeCommit trigger invokes Lambda to scan pushes, disable keys and notify.",
+   "bad": "Trusted Advisor check then Secrets Manager rotation.",
+   "why": "Trusted Advisor does not scan repositories; a push trigger inspects commits."
+  },
+  {
+   "id": "H1",
+   "q": 38,
+   "ans": "B",
+   "scenario": "Biweekly CSV of Lambda memory and cost recommendations, least development.",
+   "ok": "Compute Optimizer ExportLambdaFunctionRecommendations to S3, scheduled via EventBridge.",
+   "bad": "Custom Lambda collating CloudWatch Logs metrics into a CSV report.",
+   "why": "Compute Optimizer already computes memory/cost recommendations and exports CSV; no analysis code needed."
+  },
+  {
+   "id": "H2",
+   "q": 52,
+   "ans": "D",
+   "scenario": "Add cost-center and project tags on all new EC2/RDS across Organizations efficiently.",
+   "ok": "Tag Editor + cost allocation tags + SCP denying creation without required tags.",
+   "bad": "Permissions boundaries restricting untagged resource creation.",
+   "why": "SCPs enforce tags org-wide on new resources; boundaries attach per identity."
+  },
+  {
+   "id": "H3",
+   "q": 64,
+   "ans": "B",
+   "scenario": "Right-sized EC2 ASG and RDS on On-Demand; cut cost without hurting reliability.",
+   "ok": "Reserve RDS and the always-running baseline EC2 instances.",
+   "bad": "Spot Instances for RDS and the EC2 fleet.",
+   "why": "RDS can't use Spot; reservations fit steady baseline, On-Demand covers spikes."
+  },
+  {
+   "id": "H4",
+   "q": 74,
+   "ans": "D",
+   "scenario": "Alert at 80% quota use, checked every 15 minutes, across Regions.",
+   "ok": "Trusted Advisor via scheduled EventBridge + Lambda + SNS.",
+   "bad": "Same flow alerting through AWS Budgets.",
+   "why": "Budgets track cost, not quotas; periodic Config can't run every 15 min. Modern: Service Quotas AWS/Usage alarm."
+  }
+ ]
+}
