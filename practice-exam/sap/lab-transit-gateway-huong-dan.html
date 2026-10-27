@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hands-on Lab: Transit Gateway 3 VPC hub-and-spoke</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2433;--muted:#5d6779;--line:#e2e6ee;--accent:#ff9900;--accent2:#232f3e;--code:#f0f2f6;--ok:#1a7f4b;--warn:#fff6e0;--warnl:#e6a700;--info:#e8f1ff;--infol:#3b7ddd}
+@media(prefers-color-scheme:dark){:root{--bg:#12161d;--card:#1b212c;--text:#e7eaf0;--muted:#98a2b3;--line:#2c3544;--code:#252d3b;--ok:#4cc38a;--warn:#2d2610;--warnl:#d9a520;--info:#15243b;--infol:#5b9bf0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+header{background:var(--accent2);color:#fff;padding:36px 16px}
+header .w,main,.toc{max-width:920px;margin:0 auto}
+header small{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+header h1{margin:6px 0 10px;font-size:1.8rem;line-height:1.25}
+header p{margin:0;color:#c9d1dc}
+main{padding:0 16px 60px}
+.toc{padding:20px 16px 0}
+.toc ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;list-style:none;padding:0;margin:0;counter-reset:t}
+.toc li{counter-increment:t}
+.toc a{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--text);text-decoration:none;font-size:.92rem}
+.toc a:before{content:counter(t);display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--accent);color:#111;font-weight:700;font-size:.8rem;margin-right:8px}
+.toc a:hover{border-color:var(--accent)}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 20px;margin-top:22px}
+h2{margin:0 0 6px;font-size:1.3rem}
+h2 .n{display:inline-block;background:var(--accent);color:#111;border-radius:6px;padding:0 9px;margin-right:8px;font-size:1rem}
+h3{margin:22px 0 8px;font-size:1.05rem;border-left:4px solid var(--accent);padding-left:10px}
+.goal{color:var(--muted);margin:0 0 6px}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:8px 0}
+ol.steps>li{counter-increment:s;position:relative;padding:8px 8px 8px 44px;border-radius:8px}
+ol.steps>li:before{content:counter(s);position:absolute;left:8px;top:9px;width:26px;height:26px;border-radius:50%;background:var(--accent2);color:#fff;font-size:.8rem;text-align:center;line-height:26px}
+ol.steps>li.done{opacity:.55}
+ol.steps>li.done:before{content:"✓";background:var(--ok)}
+ol.steps>li label{cursor:pointer;display:block}
+ol.steps input[type=checkbox]{position:absolute;right:6px;top:12px}
+code,.kv{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:.88em}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--code);width:34%}
+.tw{overflow-x:auto}
+.note,.warn{border-left:4px solid var(--infol);background:var(--info);padding:10px 14px;border-radius:6px;margin:12px 0;font-size:.94rem}
+.warn{border-color:var(--warnl);background:var(--warn)}
+.cp{cursor:pointer;border:1px dashed var(--line)}
+.cp:hover{border-color:var(--accent)}
+.cp.ok{border-color:var(--ok);background:var(--code)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow span.b{background:var(--accent2);color:#fff;padding:8px 12px;border-radius:8px;font-size:.85rem}
+.flow span.b.o{background:var(--accent);color:#111}
+.flow i{font-style:normal;color:var(--muted)}
+.bar{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:8px 16px;font-size:.88rem;display:flex;gap:12px;align-items:center}
+.bar .pg{flex:1;height:8px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar .pg div{height:100%;width:0;background:var(--ok);transition:width .2s}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:0 16px 40px}
+@media print{.bar{display:none}section.card{break-inside:avoid-page}}
+</style>
+</head>
+<body>
+
+<header><div class="w">
+<small>AWS Hands-on Lab · Networking (SAP-C02)</small>
+<h1>Transit Gateway: 3 VPC hub-and-spoke và route table isolation</h1>
+<p>Nối 3 VPC (shared-services, dev, prod) qua một Transit Gateway, test ping, rồi tách dev và prod bằng 2-3 TGW route table. So sánh với VPC peering; điểm qua inter-region peering, RAM và appliance mode.</p>
+</div></header>
+
+<div class="bar"><span id="pt">0/0 bước</span><div class="pg"><div id="pb"></div></div></div>
+
+<nav class="toc"><ol>
+<li><a href="#t1">Chuẩn bị 3 VPC, SG, EC2, EIC Endpoint</a></li>
+<li><a href="#t2">Tạo Transit Gateway &amp; 3 attachment</a></li>
+<li><a href="#t3">Route VPC → TGW &amp; test ping (full mesh)</a></li>
+<li><a href="#t4">Segmentation: cô lập dev và prod</a></li>
+<li><a href="#t5">TGW vs VPC peering &amp; mở rộng (paper)</a></li>
+<li><a href="#t6">💥 Phá thử</a></li>
+<li><a href="#t7">🧹 Dọn dẹp</a></li>
+<li><a href="#t8">🎯 3 câu hỏi kiểu đề</a></li>
+<li><a href="#t9">📌 Quy tắc ghi nhớ</a></li>
+</ol></nav>
+
+<main>
+
+<section class="card" id="ov">
+<h2>Tổng quan &amp; kịch bản</h2>
+<p>Công ty có 3 VPC: <b>shared</b> (DNS, AD, tool chung), <b>dev</b> và <b>prod</b>. Yêu cầu: dev và prod đều truy cập được shared; dev và prod <b>không</b> được thấy nhau. Với 3 VPC dùng peering vẫn làm được, nhưng khi lên hàng chục VPC thì full-mesh peering không còn khả thi, và peering không transitive. Transit Gateway (TGW) là hub trung tâm; <b>route table của TGW</b> quyết định VPC nào nói chuyện được với VPC nào.</p>
+<div class="flow">
+<span class="b">VPC dev<br>10.1.0.0/16</span><i>↔</i><span class="b o">Transit Gateway</span><i>↔</i><span class="b">VPC shared<br>10.0.0.0/16</span>
+</div>
+<div class="flow">
+<span class="b">VPC prod<br>10.2.0.0/16</span><i>↔</i><span class="b o">Transit Gateway</span><i>↔</i><span class="b">VPC shared<br>10.0.0.0/16</span><i>|</i><span class="b">dev ↔ prod: không có route</span>
+</div>
+<div class="tw"><table>
+<tr><th>Chế độ</th><td><b>Sandbox thực hành</b>. Nếu sandbox chặn <code>ec2:CreateTransitGateway</code> thì đọc như <b>lab trên giấy</b> (các khối "Xem kết quả" vẫn cho bạn đáp án).</td></tr>
+<tr><th>Thời gian</th><td>Khoảng 35-40 phút (chờ TGW/attachment ~5-10 phút, có thể làm trong lúc chờ)</td></tr>
+<tr><th>Region</th><td><code>ap-southeast-1</code> (đổi tùy ý, dùng một Region xuyên suốt)</td></tr>
+<tr><th>Công cụ</th><td>AWS CLI v2 (có plugin <code>ec2-instance-connect</code> sẵn trong v2) và OpenSSH client. CloudShell dùng được.</td></tr>
+<tr><th>Chi phí</th><td><b>Mỗi VPC attachment ~ $0.05/giờ</b> (cộng ~ $0.02/GB dữ liệu qua TGW; kiểm tra bảng giá hiện hành). 3 attachment trong ~1 giờ khoảng vài chục cent. Cộng 3 EC2 <code>t3.micro</code>. <b>Dọn dẹp ngay khi xong.</b></td></tr>
+</table></div>
+
+<div class="note"><b>Liên hệ đề thi.</b> Bẫy bài này xử lý:
+<ul>
+<li>VPC peering <b>không transitive</b> và không dùng được khi CIDR chồng lấn; TGW cũng không route được CIDR chồng lấn.</li>
+<li>Cô lập dev/prod nhưng cùng dùng shared services: <b>nhiều TGW route table</b> (association + propagation), không phải NACL/SG nghìn rule.</li>
+<li>Chọn peering thay vì TGW khi chỉ 2 VPC, lưu lượng lớn, cần chi phí thấp (peering không tính phí xử lý theo GB trên link).</li>
+<li>Inspection VPC có firewall nhiều AZ: <b>appliance mode</b> để giữ flow đối xứng.</li>
+<li>Nối nhiều Region: <b>TGW peering</b> (route tĩnh, không propagation); nhiều account: chia sẻ TGW bằng <b>AWS RAM</b>.</li>
+</ul></div>
+<div class="note">Mẹo: bấm vào các ô viền nét đứt để copy nhanh. Tick checkbox bên phải mỗi bước để theo dõi tiến độ (chỉ lưu trong phiên xem).</div>
+</section>
+
+<!-- 1 -->
+<section class="card" id="t1">
+<h2><span class="n">1</span>Chuẩn bị 3 VPC, security group, EC2, EIC Endpoint</h2>
+<p class="goal">3 VPC CIDR không chồng lấn, mỗi VPC 1 subnet + 1 EC2 (IP cố định). Dùng EC2 Instance Connect Endpoint (EICE) để SSH vào instance mà không cần IGW/public IP.</p>
+<div class="tw"><table>
+<tr><th>VPC</th><th>CIDR</th><th>Subnet</th><th>EC2 private IP</th></tr>
+<tr><td>lab-shared</td><td><code>10.0.0.0/16</code></td><td><code>10.0.1.0/24</code></td><td><code>10.0.1.10</code></td></tr>
+<tr><td>lab-dev</td><td><code>10.1.0.0/16</code></td><td><code>10.1.1.0/24</code></td><td><code>10.1.1.10</code></td></tr>
+<tr><td>lab-prod</td><td><code>10.2.0.0/16</code></td><td><code>10.2.1.0/24</code></td><td><code>10.2.1.10</code></td></tr>
+</table></div>
+<div class="note">Best practice thật: mỗi VPC có subnet <code>/28</code> riêng cho TGW attachment. Lab dùng chung 1 subnet cho gọn.</div>
+<ol class="steps">
+<li>Đặt Region và tạo 3 VPC + subnet. Dán từng khối vào terminal/CloudShell:
+<div class="tw"><pre><code>export AWS_DEFAULT_REGION=ap-southeast-1
+mkvpc() { # $1=name $2=vpc-cidr $3=subnet-cidr
+  local v s
+  v=$(aws ec2 create-vpc --cidr-block $2 --tag-specifications "ResourceType=vpc,Tags=[{Key=Name,Value=lab-$1}]" --query Vpc.VpcId --output text)
+  s=$(aws ec2 create-subnet --vpc-id $v --cidr-block $3 --query Subnet.SubnetId --output text)
+  echo "$v $s"
+}
+read VPC_SH SUB_SH  &lt;&lt;&lt; $(mkvpc shared 10.0.0.0/16 10.0.1.0/24)
+read VPC_DEV SUB_DEV &lt;&lt;&lt; $(mkvpc dev    10.1.0.0/16 10.1.1.0/24)
+read VPC_PRD SUB_PRD &lt;&lt;&lt; $(mkvpc prod   10.2.0.0/16 10.2.1.0/24)
+echo $VPC_SH $VPC_DEV $VPC_PRD</code></pre></div></li>
+<li>Tạo security group mỗi VPC: ICMP từ <code>10.0.0.0/8</code> (ping giữa các VPC), SSH từ chính SG (cho EICE):
+<div class="tw"><pre><code>mksg() { # $1=name $2=vpc-id
+  local g
+  g=$(aws ec2 create-security-group --group-name lab-$1 --description "lab $1" --vpc-id $2 --query GroupId --output text)
+  aws ec2 authorize-security-group-ingress --group-id $g --protocol icmp --port -1 --cidr 10.0.0.0/8 &gt;/dev/null
+  aws ec2 authorize-security-group-ingress --group-id $g --protocol tcp --port 22 --source-group $g &gt;/dev/null
+  echo $g
+}
+SG_SH=$(mksg shared $VPC_SH); SG_DEV=$(mksg dev $VPC_DEV); SG_PRD=$(mksg prod $VPC_PRD)</code></pre></div></li>
+<li>Tạo EICE cho từng VPC (miễn phí theo giờ; có thể mất vài phút để <code>create-complete</code>):
+<div class="tw"><pre><code>mkeice() { aws ec2 create-instance-connect-endpoint --subnet-id $1 --security-group-ids $2 --query InstanceConnectEndpoint.InstanceConnectEndpointId --output text; }
+EICE_SH=$(mkeice $SUB_SH $SG_SH); EICE_DEV=$(mkeice $SUB_DEV $SG_DEV); EICE_PRD=$(mkeice $SUB_PRD $SG_PRD)
+echo $EICE_SH $EICE_DEV $EICE_PRD</code></pre></div></li>
+<li>Chạy 3 EC2 Amazon Linux 2023 với IP cố định (AMI lấy từ SSM public parameter):
+<div class="tw"><pre><code>AMI=resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+mkec2() { # $1=name $2=subnet $3=sg $4=ip
+  aws ec2 run-instances --image-id $AMI --instance-type t3.micro --subnet-id $2 --security-group-ids $3 \
+    --private-ip-address $4 --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=lab-$1}]" \
+    --query 'Instances[0].InstanceId' --output text
+}
+I_SH=$(mkec2 shared $SUB_SH $SG_SH 10.0.1.10)
+I_DEV=$(mkec2 dev $SUB_DEV $SG_DEV 10.1.1.10)
+I_PRD=$(mkec2 prod $SUB_PRD $SG_PRD 10.2.1.10)
+echo $I_SH $I_DEV $I_PRD</code></pre></div></li>
+</ol>
+<div class="warn">Nếu sandbox chặn EICE hoặc <code>run-instances</code>, bỏ qua bước test ping bằng SSH và thay bằng <b>VPC Reachability Analyzer</b> (có phí nhỏ mỗi lần phân tích) hoặc xem bảng route của TGW ở các mục sau. Các biến (<code>$VPC_*</code>, <code>$ATT_*</code>, <code>$RT_*</code>) mất khi đóng terminal; ghi lại ID nếu cần.</div>
+</section>
+
+<!-- 2 -->
+<section class="card" id="t2">
+<h2><span class="n">2</span>Tạo Transit Gateway và 3 attachment</h2>
+<p class="goal">TGW tạo với default association/propagation bật, mọi attachment tự vào <b>default route table</b>: kết quả là full mesh (Phần A).</p>
+<div class="flow">
+<span class="b">Attachment shared</span><i>+</i><span class="b">Attachment dev</span><i>+</i><span class="b">Attachment prod</span><i>→ associate &amp; propagate →</i><span class="b o">Default TGW route table</span>
+</div>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> Nếu TGW tạo với tùy chọn mặc định và bạn gắn cả 3 VPC, dev có đến được prod không (chưa nói tới route trong VPC)?
+<details><summary>Xem kết quả</summary>Có, về phía TGW. Mọi attachment được associate với default route table và propagate CIDR của mình vào đó nên TGW biết đường tới mọi VPC. Muốn cô lập phải tắt default association/propagation và dùng route table riêng (Mục 4).</details></li>
+<li>Tạo TGW:
+<div class="tw"><pre><code>TGW=$(aws ec2 create-transit-gateway --description "lab-tgw" \
+  --tag-specifications 'ResourceType=transit-gateway,Tags=[{Key=Name,Value=lab-tgw}]' \
+  --query TransitGateway.TransitGatewayId --output text)
+echo $TGW
+aws ec2 describe-transit-gateways --transit-gateway-ids $TGW --query 'TransitGateways[0].State' --output text</code></pre></div>
+Lặp lệnh <code>describe</code> đến khi State = <code>available</code> (vài phút).</li>
+<li>Tạo 3 VPC attachment (mỗi lệnh trả về ID attachment):
+<div class="tw"><pre><code>mkatt() { aws ec2 create-transit-gateway-vpc-attachment --transit-gateway-id $TGW --vpc-id $1 --subnet-ids $2 \
+  --tag-specifications "ResourceType=transit-gateway-attachment,Tags=[{Key=Name,Value=lab-att-$3}]" \
+  --query TransitGatewayVpcAttachment.TransitGatewayAttachmentId --output text; }
+ATT_SH=$(mkatt $VPC_SH $SUB_SH shared); ATT_DEV=$(mkatt $VPC_DEV $SUB_DEV dev); ATT_PRD=$(mkatt $VPC_PRD $SUB_PRD prod)
+aws ec2 describe-transit-gateway-vpc-attachments --transit-gateway-attachment-ids $ATT_SH $ATT_DEV $ATT_PRD \
+  --query 'TransitGatewayVpcAttachments[].[TransitGatewayAttachmentId,State]' --output text</code></pre></div>
+Chờ cả 3 State = <code>available</code>.</li>
+<li>Xem default route table và các route đã propagate:
+<div class="tw"><pre><code>RT_DEF=$(aws ec2 describe-transit-gateways --transit-gateway-ids $TGW \
+  --query 'TransitGateways[0].Options.AssociationDefaultRouteTableId' --output text)
+aws ec2 search-transit-gateway-routes --transit-gateway-route-table-id $RT_DEF \
+  --filters Name=state,Values=active \
+  --query 'Routes[].[DestinationCidrBlock,Type,TransitGatewayAttachments[0].TransitGatewayAttachmentId]' --output text</code></pre></div>
+<details><summary>Xem kết quả</summary>Có 3 route <code>propagated</code>: <code>10.0.0.0/16</code>, <code>10.1.0.0/16</code>, <code>10.2.0.0/16</code>, mỗi route trỏ tới attachment tương ứng. (Có thể mất vài chục giây để route xuất hiện.)</details></li>
+</ol>
+</section>
+
+<!-- 3 -->
+<section class="card" id="t3">
+<h2><span class="n">3</span>Route VPC → TGW và test ping (full mesh)</h2>
+<p class="goal">TGW chỉ lo phía hub; mỗi VPC vẫn cần route trong <b>VPC route table</b> trỏ về TGW.</p>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> Nếu thêm route <code>10.0.0.0/8 → tgw</code> vào VPC dev, traffic nội bộ trong VPC dev (<code>10.1.0.0/16</code>) có bị đẩy sang TGW không?
+<details><summary>Xem kết quả</summary>Không. Route <code>local 10.1.0.0/16</code> cụ thể hơn (longest prefix match) nên thắng. Chỉ 10.0.x và 10.2.x đi qua TGW.</details>
+<div class="tw"><pre><code>mainrt() { aws ec2 describe-route-tables --filters Name=vpc-id,Values=$1 Name=association.main,Values=true \
+  --query 'RouteTables[0].RouteTableId' --output text; }
+RTB_SH=$(mainrt $VPC_SH); RTB_DEV=$(mainrt $VPC_DEV); RTB_PRD=$(mainrt $VPC_PRD)
+for R in $RTB_SH $RTB_DEV $RTB_PRD; do
+  aws ec2 create-route --route-table-id $R --destination-cidr-block 10.0.0.0/8 --transit-gateway-id $TGW
+done</code></pre></div></li>
+<li>Chờ EICE <code>create-complete</code> và instance <code>running</code>:
+<div class="tw"><pre><code>aws ec2 describe-instance-connect-endpoints --instance-connect-endpoint-ids $EICE_SH $EICE_DEV $EICE_PRD \
+  --query 'InstanceConnectEndpoints[].[InstanceConnectEndpointId,State]' --output text
+aws ec2 wait instance-status-ok --instance-ids $I_SH $I_DEV $I_PRD</code></pre></div></li>
+<li>🔮 <b>Dự đoán:</b> Từ EC2 dev ping lần lượt <code>10.0.1.10</code> (shared) và <code>10.2.1.10</code> (prod). Kết quả?
+<details><summary>Xem kết quả</summary>Cả hai đều reply (full mesh vì cả 3 attachment dùng chung default route table và propagate lẫn nhau). Ví dụ (minh họa, số liệu của bạn sẽ khác): <code>3 packets transmitted, 3 received, 0% packet loss</code>.</details>
+<div class="tw"><pre><code>aws ec2-instance-connect ssh --instance-id $I_DEV --connection-type eice
+# trong phiên SSH:
+ping -c 3 10.0.1.10
+ping -c 3 10.2.1.10
+exit</code></pre></div></li>
+<li>Ping chiều ngược lại (prod → shared) để xác nhận hai chiều:
+<div class="tw"><pre><code>aws ec2-instance-connect ssh --instance-id $I_PRD --connection-type eice
+ping -c 3 10.0.1.10
+exit</code></pre></div></li>
+</ol>
+<div class="note">Không ping được? Kiểm tra theo thứ tự: (1) attachment <code>available</code>; (2) route VPC → TGW; (3) route TGW trong route table được associate; (4) SG cho ICMP từ <code>10.0.0.0/8</code>; (5) NACL.</div>
+</section>
+
+<!-- 4 -->
+<section class="card" id="t4">
+<h2><span class="n">4</span>Segmentation: cô lập dev và prod</h2>
+<p class="goal">3 TGW route table: <code>rt-dev</code>, <code>rt-prod</code>, <code>rt-shared</code>. Mỗi attachment <b>associate</b> với đúng 1 bảng (bảng dùng để tra route cho traffic <b>đi vào</b> từ attachment đó); <b>propagate</b> CIDR của mình vào các bảng cần thấy nó.</p>
+<div class="tw"><table>
+<tr><th>Route table</th><th>Associated attachment</th><th>Propagated vào bảng này</th><th>Route có trong bảng</th></tr>
+<tr><td><code>rt-dev</code></td><td>dev</td><td>shared</td><td>10.0.0.0/16</td></tr>
+<tr><td><code>rt-prod</code></td><td>prod</td><td>shared</td><td>10.0.0.0/16</td></tr>
+<tr><td><code>rt-shared</code></td><td>shared</td><td>dev, prod</td><td>10.1.0.0/16, 10.2.0.0/16</td></tr>
+</table></div>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> Sau khi cấu hình đúng như bảng trên, ping dev → prod, dev → shared, shared → prod cho kết quả gì?
+<details><summary>Xem kết quả</summary>dev → shared: OK. shared → prod: OK. dev → prod: <b>thất bại</b> (traffic vào TGW từ attachment dev tra <code>rt-dev</code>, bảng này không có <code>10.2.0.0/16</code> nên bị drop). Prod → dev cũng thất bại tương tự.</details></li>
+<li>Tắt default association/propagation cho attachment mới sau này (không ảnh hưởng attachment hiện có):
+<div class="tw"><pre><code>aws ec2 modify-transit-gateway --transit-gateway-id $TGW \
+  --options DefaultRouteTableAssociation=disable,DefaultRouteTablePropagation=disable</code></pre></div>
+Với TGW mới, truyền cùng 2 tùy chọn ngay lúc <code>create-transit-gateway --options ...</code>.</li>
+<li>Tạo 3 TGW route table:
+<div class="tw"><pre><code>mkrt() { aws ec2 create-transit-gateway-route-table --transit-gateway-id $TGW \
+  --tag-specifications "ResourceType=transit-gateway-route-table,Tags=[{Key=Name,Value=$1}]" \
+  --query TransitGatewayRouteTable.TransitGatewayRouteTableId --output text; }
+RT_DEV=$(mkrt rt-dev); RT_PRD=$(mkrt rt-prod); RT_SH=$(mkrt rt-shared)
+echo $RT_DEV $RT_PRD $RT_SH</code></pre></div></li>
+<li>Gỡ cả 3 attachment khỏi default route table (tắt propagation rồi disassociate):
+<div class="tw"><pre><code>for A in $ATT_SH $ATT_DEV $ATT_PRD; do
+  aws ec2 disable-transit-gateway-route-table-propagation --transit-gateway-route-table-id $RT_DEF --transit-gateway-attachment-id $A
+  aws ec2 disassociate-transit-gateway-route-table --transit-gateway-route-table-id $RT_DEF --transit-gateway-attachment-id $A
+done
+aws ec2 get-transit-gateway-route-table-associations --transit-gateway-route-table-id $RT_DEF \
+  --query 'Associations[].[TransitGatewayAttachmentId,State]' --output text</code></pre></div>
+Chờ đến khi danh sách trống (State chuyển <code>disassociating</code> rồi biến mất). Chưa gỡ xong thì bước associate kế tiếp có thể báo lỗi.</li>
+<li>Associate mỗi attachment với route table riêng:
+<div class="tw"><pre><code>aws ec2 associate-transit-gateway-route-table --transit-gateway-route-table-id $RT_DEV --transit-gateway-attachment-id $ATT_DEV
+aws ec2 associate-transit-gateway-route-table --transit-gateway-route-table-id $RT_PRD --transit-gateway-attachment-id $ATT_PRD
+aws ec2 associate-transit-gateway-route-table --transit-gateway-route-table-id $RT_SH  --transit-gateway-attachment-id $ATT_SH</code></pre></div></li>
+<li>Propagation: shared vào rt-dev và rt-prod; dev, prod vào rt-shared:
+<div class="tw"><pre><code>aws ec2 enable-transit-gateway-route-table-propagation --transit-gateway-route-table-id $RT_DEV --transit-gateway-attachment-id $ATT_SH
+aws ec2 enable-transit-gateway-route-table-propagation --transit-gateway-route-table-id $RT_PRD --transit-gateway-attachment-id $ATT_SH
+aws ec2 enable-transit-gateway-route-table-propagation --transit-gateway-route-table-id $RT_SH  --transit-gateway-attachment-id $ATT_DEV
+aws ec2 enable-transit-gateway-route-table-propagation --transit-gateway-route-table-id $RT_SH  --transit-gateway-attachment-id $ATT_PRD</code></pre></div></li>
+<li>Xem route của từng bảng:
+<div class="tw"><pre><code>for R in $RT_DEV $RT_PRD $RT_SH; do echo "== $R"
+  aws ec2 search-transit-gateway-routes --transit-gateway-route-table-id $R --filters Name=state,Values=active \
+    --query 'Routes[].[DestinationCidrBlock,Type]' --output text; done</code></pre></div>
+<details><summary>Xem kết quả</summary>rt-dev: <code>10.0.0.0/16</code>. rt-prod: <code>10.0.0.0/16</code>. rt-shared: <code>10.1.0.0/16</code> và <code>10.2.0.0/16</code>. Propagation có thể mất chút thời gian để hiển thị.</details></li>
+<li>🔮 <b>Dự đoán &amp; test:</b> lặp lại ping từ dev → shared, dev → prod, prod → dev, shared → dev, shared → prod.
+<details><summary>Xem kết quả</summary>Chỉ các cặp có shared tham gia (dev↔shared, prod↔shared) thành công. dev→prod và prod→dev timeout 100% loss. VPC route table (10.0.0.0/8 → tgw) vẫn giữ nguyên: lọc xảy ra hoàn toàn ở TGW route table.</details></li>
+</ol>
+<div class="note">Muốn isolation <b>tường minh</b> hơn: thêm static route <code>blackhole</code> cho CIDR cấm, ví dụ <code>aws ec2 create-transit-gateway-route --transit-gateway-route-table-id $RT_DEV --destination-cidr-block 10.2.0.0/16 --blackhole</code>. Static route thắng propagated route cùng prefix.</div>
+</section>
+
+<!-- 5 -->
+<section class="card" id="t5">
+<h2><span class="n">5</span>TGW vs VPC peering và mở rộng (paper)</h2>
+<p class="goal">So sánh để chọn đúng trong đề, rồi điểm qua inter-region peering, RAM và appliance mode.</p>
+
+<h3>5A. So sánh</h3>
+<div class="tw"><table>
+<tr><th>Tiêu chí</th><th>VPC peering</th><th>Transit Gateway</th></tr>
+<tr><td>Transitive routing</td><td><b>Không</b> (A-B, B-C không suy ra A-C)</td><td>Có (hub-and-spoke)</td></tr>
+<tr><td>CIDR chồng lấn</td><td>Không dùng được</td><td>Không route được đúng; phải tránh chồng lấn</td></tr>
+<tr><td>Quy mô</td><td>N VPC full mesh cần N(N-1)/2 peering</td><td>1 attachment/VPC</td></tr>
+<tr><td>Chi phí</td><td>Không phí giờ, không phí xử lý theo GB trên link (vẫn có phí data transfer cross-AZ/region)</td><td>Phí theo giờ mỗi attachment + phí xử lý theo GB</td></tr>
+<tr><td>Độ trễ/băng thông</td><td>Không qua hop trung gian</td><td>Thêm 1 hop; hỗ trợ băng thông cao theo từng attachment</td></tr>
+<tr><td>Phân đoạn</td><td>Dựa vào route table/SG của từng VPC</td><td>Route table của TGW (association/propagation)</td></tr>
+<tr><td>Kết nối VPN/Direct Connect</td><td>Không</td><td>Có (VPN, DX gateway attach vào TGW)</td></tr>
+</table></div>
+<p>Quy tắc chọn: 2-3 VPC, lưu lượng lớn, cần rẻ → peering. Nhiều VPC, cần transitive/phân đoạn/hybrid → TGW.</p>
+
+<h3>5B. Mở rộng</h3>
+<ol class="steps">
+<li><b>Inter-region peering:</b> peer TGW ở Region khác qua AWS backbone (mã hóa). Chỉ hỗ trợ <b>route tĩnh</b>, không propagate qua peering.
+<div class="tw"><pre><code>aws ec2 create-transit-gateway-peering-attachment --transit-gateway-id tgw-aaaa \
+  --peer-transit-gateway-id tgw-bbbb --peer-account-id 111111111111 --peer-region us-east-1
+# bên Region/account kia: accept
+aws ec2 accept-transit-gateway-peering-attachment --transit-gateway-attachment-id tgw-attach-xxxx --region us-east-1
+# thêm route tĩnh trỏ CIDR bên kia vào peering attachment ở cả hai TGW route table
+aws ec2 create-transit-gateway-route --transit-gateway-route-table-id tgw-rtb-xxxx \
+  --destination-cidr-block 10.50.0.0/16 --transit-gateway-attachment-id tgw-attach-xxxx</code></pre></div>
+(ID trên là placeholder.)</li>
+<li><b>Chia sẻ qua RAM:</b> một TGW trong network account, các account khác (hoặc cả Organization) tạo attachment cho VPC của mình.
+<div class="tw"><pre><code>aws ram enable-sharing-with-aws-organization   # chạy ở management account, một lần
+aws ram create-resource-share --name tgw-share \
+  --resource-arns arn:aws:ec2:ap-southeast-1:111111111111:transit-gateway/tgw-aaaa \
+  --principals arn:aws:organizations::111111111111:organization/o-xxxxxxxxxx</code></pre></div>
+Account khác tạo attachment; owner TGW phải <code>accept-transit-gateway-vpc-attachment</code> trừ khi bật auto-accept. (ARN trên là ví dụ.)</li>
+<li><b>Appliance mode:</b> VPC kiểm tra (firewall) nhiều AZ. Mặc định TGW có thể gửi chiều đi và chiều về qua appliance ở AZ khác nhau, gây drop với stateful firewall. Bật appliance mode trên attachment của inspection VPC để giữ flow qua cùng một network interface/AZ.
+<div class="tw"><pre><code>aws ec2 modify-transit-gateway-vpc-attachment --transit-gateway-attachment-id tgw-attach-xxxx \
+  --options ApplianceModeSupport=enable</code></pre></div></li>
+</ol>
+</section>
+
+<!-- 6 -->
+<section class="card" id="t6">
+<h2><span class="n">6</span>💥 Phá thử</h2>
+<p class="goal">Cố ý làm sai trên cấu hình Mục 4 và quan sát. Sau mỗi thí nghiệm, khôi phục.</p>
+<ol class="steps">
+<li>🔮 <b>Bỏ propagation một chiều:</b> tắt propagation của shared vào rt-dev rồi ping dev → shared.
+<div class="tw"><pre><code>aws ec2 disable-transit-gateway-route-table-propagation --transit-gateway-route-table-id $RT_DEV --transit-gateway-attachment-id $ATT_SH</code></pre></div>
+<details><summary>Xem kết quả</summary>Ping dev → shared timeout: gói đi vào từ attachment dev tra rt-dev, không còn route <code>10.0.0.0/16</code>. Bài học: cần route ở cả hai chiều (đi: bảng của nguồn; về: bảng của đích). Khôi phục: <code>enable-transit-gateway-route-table-propagation</code> với cùng tham số.</details></li>
+<li>🔮 <b>Associate sai route table:</b> associate attachment dev vào <code>rt-shared</code> (cần disassociate khỏi rt-dev trước, rồi chờ).
+<div class="tw"><pre><code>aws ec2 disassociate-transit-gateway-route-table --transit-gateway-route-table-id $RT_DEV --transit-gateway-attachment-id $ATT_DEV
+# đợi xong rồi:
+aws ec2 associate-transit-gateway-route-table --transit-gateway-route-table-id $RT_SH --transit-gateway-attachment-id $ATT_DEV</code></pre></div>
+<details><summary>Xem kết quả</summary>Dev giờ tra route bằng rt-shared (có <code>10.1.0.0/16</code> và <code>10.2.0.0/16</code>), nên gói từ dev tới được prod. Nhưng prod trả lời bằng rt-prod (chỉ có <code>10.0.0.0/16</code>) nên không có đường về dev: ping vẫn timeout. Dev ↔ shared cũng hỏng vì rt-shared không có <code>10.0.0.0/16</code>. Đây là bài học về routing bất đối xứng: kiểm tra gói đến bằng <code>sudo tcpdump -ni any icmp</code> trên EC2 prod (thấy request đến, không thấy reply tới đích). Khôi phục: disassociate rồi associate lại attachment dev vào rt-dev.</details></li>
+<li>🔮 <b>Xóa route VPC → TGW:</b> xóa route <code>10.0.0.0/8</code> khỏi VPC dev.
+<div class="tw"><pre><code>aws ec2 delete-route --route-table-id $RTB_DEV --destination-cidr-block 10.0.0.0/8</code></pre></div>
+<details><summary>Xem kết quả</summary>Dev không ping được ai ngoài VPC của nó, dù TGW cấu hình đúng. TGW không tự thêm route vào VPC route table. Khôi phục: <code>create-route</code> như Mục 3.</details></li>
+<li>🔮 <b>(Paper) CIDR chồng lấn:</b> nếu VPC prod dùng <code>10.1.0.0/16</code> giống dev, điều gì xảy ra khi cả hai propagate vào rt-shared?
+<details><summary>Xem kết quả</summary>Một CIDR chỉ có thể trỏ tới một attachment trong một route table; traffic sẽ đến sai VPC hoặc không rõ. Không dùng được thực tế. Phải đánh số lại CIDR hoặc dùng NAT/PrivateLink.</details></li>
+</ol>
+</section>
+
+<!-- 7 -->
+<section class="card" id="t7">
+<h2><span class="n">7</span>🧹 Dọn dẹp</h2>
+<p class="goal">Thứ tự: EC2 → EICE → TGW attachment → TGW route table → TGW → SG → subnet → VPC. Làm đủ để hết tính phí attachment.</p>
+<div class="tw"><pre><code># 1. EC2
+aws ec2 terminate-instances --instance-ids $I_SH $I_DEV $I_PRD
+aws ec2 wait instance-terminated --instance-ids $I_SH $I_DEV $I_PRD
+
+# 2. EICE (ENI giải phóng sau vài phút)
+for E in $EICE_SH $EICE_DEV $EICE_PRD; do aws ec2 delete-instance-connect-endpoint --instance-connect-endpoint-id $E; done
+
+# 3. TGW attachments (gỡ association/propagation tự động)
+for A in $ATT_SH $ATT_DEV $ATT_PRD; do aws ec2 delete-transit-gateway-vpc-attachment --transit-gateway-attachment-id $A; done
+aws ec2 describe-transit-gateway-vpc-attachments --transit-gateway-attachment-ids $ATT_SH $ATT_DEV $ATT_PRD \
+  --query 'TransitGatewayVpcAttachments[].State' --output text   # chờ tất cả = deleted
+
+# 4. TGW route tables (non-default) rồi TGW
+for R in $RT_DEV $RT_PRD $RT_SH; do aws ec2 delete-transit-gateway-route-table --transit-gateway-route-table-id $R; done
+aws ec2 delete-transit-gateway --transit-gateway-id $TGW
+
+# 5. SG, subnet, VPC (chờ EICE xóa xong mới xóa được SG/subnet)
+for G in $SG_SH $SG_DEV $SG_PRD; do aws ec2 delete-security-group --group-id $G; done
+for S in $SUB_SH $SUB_DEV $SUB_PRD; do aws ec2 delete-subnet --subnet-id $S; done
+for V in $VPC_SH $VPC_DEV $VPC_PRD; do aws ec2 delete-vpc --vpc-id $V; done</code></pre></div>
+<div class="warn">Lỗi thường gặp: <code>DependencyViolation</code> khi xóa SG/subnet nghĩa là EICE hoặc ENI còn tồn tại: chờ 2-5 phút rồi chạy lại. Kiểm tra cuối: <code>aws ec2 describe-transit-gateways</code> không còn TGW nào ở trạng thái <code>available</code> hoặc <code>deleting</code> lâu.</div>
+<p>Nếu đã thử Mục 5B ngoài lab (peering, RAM): xóa peering attachment, <code>aws ram delete-resource-share --resource-share-arn ...</code> và <code>disable-sharing-with-aws-organization</code> nếu đã bật cho lab.</p>
+</section>
+
+<!-- 8 -->
+<section class="card" id="t8">
+<h2><span class="n">8</span>🎯 3 câu hỏi kiểu đề</h2>
+<p class="goal">Tình huống tự soạn, không lấy từ bộ đề nào.</p>
+
+<h3>Câu 1</h3>
+<p>Một công ty có 60 VPC trong nhiều account. VPC production và VPC development phải bị cô lập hoàn toàn với nhau, nhưng tất cả đều cần truy cập VPC shared-services chứa Active Directory. Giải pháp nào đáp ứng với ít công sức quản lý nhất?</p>
+<ol type="A">
+<li>Tạo full-mesh VPC peering giữa tất cả VPC và dùng security group để chặn prod-dev.</li>
+<li>Dùng Site-to-Site VPN giữa mỗi cặp VPC cần kết nối.</li>
+<li>Một Transit Gateway với default route table duy nhất; dùng NACL để chặn prod-dev.</li>
+<li>Một Transit Gateway chia sẻ bằng AWS RAM, với route table riêng cho dev, prod và shared; shared propagate vào dev/prod và dev, prod propagate vào shared.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>D.</b> Route table riêng ở TGW cho phép phân đoạn tập trung; RAM chia sẻ TGW cho nhiều account. A: 60 VPC cần 1770 peering và không transitive. B vận hành nặng. C hoạt động nhưng NACL/SG phải duy trì ở từng VPC, dễ sai và kém quy mô.</details>
+
+<h3>Câu 2</h3>
+<p>Hai VPC trong cùng Region trao đổi khoảng 80 TB mỗi tháng. Chúng không cần kết nối tới VPC nào khác và CIDR không chồng lấn. Yêu cầu: tối thiểu chi phí. Chọn gì?</p>
+<ol type="A">
+<li>VPC peering giữa hai VPC.</li>
+<li>Transit Gateway với hai VPC attachment.</li>
+<li>Site-to-Site VPN giữa hai VPC.</li>
+<li>AWS Direct Connect gateway.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>A.</b> Peering không tính phí giờ và không tính phí xử lý theo GB trên link; với 80 TB/tháng TGW sẽ phát sinh phí xử lý theo GB đáng kể. VPN và Direct Connect dành cho hybrid, không phải kết nối VPC-VPC trong AWS.</details>
+
+<h3>Câu 3</h3>
+<p>Một công ty đặt firewall ảo stateful ở inspection VPC trải trên hai AZ, kết nối với các VPC ứng dụng qua Transit Gateway. Thỉnh thoảng kết nối TCP bị reset vì gói trả về đi qua firewall ở AZ khác với gói gửi đi. Cách khắc phục đúng?</p>
+<ol type="A">
+<li>Tắt source/destination check trên firewall.</li>
+<li>Thêm static route trong mọi route table của TGW.</li>
+<li>Bật appliance mode trên VPC attachment của inspection VPC.</li>
+<li>Chuyển sang VPC peering giữa các VPC ứng dụng và inspection VPC.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>C.</b> Appliance mode giữ lưu lượng của cùng một flow qua cùng một network interface/AZ của appliance, đảm bảo đối xứng cho stateful inspection. A cần cho firewall khi route traffic nhưng không giải quyết bất đối xứng AZ. B không đổi hành vi chọn AZ. D mất khả năng transitive và không phù hợp.</details>
+</section>
+
+<!-- 9 -->
+<section class="card" id="t9">
+<h2><span class="n">9</span>📌 Quy tắc ghi nhớ</h2>
+<ol class="steps">
+<li>VPC peering không transitive, không cho CIDR chồng lấn; TGW là hub transitive, cũng yêu cầu CIDR không chồng lấn.</li>
+<li>TGW cần cả route trong VPC route table (→ tgw) lẫn route trong TGW route table; thiếu một là mất kết nối.</li>
+<li>Association = bảng dùng để tra route cho traffic đi vào từ attachment; propagation = attachment quảng bá CIDR vào bảng nào.</li>
+<li>Cô lập: tắt default association/propagation, mỗi nhóm một route table; shared propagate hai chiều với các nhóm.</li>
+<li>2 VPC + tiết kiệm → peering; inter-region TGW dùng route tĩnh; nhiều account dùng RAM; firewall nhiều AZ cần appliance mode.</li>
+</ol>
+</section>
+
+</main>
+<footer>Lab tự biên soạn cho ôn thi AWS SAP-C02. ID tài nguyên, kết quả và giá đều là ví dụ; kiểm tra bảng giá và tài liệu AWS hiện hành trước khi áp dụng thực tế.</footer>
+
+<script>
+(function(){
+  var steps=[].slice.call(document.querySelectorAll('ol.steps>li'));
+  steps.forEach(function(li){
+    var cb=document.createElement('input');cb.type='checkbox';cb.title='Đánh dấu hoàn thành';
+    cb.addEventListener('change',function(){li.classList.toggle('done',cb.checked);upd();});
+    li.appendChild(cb);
+  });
+  function upd(){
+    var d=document.querySelectorAll('ol.steps>li.done').length;
+    document.getElementById('pt').textContent=d+'/'+steps.length+' bước';
+    document.getElementById('pb').style.width=(steps.length?d/steps.length*100:0)+'%';
+  }
+  upd();
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('.cp');if(!el)return;
+    var t=el.getAttribute('data-c');
+    function ok(){el.classList.add('ok');setTimeout(function(){el.classList.remove('ok')},700)}
+    try{navigator.clipboard.writeText(t).then(ok,function(){})}catch(x){}
+  });
+})();
+</script>
+</body>
+</html>

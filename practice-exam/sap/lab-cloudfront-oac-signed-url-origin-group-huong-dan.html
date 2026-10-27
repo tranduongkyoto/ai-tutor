@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hands-on Lab: CloudFront OAC + Signed URL/Cookies + Origin Group</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2433;--muted:#5d6779;--line:#e2e6ee;--accent:#ff9900;--accent2:#232f3e;--code:#f0f2f6;--ok:#1a7f4b;--warn:#fff6e0;--warnl:#e6a700;--info:#e8f1ff;--infol:#3b7ddd}
+@media(prefers-color-scheme:dark){:root{--bg:#12161d;--card:#1b212c;--text:#e7eaf0;--muted:#98a2b3;--line:#2c3544;--code:#252d3b;--ok:#4cc38a;--warn:#2d2610;--warnl:#d9a520;--info:#15243b;--infol:#5b9bf0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+header{background:var(--accent2);color:#fff;padding:36px 16px}
+header .w,main,.toc{max-width:920px;margin:0 auto}
+header small{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+header h1{margin:6px 0 10px;font-size:1.8rem;line-height:1.25}
+header p{margin:0;color:#c9d1dc}
+main{padding:0 16px 60px}
+.toc{padding:20px 16px 0}
+.toc ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;list-style:none;padding:0;margin:0;counter-reset:t}
+.toc li{counter-increment:t}
+.toc a{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--text);text-decoration:none;font-size:.92rem}
+.toc a:before{content:counter(t);display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--accent);color:#111;font-weight:700;font-size:.8rem;margin-right:8px}
+.toc a:hover{border-color:var(--accent)}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 20px;margin-top:22px}
+h2{margin:0 0 6px;font-size:1.3rem}
+h2 .n{display:inline-block;background:var(--accent);color:#111;border-radius:6px;padding:0 9px;margin-right:8px;font-size:1rem}
+h3{margin:22px 0 8px;font-size:1.05rem;border-left:4px solid var(--accent);padding-left:10px}
+.goal{color:var(--muted);margin:0 0 6px}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:8px 0}
+ol.steps>li{counter-increment:s;position:relative;padding:8px 8px 8px 44px;border-radius:8px}
+ol.steps>li:before{content:counter(s);position:absolute;left:8px;top:9px;width:26px;height:26px;border-radius:50%;background:var(--accent2);color:#fff;font-size:.8rem;text-align:center;line-height:26px}
+ol.steps>li.done{opacity:.55}
+ol.steps>li.done:before{content:"✓";background:var(--ok)}
+ol.steps>li label{cursor:pointer;display:block}
+ol.steps input[type=checkbox]{position:absolute;right:6px;top:12px}
+code,.kv{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:.88em}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--code);width:34%}
+.tw{overflow-x:auto}
+.note,.warn{border-left:4px solid var(--infol);background:var(--info);padding:10px 14px;border-radius:6px;margin:12px 0;font-size:.94rem}
+.warn{border-color:var(--warnl);background:var(--warn)}
+.cp{cursor:pointer;border:1px dashed var(--line)}
+.cp:hover{border-color:var(--accent)}
+.cp.ok{border-color:var(--ok);background:var(--code)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow span.b{background:var(--accent2);color:#fff;padding:8px 12px;border-radius:8px;font-size:.85rem}
+.flow span.b.o{background:var(--accent);color:#111}
+.flow i{font-style:normal;color:var(--muted)}
+.bar{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:8px 16px;font-size:.88rem;display:flex;gap:12px;align-items:center}
+.bar .pg{flex:1;height:8px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar .pg div{height:100%;width:0;background:var(--ok);transition:width .2s}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:0 16px 40px}
+@media print{.bar{display:none}section.card{break-inside:avoid-page}}
+</style>
+</head>
+<body>
+<header><div class="w">
+<small>AWS Hands-on Lab · Content Delivery · SAP-C02</small>
+<h1>CloudFront OAC + Signed URL/Cookies + Origin Group Failover</h1>
+<p>Bucket S3 private đọc qua OAC, bắt buộc chữ ký bằng trusted key group, và tự failover sang bucket ở region khác bằng origin group.</p>
+</div></header>
+
+<div class="bar"><span id="pt">0/0 bước</span><div class="pg"><div id="pb"></div></div></div>
+
+<nav class="toc"><ol>
+<li><a href="#ov">Tổng quan &amp; liên hệ đề thi</a></li>
+<li><a href="#t1">2 S3 bucket private</a></li>
+<li><a href="#t2">Key group + OAC</a></li>
+<li><a href="#t3">Distribution + bucket policy OAC</a></li>
+<li><a href="#t4">Signed URL / cookies</a></li>
+<li><a href="#t5">Origin group failover</a></li>
+<li><a href="#t6">OAC/OAI, Functions/Edge, Geo</a></li>
+<li><a href="#t7">💥 Phá thử</a></li>
+<li><a href="#t8">🧹 Dọn dẹp</a></li>
+<li><a href="#t9">🎯 3 câu hỏi kiểu đề</a></li>
+<li><a href="#t10">📌 Quy tắc ghi nhớ</a></li>
+</ol></nav>
+
+<main>
+
+<section class="card" id="ov"><h2>Tổng quan &amp; kịch bản</h2><p class="goal">Phân phối nội dung private từ S3 qua CloudFront: chỉ CloudFront đọc được bucket (OAC), chỉ người có chữ ký mới tải được (signed URL/cookies), và tự failover sang bucket ở region khác (origin group).</p><p>Công ty bán khoá học online. File nằm trong S3 bucket <b>private</b>; người dùng chỉ được tải qua CloudFront. Một số file cần link tạm thời (signed URL), thư mục video nhiều file cần cookie (signed cookies). Để chịu lỗi region, có bucket phụ ở region khác, CloudFront tự chuyển sang đó khi bucket chính lỗi.</p><div class="flow"><span class="b">Viewer</span><span class="b">&gt;URL ký / cookie ký →</span><span class="b o">CloudFront<br>key group + OAC</span><span class="b">&gt;SigV4 (OAC) →</span><span class="b">S3 primary<br>ap-southeast-1</span><span class="b">&gt;lỗi 403/5xx →</span><span class="b">S3 secondary<br>ap-northeast-1</span></div><div class="tw"><table><tr><th>Region</th><td>Primary <code>ap-southeast-1</code>, Secondary <code>ap-northeast-1</code> (CloudFront là dịch vụ global)</td></tr><tr><th>Tài nguyên</th><td>2 S3 bucket, 1 OAC, 1 public key + key group, 1 distribution (2 origin + 1 origin group)</td></tr><tr><th>Công cụ</th><td>AWS CLI v2, <code>openssl</code>, <code>jq</code>, <code>curl</code>; console cho phần cấu hình distribution</td></tr><tr><th>Thời gian</th><td>khoảng 35-40 phút, trong đó <b>mỗi lần deploy distribution mất vài phút</b> (thường 3-10 phút; trạng thái <i>Deploying</i> → <i>Last modified</i> có ngày). Lab thiết kế chỉ 2 lần deploy cộng 1 lần khi phá thử và 1 lần khi dọn dẹp.</td></tr><tr><th>Chi phí</th><td>Rất thấp (vài cent: S3 + request; CloudFront có free tier). Vẫn dọn dẹp để tránh để lại distribution.</td></tr></table></div><div class="note"><b>Liên hệ đề thi (SAP-C02)</b> — lab này sửa các bẫy:<br>• <b>OAC thay OAI</b>; bucket policy principal là <code>cloudfront.amazonaws.com</code> + <code>AWS:SourceArn</code>; OAC <b>không dùng được</b> với S3 <i>website endpoint</i>.<br>• <b>Signed URL</b> (một file) vs <b>signed cookies</b> (nhiều file, không đổi URL); dùng <b>trusted key group</b> thay vì root key pair.<br>• <b>Origin group</b> chỉ failover cho GET/HEAD/OPTIONS; S3 thiếu object thường trả <b>403</b> (không phải 404) nên phải chọn 403.<br>• CloudFront Functions vs Lambda@Edge; Geo restriction chỉ ở mức quốc gia.</div><div class="note">Mẹo: giữ một shell cho cả lab. Các biến chính: <code>$ACCT $B1 $B2 $KID $KG $OAC $DIST $DOMAIN</code>.</div></section>
+<section class="card" id="t1"><h2><span class="n">1</span>Tạo 2 S3 bucket private ở 2 region</h2><p class="goal">Bucket mới tạo giữ nguyên Block Public Access (bật cả 4 cờ). Không mở public để bật CloudFront.</p><ol class="steps"><li>Chạy script tạo bucket + upload file:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="export AWS_REGION=ap-southeast-1
+ACCT=$(aws sts get-caller-identity --query Account --output text)
+B1=lab-cf-primary-$ACCT      # ap-southeast-1
+B2=lab-cf-secondary-$ACCT    # ap-northeast-1
+
+aws s3api create-bucket --bucket $B1 --region ap-southeast-1 --create-bucket-configuration LocationConstraint=ap-southeast-1
+aws s3api create-bucket --bucket $B2 --region ap-northeast-1 --create-bucket-configuration LocationConstraint=ap-northeast-1
+
+# Block Public Access mặc định đã bật cho bucket mới; xác nhận:
+aws s3api get-public-access-block --bucket $B1
+
+# Nội dung khác nhau để biết đang nhận từ bucket nào
+echo &quot;&lt;h1&gt;PRIMARY (ap-southeast-1)&lt;/h1&gt;&quot;   &gt; index-p.html
+echo &quot;&lt;h1&gt;SECONDARY (ap-northeast-1)&lt;/h1&gt;&quot; &gt; index-s.html
+echo &quot;b.txt from PRIMARY&quot;   &gt; b-p.txt
+echo &quot;b.txt from SECONDARY&quot; &gt; b-s.txt
+echo &quot;only in SECONDARY&quot;    &gt; only-secondary.txt
+
+aws s3 cp index-p.html s3://$B1/index.html --content-type text/html
+aws s3 cp index-s.html s3://$B2/index.html --content-type text/html
+aws s3 cp b-p.txt s3://$B1/b.txt
+aws s3 cp b-s.txt s3://$B2/b.txt
+aws s3 cp only-secondary.txt s3://$B2/only-secondary.txt"><code style="background:none;padding:0">export AWS_REGION=ap-southeast-1
+ACCT=$(aws sts get-caller-identity --query Account --output text)
+B1=lab-cf-primary-$ACCT      # ap-southeast-1
+B2=lab-cf-secondary-$ACCT    # ap-northeast-1
+
+aws s3api create-bucket --bucket $B1 --region ap-southeast-1 --create-bucket-configuration LocationConstraint=ap-southeast-1
+aws s3api create-bucket --bucket $B2 --region ap-northeast-1 --create-bucket-configuration LocationConstraint=ap-northeast-1
+
+# Block Public Access mặc định đã bật cho bucket mới; xác nhận:
+aws s3api get-public-access-block --bucket $B1
+
+# Nội dung khác nhau để biết đang nhận từ bucket nào
+echo &quot;&lt;h1&gt;PRIMARY (ap-southeast-1)&lt;/h1&gt;&quot;   &gt; index-p.html
+echo &quot;&lt;h1&gt;SECONDARY (ap-northeast-1)&lt;/h1&gt;&quot; &gt; index-s.html
+echo &quot;b.txt from PRIMARY&quot;   &gt; b-p.txt
+echo &quot;b.txt from SECONDARY&quot; &gt; b-s.txt
+echo &quot;only in SECONDARY&quot;    &gt; only-secondary.txt
+
+aws s3 cp index-p.html s3://$B1/index.html --content-type text/html
+aws s3 cp index-s.html s3://$B2/index.html --content-type text/html
+aws s3 cp b-p.txt s3://$B1/b.txt
+aws s3 cp b-s.txt s3://$B2/b.txt
+aws s3 cp only-secondary.txt s3://$B2/only-secondary.txt</code></pre><div class="note">🔮 <b>Dự đoán:</b> Truy cập trực tiếp <code>https://$B1.s3.ap-southeast-1.amazonaws.com/index.html</code> bằng curl sẽ ra gì?</div><details><summary>Xem kết quả</summary><code>curl -s -o /dev/null -w '%{http_code}\n' https://$B1.s3.ap-southeast-1.amazonaws.com/index.html</code> → <code>403</code> (AccessDenied). Đây là trạng thái mong muốn: bucket private. (ví dụ: <code>403</code>)</details></li><li>Lưu ý <code>only-secondary.txt</code> chỉ có ở bucket phụ — dùng để thấy failover ở mục 6, còn <code>b.txt</code> có ở cả hai.</li></ol></section>
+<section class="card" id="t2"><h2><span class="n">2</span>Chuẩn bị khoá (key group) và OAC</h2><p class="goal">Tạo cặp khoá RSA 2048, đăng ký public key vào CloudFront, gom vào trusted key group; tạo Origin Access Control.</p><ol class="steps"><li>Tạo khoá, public key, key group:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="openssl genrsa -out private_key.pem 2048
+openssl rsa -pubout -in private_key.pem -out public_key.pem
+
+jq -n --arg k &quot;$(cat public_key.pem)&quot; &#x27;{CallerReference:&quot;lab-cf-1&quot;,Name:&quot;lab-pubkey&quot;,EncodedKey:$k}&#x27; &gt; pk-config.json
+KID=$(aws cloudfront create-public-key --public-key-config file://pk-config.json --query PublicKey.Id --output text)
+
+jq -n --arg id &quot;$KID&quot; &#x27;{Name:&quot;lab-keygroup&quot;,Items:[$id]}&#x27; &gt; kg-config.json
+KG=$(aws cloudfront create-key-group --key-group-config file://kg-config.json --query KeyGroup.Id --output text)
+echo &quot;KID=$KID KG=$KG&quot;"><code style="background:none;padding:0">openssl genrsa -out private_key.pem 2048
+openssl rsa -pubout -in private_key.pem -out public_key.pem
+
+jq -n --arg k &quot;$(cat public_key.pem)&quot; &#x27;{CallerReference:&quot;lab-cf-1&quot;,Name:&quot;lab-pubkey&quot;,EncodedKey:$k}&#x27; &gt; pk-config.json
+KID=$(aws cloudfront create-public-key --public-key-config file://pk-config.json --query PublicKey.Id --output text)
+
+jq -n --arg id &quot;$KID&quot; &#x27;{Name:&quot;lab-keygroup&quot;,Items:[$id]}&#x27; &gt; kg-config.json
+KG=$(aws cloudfront create-key-group --key-group-config file://kg-config.json --query KeyGroup.Id --output text)
+echo &quot;KID=$KID KG=$KG&quot;</code></pre><div class="note">Key group dùng RSA 2048-bit. <b>Giữ private key bí mật</b> (không commit/không upload S3). Cách cũ 'trusted signers' dựa trên CloudFront key pair của <b>root user</b> — AWS khuyến nghị dùng key group vì không cần root và quản lý được qua IAM.</div></li><li>Tạo OAC (<code>SigningBehavior=always</code>: CloudFront luôn ký SigV4 request gửi tới S3):<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="OAC=$(aws cloudfront create-origin-access-control --origin-access-control-config \
+  Name=lab-oac,SigningProtocol=sigv4,SigningBehavior=always,OriginAccessControlOriginType=s3 \
+  --query OriginAccessControl.Id --output text)
+echo $OAC"><code style="background:none;padding:0">OAC=$(aws cloudfront create-origin-access-control --origin-access-control-config \
+  Name=lab-oac,SigningProtocol=sigv4,SigningBehavior=always,OriginAccessControlOriginType=s3 \
+  --query OriginAccessControl.Id --output text)
+echo $OAC</code></pre><div class="note">🔮 <b>Dự đoán:</b> OAC khác OAI chỗ nào về cách S3 nhận diện CloudFront?</div><details><summary>Xem kết quả</summary>OAI: S3 nhận một 'user' đặc biệt (CanonicalUser/OAI ID) trong bucket policy. OAC: principal là <b>service principal</b> <code>cloudfront.amazonaws.com</code> và giới hạn bằng điều kiện <code>AWS:SourceArn</code> = ARN distribution. OAC hỗ trợ SSE-KMS, mọi region, và request PUT/DELETE; OAI thì không.</details></li></ol></section>
+<section class="card" id="t3"><h2><span class="n">3</span>Distribution lần 1: OAC, chưa hạn chế người xem</h2><p class="goal">Tạo distribution trỏ vào bucket primary bằng OAC; xác nhận chỉ đi qua CloudFront mới đọc được. (Deploy lần 1)</p><ol class="steps"><li>Console → <b>CloudFront → Create distribution</b>. Origin domain = bucket <code>lab-cf-primary-&lt;ACCT&gt;</code> (chọn dạng <b>S3 REST endpoint</b> <code>…s3.ap-southeast-1.amazonaws.com</code>, <u>không</u> phải website endpoint). Nếu console hỏi plan, chọn Pay-as-you-go/Free; giao diện có thể khác chút giữa các phiên bản.<div class="note">Mục <b>Origin access</b>: chọn <b>Origin access control settings (recommended)</b> → chọn OAC <code>lab-oac</code> có sẵn. Console sẽ gợi ý bucket policy — bỏ qua, ta tự đặt ở bước sau.</div></li><li>Viewer protocol policy = <b>Redirect HTTP to HTTPS</b>; Allowed methods = <b>GET, HEAD</b>; Cache policy = <b>CachingOptimized</b>; Default root object = <code>index.html</code>; <b>Description = <code>lab-cf</code></b> (để lọc bằng CLI); WAF: tắt cho tiết kiệm. Bấm <b>Create distribution</b>.</li><li>Lấy ID/domain bằng CLI:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="DIST=$(aws cloudfront list-distributions --query &quot;DistributionList.Items[?Comment==&#x27;lab-cf&#x27;].Id | [0]&quot; --output text)
+DOMAIN=$(aws cloudfront get-distribution --id $DIST --query Distribution.DomainName --output text)
+echo $DIST $DOMAIN
+aws cloudfront wait distribution-deployed --id $DIST &amp;&amp; echo DEPLOYED"><code style="background:none;padding:0">DIST=$(aws cloudfront list-distributions --query &quot;DistributionList.Items[?Comment==&#x27;lab-cf&#x27;].Id | [0]&quot; --output text)
+DOMAIN=$(aws cloudfront get-distribution --id $DIST --query Distribution.DomainName --output text)
+echo $DIST $DOMAIN
+aws cloudfront wait distribution-deployed --id $DIST &amp;&amp; echo DEPLOYED</code></pre><div class="warn"><b>Chờ deploy:</b> lệnh <code>wait</code> chặn terminal vài phút (đang đợi ~3-10 phút). Trong lúc đó làm tiếp bước kế (bucket policy) ở tab khác.</div></li><li>Áp bucket policy OAC cho <b>primary</b> (làm lúc distribution đang deploy cũng được):<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="cat &gt; policy-primary.json &lt;&lt;EOF
+{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [{
+    &quot;Sid&quot;: &quot;AllowCloudFrontServicePrincipalReadOnly&quot;,
+    &quot;Effect&quot;: &quot;Allow&quot;,
+    &quot;Principal&quot;: {&quot;Service&quot;: &quot;cloudfront.amazonaws.com&quot;},
+    &quot;Action&quot;: &quot;s3:GetObject&quot;,
+    &quot;Resource&quot;: &quot;arn:aws:s3:::$B1/*&quot;,
+    &quot;Condition&quot;: {&quot;StringEquals&quot;: {&quot;AWS:SourceArn&quot;: &quot;arn:aws:cloudfront::$ACCT:distribution/$DIST&quot;}}
+  }]
+}
+EOF
+jq . policy-primary.json &gt;/dev/null &amp;&amp; aws s3api put-bucket-policy --bucket $B1 --policy file://policy-primary.json"><code style="background:none;padding:0">cat &gt; policy-primary.json &lt;&lt;EOF
+{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [{
+    &quot;Sid&quot;: &quot;AllowCloudFrontServicePrincipalReadOnly&quot;,
+    &quot;Effect&quot;: &quot;Allow&quot;,
+    &quot;Principal&quot;: {&quot;Service&quot;: &quot;cloudfront.amazonaws.com&quot;},
+    &quot;Action&quot;: &quot;s3:GetObject&quot;,
+    &quot;Resource&quot;: &quot;arn:aws:s3:::$B1/*&quot;,
+    &quot;Condition&quot;: {&quot;StringEquals&quot;: {&quot;AWS:SourceArn&quot;: &quot;arn:aws:cloudfront::$ACCT:distribution/$DIST&quot;}}
+  }]
+}
+EOF
+jq . policy-primary.json &gt;/dev/null &amp;&amp; aws s3api put-bucket-policy --bucket $B1 --policy file://policy-primary.json</code></pre><div class="note">Policy cấp <code>s3:GetObject</code> cho <i>service</i> CloudFront nhưng chỉ khi request đến từ <b>đúng distribution này</b> (confused-deputy protection). Block Public Access vẫn bật — policy này không phải public vì principal là service + điều kiện SourceArn. Không cấp <code>s3:ListBucket</code> nên object không tồn tại sẽ trả <b>403</b>, không phải 404.</div></li><li>Test khi đã DEPLOYED:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="curl -s https://$DOMAIN/index.html
+curl -s -o /dev/null -w &#x27;%{http_code}\n&#x27; https://$B1.s3.ap-southeast-1.amazonaws.com/index.html
+curl -s -o /dev/null -w &#x27;%{http_code}\n&#x27; https://$DOMAIN/khong-co.html"><code style="background:none;padding:0">curl -s https://$DOMAIN/index.html
+curl -s -o /dev/null -w &#x27;%{http_code}\n&#x27; https://$B1.s3.ap-southeast-1.amazonaws.com/index.html
+curl -s -o /dev/null -w &#x27;%{http_code}\n&#x27; https://$DOMAIN/khong-co.html</code></pre><div class="note">🔮 <b>Dự đoán:</b> Ba lệnh lần lượt in gì?</div><details><summary>Xem kết quả</summary>1) <code>&lt;h1&gt;PRIMARY (ap-southeast-1)&lt;/h1&gt;</code> — qua CloudFront đọc được. 2) <code>403</code> — truy cập thẳng S3 bị chặn. 3) <code>403</code> (ví dụ) — object không tồn tại cũng là 403 vì thiếu ListBucket. Nếu bước 1 ra <code>AccessDenied</code> XML: bucket policy sai ARN/ID distribution hoặc chưa có hiệu lực.</details></li></ol></section>
+<section class="card" id="t4"><h2><span class="n">4</span>Bắt buộc ký: key group + signed URL + signed cookies</h2><p class="goal">Sửa behavior mặc định: Restrict viewer access = Yes (key group). Đồng thời thêm origin secondary + origin group ở mục 5 để chỉ tốn 1 lần deploy.</p><ol class="steps"><li>Console → distribution → tab <b>Behaviors</b> → chọn <b>Default (*)</b> → <b>Edit</b> → <b>Restrict viewer access = Yes</b>, Trusted authorization type = <b>Trusted key groups</b>, chọn <code>lab-keygroup</code>. <b>Chưa Save</b> — làm tiếp mục 5 (thêm origin group) rồi Save một lần để chỉ tốn một lần deploy; các bước test 2-4 dưới đây chạy sau khi deploy đó xong.</li><li>(Sau khi deploy xong) Thử không ký:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="curl -s https://$DOMAIN/index.html"><code style="background:none;padding:0">curl -s https://$DOMAIN/index.html</code></pre><div class="note">🔮 <b>Dự đoán:</b> Request không có chữ ký thì CloudFront trả gì?</div><details><summary>Xem kết quả</summary>HTTP <code>403</code> với XML dạng <code>&lt;Code&gt;MissingKey&lt;/Code&gt; Missing Key-Pair-Id query parameter or cookie value</code> (ví dụ). CloudFront chặn ngay ở edge, không hỏi S3.</details></li><li><b>Signed URL</b> bằng <code>aws cloudfront sign</code> (canned policy):<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="# Ký URL cho một file (canned policy), hết hạn sau 1 giờ
+aws cloudfront sign --url https://$DOMAIN/index.html --key-pair-id $KID \
+  --private-key file://private_key.pem --date-less-than $(date -u -d &#x27;+1 hour&#x27; +%Y-%m-%dT%H:%M:%S)"><code style="background:none;padding:0"># Ký URL cho một file (canned policy), hết hạn sau 1 giờ
+aws cloudfront sign --url https://$DOMAIN/index.html --key-pair-id $KID \
+  --private-key file://private_key.pem --date-less-than $(date -u -d &#x27;+1 hour&#x27; +%Y-%m-%dT%H:%M:%S)</code></pre><div class="note">🔮 <b>Dự đoán:</b> Lệnh in ra gì? Dùng URL đó với curl được không, và còn dùng được khi đổi path sang /b.txt không?</div><details><summary>Xem kết quả</summary>In URL gốc kèm <code>?Expires=…&amp;Signature=…&amp;Key-Pair-Id=K…</code> (ví dụ: <code>https://dxxxx.cloudfront.net/index.html?Expires=1790000000&amp;Signature=Ab…~&amp;Key-Pair-Id=K2ABC…</code>). curl URL đó (đặt trong dấu nháy kép) → <code>200</code>. Đổi path sang <code>/b.txt</code> → <code>403</code>, vì chữ ký gắn với <b>đúng một URL</b> (canned policy). Muốn wildcard phải dùng custom policy (<code>--policy</code> trong thư viện/CLI khác, không có ở <code>aws cloudfront sign</code> bản đơn giản).</details></li><li><b>Signed cookies</b> cho nhiều file: dùng custom policy với wildcard <code>/*</code>.<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="EXP=$(date -d &#x27;+1 hour&#x27; +%s)
+POLICY=$(jq -cn --arg r &quot;https://$DOMAIN/*&quot; --argjson e $EXP &#x27;{Statement:[{Resource:$r,Condition:{DateLessThan:{&quot;AWS:EpochTime&quot;:$e}}}]}&#x27;)
+b64() { openssl base64 -A | tr &#x27;+=/&#x27; &#x27;-_~&#x27;; }
+CF_POLICY=$(printf %s &quot;$POLICY&quot; | b64)
+CF_SIG=$(printf %s &quot;$POLICY&quot; | openssl dgst -sha1 -sign private_key.pem | b64)
+
+# Một cookie jar dùng cho nhiều file: không cần sửa URL
+curl -s -o /dev/null -w &#x27;%{http_code}\n&#x27; -H &quot;Cookie: CloudFront-Policy=$CF_POLICY; CloudFront-Signature=$CF_SIG; CloudFront-Key-Pair-Id=$KID&quot; https://$DOMAIN/index.html
+curl -s -H &quot;Cookie: CloudFront-Policy=$CF_POLICY; CloudFront-Signature=$CF_SIG; CloudFront-Key-Pair-Id=$KID&quot; https://$DOMAIN/b.txt"><code style="background:none;padding:0">EXP=$(date -d &#x27;+1 hour&#x27; +%s)
+POLICY=$(jq -cn --arg r &quot;https://$DOMAIN/*&quot; --argjson e $EXP &#x27;{Statement:[{Resource:$r,Condition:{DateLessThan:{&quot;AWS:EpochTime&quot;:$e}}}]}&#x27;)
+b64() { openssl base64 -A | tr &#x27;+=/&#x27; &#x27;-_~&#x27;; }
+CF_POLICY=$(printf %s &quot;$POLICY&quot; | b64)
+CF_SIG=$(printf %s &quot;$POLICY&quot; | openssl dgst -sha1 -sign private_key.pem | b64)
+
+# Một cookie jar dùng cho nhiều file: không cần sửa URL
+curl -s -o /dev/null -w &#x27;%{http_code}\n&#x27; -H &quot;Cookie: CloudFront-Policy=$CF_POLICY; CloudFront-Signature=$CF_SIG; CloudFront-Key-Pair-Id=$KID&quot; https://$DOMAIN/index.html
+curl -s -H &quot;Cookie: CloudFront-Policy=$CF_POLICY; CloudFront-Signature=$CF_SIG; CloudFront-Key-Pair-Id=$KID&quot; https://$DOMAIN/b.txt</code></pre><div class="note">🔮 <b>Dự đoán:</b> Hai lệnh curl in gì? Điểm khác chính so với signed URL?</div><details><summary>Xem kết quả</summary><code>200</code> rồi nội dung <code>b.txt from PRIMARY</code> (ví dụ). Một bộ cookie phủ mọi file khớp <code>https://$DOMAIN/*</code>, URL không đổi — hợp cho HLS/DASH (manifest + hàng nghìn segment) hoặc cả khu vực 'members'. Trình duyệt thật cần backend set 3 cookie <code>CloudFront-Policy</code>, <code>CloudFront-Signature</code>, <code>CloudFront-Key-Pair-Id</code> (cùng domain hoặc CNAME).</details></li><li>Bảng chọn nhanh:<div class="tw"><table><tr><th>Một file (download, link email)</th><td><b>Signed URL</b></td></tr><tr><th>Client không hỗ trợ cookie (một số player/ứng dụng)</th><td><b>Signed URL</b></td></tr><tr><th>Nhiều file, không muốn đổi URL (HLS, thư mục)</th><td><b>Signed cookies</b></td></tr><tr><th>Giới hạn IP/ngày bắt đầu</th><td>Custom policy (cả URL lẫn cookies)</td></tr></table></div></li></ol></section>
+<section class="card" id="t5"><h2><span class="n">5</span>Origin group: failover primary → secondary</h2><p class="goal">Thêm origin bucket phụ (cùng OAC), gom thành origin group, trỏ behavior vào group. (Deploy lần 2, gộp với bước hạn chế người xem ở mục 4)</p><ol class="steps"><li>Áp bucket policy OAC cho <b>secondary</b> (cùng distribution ARN, vì cùng một distribution đọc cả hai bucket):<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="cat &gt; policy-secondary.json &lt;&lt;EOF
+{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [{
+    &quot;Sid&quot;: &quot;AllowCloudFrontServicePrincipalReadOnly&quot;,
+    &quot;Effect&quot;: &quot;Allow&quot;,
+    &quot;Principal&quot;: {&quot;Service&quot;: &quot;cloudfront.amazonaws.com&quot;},
+    &quot;Action&quot;: &quot;s3:GetObject&quot;,
+    &quot;Resource&quot;: &quot;arn:aws:s3:::$B2/*&quot;,
+    &quot;Condition&quot;: {&quot;StringEquals&quot;: {&quot;AWS:SourceArn&quot;: &quot;arn:aws:cloudfront::$ACCT:distribution/$DIST&quot;}}
+  }]
+}
+EOF
+jq . policy-secondary.json &gt;/dev/null &amp;&amp; aws s3api put-bucket-policy --bucket $B2 --policy file://policy-secondary.json"><code style="background:none;padding:0">cat &gt; policy-secondary.json &lt;&lt;EOF
+{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [{
+    &quot;Sid&quot;: &quot;AllowCloudFrontServicePrincipalReadOnly&quot;,
+    &quot;Effect&quot;: &quot;Allow&quot;,
+    &quot;Principal&quot;: {&quot;Service&quot;: &quot;cloudfront.amazonaws.com&quot;},
+    &quot;Action&quot;: &quot;s3:GetObject&quot;,
+    &quot;Resource&quot;: &quot;arn:aws:s3:::$B2/*&quot;,
+    &quot;Condition&quot;: {&quot;StringEquals&quot;: {&quot;AWS:SourceArn&quot;: &quot;arn:aws:cloudfront::$ACCT:distribution/$DIST&quot;}}
+  }]
+}
+EOF
+jq . policy-secondary.json &gt;/dev/null &amp;&amp; aws s3api put-bucket-policy --bucket $B2 --policy file://policy-secondary.json</code></pre></li><li>Console → distribution → tab <b>Origins</b> → <b>Create origin</b>: Origin domain = bucket secondary (<code>…s3.ap-northeast-1.amazonaws.com</code>), Origin access = OAC <code>lab-oac</code> → Create.</li><li>Vẫn ở tab Origins → <b>Create origin group</b>: Name <code>og-lab</code>; Origins = thêm <b>primary trước, secondary sau</b> (thứ tự = ưu tiên); <b>Failover criteria</b> chọn <b>403, 404, 500, 502, 503, 504</b> → Create.<div class="note">Origin group cần ≥2 origin. Failover xảy ra khi origin chính trả đúng các mã đã chọn (hoặc lỗi kết nối/timeout). Các mã có thể chọn: 400, 403, 404, 416, 500, 502, 503, 504.</div></li><li>Tab <b>Behaviors</b> → sửa <b>Default (*)</b>: <b>Origin and origin groups</b> = <code>og-lab</code>; hoàn tất cấu hình hạn chế viewer ở mục 4 (key group); <b>Save changes</b>. Chờ deploy:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="aws cloudfront wait distribution-deployed --id $DIST &amp;&amp; echo DEPLOYED"><code style="background:none;padding:0">aws cloudfront wait distribution-deployed --id $DIST &amp;&amp; echo DEPLOYED</code></pre><div class="warn">Đây là lần deploy thứ 2 — vài phút. Allowed methods của behavior dùng origin group phải là <b>GET, HEAD</b> (hoặc kèm OPTIONS); failover không áp dụng cho POST/PUT/DELETE.</div></li><li>Test failover (cần cookie từ mục 4; nếu hết hạn hãy tạo lại):<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="aws cloudfront create-invalidation --distribution-id $DIST --paths &quot;/*&quot; &gt;/dev/null   # đảm bảo không dính cache cũ
+# Cookie đã tạo ở mục 4 (CF_POLICY, CF_SIG, KID) vẫn dùng được:
+H=&quot;Cookie: CloudFront-Policy=$CF_POLICY; CloudFront-Signature=$CF_SIG; CloudFront-Key-Pair-Id=$KID&quot;
+curl -s -H &quot;$H&quot; https://$DOMAIN/index.html
+curl -s -H &quot;$H&quot; https://$DOMAIN/only-secondary.txt"><code style="background:none;padding:0">aws cloudfront create-invalidation --distribution-id $DIST --paths &quot;/*&quot; &gt;/dev/null   # đảm bảo không dính cache cũ
+# Cookie đã tạo ở mục 4 (CF_POLICY, CF_SIG, KID) vẫn dùng được:
+H=&quot;Cookie: CloudFront-Policy=$CF_POLICY; CloudFront-Signature=$CF_SIG; CloudFront-Key-Pair-Id=$KID&quot;
+curl -s -H &quot;$H&quot; https://$DOMAIN/index.html
+curl -s -H &quot;$H&quot; https://$DOMAIN/only-secondary.txt</code></pre><div class="note">🔮 <b>Dự đoán:</b> File đầu tiên đến từ bucket nào? File <code>only-secondary.txt</code> không có ở primary, vậy kết quả?</div><details><summary>Xem kết quả</summary>1) <code>&lt;h1&gt;PRIMARY (ap-southeast-1)&lt;/h1&gt;</code> — origin chính còn sống thì dùng nó. 2) <code>only in SECONDARY</code> — primary trả <b>403</b> (thiếu object + không có ListBucket) → CloudFront thử secondary và thành công. Nếu bạn quên chọn 403 trong failover criteria, bước này sẽ trả 403 thẳng cho viewer: đúng bẫy hay gặp.</details></li></ol></section>
+<section class="card" id="t6"><h2><span class="n">6</span>So sánh: OAC vs OAI vs website endpoint; Functions vs Lambda@Edge; Geo restriction</h2><p class="goal">Phần kiến thức bổ sung, có một thử nghiệm geo ở mục 7.</p><h3>6A. S3 origin: OAC, OAI, website endpoint</h3><div class="tw"><table><tr><th>Cách</th><th>Đặc điểm</th><th>Dùng cho</th></tr><tr><td>OAC (nên dùng)</td><td>Service principal <code>cloudfront.amazonaws.com</code> + <code>AWS:SourceArn</code>; SigV4; hỗ trợ SSE-KMS (key policy cho phép CloudFront), mọi region, PUT/DELETE</td><td>S3 REST endpoint</td></tr><tr><td>OAI (legacy)</td><td>Principal là OAI; chỉ SSE-S3, không hỗ trợ opt-in region/ SSE-KMS; AWS khuyên chuyển sang OAC</td><td>S3 REST endpoint</td></tr><tr><td>S3 website endpoint</td><td>Là <b>custom origin</b> (HTTP-only); <b>không dùng được OAC/OAI</b>. Muốn hạn chế truy cập: bucket public hạn chế bằng header bí mật (<code>Referer</code> hoặc custom header) — kém an toàn</td><td>Cần redirect/index doc kiểu website</td></tr><tr><td>Custom origin (ALB/EC2/API)</td><td>Dùng custom header bí mật + SG dùng prefix list CloudFront để giới hạn nguồn</td><td>Origin không phải S3</td></tr></table></div><div class="note">Bẫy kinh điển: 'bucket bật Static website hosting + yêu cầu chỉ CloudFront truy cập qua OAC' → không thực hiện được trực tiếp. Giải pháp: chuyển origin sang <b>REST endpoint</b> với OAC, dùng <i>default root object</i> hoặc CloudFront Function để rewrite <code>/dir/</code> → <code>/dir/index.html</code>.</div><h3>6B. CloudFront Functions vs Lambda@Edge</h3><div class="tw"><table><tr><th>Tiêu chí</th><th>CloudFront Functions</th><th>Lambda@Edge</th></tr><tr><td>Ngôn ngữ / runtime</td><td>JavaScript (runtime riêng, rất nhẹ)</td><td>Node.js, Python</td></tr><tr><td>Sự kiện</td><td>Viewer request, viewer response</td><td>Viewer request/response <b>và</b> origin request/response</td></tr><tr><td>Thời gian / tài nguyên</td><td>Dưới 1 ms, bộ nhớ và kích thước rất nhỏ</td><td>Tới 5 s (viewer) / 30 s (origin), bộ nhớ lớn hơn</td></tr><tr><td>Network / file / body</td><td>Không truy cập mạng, không đọc file, không đọc body</td><td>Có network, có thể gọi dịch vụ AWS, đọc body (origin events)</td></tr><tr><td>Triển khai</td><td>Ngay trong CloudFront</td><td>Tạo ở <b>us-east-1</b>, replicate ra edge</td></tr><tr><td>Giá</td><td>Rẻ hơn nhiều (theo số lần gọi)</td><td>Theo request + thời gian chạy</td></tr><tr><td>Dùng cho</td><td>Rewrite URL, redirect, thêm header, kiểm tra token đơn giản, A/B cookie</td><td>Auth phức tạp, gọi DB/API, đổi origin động, xử lý ảnh</td></tr></table></div><h3>6C. Geo restriction</h3><div class="note">Cấu hình ở <b>Security → CloudFront geographic restrictions</b>: allow list hoặc block list <b>theo quốc gia</b>, áp cho cả distribution (không theo behavior), viewer bị chặn nhận <b>403</b>. Cần mịn hơn (bang/thành phố, theo path) → dùng AWS WAF geo match, hoặc header <code>CloudFront-Viewer-Country</code> kết hợp Function/Lambda@Edge, hoặc dịch vụ geolocation bên thứ ba kết hợp signed URL.</div></section>
+<section class="card" id="t7"><h2><span class="n">7</span>💥 Phá thử</h2><p class="goal">Làm hỏng có chủ đích để thấy chính xác cách CloudFront/S3 phản ứng.</p><ol class="steps"><li><b>Signed URL hết hạn.</b><pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="OLD=$(aws cloudfront sign --url https://$DOMAIN/index.html --key-pair-id $KID --private-key file://private_key.pem --date-less-than $(date -u -d &#x27;-1 hour&#x27; +%Y-%m-%dT%H:%M:%S))
+curl -s -o /dev/null -w &#x27;%{http_code}\n&#x27; &quot;$OLD&quot;"><code style="background:none;padding:0">OLD=$(aws cloudfront sign --url https://$DOMAIN/index.html --key-pair-id $KID --private-key file://private_key.pem --date-less-than $(date -u -d &#x27;-1 hour&#x27; +%Y-%m-%dT%H:%M:%S))
+curl -s -o /dev/null -w &#x27;%{http_code}\n&#x27; &quot;$OLD&quot;</code></pre><div class="note">🔮 <b>Dự đoán:</b> Chữ ký hợp lệ nhưng đã quá hạn. Mã trả về?</div><details><summary>Xem kết quả</summary><code>403</code> (thông điệp kiểu <i>Access denied</i>, ví dụ). Chữ ký đúng không đủ — thời gian hiệu lực cũng được kiểm tra.</details></li><li><b>Làm hỏng primary:</b> xoá bucket policy để CloudFront mất quyền đọc, rồi hỏi file chưa cache là <code>b.txt</code>:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="aws s3api delete-bucket-policy --bucket $B1
+sleep 5
+curl -s -H &quot;$H&quot; https://$DOMAIN/b.txt"><code style="background:none;padding:0">aws s3api delete-bucket-policy --bucket $B1
+sleep 5
+curl -s -H &quot;$H&quot; https://$DOMAIN/b.txt</code></pre><div class="note">🔮 <b>Dự đoán:</b> <code>b.txt</code> chưa từng được request qua distribution này sau lần invalidate. Bucket primary giờ trả 403 → viewer thấy gì? Còn <code>/index.html</code> (đã cache)?</div><details><summary>Xem kết quả</summary><code>b.txt from SECONDARY</code> — failover thành công vì 403 nằm trong criteria. <code>/index.html</code> vẫn ra PRIMARY nếu còn cache (TTL mặc định 24h): <b>cache che lỗi origin</b>, và response lấy từ secondary cũng được cache. Khôi phục: <code>aws s3api put-bucket-policy --bucket $B1 --policy file://policy-primary.json</code> rồi invalidate <code>/*</code>.</details></li><li><b>Bỏ 403 khỏi failover criteria</b> (console: Origins → <code>og-lab</code> → Edit, chỉ giữ 500/502/503/504 → deploy) rồi request <code>/only-secondary.txt</code> (chưa cache).<div class="note">🔮 <b>Dự đoán:</b> Không còn failover cho 403. Kết quả?</div><details><summary>Xem kết quả</summary><code>403</code> trả thẳng cho viewer, dù secondary có file. Bài học: S3 + OAC thiếu quyền/thiếu object = 403, nên origin group cho S3 thường phải gồm 403 (và có thể 404). Khôi phục lại criteria nếu muốn tiếp tục.</details></li><li><b>Geo restriction</b> (tuỳ chọn, thêm 1 lần deploy): Security → CloudFront geographic restrictions → Block list → chọn quốc gia của bạn (ví dụ Vietnam), Save, đợi deploy, curl kèm cookie.<div class="note">🔮 <b>Dự đoán:</b> Request đã ký hợp lệ nhưng đến từ quốc gia bị chặn. Kết quả?</div><details><summary>Xem kết quả</summary><code>403</code> với thông điệp kiểu <i>The Amazon CloudFront distribution is configured to block access from your country</i> (ví dụ). Chữ ký đúng không vượt được geo restriction. Gỡ block list sau khi thử (hoặc bỏ qua vì dọn dẹp sẽ xoá distribution).</details></li><li><b>Truy cập thẳng S3 / website endpoint</b> đã làm ở mục 3 (403). Lý thuyết cần nhớ: nếu bạn bật Static website hosting và chọn website endpoint làm origin, console coi là custom origin và <b>không có tuỳ chọn OAC</b>.</li></ol></section>
+<section class="card" id="t8"><h2><span class="n">8</span>🧹 Dọn dẹp</h2><p class="goal">Thứ tự: disable distribution → chờ deploy → xoá distribution → key group/public key/OAC → bucket.</p><pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="# 1) Tắt distribution (phải Disabled trước khi xoá)
+aws cloudfront get-distribution-config --id $DIST &gt; dist-cfg.json
+ETAG=$(jq -r .ETag dist-cfg.json)
+jq &#x27;.DistributionConfig | .Enabled=false&#x27; dist-cfg.json &gt; dist-off.json
+aws cloudfront update-distribution --id $DIST --if-match &quot;$ETAG&quot; --distribution-config file://dist-off.json &gt;/dev/null
+
+# 2) Chờ deploy xong (vài phút), rồi xoá distribution với ETag MỚI
+aws cloudfront wait distribution-deployed --id $DIST
+ETAG=$(aws cloudfront get-distribution --id $DIST --query ETag --output text)
+aws cloudfront delete-distribution --id $DIST --if-match &quot;$ETAG&quot;
+
+# 3) Xoá key group TRƯỚC, rồi public key, rồi OAC (chỉ xoá được khi không còn distribution tham chiếu)
+aws cloudfront delete-key-group --id $KG --if-match &quot;$(aws cloudfront get-key-group --id $KG --query ETag --output text)&quot;
+aws cloudfront delete-public-key --id $KID --if-match &quot;$(aws cloudfront get-public-key --id $KID --query ETag --output text)&quot;
+aws cloudfront delete-origin-access-control --id $OAC --if-match &quot;$(aws cloudfront get-origin-access-control --id $OAC --query ETag --output text)&quot;
+
+# 4) Làm rỗng và xoá 2 bucket
+aws s3 rm s3://$B1 --recursive &amp;&amp; aws s3api delete-bucket --bucket $B1 --region ap-southeast-1
+aws s3 rm s3://$B2 --recursive &amp;&amp; aws s3api delete-bucket --bucket $B2 --region ap-northeast-1
+
+# 5) File cục bộ (đặc biệt private key)
+rm -f private_key.pem public_key.pem pk-config.json kg-config.json dist-cfg.json dist-off.json policy-*.json index-*.html b-*.txt only-secondary.txt"><code style="background:none;padding:0"># 1) Tắt distribution (phải Disabled trước khi xoá)
+aws cloudfront get-distribution-config --id $DIST &gt; dist-cfg.json
+ETAG=$(jq -r .ETag dist-cfg.json)
+jq &#x27;.DistributionConfig | .Enabled=false&#x27; dist-cfg.json &gt; dist-off.json
+aws cloudfront update-distribution --id $DIST --if-match &quot;$ETAG&quot; --distribution-config file://dist-off.json &gt;/dev/null
+
+# 2) Chờ deploy xong (vài phút), rồi xoá distribution với ETag MỚI
+aws cloudfront wait distribution-deployed --id $DIST
+ETAG=$(aws cloudfront get-distribution --id $DIST --query ETag --output text)
+aws cloudfront delete-distribution --id $DIST --if-match &quot;$ETAG&quot;
+
+# 3) Xoá key group TRƯỚC, rồi public key, rồi OAC (chỉ xoá được khi không còn distribution tham chiếu)
+aws cloudfront delete-key-group --id $KG --if-match &quot;$(aws cloudfront get-key-group --id $KG --query ETag --output text)&quot;
+aws cloudfront delete-public-key --id $KID --if-match &quot;$(aws cloudfront get-public-key --id $KID --query ETag --output text)&quot;
+aws cloudfront delete-origin-access-control --id $OAC --if-match &quot;$(aws cloudfront get-origin-access-control --id $OAC --query ETag --output text)&quot;
+
+# 4) Làm rỗng và xoá 2 bucket
+aws s3 rm s3://$B1 --recursive &amp;&amp; aws s3api delete-bucket --bucket $B1 --region ap-southeast-1
+aws s3 rm s3://$B2 --recursive &amp;&amp; aws s3api delete-bucket --bucket $B2 --region ap-northeast-1
+
+# 5) File cục bộ (đặc biệt private key)
+rm -f private_key.pem public_key.pem pk-config.json kg-config.json dist-cfg.json dist-off.json policy-*.json index-*.html b-*.txt only-secondary.txt</code></pre><div class="warn">Distribution phải ở trạng thái <b>Disabled</b> và đã deploy xong thì mới xoá được; nếu không sẽ gặp lỗi <i>DistributionNotDisabled</i>. Xoá key group khi distribution còn tồn tại sẽ báo lỗi vì đang được tham chiếu. Nếu <code>delete-distribution</code> báo <i>PreconditionFailed</i>: ETag cũ — lấy lại ETag bằng <code>get-distribution</code>.</div></section>
+<section class="card" id="t9"><h2><span class="n">9</span>🎯 3 câu hỏi kiểu đề</h2><p class="goal">Tự đặt, không lấy từ bộ đề nào.</p><h3>Câu 1</h3><p>Một nền tảng học trực tuyến lưu video HLS (một file manifest và hàng nghìn segment <code>.ts</code>) trong S3 bucket private. Chỉ người đã đăng nhập được xem; manifest chứa đường dẫn tương đối nên không được đổi URL. Giải pháp bảo mật và ít sửa code nhất?</p><ol type='A'><li>Tạo S3 presigned URL cho từng segment và ghi lại vào manifest.</li><li>Dùng CloudFront với OAC cho bucket và phát <b>signed cookies</b> (trusted key group) sau khi đăng nhập.</li><li>Dùng CloudFront signed URL cho manifest; segment để public.</li><li>Đặt bucket public và dùng AWS WAF giới hạn theo IP.</li></ol><details><summary>Xem đáp án</summary><p><b>Đáp án: B</b></p><p>Nhiều file và không đổi URL → signed cookies; OAC giữ bucket private. A/C buộc đổi URL hoặc làm lộ segment. D không xác thực được từng người dùng.</p></details><h3>Câu 2</h3><p>Một bucket S3 bật Static website hosting (cần index document và redirect rule). Team muốn đặt CloudFront phía trước và đảm bảo người dùng không bypass CloudFront để vào thẳng S3, dùng OAC. Điều nào đúng?</p><ol type='A'><li>Gắn OAC vào origin là website endpoint rồi thêm bucket policy với <code>AWS:SourceArn</code>.</li><li>OAC không hỗ trợ website endpoint; chuyển origin sang S3 REST endpoint với OAC, và xử lý index document bằng default root object/CloudFront Function.</li><li>Dùng OAI cho website endpoint vì OAI hỗ trợ.</li><li>Bật Block Public Access, website endpoint vẫn hoạt động bình thường với CloudFront.</li></ol><details><summary>Xem đáp án</summary><p><b>Đáp án: B</b></p><p>Website endpoint là custom origin (HTTP), không dùng OAC/OAI; Block Public Access sẽ làm website endpoint không phục vụ được. Dùng REST endpoint + OAC rồi rewrite bằng default root object hoặc CloudFront Function.</p></details><h3>Câu 3</h3><p>Ứng dụng phục vụ file tĩnh từ bucket S3 chính (ap-southeast-1), được sao chép sang bucket DR (eu-west-1). Với OAC, khi một object chưa tồn tại hoặc bucket chính gặp sự cố quyền, viewer nhận lỗi 403 trong khi bản sao có file. Cần tự động chuyển sang DR cho request GET mà không đổi DNS. Cấu hình nào đúng?</p><ol type='A'><li>Origin group (primary → DR) với failover criteria chỉ gồm 500, 502, 503, 504.</li><li>Origin group (primary → DR) với failover criteria gồm cả <b>403</b> (và 404), behavior chỉ cho GET/HEAD.</li><li>Route 53 failover record trước CloudFront với health check vào endpoint S3.</li><li>Lambda@Edge viewer-request đổi origin khi nhận được lỗi.</li></ol><details><summary>Xem đáp án</summary><p><b>Đáp án: B</b></p><p>S3 thiếu object hoặc không đủ quyền với OAC trả 403 nên phải đưa 403 vào criteria; origin group chỉ failover cho GET/HEAD/OPTIONS. A bỏ sót 403. C tăng độ phức tạp và không dựa vào mã lỗi theo request. D: viewer-request chạy trước khi biết origin lỗi, không phù hợp.</p></details></section>
+<section class="card" id="t10"><h2><span class="n">10</span>📌 Quy tắc ghi nhớ</h2><ul><li><b>OAC &gt; OAI</b>: principal <code>cloudfront.amazonaws.com</code> + <code>AWS:SourceArn</code>; OAC chỉ cho S3 REST endpoint, không cho website endpoint.</li><li><b>1 file → signed URL</b>; <b>nhiều file/giữ URL → signed cookies</b>; dùng <b>trusted key group</b>, không dùng root key pair.</li><li><b>Origin group</b>: ≥2 origin, chỉ failover GET/HEAD/OPTIONS; S3 + OAC thiếu object = <b>403</b> → nhớ chọn 403.</li><li><b>CloudFront Functions</b> = viewer events, &lt;1ms, không network; <b>Lambda@Edge</b> = 4 events, tạo ở us-east-1, nặng hơn.</li><li><b>Geo restriction</b> = cấp quốc gia, toàn distribution, trả 403; muốn mịn hơn dùng WAF/Function.</li></ul></section>
+</main>
+<footer>Lab tự soạn cho ôn thi SAP-C02. Output ghi 'ví dụ' chỉ minh hoạ. Giao diện console CloudFront thay đổi theo thời gian; nếu khác, bám theo tên trường được nêu.</footer>
+
+<script>
+(function(){
+  var steps=[].slice.call(document.querySelectorAll('ol.steps>li'));
+  steps.forEach(function(li){
+    var cb=document.createElement('input');cb.type='checkbox';cb.title='Đánh dấu hoàn thành';
+    cb.addEventListener('change',function(){li.classList.toggle('done',cb.checked);upd();});
+    li.appendChild(cb);
+  });
+  function upd(){
+    var d=document.querySelectorAll('ol.steps>li.done').length;
+    document.getElementById('pt').textContent=d+'/'+steps.length+' bước';
+    document.getElementById('pb').style.width=(steps.length?d/steps.length*100:0)+'%';
+  }
+  upd();
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('.cp');if(!el)return;
+    var t=el.getAttribute('data-c');
+    function ok(){el.classList.add('ok');setTimeout(function(){el.classList.remove('ok')},700)}
+    try{navigator.clipboard.writeText(t).then(ok,function(){})}catch(x){}
+  });
+})();
+</script>
+</body>
+</html>

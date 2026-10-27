@@ -180,6 +180,12 @@
     td, th { padding: 0.5rem; font-size: 0.8rem; }
     .tasks-list { display: none; }
   }
+  .v { display:inline-block; padding:0.1rem 0.45rem; border-radius:4px; font-size:0.7rem; margin-left:0.4rem; font-weight:600; }
+  .v-do { background:rgba(74,222,128,0.18); color:var(--green); border:1px solid rgba(74,222,128,0.35); }
+  .v-opt { background:rgba(251,191,36,0.15); color:var(--yellow); border:1px solid rgba(251,191,36,0.3); }
+  .v-skip { background:rgba(148,163,184,0.12); color:var(--muted); border:1px solid rgba(148,163,184,0.25); font-weight:500; }
+  .badge-claude { background:rgba(167,139,250,0.15); color:var(--purple); border:1px solid rgba(167,139,250,0.3); }
+  .note-1027 td.muted { color:var(--muted); font-size:0.82rem; }
 </style>
 </head>
 <body>
@@ -215,6 +221,164 @@
   <p>Labs are <strong>nice-to-have, not essential</strong> for SAP-C02. The exam is 100% multiple-choice architectural judgment — no console access. <strong>Practice questions deliver 3x more score improvement per hour.</strong> Only do labs if you score &lt;60% on practice tests and can't understand WHY an answer is correct. If doing labs, prioritize the <strong>11 Maarek labs</strong> — they map directly to his course content.</p>
 </div>
 
+
+<!-- PLAN 10-27 -->
+<div class="section" id="plan-1027">
+  <div class="recommendation">
+    <h3>📅 Cập nhật 10-27 — lab nào làm, lab nào bỏ</h3>
+    <p>Thực tế mỗi lab chỉ mất <strong>30–40 phút</strong>. Giới hạn <strong>≤ 2h lab/ngày</strong>, đề luyện vẫn ưu tiên. Chọn lab theo nhóm hay sai 🔁 (Storage, Cost, DB, hybrid network, IAM, DR, Edge). Mỗi lab: <strong>dự đoán → chạy → phá thử → ghi 1 dòng quy tắc vào rule sheet</strong>. 10-30/10-31 không lab (Official Practice Exam + Neal C + cổng quyết định 11-02 hay 11-09). Thẻ <span class="v v-do">✅</span> <span class="v v-opt">🟡</span> <span class="v v-skip">⏭</span> cũng được gắn vào từng lab trong các bảng cũ bên dưới.</p>
+  </div>
+
+  <div class="section-header"><span class="badge badge-high">Làm</span><h2>✅ Udemy — 8 lab trước 11-02</h2></div>
+  <table class="note-1027">
+    <thead><tr><th style="width:30px">✓</th><th>Lab</th><th style="width:80px">Ngày</th><th style="width:330px">Bẫy đề thi sửa được</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/design-and-implement-gateway-vpc-endpoints/overview/" target="_blank" style="color:inherit;text-decoration:none">Design and Implement Gateway VPC Endpoints</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/design-and-implement-gateway-vpc-endpoints/overview/" target="_blank" style="color:var(--muted)">#354</a></span></div></td>
+        <td class="time">10-27</td>
+        <td class="muted">Gateway endpoint vs NAT; bucket policy aws:sourceVpce</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/active-passive-failover-using-route53-failover-routing-policy/overview/" target="_blank" style="color:inherit;text-decoration:none">Active-Passive Failover Using Route53 Failover Routing Policy</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/active-passive-failover-using-route53-failover-routing-policy/overview/" target="_blank" style="color:var(--muted)">#3316</a></span></div></td>
+        <td class="time">10-27</td>
+        <td class="muted">Failover routing = active/passive (Neal A Q34)</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/building-private-rest-api-with-aws-lambda-and-amazon-api-gateway-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Building Private REST API with Lambda and API Gateway</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/building-private-rest-api-with-aws-lambda-and-amazon-api-gateway-2/overview/" target="_blank" style="color:var(--muted)">#296</a></span></div></td>
+        <td class="time">10-27</td>
+        <td class="muted">Private API + interface endpoint (thay Whizlabs D2-1)</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/implement-automated-recovery-processes-to-meet-rporto-requirements-using-amazon-rds/overview/" target="_blank" style="color:inherit;text-decoration:none">Implement Automated Recovery Processes to Meet RPO/RTO Using Amazon RDS</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/implement-automated-recovery-processes-to-meet-rporto-requirements-using-amazon-rds/overview/" target="_blank" style="color:var(--muted)">#3486</a></span></div></td>
+        <td class="time">10-28</td>
+        <td class="muted">Pilot light: promote replica thủ công/Lambda (Neal B Q63)</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/build-and-monitor-a-resilient-system-architecture-using-ec2-rds-multi-az-cloudwatch-and-sns/overview/" target="_blank" style="color:inherit;text-decoration:none">Build and Monitor a Resilient System (EC2, RDS Multi-AZ, CloudWatch, SNS)</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-and-monitor-a-resilient-system-architecture-using-ec2-rds-multi-az-cloudwatch-and-sns/overview/" target="_blank" style="color:var(--muted)">#240</a></span></div></td>
+        <td class="time">10-28</td>
+        <td class="muted">Multi-AZ instance: standby không đọc được</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/build-a-cloud-native-web-app-to-manage-product-reviews-using-api-gateway-aurora-and-rds-proxy/overview/" target="_blank" style="color:inherit;text-decoration:none">Build a Cloud-native Web App (API Gateway, Aurora, RDS Proxy)</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-a-cloud-native-web-app-to-manage-product-reviews-using-api-gateway-aurora-and-rds-proxy/overview/" target="_blank" style="color:var(--muted)">#320</a></span></div></td>
+        <td class="time">10-28</td>
+        <td class="muted">Lambda cạn connection → RDS Proxy</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/improve-application-security-posture-by-automating-security-controls-and-data-protection-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Improve Application Security Posture by Automating Security Controls</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/improve-application-security-posture-by-automating-security-controls-and-data-protection-2/overview/" target="_blank" style="color:var(--muted)">#3640</a></span></div></td>
+        <td class="time">10-29</td>
+        <td class="muted">KMS, phát hiện RDS/EBS chưa mã hóa</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/define-cloud-infrastructure-and-reusable-components-using-aws-cloudformation/overview/" target="_blank" style="color:inherit;text-decoration:none">Define Cloud Infrastructure Using AWS CloudFormation</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/define-cloud-infrastructure-and-reusable-components-using-aws-cloudformation/overview/" target="_blank" style="color:var(--muted)">#3344</a></span></div></td>
+        <td class="time">10-29</td>
+        <td class="muted">StackSets multi-Region/multi-account</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="lab-id" style="margin:0.4rem 0 1.5rem">Hướng dẫn tiếng Việt cho #3486: <a href="../../practice-exam/sap/lab-rds-rpo-rto-huong-dan.html" target="_blank" style="color:var(--accent)">lab-rds-rpo-rto-huong-dan.html</a></p>
+
+  <div class="section-header"><span class="badge badge-medium">Tùy chọn</span><h2>🟡 Udemy — 3 lab nếu dời thi sang 11-09</h2></div>
+  <table class="note-1027">
+    <thead><tr><th style="width:30px">✓</th><th>Lab</th><th style="width:80px">Khi nào</th><th style="width:330px">Lý do</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/fanout-architecture-using-sns-and-sqs/overview/" target="_blank" style="color:inherit;text-decoration:none">Fanout Architecture Using SNS and SQS</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/fanout-architecture-using-sns-and-sqs/overview/" target="_blank" style="color:var(--muted)">#3318</a></span></div></td>
+        <td class="time">Nếu dời</td>
+        <td class="muted">Fanout SNS→SQS (nhanh)</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/build-a-network-monitoring-solution-using-aws-vpc-flow-logs-and-cloudwatch-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Build a Network Monitoring Solution Using VPC Flow Logs and CloudWatch</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-a-network-monitoring-solution-using-aws-vpc-flow-logs-and-cloudwatch-2/overview/" target="_blank" style="color:var(--muted)">#276</a></span></div></td>
+        <td class="time">Nếu dời</td>
+        <td class="muted">Flow Logs → CloudWatch/Athena</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="https://viettel.udemy.com/labs/traffic-shifting-using-aws-lambda/overview/" target="_blank" style="color:inherit;text-decoration:none">Traffic Shifting Using AWS Lambda</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/traffic-shifting-using-aws-lambda/overview/" target="_blank" style="color:var(--muted)">#3128</a></span></div></td>
+        <td class="time">Nếu dời</td>
+        <td class="muted">Weighted alias / canary</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <div class="section-header" style="margin-top:1.5rem"><span class="badge badge-claude">Claude</span><h2>🤖 6 lab Claude tạo hướng dẫn — Udemy không có</h2></div>
+  <table class="note-1027">
+    <thead><tr><th style="width:30px">✓</th><th>Lab</th><th style="width:230px">Cách làm</th><th style="width:300px">Quy tắc đề thi</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="../../practice-exam/sap/lab-scp-permission-boundary-huong-dan.html" target="_blank" style="color:inherit;text-decoration:none">Organizations SCP + Permissions Boundary + Cross-account role</a> <span class="lab-id"><a href="../../practice-exam/sap/lab-scp-permission-boundary-huong-dan.html" target="_blank" style="color:var(--muted)">hướng dẫn</a></span></div></td>
+        <td class="muted">Lab trên giấy (sandbox chặn Organizations); phần IAM làm được</td>
+        <td class="muted">SCP không cấp quyền, deny list, management account miễn trừ</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="../../practice-exam/sap/lab-route53-resolver-hybrid-dns-huong-dan.html" target="_blank" style="color:inherit;text-decoration:none">Route 53 Resolver inbound/outbound + Private Hosted Zone</a> <span class="lab-id"><a href="../../practice-exam/sap/lab-route53-resolver-hybrid-dns-huong-dan.html" target="_blank" style="color:var(--muted)">hướng dẫn</a></span></div></td>
+        <td class="muted">Sandbox (~$0.125/h/ENI, dọn ngay)</td>
+        <td class="muted">Inbound = on-prem hỏi AWS; outbound = AWS hỏi on-prem</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="../../practice-exam/sap/lab-cloudfront-oac-signed-url-origin-group-huong-dan.html" target="_blank" style="color:inherit;text-decoration:none">CloudFront OAC + Signed URL/Cookies + Origin Group</a> <span class="lab-id"><a href="../../practice-exam/sap/lab-cloudfront-oac-signed-url-origin-group-huong-dan.html" target="_blank" style="color:var(--muted)">hướng dẫn</a></span></div></td>
+        <td class="muted">Sandbox</td>
+        <td class="muted">OAC vs OAI; URL 1 file vs cookie nhiều file; failover chỉ GET/HEAD</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="../../practice-exam/sap/lab-s3-crr-lifecycle-huong-dan.html" target="_blank" style="color:inherit;text-decoration:none">S3 Cross-Region Replication + Lifecycle</a> <span class="lab-id"><a href="../../practice-exam/sap/lab-s3-crr-lifecycle-huong-dan.html" target="_blank" style="color:var(--muted)">hướng dẫn</a></span></div></td>
+        <td class="muted">Sandbox (~30')</td>
+        <td class="muted">CRR chỉ object mới; versioning; AbortIncompleteMultipartUpload</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="../../practice-exam/sap/lab-transit-gateway-huong-dan.html" target="_blank" style="color:inherit;text-decoration:none">Transit Gateway hub-and-spoke + route table isolation</a> <span class="lab-id"><a href="../../practice-exam/sap/lab-transit-gateway-huong-dan.html" target="_blank" style="color:var(--muted)">hướng dẫn</a></span></div></td>
+        <td class="muted">Sandbox nếu cho phép TGW</td>
+        <td class="muted">TGW transitive vs peering; tách dev/prod bằng TGW route table</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" class="checkbox"></td>
+        <td><div class="lab-title"><a href="../../practice-exam/sap/lab-dms-full-load-cdc-huong-dan.html" target="_blank" style="color:inherit;text-decoration:none">DMS full load + CDC, SCT khi đổi engine</a> <span class="lab-id"><a href="../../practice-exam/sap/lab-dms-full-load-cdc-huong-dan.html" target="_blank" style="color:var(--muted)">hướng dẫn</a></span></div></td>
+        <td class="muted">Lab trên giấy (+ tùy chọn sandbox)</td>
+        <td class="muted">CDC cần binlog ROW; SCT cho heterogeneous; Snowball + DMS</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="lab-id" style="margin:0.4rem 0 1.5rem">Trước 11-02: S3 CRR + Lifecycle (10-29). Còn lại làm nếu dời 11-09, hoặc đọc như lab trên giấy. Kiểm tra sandbox Udemy có cho dùng Organizations / TGW / Resolver / DMS không.</p>
+
+  <div class="section-header"><span class="badge badge-maarek">Whizlabs</span><h2>🔗 111 lab Whizlabs → đã phủ bởi đâu</h2></div>
+  <table class="note-1027">
+    <thead><tr><th style="width:110px">Mã</th><th>Lab Whizlabs</th><th style="width:330px">Làm bằng</th></tr></thead>
+    <tbody>
+      <tr><td class="lab-id">D1-1</td><td>Access S3 from Private EC2 using VPC Endpoint</td><td>Udemy #354</td></tr>
+      <tr><td class="lab-id">D2-1</td><td>Access SQS using VPC Interface Endpoint</td><td>Udemy #296 (interface endpoint)</td></tr>
+      <tr><td class="lab-id">D2-10</td><td>RDS Multi-AZ + Read Replica, simulate failover</td><td>Udemy #240 + #3486</td></tr>
+      <tr><td class="lab-id">D1-10 / D2-13</td><td>Encrypt S3 with KMS + CloudTrail / Encrypt unencrypted RDS</td><td>Udemy #3640</td></tr>
+      <tr><td class="lab-id">C-3 / C-4</td><td>S3 Cross Region Replication / S3 Lifecycle Policy</td><td>🤖 Claude: S3 CRR + Lifecycle</td></tr>
+      <tr><td class="lab-id">D3-13</td><td>Understanding CloudFront Origin Groups</td><td>🤖 Claude: CloudFront OAC + Signed URL + Origin Group</td></tr>
+      <tr><td class="lab-id">D1-5 / C-10</td><td>Peer VPC with Transit Gateway</td><td>🤖 Claude: Transit Gateway</td></tr>
+      <tr><td class="lab-id">D4-2 / D4-6</td><td>Migration of Database using DMS</td><td>🤖 Claude: DMS full load + CDC</td></tr>
+      <tr><td class="lab-id">—</td><td>(Whizlabs không có) Organizations / SCP</td><td>🤖 Claude: SCP + Permissions Boundary</td></tr>
+      <tr><td class="lab-id">—</td><td>(Whizlabs không có) Route 53 Resolver hybrid DNS</td><td>🤖 Claude: Route 53 Resolver</td></tr>
+      <tr><td class="lab-id">D4-17, D1-15</td><td>DynamoDB PITR, Egress-only IGW</td><td>Đọc nhanh, không cần lab</td></tr>
+      <tr><td class="lab-id">97 lab còn lại</td><td>Intro Lambda/IAM/RDS, import CSV/JSON, Rekognition, Chatbot, WordPress, EKS, Docker…</td><td>⏭ Bỏ qua — mức Associate hoặc ngoài SAP</td></tr>
+    </tbody>
+  </table>
+
+  <p class="lab-id" style="margin-top:0.4rem">Nguồn: practice-exam/sap/whizlabs-sap-c02-111-labs.md. Không mua Whizlabs chỉ để làm lab — topic đã phủ bằng Udemy + hướng dẫn Claude.</p>
+</div>
+
 <!-- HIGH PRIORITY -->
 <div class="section">
   <div class="section-header">
@@ -235,7 +399,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/design-and-implement-gateway-vpc-endpoints/overview/" target="_blank" style="color:inherit;text-decoration:none">Design and Implement Gateway VPC Endpoints</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/design-and-implement-gateway-vpc-endpoints/overview/" target="_blank" style="color:var(--muted)">#354</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/design-and-implement-gateway-vpc-endpoints/overview/" target="_blank" style="color:inherit;text-decoration:none">Design and Implement Gateway VPC Endpoints</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/design-and-implement-gateway-vpc-endpoints/overview/" target="_blank" style="color:var(--muted)">#354</a></span> <span class="v v-do">✅ Làm 10-27</span></div>
           <ul class="tasks-list">
             <li>Create VPC Gateway Endpoint for S3</li>
             <li>Create custom endpoint policies for Gateway Endpoints</li>
@@ -249,7 +413,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/create-a-custom-amazon-vpc-with-public-and-private-subnets/overview/" target="_blank" style="color:inherit;text-decoration:none">Create a Custom Amazon VPC with Public and Private Subnets</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/create-a-custom-amazon-vpc-with-public-and-private-subnets/overview/" target="_blank" style="color:var(--muted)">#244</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/create-a-custom-amazon-vpc-with-public-and-private-subnets/overview/" target="_blank" style="color:inherit;text-decoration:none">Create a Custom Amazon VPC with Public and Private Subnets</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/create-a-custom-amazon-vpc-with-public-and-private-subnets/overview/" target="_blank" style="color:var(--muted)">#244</a></span> <span class="v v-skip">⏭ Bỏ qua: VPC cơ bản — đã nắm</span></div>
           <ul class="tasks-list">
             <li>Create custom VPC with IPv4 CIDR block</li>
             <li>Create public and private subnets</li>
@@ -264,7 +428,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/configuring-traffic-mirroring-in-aws-vpc/overview/" target="_blank" style="color:inherit;text-decoration:none">Configuring Traffic Mirroring in AWS VPC</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/configuring-traffic-mirroring-in-aws-vpc/overview/" target="_blank" style="color:var(--muted)">#3238</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/configuring-traffic-mirroring-in-aws-vpc/overview/" target="_blank" style="color:inherit;text-decoration:none">Configuring Traffic Mirroring in AWS VPC</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/configuring-traffic-mirroring-in-aws-vpc/overview/" target="_blank" style="color:var(--muted)">#3238</a></span> <span class="v v-skip">⏭ Bỏ qua: Traffic mirroring hiếm gặp</span></div>
           <ul class="tasks-list">
             <li>Set up architecture for VPC traffic mirroring</li>
             <li>Configure monitoring instance to receive VPC traffic</li>
@@ -277,7 +441,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/active-passive-failover-using-route53-failover-routing-policy/overview/" target="_blank" style="color:inherit;text-decoration:none">Active-Passive Failover Using Route53 Failover Routing Policy</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/active-passive-failover-using-route53-failover-routing-policy/overview/" target="_blank" style="color:var(--muted)">#3316</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/active-passive-failover-using-route53-failover-routing-policy/overview/" target="_blank" style="color:inherit;text-decoration:none">Active-Passive Failover Using Route53 Failover Routing Policy</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/active-passive-failover-using-route53-failover-routing-policy/overview/" target="_blank" style="color:var(--muted)">#3316</a></span> <span class="v v-do">✅ Làm 10-27</span></div>
           <ul class="tasks-list">
             <li>Create Route53 Failover Routing Policy</li>
             <li>Create Custom Route53 Health Checks</li>
@@ -290,7 +454,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/distribute-traffic-using-route53-weighted-routing-policy/overview/" target="_blank" style="color:inherit;text-decoration:none">Distribute Traffic Using Route53 Weighted Routing Policy</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/distribute-traffic-using-route53-weighted-routing-policy/overview/" target="_blank" style="color:var(--muted)">#3314</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/distribute-traffic-using-route53-weighted-routing-policy/overview/" target="_blank" style="color:inherit;text-decoration:none">Distribute Traffic Using Route53 Weighted Routing Policy</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/distribute-traffic-using-route53-weighted-routing-policy/overview/" target="_blank" style="color:var(--muted)">#3314</a></span> <span class="v v-skip">⏭ Bỏ qua: Trùng khái niệm #3316</span></div>
           <ul class="tasks-list">
             <li>Create Route53 Weighted Routing Policy</li>
             <li>Distribute Traffic across Servers</li>
@@ -303,7 +467,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/build-and-monitor-a-resilient-system-architecture-using-ec2-rds-multi-az-cloudwatch-and-sns/overview/" target="_blank" style="color:inherit;text-decoration:none">Build and Monitor a Resilient System (EC2, RDS Multi-AZ, CloudWatch, SNS)</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-and-monitor-a-resilient-system-architecture-using-ec2-rds-multi-az-cloudwatch-and-sns/overview/" target="_blank" style="color:var(--muted)">#240</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/build-and-monitor-a-resilient-system-architecture-using-ec2-rds-multi-az-cloudwatch-and-sns/overview/" target="_blank" style="color:inherit;text-decoration:none">Build and Monitor a Resilient System (EC2, RDS Multi-AZ, CloudWatch, SNS)</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-and-monitor-a-resilient-system-architecture-using-ec2-rds-multi-az-cloudwatch-and-sns/overview/" target="_blank" style="color:var(--muted)">#240</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-do">✅ Làm 10-28</span></div>
           <ul class="tasks-list">
             <li>Provision RDS in Multi-AZ for HA and failover</li>
             <li>Set up monitoring of EC2 and RDS</li>
@@ -318,7 +482,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/implement-automated-recovery-processes-to-meet-rporto-requirements-using-amazon-rds/overview/" target="_blank" style="color:inherit;text-decoration:none">Implement Automated Recovery Processes to Meet RPO/RTO Using Amazon RDS</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/implement-automated-recovery-processes-to-meet-rporto-requirements-using-amazon-rds/overview/" target="_blank" style="color:var(--muted)">#3486</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/implement-automated-recovery-processes-to-meet-rporto-requirements-using-amazon-rds/overview/" target="_blank" style="color:inherit;text-decoration:none">Implement Automated Recovery Processes to Meet RPO/RTO Using Amazon RDS</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/implement-automated-recovery-processes-to-meet-rporto-requirements-using-amazon-rds/overview/" target="_blank" style="color:var(--muted)">#3486</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-do">✅ Làm 10-28</span></div>
           <ul class="tasks-list">
             <li>Create RDS in primary location + cross-region read replica</li>
             <li>Create parameters in Systems Manager Parameter Store</li>
@@ -333,7 +497,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/horizontal-scaling-of-ec2-instances-using-an-auto-scaling-group-with-an-application-load-balancer-8/overview/" target="_blank" style="color:inherit;text-decoration:none">Horizontal Scaling of EC2 with ASG + ALB</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/horizontal-scaling-of-ec2-instances-using-an-auto-scaling-group-with-an-application-load-balancer-8/overview/" target="_blank" style="color:var(--muted)">#176</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/horizontal-scaling-of-ec2-instances-using-an-auto-scaling-group-with-an-application-load-balancer-8/overview/" target="_blank" style="color:inherit;text-decoration:none">Horizontal Scaling of EC2 with ASG + ALB</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/horizontal-scaling-of-ec2-instances-using-an-auto-scaling-group-with-an-application-load-balancer-8/overview/" target="_blank" style="color:var(--muted)">#176</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-skip">⏭ Bỏ qua: ASG+ALB mức Associate</span></div>
           <ul class="tasks-list">
             <li>Create Application Load Balancer</li>
             <li>Define Launch Templates for EC2</li>
@@ -348,7 +512,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/automatic-scaling-and-load-balancing-with-ec2-and-alb/overview/" target="_blank" style="color:inherit;text-decoration:none">Automatic Scaling and Load Balancing with EC2 and ALB</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/automatic-scaling-and-load-balancing-with-ec2-and-alb/overview/" target="_blank" style="color:var(--muted)">#226</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/automatic-scaling-and-load-balancing-with-ec2-and-alb/overview/" target="_blank" style="color:inherit;text-decoration:none">Automatic Scaling and Load Balancing with EC2 and ALB</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/automatic-scaling-and-load-balancing-with-ec2-and-alb/overview/" target="_blank" style="color:var(--muted)">#226</a></span> <span class="v v-skip">⏭ Bỏ qua: ASG+ALB mức Associate</span></div>
           <ul class="tasks-list">
             <li>Deploy web app on EC2 behind ELB with auto scaling</li>
             <li>Demonstrate elasticity and high availability</li>
@@ -361,7 +525,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/implement-lifecycle-hooks-on-an-auto-scaling-ec2-deployment/overview/" target="_blank" style="color:inherit;text-decoration:none">Implement Lifecycle Hooks on an Auto Scaling EC2 Deployment</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/implement-lifecycle-hooks-on-an-auto-scaling-ec2-deployment/overview/" target="_blank" style="color:var(--muted)">#2934</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/implement-lifecycle-hooks-on-an-auto-scaling-ec2-deployment/overview/" target="_blank" style="color:inherit;text-decoration:none">Implement Lifecycle Hooks on an Auto Scaling EC2 Deployment</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/implement-lifecycle-hooks-on-an-auto-scaling-ec2-deployment/overview/" target="_blank" style="color:var(--muted)">#2934</a></span> <span class="v v-skip">⏭ Bỏ qua: Lifecycle hook = DOP</span></div>
           <ul class="tasks-list">
             <li>Create launch template for ASG</li>
             <li>Configure EC2 lifecycle hooks to trigger Lambda</li>
@@ -376,7 +540,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/fanout-architecture-using-sns-and-sqs/overview/" target="_blank" style="color:inherit;text-decoration:none">Fanout Architecture Using SNS and SQS</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/fanout-architecture-using-sns-and-sqs/overview/" target="_blank" style="color:var(--muted)">#3318</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/fanout-architecture-using-sns-and-sqs/overview/" target="_blank" style="color:inherit;text-decoration:none">Fanout Architecture Using SNS and SQS</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/fanout-architecture-using-sns-and-sqs/overview/" target="_blank" style="color:var(--muted)">#3318</a></span> <span class="v v-opt">🟡 Nếu dời 11-09</span></div>
           <ul class="tasks-list">
             <li>Configure SNS to send messages to multiple endpoints</li>
             <li>Integrate SQS Queues with SNS</li>
@@ -389,7 +553,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/create-a-decoupled-backend-architecture-using-lambda-sqs-and-dynamodb-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Create a Decoupled Backend Architecture Using Lambda, SQS and DynamoDB</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/create-a-decoupled-backend-architecture-using-lambda-sqs-and-dynamodb-2/overview/" target="_blank" style="color:var(--muted)">#230</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/create-a-decoupled-backend-architecture-using-lambda-sqs-and-dynamodb-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Create a Decoupled Backend Architecture Using Lambda, SQS and DynamoDB</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/create-a-decoupled-backend-architecture-using-lambda-sqs-and-dynamodb-2/overview/" target="_blank" style="color:var(--muted)">#230</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-skip">⏭ Bỏ qua: Decoupling đã nắm</span></div>
           <ul class="tasks-list">
             <li>Create SQS standard queue</li>
             <li>Develop Lambda to process orders into DynamoDB</li>
@@ -404,7 +568,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/build-a-network-monitoring-solution-using-aws-vpc-flow-logs-and-cloudwatch-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Build a Network Monitoring Solution Using VPC Flow Logs and CloudWatch</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-a-network-monitoring-solution-using-aws-vpc-flow-logs-and-cloudwatch-2/overview/" target="_blank" style="color:var(--muted)">#276</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/build-a-network-monitoring-solution-using-aws-vpc-flow-logs-and-cloudwatch-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Build a Network Monitoring Solution Using VPC Flow Logs and CloudWatch</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-a-network-monitoring-solution-using-aws-vpc-flow-logs-and-cloudwatch-2/overview/" target="_blank" style="color:var(--muted)">#276</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-opt">🟡 Nếu dời 11-09</span></div>
           <ul class="tasks-list">
             <li>Configure VPC Flow Logs for network interfaces</li>
             <li>Set up Flow Logs ingestion into CloudWatch</li>
@@ -419,7 +583,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/design-a-solution-to-audit-monitor-and-analyze-logs-and-metrics-for-detecting-issues/overview/" target="_blank" style="color:inherit;text-decoration:none">Design a Solution to Audit, Monitor, and Analyze Logs and Metrics</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/design-a-solution-to-audit-monitor-and-analyze-logs-and-metrics-for-detecting-issues/overview/" target="_blank" style="color:var(--muted)">#3452</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/design-a-solution-to-audit-monitor-and-analyze-logs-and-metrics-for-detecting-issues/overview/" target="_blank" style="color:inherit;text-decoration:none">Design a Solution to Audit, Monitor, and Analyze Logs and Metrics</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/design-a-solution-to-audit-monitor-and-analyze-logs-and-metrics-for-detecting-issues/overview/" target="_blank" style="color:var(--muted)">#3452</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-skip">⏭ Bỏ qua: Trùng #3640</span></div>
           <ul class="tasks-list">
             <li>Create CloudTrail trail to audit infrastructure events</li>
             <li>Capture CloudTrail data via CloudWatch Logs + Metric Filter</li>
@@ -434,7 +598,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/improve-application-security-posture-by-automating-security-controls-and-data-protection-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Improve Application Security Posture by Automating Security Controls</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/improve-application-security-posture-by-automating-security-controls-and-data-protection-2/overview/" target="_blank" style="color:var(--muted)">#3640</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/improve-application-security-posture-by-automating-security-controls-and-data-protection-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Improve Application Security Posture by Automating Security Controls</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/improve-application-security-posture-by-automating-security-controls-and-data-protection-2/overview/" target="_blank" style="color:var(--muted)">#3640</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-do">✅ Làm 10-29</span></div>
           <ul class="tasks-list">
             <li>Configure CloudTrail trail → CloudWatch Logs</li>
             <li>Create KMS encrypted RDS and EC2 EBS volume</li>
@@ -449,7 +613,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/define-cloud-infrastructure-and-reusable-components-using-aws-cloudformation/overview/" target="_blank" style="color:inherit;text-decoration:none">Define Cloud Infrastructure Using AWS CloudFormation</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/define-cloud-infrastructure-and-reusable-components-using-aws-cloudformation/overview/" target="_blank" style="color:var(--muted)">#3344</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/define-cloud-infrastructure-and-reusable-components-using-aws-cloudformation/overview/" target="_blank" style="color:inherit;text-decoration:none">Define Cloud Infrastructure Using AWS CloudFormation</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/define-cloud-infrastructure-and-reusable-components-using-aws-cloudformation/overview/" target="_blank" style="color:var(--muted)">#3344</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-do">✅ Làm 10-29</span></div>
           <ul class="tasks-list">
             <li>Create IAM roles for CloudFormation deployment</li>
             <li>Create CloudFormation stack template</li>
@@ -464,7 +628,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/automate-provisioning-of-aws-resources-using-cloudformation/overview/" target="_blank" style="color:inherit;text-decoration:none">Automate Provisioning of AWS Resources using CloudFormation</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/automate-provisioning-of-aws-resources-using-cloudformation/overview/" target="_blank" style="color:var(--muted)">#336</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/automate-provisioning-of-aws-resources-using-cloudformation/overview/" target="_blank" style="color:inherit;text-decoration:none">Automate Provisioning of AWS Resources using CloudFormation</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/automate-provisioning-of-aws-resources-using-cloudformation/overview/" target="_blank" style="color:var(--muted)">#336</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-skip">⏭ Bỏ qua: Trùng #3344</span></div>
           <ul class="tasks-list">
             <li>Create CloudFormation template for resource provisioning</li>
             <li>Leverage CloudFormation parameters</li>
@@ -499,7 +663,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/stream-and-analyze-log-data-with-kinesis-firehose-lambda-s3-glue-and-athena/overview/" target="_blank" style="color:inherit;text-decoration:none">Stream and Analyze Log Data with Kinesis Firehose, Lambda, S3, Glue, and Athena</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/stream-and-analyze-log-data-with-kinesis-firehose-lambda-s3-glue-and-athena/overview/" target="_blank" style="color:var(--muted)">#274</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/stream-and-analyze-log-data-with-kinesis-firehose-lambda-s3-glue-and-athena/overview/" target="_blank" style="color:inherit;text-decoration:none">Stream and Analyze Log Data with Kinesis Firehose, Lambda, S3, Glue, and Athena</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/stream-and-analyze-log-data-with-kinesis-firehose-lambda-s3-glue-and-athena/overview/" target="_blank" style="color:var(--muted)">#274</a></span> <span class="v v-skip">⏭ Bỏ qua: Analytics 2-3h, không phải điểm yếu</span></div>
           <ul class="tasks-list">
             <li>Build system to stream and analyze log data in near-real-time</li>
             <li>Devise SQL queries to test the system</li>
@@ -512,7 +676,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/real-time-data-processing-using-python-with-kinesis-lambda-dynamodb/overview/" target="_blank" style="color:inherit;text-decoration:none">Real-Time Data Processing using Python with Kinesis, Lambda & DynamoDB</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/real-time-data-processing-using-python-with-kinesis-lambda-dynamodb/overview/" target="_blank" style="color:var(--muted)">#3560</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/real-time-data-processing-using-python-with-kinesis-lambda-dynamodb/overview/" target="_blank" style="color:inherit;text-decoration:none">Real-Time Data Processing using Python with Kinesis, Lambda & DynamoDB</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/real-time-data-processing-using-python-with-kinesis-lambda-dynamodb/overview/" target="_blank" style="color:var(--muted)">#3560</a></span> <span class="v v-skip">⏭ Bỏ qua: Analytics 2-3h</span></div>
           <ul class="tasks-list">
             <li>Setup Lambda to write data into Kinesis Data Streams</li>
             <li>Setup Lambda to process data from Kinesis in real-time</li>
@@ -526,7 +690,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/analyze-e-commerce-clickstream-data-with-amazon-athena/overview/" target="_blank" style="color:inherit;text-decoration:none">Analyze E-Commerce Clickstream Data with Amazon Athena</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/analyze-e-commerce-clickstream-data-with-amazon-athena/overview/" target="_blank" style="color:var(--muted)">#238</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/analyze-e-commerce-clickstream-data-with-amazon-athena/overview/" target="_blank" style="color:inherit;text-decoration:none">Analyze E-Commerce Clickstream Data with Amazon Athena</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/analyze-e-commerce-clickstream-data-with-amazon-athena/overview/" target="_blank" style="color:var(--muted)">#238</a></span> <span class="v v-skip">⏭ Bỏ qua: Analytics</span></div>
           <ul class="tasks-list">
             <li>Build serverless system to analyze S3 data lake using SQL</li>
             <li>Devise SQL queries to analyze raw clickstream data</li>
@@ -539,7 +703,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/transform-e-commerce-clickstream-data-for-analysis-using-aws-glue/overview/" target="_blank" style="color:inherit;text-decoration:none">Transform E-Commerce Clickstream Data Using AWS Glue</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/transform-e-commerce-clickstream-data-for-analysis-using-aws-glue/overview/" target="_blank" style="color:var(--muted)">#236</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/transform-e-commerce-clickstream-data-for-analysis-using-aws-glue/overview/" target="_blank" style="color:inherit;text-decoration:none">Transform E-Commerce Clickstream Data Using AWS Glue</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/transform-e-commerce-clickstream-data-for-analysis-using-aws-glue/overview/" target="_blank" style="color:var(--muted)">#236</a></span> <span class="v v-skip">⏭ Bỏ qua: Glue ETL, ít gặp</span></div>
           <ul class="tasks-list">
             <li>Build cloud-based system to transform data</li>
             <li>Devise system to transform incoming data on schedule</li>
@@ -552,7 +716,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/build-a-cloud-native-web-app-to-manage-product-reviews-using-api-gateway-aurora-and-rds-proxy/overview/" target="_blank" style="color:inherit;text-decoration:none">Build a Cloud-native Web App (API Gateway, Aurora, RDS Proxy)</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-a-cloud-native-web-app-to-manage-product-reviews-using-api-gateway-aurora-and-rds-proxy/overview/" target="_blank" style="color:var(--muted)">#320</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/build-a-cloud-native-web-app-to-manage-product-reviews-using-api-gateway-aurora-and-rds-proxy/overview/" target="_blank" style="color:inherit;text-decoration:none">Build a Cloud-native Web App (API Gateway, Aurora, RDS Proxy)</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-a-cloud-native-web-app-to-manage-product-reviews-using-api-gateway-aurora-and-rds-proxy/overview/" target="_blank" style="color:var(--muted)">#320</a></span> <span class="v v-do">✅ Làm 10-28</span></div>
           <ul class="tasks-list">
             <li>Build serverless app with S3, API Gateway, Lambda, Aurora, RDS Proxy, Secrets Manager</li>
             <li>Build RESTful API using API Gateway HTTP API</li>
@@ -565,7 +729,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/building-private-rest-api-with-aws-lambda-and-amazon-api-gateway-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Building Private REST API with Lambda and API Gateway</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/building-private-rest-api-with-aws-lambda-and-amazon-api-gateway-2/overview/" target="_blank" style="color:var(--muted)">#296</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/building-private-rest-api-with-aws-lambda-and-amazon-api-gateway-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Building Private REST API with Lambda and API Gateway</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/building-private-rest-api-with-aws-lambda-and-amazon-api-gateway-2/overview/" target="_blank" style="color:var(--muted)">#296</a></span> <span class="v v-do">✅ Làm 10-27</span></div>
           <ul class="tasks-list">
             <li>Build private REST API with serverless approach</li>
             <li>Integrate API Gateway, Lambda, and DynamoDB</li>
@@ -578,7 +742,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/building-serverless-workflow-to-process-files-uploaded-to-amazon-s3-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Building Serverless Workflow to Process Files Uploaded to S3</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/building-serverless-workflow-to-process-files-uploaded-to-amazon-s3-2/overview/" target="_blank" style="color:var(--muted)">#218</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/building-serverless-workflow-to-process-files-uploaded-to-amazon-s3-2/overview/" target="_blank" style="color:inherit;text-decoration:none">Building Serverless Workflow to Process Files Uploaded to S3</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/building-serverless-workflow-to-process-files-uploaded-to-amazon-s3-2/overview/" target="_blank" style="color:var(--muted)">#218</a></span> <span class="v v-skip">⏭ Bỏ qua: Pattern giống #230</span></div>
           <ul class="tasks-list">
             <li>Build serverless solution: S3 → SQS → Lambda → DynamoDB</li>
             <li>Practice Lambda interacting with multiple services</li>
@@ -591,7 +755,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/ingest-sales-data-in-real-time-to-a-relational-database-using-s3-lambda-and-rds/overview/" target="_blank" style="color:inherit;text-decoration:none">Ingest Sales Data in Real-Time to RDS using S3, Lambda, and RDS</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/ingest-sales-data-in-real-time-to-a-relational-database-using-s3-lambda-and-rds/overview/" target="_blank" style="color:var(--muted)">#224</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/ingest-sales-data-in-real-time-to-a-relational-database-using-s3-lambda-and-rds/overview/" target="_blank" style="color:inherit;text-decoration:none">Ingest Sales Data in Real-Time to RDS using S3, Lambda, and RDS</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/ingest-sales-data-in-real-time-to-a-relational-database-using-s3-lambda-and-rds/overview/" target="_blank" style="color:var(--muted)">#224</a></span> <span class="v v-skip">⏭ Bỏ qua: Ingest code, không phải kiến trúc</span></div>
           <ul class="tasks-list">
             <li>Build code to ingest and store data using Lambda + Python</li>
             <li>Devise automated processes for ingesting sales data</li>
@@ -604,7 +768,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/build-automated-solutions-in-large-scale-environments-using-aws-systems-manager/overview/" target="_blank" style="color:inherit;text-decoration:none">Build Automated Solutions using AWS Systems Manager</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-automated-solutions-in-large-scale-environments-using-aws-systems-manager/overview/" target="_blank" style="color:var(--muted)">#3342</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/build-automated-solutions-in-large-scale-environments-using-aws-systems-manager/overview/" target="_blank" style="color:inherit;text-decoration:none">Build Automated Solutions using AWS Systems Manager</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/build-automated-solutions-in-large-scale-environments-using-aws-systems-manager/overview/" target="_blank" style="color:var(--muted)">#3342</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-skip">⏭ Bỏ qua: SSM vận hành</span></div>
           <ul class="tasks-list">
             <li>Create IAM role for Systems Manager</li>
             <li>Create CloudFormation template for infra</li>
@@ -619,7 +783,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/automate-load-balancer-and-vpc-creation-using-cloudformation/overview/" target="_blank" style="color:inherit;text-decoration:none">Automate Load Balancer and VPC creation using CloudFormation</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/automate-load-balancer-and-vpc-creation-using-cloudformation/overview/" target="_blank" style="color:var(--muted)">#332</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/automate-load-balancer-and-vpc-creation-using-cloudformation/overview/" target="_blank" style="color:inherit;text-decoration:none">Automate Load Balancer and VPC creation using CloudFormation</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/automate-load-balancer-and-vpc-creation-using-cloudformation/overview/" target="_blank" style="color:var(--muted)">#332</a></span> <span class="v v-skip">⏭ Bỏ qua: Trùng #3344</span></div>
         </td>
         <td><span class="badge-domain">IaC</span></td>
         <td class="time">90-180m</td>
@@ -628,7 +792,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/troubleshoot-and-secure-your-aws-network-infrastructure/overview/" target="_blank" style="color:inherit;text-decoration:none">Troubleshoot and Secure Your AWS Network Infrastructure</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/troubleshoot-and-secure-your-aws-network-infrastructure/overview/" target="_blank" style="color:var(--muted)">#2856</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/troubleshoot-and-secure-your-aws-network-infrastructure/overview/" target="_blank" style="color:inherit;text-decoration:none">Troubleshoot and Secure Your AWS Network Infrastructure</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/troubleshoot-and-secure-your-aws-network-infrastructure/overview/" target="_blank" style="color:var(--muted)">#2856</a></span> <span class="v v-skip">⏭ Bỏ qua: SG/NACL cơ bản</span></div>
           <ul class="tasks-list">
             <li>Identify and resolve common security issues</li>
             <li>Troubleshoot connectivity in AWS network infra</li>
@@ -642,7 +806,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/implement-automated-data-backup-and-enhanced-security-in-abc-corps-aws-infrastructure/overview/" target="_blank" style="color:inherit;text-decoration:none">Implement Automated EBS Backup with Lambda</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/implement-automated-data-backup-and-enhanced-security-in-abc-corps-aws-infrastructure/overview/" target="_blank" style="color:var(--muted)">#3378</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/implement-automated-data-backup-and-enhanced-security-in-abc-corps-aws-infrastructure/overview/" target="_blank" style="color:inherit;text-decoration:none">Implement Automated EBS Backup with Lambda</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/implement-automated-data-backup-and-enhanced-security-in-abc-corps-aws-infrastructure/overview/" target="_blank" style="color:var(--muted)">#3378</a></span> <span class="v v-skip">⏭ Bỏ qua: EBS backup = vận hành</span></div>
           <ul class="tasks-list">
             <li>Design and deploy a Lambda function</li>
             <li>Implement automated EBS snapshots</li>
@@ -656,7 +820,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/traffic-shifting-using-aws-lambda/overview/" target="_blank" style="color:inherit;text-decoration:none">Traffic Shifting Using AWS Lambda</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/traffic-shifting-using-aws-lambda/overview/" target="_blank" style="color:var(--muted)">#3128</a></span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/traffic-shifting-using-aws-lambda/overview/" target="_blank" style="color:inherit;text-decoration:none">Traffic Shifting Using AWS Lambda</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/traffic-shifting-using-aws-lambda/overview/" target="_blank" style="color:var(--muted)">#3128</a></span> <span class="v v-opt">🟡 Nếu dời 11-09</span></div>
           <ul class="tasks-list">
             <li>Create multiple versions in Lambda</li>
             <li>Route traffic using weighted alias</li>
@@ -670,7 +834,7 @@
       <tr>
         <td><input type="checkbox" class="checkbox"></td>
         <td>
-          <div class="lab-title"><a href="https://viettel.udemy.com/labs/monitoring-aws-resources-using-cloudwatch-dashboards-and-widgets/overview/" target="_blank" style="color:inherit;text-decoration:none">Monitoring AWS Resources using CloudWatch Dashboards and Widgets</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/monitoring-aws-resources-using-cloudwatch-dashboards-and-widgets/overview/" target="_blank" style="color:var(--muted)">#326</a></span> <span class="overlap-tag">Maarek</span></div>
+          <div class="lab-title"><a href="https://viettel.udemy.com/labs/monitoring-aws-resources-using-cloudwatch-dashboards-and-widgets/overview/" target="_blank" style="color:inherit;text-decoration:none">Monitoring AWS Resources using CloudWatch Dashboards and Widgets</a> <span class="lab-id"><a href="https://viettel.udemy.com/labs/monitoring-aws-resources-using-cloudwatch-dashboards-and-widgets/overview/" target="_blank" style="color:var(--muted)">#326</a></span> <span class="overlap-tag">Maarek</span> <span class="v v-skip">⏭ Bỏ qua: Dashboard = vận hành</span></div>
           <ul class="tasks-list">
             <li>Create CloudWatch Dashboard for EC2 health</li>
             <li>Create CloudWatch Widgets for instance metrics</li>
@@ -977,7 +1141,7 @@
 </div>
 
 <div class="footer">
-  Updated Sep 14, 2026 — AWS SAP-C02 Udemy Labs Priority Report<br>
+  Updated Oct 27, 2026 (thêm kế hoạch 10-27, Whizlabs mapping, 6 hướng dẫn Claude) · created Sep 14, 2026 — AWS SAP-C02 Udemy Labs Priority Report<br>
   Data source: viettel.udemy.com API • 53 total AWS labs (17 High + 14 Medium + 21 Low + 1 JP duplicate) • 11 by Stéphane Maarek
 </div>
 

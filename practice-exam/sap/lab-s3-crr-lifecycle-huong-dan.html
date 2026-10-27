@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hands-on Lab: S3 Cross-Region Replication + Lifecycle</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2433;--muted:#5d6779;--line:#e2e6ee;--accent:#ff9900;--accent2:#232f3e;--code:#f0f2f6;--ok:#1a7f4b;--warn:#fff6e0;--warnl:#e6a700;--info:#e8f1ff;--infol:#3b7ddd}
+@media(prefers-color-scheme:dark){:root{--bg:#12161d;--card:#1b212c;--text:#e7eaf0;--muted:#98a2b3;--line:#2c3544;--code:#252d3b;--ok:#4cc38a;--warn:#2d2610;--warnl:#d9a520;--info:#15243b;--infol:#5b9bf0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+header{background:var(--accent2);color:#fff;padding:36px 16px}
+header .w,main,.toc{max-width:920px;margin:0 auto}
+header small{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+header h1{margin:6px 0 10px;font-size:1.8rem;line-height:1.25}
+header p{margin:0;color:#c9d1dc}
+main{padding:0 16px 60px}
+.toc{padding:20px 16px 0}
+.toc ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;list-style:none;padding:0;margin:0;counter-reset:t}
+.toc li{counter-increment:t}
+.toc a{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--text);text-decoration:none;font-size:.92rem}
+.toc a:before{content:counter(t);display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--accent);color:#111;font-weight:700;font-size:.8rem;margin-right:8px}
+.toc a:hover{border-color:var(--accent)}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 20px;margin-top:22px}
+h2{margin:0 0 6px;font-size:1.3rem}
+h2 .n{display:inline-block;background:var(--accent);color:#111;border-radius:6px;padding:0 9px;margin-right:8px;font-size:1rem}
+h3{margin:22px 0 8px;font-size:1.05rem;border-left:4px solid var(--accent);padding-left:10px}
+.goal{color:var(--muted);margin:0 0 6px}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:8px 0}
+ol.steps>li{counter-increment:s;position:relative;padding:8px 8px 8px 44px;border-radius:8px}
+ol.steps>li:before{content:counter(s);position:absolute;left:8px;top:9px;width:26px;height:26px;border-radius:50%;background:var(--accent2);color:#fff;font-size:.8rem;text-align:center;line-height:26px}
+ol.steps>li.done{opacity:.55}
+ol.steps>li.done:before{content:"✓";background:var(--ok)}
+ol.steps>li label{cursor:pointer;display:block}
+ol.steps input[type=checkbox]{position:absolute;right:6px;top:12px}
+code,.kv{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:.88em}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--code);width:34%}
+.tw{overflow-x:auto}
+.note,.warn{border-left:4px solid var(--infol);background:var(--info);padding:10px 14px;border-radius:6px;margin:12px 0;font-size:.94rem}
+.warn{border-color:var(--warnl);background:var(--warn)}
+.cp{cursor:pointer;border:1px dashed var(--line)}
+.cp:hover{border-color:var(--accent)}
+.cp.ok{border-color:var(--ok);background:var(--code)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow span.b{background:var(--accent2);color:#fff;padding:8px 12px;border-radius:8px;font-size:.85rem}
+.flow span.b.o{background:var(--accent);color:#111}
+.flow i{font-style:normal;color:var(--muted)}
+.bar{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:8px 16px;font-size:.88rem;display:flex;gap:12px;align-items:center}
+.bar .pg{flex:1;height:8px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar .pg div{height:100%;width:0;background:var(--ok);transition:width .2s}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:0 16px 40px}
+@media print{.bar{display:none}section.card{break-inside:avoid-page}}
+</style>
+</head>
+<body>
+<header><div class="w">
+<small>AWS Hands-on Lab · Storage &amp; DR · SAP-C02</small>
+<h1>S3 Cross-Region Replication + Lifecycle</h1>
+<p>Dựng CRR giữa 2 region bằng AWS CLI, quan sát replication status, delete marker, rồi cấu hình Lifecycle (transition, noncurrent version, multipart). Ước lượng 30-40 phút, chi phí gần như bằng 0.</p>
+</div></header>
+
+<div class="bar"><span id="pt">0/0 bước</span><div class="pg"><div id="pb"></div></div></div>
+
+<nav class="toc"><ol>
+<li><a href="#ov">Tổng quan &amp; liên hệ đề thi</a></li>
+<li><a href="#t1">Chuẩn bị: 2 bucket + versioning</a></li>
+<li><a href="#t2">IAM replication role</a></li>
+<li><a href="#t3">put-bucket-replication</a></li>
+<li><a href="#t4">Kiểm tra status &amp; delete marker</a></li>
+<li><a href="#t5">Lifecycle rules</a></li>
+<li><a href="#t6">Mở rộng: KMS, RTC, Batch, SRR</a></li>
+<li><a href="#t7">💥 Phá thử</a></li>
+<li><a href="#t8">🧹 Dọn dẹp</a></li>
+<li><a href="#t9">🎯 3 câu hỏi kiểu đề</a></li>
+<li><a href="#t10">📌 Quy tắc ghi nhớ</a></li>
+</ol></nav>
+
+<main>
+
+<section class="card" id="ov">
+<h2>Tổng quan &amp; kịch bản</h2>
+<p>Công ty cần bản sao dữ liệu ở region khác phục vụ DR/compliance, đồng thời giảm chi phí lưu trữ bằng Lifecycle. Bạn sẽ dựng bucket nguồn + bucket đích, bật replication, rồi kiểm chứng các hành vi "bẫy" hay gặp trong đề.</p>
+<div class="flow">
+<span class="b">Bucket nguồn<br>us-east-1 (versioning)</span><i>→ async replicate (role) →</i><span class="b o">Bucket đích<br>us-west-2 (versioning)</span>
+</div>
+<div class="flow">
+<span class="b">Standard</span><i>→ 30d →</i><span class="b">Standard-IA</span><i>→ 90d →</i><span class="b">Glacier Flexible</span><i>→ 365d →</i><span class="b">Deep Archive</span>
+</div>
+<div class="tw"><table>
+<tr><th>Môi trường</th><td>Sandbox account, AWS CLI v2 (đã <code>aws configure</code>), bash. Giữ <b>cùng một terminal</b> để các biến còn hiệu lực.</td></tr>
+<tr><th>Region</th><td>Nguồn <code>us-east-1</code>, đích <code>us-west-2</code></td></tr>
+<tr><th>Chi phí</th><td>Vài object nhỏ: dưới 0.01 USD. Phí replication = request + inter-region data transfer.</td></tr>
+<tr><th>Lưu ý thời gian</th><td>Lifecycle chạy bất đồng bộ (theo ngày, nửa đêm UTC) nên trong lab chỉ <b>xác nhận cấu hình</b>, không chờ transition thật.</td></tr>
+</table></div>
+<div class="note"><b>Liên hệ đề thi</b> — lab này sửa các bẫy:
+<ul>
+<li>Quên bật <b>versioning</b> ở cả 2 bucket thì không tạo được replication.</li>
+<li>Object có <b>trước</b> khi tạo rule không tự replicate (cần S3 Batch Replication).</li>
+<li><b>Delete marker</b> mặc định không replicate; xóa theo version ID không bao giờ replicate; xóa do lifecycle cũng không replicate.</li>
+<li>Object <b>SSE-KMS</b> cần cấu hình thêm; yêu cầu SLA 15 phút = <b>RTC</b>.</li>
+<li>Lifecycle: Standard → IA tối thiểu 30 ngày; min storage duration; truy cập không đoán được thì Intelligent-Tiering.</li>
+</ul></div>
+<div class="note">Mẹo: bấm vào ô có viền nét đứt để copy. Tick checkbox bên phải mỗi bước để theo dõi tiến độ.</div>
+</section>
+
+<section class="card" id="t1">
+<h2><span class="n">1</span>Chuẩn bị: 2 bucket, bật versioning</h2>
+<p class="goal">Replication yêu cầu versioning <b>Enabled</b> ở cả bucket nguồn và đích.</p>
+<ol class="steps">
+<li>Khai báo biến (tên bucket phải unique toàn cầu).
+<div class="tw"><table><tr><td><code class="cp" data-c='export SRC=sap-crr-src-$RANDOM DST=sap-crr-dst-$RANDOM SR=us-east-1 DR=us-west-2 ACCT=$(aws sts get-caller-identity --query Account --output text); echo $SRC $DST $ACCT'>export SRC=sap-crr-src-$RANDOM DST=sap-crr-dst-$RANDOM SR=us-east-1 DR=us-west-2 ACCT=$(aws sts get-caller-identity --query Account --output text); echo $SRC $DST $ACCT</code></td></tr></table></div></li>
+<li>Tạo bucket nguồn ở us-east-1 (không có <code>LocationConstraint</code>) và bucket đích ở us-west-2 (bắt buộc có).
+<div class="tw"><table><tr><td><code class="cp" data-c='aws s3api create-bucket --bucket $SRC --region $SR && aws s3api create-bucket --bucket $DST --region $DR --create-bucket-configuration LocationConstraint=$DR'>aws s3api create-bucket --bucket $SRC --region $SR &amp;&amp; aws s3api create-bucket --bucket $DST --region $DR --create-bucket-configuration LocationConstraint=$DR</code></td></tr></table></div></li>
+<li>🔮 <b>Dự đoán:</b> nếu bạn thử tạo replication ngay bây giờ (chưa bật versioning), AWS trả gì? (Sẽ thử ở mục Phá thử.) Bật versioning cho cả hai:
+<div class="tw"><table><tr><td><code class="cp" data-c='aws s3api put-bucket-versioning --bucket $SRC --versioning-configuration Status=Enabled --region $SR && aws s3api put-bucket-versioning --bucket $DST --versioning-configuration Status=Enabled --region $DR'>aws s3api put-bucket-versioning --bucket $SRC --versioning-configuration Status=Enabled --region $SR &amp;&amp; aws s3api put-bucket-versioning --bucket $DST --versioning-configuration Status=Enabled --region $DR</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Lệnh không in gì khi thành công. Kiểm tra: <code>aws s3api get-bucket-versioning --bucket $SRC</code> trả <code>{"Status": "Enabled"}</code>.</details></li>
+<li>Upload một object <b>trước khi</b> có replication rule (dùng cho mục Phá thử).
+<div class="tw"><table><tr><td><code class="cp" data-c='echo "truoc-khi-bat-replication" > old.txt && aws s3 cp old.txt s3://$SRC/old.txt --region $SR'>echo "truoc-khi-bat-replication" &gt; old.txt &amp;&amp; aws s3 cp old.txt s3://$SRC/old.txt --region $SR</code></td></tr></table></div></li>
+</ol>
+</section>
+
+<section class="card" id="t2">
+<h2><span class="n">2</span>IAM replication role</h2>
+<p class="goal">S3 assume role này để đọc object ở nguồn và ghi vào đích. Trust principal là <code>s3.amazonaws.com</code>.</p>
+<ol class="steps">
+<li>Tạo trust policy và role.
+<div class="tw"><table><tr><td><code class="cp" data-c='cat > trust.json <<EOF
+{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"s3.amazonaws.com"},"Action":"sts:AssumeRole"}]}
+EOF
+aws iam create-role --role-name s3-crr-role --assume-role-policy-document file://trust.json'>cat &gt; trust.json &lt;&lt;EOF
+{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"s3.amazonaws.com"},"Action":"sts:AssumeRole"}]}
+EOF
+aws iam create-role --role-name s3-crr-role --assume-role-policy-document file://trust.json</code></td></tr></table></div></li>
+<li>Tạo permission policy (inline). Quyền chia 3 nhóm: cấu hình + list ở bucket nguồn; đọc version ở object nguồn; ghi replica ở object đích.
+<div class="tw"><table><tr><td><code class="cp" data-c='cat > perm.json <<EOF
+{"Version":"2012-10-17","Statement":[
+{"Effect":"Allow","Action":["s3:GetReplicationConfiguration","s3:ListBucket"],"Resource":"arn:aws:s3:::$SRC"},
+{"Effect":"Allow","Action":["s3:GetObjectVersionForReplication","s3:GetObjectVersionAcl","s3:GetObjectVersionTagging"],"Resource":"arn:aws:s3:::$SRC/*"},
+{"Effect":"Allow","Action":["s3:ReplicateObject","s3:ReplicateDelete","s3:ReplicateTags"],"Resource":"arn:aws:s3:::$DST/*"}]}
+EOF
+aws iam put-role-policy --role-name s3-crr-role --policy-name crr-perm --policy-document file://perm.json'>cat &gt; perm.json &lt;&lt;EOF
+{"Version":"2012-10-17","Statement":[
+{"Effect":"Allow","Action":["s3:GetReplicationConfiguration","s3:ListBucket"],"Resource":"arn:aws:s3:::$SRC"},
+{"Effect":"Allow","Action":["s3:GetObjectVersionForReplication","s3:GetObjectVersionAcl","s3:GetObjectVersionTagging"],"Resource":"arn:aws:s3:::$SRC/*"},
+{"Effect":"Allow","Action":["s3:ReplicateObject","s3:ReplicateDelete","s3:ReplicateTags"],"Resource":"arn:aws:s3:::$DST/*"}]}
+EOF
+aws iam put-role-policy --role-name s3-crr-role --policy-name crr-perm --policy-document file://perm.json</code></td></tr></table></div>
+<div class="note">Nếu bucket đích thuộc <b>account khác</b>: bucket đích cần bucket policy cho phép role này (<code>ReplicateObject</code>, <code>ReplicateDelete</code>, <code>ObjectOwnerOverrideToBucketOwner</code> nếu muốn đổi owner). Lab này dùng cùng account.</div></li>
+<li>Chờ khoảng 10 giây cho IAM propagate rồi sang bước 3.</li>
+</ol>
+</section>
+
+<section class="card" id="t3">
+<h2><span class="n">3</span>put-bucket-replication</h2>
+<p class="goal">Rule V2 (có <code>Filter</code> + <code>Priority</code>) replicate toàn bucket, lưu replica ở Standard-IA, ban đầu <b>tắt</b> DeleteMarkerReplication.</p>
+<ol class="steps">
+<li>Tạo file cấu hình replication.
+<div class="tw"><table><tr><td><code class="cp" data-c='cat > repl.json <<EOF
+{"Role":"arn:aws:iam::$ACCT:role/s3-crr-role",
+ "Rules":[{"ID":"crr-all","Priority":1,"Status":"Enabled","Filter":{},
+  "DeleteMarkerReplication":{"Status":"Disabled"},
+  "Destination":{"Bucket":"arn:aws:s3:::$DST","StorageClass":"STANDARD_IA"}}]}
+EOF
+python3 -c "import json;json.load(open(\"repl.json\"));print(\"JSON ok\")"'>cat &gt; repl.json &lt;&lt;EOF
+{"Role":"arn:aws:iam::$ACCT:role/s3-crr-role",
+ "Rules":[{"ID":"crr-all","Priority":1,"Status":"Enabled","Filter":{},
+  "DeleteMarkerReplication":{"Status":"Disabled"},
+  "Destination":{"Bucket":"arn:aws:s3:::$DST","StorageClass":"STANDARD_IA"}}]}
+EOF
+python3 -c "import json;json.load(open('repl.json'));print('JSON ok')"</code></td></tr></table></div></li>
+<li>🔮 <b>Dự đoán:</b> object <code>old.txt</code> đã upload ở bước 1 có xuất hiện ở bucket đích sau khi rule được tạo không? Áp dụng cấu hình:
+<div class="tw"><table><tr><td><code class="cp" data-c='aws s3api put-bucket-replication --bucket $SRC --replication-configuration file://repl.json --region $SR && aws s3api get-bucket-replication --bucket $SRC --region $SR'>aws s3api put-bucket-replication --bucket $SRC --replication-configuration file://repl.json --region $SR &amp;&amp; aws s3api get-bucket-replication --bucket $SRC --region $SR</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Rule được tạo, <code>get-bucket-replication</code> in lại JSON với <code>"Status": "Enabled"</code>. <code>old.txt</code> <b>không</b> được replicate (chỉ object mới sau khi rule có hiệu lực). Kiểm tra: <code>aws s3 ls s3://$DST --region $DR</code> sẽ rỗng. Nếu gặp lỗi "Unable to assume role / invalid role" thì đợi thêm vài giây rồi chạy lại.</details></li>
+</ol>
+</section>
+
+<section class="card" id="t4">
+<h2><span class="n">4</span>Kiểm tra replication status &amp; delete marker</h2>
+<p class="goal">Quan sát PENDING → COMPLETED trên nguồn, REPLICA trên đích, và hành vi của delete marker.</p>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> status của object mới ngay sau khi upload là gì? Còn ở bucket đích?
+<div class="tw"><table><tr><td><code class="cp" data-c='echo "v1" > new1.txt && aws s3 cp new1.txt s3://$SRC/new1.txt --region $SR && aws s3api head-object --bucket $SRC --key new1.txt --region $SR --query ReplicationStatus'>echo "v1" &gt; new1.txt &amp;&amp; aws s3 cp new1.txt s3://$SRC/new1.txt --region $SR &amp;&amp; aws s3api head-object --bucket $SRC --key new1.txt --region $SR --query ReplicationStatus</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Ngay sau upload thường là <code>"PENDING"</code>; lặp lại lệnh <code>head-object</code> sau vài giây đến vài phút sẽ thành <code>"COMPLETED"</code> (không có SLA nếu chưa bật RTC). Nếu rule lỗi (thiếu quyền...) sẽ là <code>"FAILED"</code>. Trên đích: <code>aws s3api head-object --bucket $DST --key new1.txt --region $DR --query '[ReplicationStatus,StorageClass]'</code> cho <code>["REPLICA", "STANDARD_IA"]</code>. (Ví dụ, thời gian thực tế thay đổi.)</details></li>
+<li>Replicate object cũ bằng cách tạo version mới của nó (copy đè lên chính nó). Đây là mẹo cho lab; thực tế dùng <b>S3 Batch Replication</b> cho lượng lớn.
+<div class="tw"><table><tr><td><code class="cp" data-c='aws s3 cp s3://$SRC/old.txt s3://$SRC/old.txt --metadata-directive REPLACE --region $SR && sleep 20 && aws s3 ls s3://$DST --region $DR'>aws s3 cp s3://$SRC/old.txt s3://$SRC/old.txt --metadata-directive REPLACE --region $SR &amp;&amp; sleep 20 &amp;&amp; aws s3 ls s3://$DST --region $DR</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Bucket đích giờ có <code>old.txt</code> (version mới) và <code>new1.txt</code>. Version cũ của <code>old.txt</code> vẫn chỉ nằm ở nguồn.</details></li>
+<li>🔮 <b>Dự đoán:</b> xóa <code>new1.txt</code> ở nguồn (không chỉ version ID) thì bucket đích có bị xóa không?
+<div class="tw"><table><tr><td><code class="cp" data-c='aws s3 rm s3://$SRC/new1.txt --region $SR && sleep 20 && aws s3api list-object-versions --bucket $DST --region $DR --query "{Versions:Versions[].[Key,VersionId],Markers:DeleteMarkers[].Key}"'>aws s3 rm s3://$SRC/new1.txt --region $SR &amp;&amp; sleep 20 &amp;&amp; aws s3api list-object-versions --bucket $DST --region $DR --query "{Versions:Versions[].[Key,VersionId],Markers:DeleteMarkers[].Key}"</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Nguồn tạo <b>delete marker</b>, nhưng đích vẫn còn <code>new1.txt</code> và <code>Markers</code> là <code>null</code>, vì <code>DeleteMarkerReplication</code> đang <code>Disabled</code>. Xóa <b>theo version ID</b> thì không bao giờ replicate (chống xóa độc hại).</details></li>
+<li>Bật replicate delete marker: sửa <code>repl.json</code> rồi áp dụng lại, sau đó upload + xóa <code>new2.txt</code>.
+<div class="tw"><table><tr><td><code class="cp" data-c='sed -i "s/\"DeleteMarkerReplication\":{\"Status\":\"Disabled\"}/\"DeleteMarkerReplication\":{\"Status\":\"Enabled\"}/" repl.json && aws s3api put-bucket-replication --bucket $SRC --replication-configuration file://repl.json --region $SR && echo v > new2.txt && aws s3 cp new2.txt s3://$SRC/new2.txt --region $SR && sleep 20 && aws s3 rm s3://$SRC/new2.txt --region $SR && sleep 20 && aws s3api list-object-versions --bucket $DST --region $DR --query "DeleteMarkers[].Key"'>sed -i 's/"DeleteMarkerReplication":{"Status":"Disabled"}/"DeleteMarkerReplication":{"Status":"Enabled"}/' repl.json &amp;&amp; aws s3api put-bucket-replication --bucket $SRC --replication-configuration file://repl.json --region $SR &amp;&amp; echo v &gt; new2.txt &amp;&amp; aws s3 cp new2.txt s3://$SRC/new2.txt --region $SR &amp;&amp; sleep 20 &amp;&amp; aws s3 rm s3://$SRC/new2.txt --region $SR &amp;&amp; sleep 20 &amp;&amp; aws s3api list-object-versions --bucket $DST --region $DR --query "DeleteMarkers[].Key"</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Đích có delete marker cho <code>new2.txt</code>, ví dụ <code>["new2.txt"]</code>. Delete marker tạo <b>trước</b> khi bật tùy chọn (của <code>new1.txt</code>) không được replicate bù.</details></li>
+</ol>
+</section>
+
+<section class="card" id="t5">
+<h2><span class="n">5</span>Lifecycle rules</h2>
+<p class="goal">Cấu hình tiering cho prefix <code>logs/</code>, dọn noncurrent version, multipart dở dang, expired delete marker.</p>
+<ol class="steps">
+<li>Tạo <code>lc.json</code> gồm 2 rule.
+<div class="tw"><table><tr><td><code class="cp" data-c='cat > lc.json <<EOF
+{"Rules":[
+ {"ID":"tier-logs","Status":"Enabled","Filter":{"Prefix":"logs/"},
+  "Transitions":[{"Days":30,"StorageClass":"STANDARD_IA"},{"Days":90,"StorageClass":"GLACIER"},{"Days":365,"StorageClass":"DEEP_ARCHIVE"}],
+  "NoncurrentVersionTransitions":[{"NoncurrentDays":30,"StorageClass":"GLACIER"}],
+  "NoncurrentVersionExpiration":{"NoncurrentDays":120,"NewerNoncurrentVersions":2}},
+ {"ID":"hygiene","Status":"Enabled","Filter":{},
+  "AbortIncompleteMultipartUpload":{"DaysAfterInitiation":7},
+  "Expiration":{"ExpiredObjectDeleteMarker":true}}]}
+EOF
+python3 -c "import json;json.load(open(\"lc.json\"));print(\"JSON ok\")"'>cat &gt; lc.json &lt;&lt;EOF
+{"Rules":[
+ {"ID":"tier-logs","Status":"Enabled","Filter":{"Prefix":"logs/"},
+  "Transitions":[{"Days":30,"StorageClass":"STANDARD_IA"},{"Days":90,"StorageClass":"GLACIER"},{"Days":365,"StorageClass":"DEEP_ARCHIVE"}],
+  "NoncurrentVersionTransitions":[{"NoncurrentDays":30,"StorageClass":"GLACIER"}],
+  "NoncurrentVersionExpiration":{"NoncurrentDays":120,"NewerNoncurrentVersions":2}},
+ {"ID":"hygiene","Status":"Enabled","Filter":{},
+  "AbortIncompleteMultipartUpload":{"DaysAfterInitiation":7},
+  "Expiration":{"ExpiredObjectDeleteMarker":true}}]}
+EOF
+python3 -c "import json;json.load(open('lc.json'));print('JSON ok')"</code></td></tr></table></div></li>
+<li>🔮 <b>Dự đoán:</b> sau khi áp dụng, object <code>logs/a.log</code> có chuyển sang Standard-IA ngay không? Áp dụng và đọc lại:
+<div class="tw"><table><tr><td><code class="cp" data-c='aws s3api put-bucket-lifecycle-configuration --bucket $SRC --lifecycle-configuration file://lc.json --region $SR && aws s3api get-bucket-lifecycle-configuration --bucket $SRC --region $SR --query "Rules[].ID"'>aws s3api put-bucket-lifecycle-configuration --bucket $SRC --lifecycle-configuration file://lc.json --region $SR &amp;&amp; aws s3api get-bucket-lifecycle-configuration --bucket $SRC --region $SR --query "Rules[].ID"</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>In <code>["tier-logs", "hygiene"]</code>. Không có object nào chuyển ngay: transition tính theo tuổi object (Days), chạy bất đồng bộ. Ghi chú: cấu hình tạo/sửa sau 09/2024 mặc định không transition object nhỏ hơn 128 KB (đổi bằng header <code>x-amz-transition-default-minimum-object-size</code>).</details></li>
+<li>Lưu ý quan trọng: <b>Lifecycle không được replicate</b>. Muốn cùng quy tắc ở bucket đích, phải áp dụng riêng.
+<div class="tw"><table><tr><td><code class="cp" data-c='aws s3api put-bucket-lifecycle-configuration --bucket $DST --lifecycle-configuration file://lc.json --region $DR'>aws s3api put-bucket-lifecycle-configuration --bucket $DST --lifecycle-configuration file://lc.json --region $DR</code></td></tr></table></div></li>
+<li>Đối chiếu bảng min storage duration (chi phí phạt nếu xóa/chuyển sớm):
+<div class="tw"><table>
+<tr><th>Storage class</th><th>Min duration</th><th>Ghi chú</th></tr>
+<tr><td>Standard-IA / One Zone-IA</td><td>30 ngày</td><td>Transition từ Standard tối thiểu 30 ngày; min billable size 128 KB; có retrieval fee</td></tr>
+<tr><td>Glacier Instant Retrieval</td><td>90 ngày</td><td>Truy xuất mili giây</td></tr>
+<tr><td>Glacier Flexible Retrieval</td><td>90 ngày</td><td>Phút đến giờ; thêm ~40 KB metadata/object</td></tr>
+<tr><td>Glacier Deep Archive</td><td>180 ngày</td><td>Rẻ nhất; truy xuất tới 12-48 giờ</td></tr>
+<tr><td>Intelligent-Tiering</td><td>Không</td><td>Phí monitoring/object, không retrieval fee; object dưới 128 KB không được tiering</td></tr>
+</table></div>
+<div class="warn">Trong <code>lc.json</code>, noncurrent version vào Glacier ở ngày 30 và hết hạn ở ngày 120 = 90 ngày trong Glacier, vừa đủ min duration. Nếu đặt hết hạn ở ngày 60 vẫn bị tính đủ 90 ngày. Thông tin theo tài liệu hiện hành; AWS có thể nới giới hạn mới, nhưng đề thi vẫn dựa trên con số 30/90/180.</div></li>
+<li><b>Intelligent-Tiering hay Lifecycle?</b> Pattern truy cập <b>biết trước</b> (log cũ dần ít đọc) thì Lifecycle rẻ hơn. Pattern <b>không đoán được / thay đổi</b> thì Intelligent-Tiering tự chuyển tier mà không có retrieval fee và không min duration; vẫn có thể kết hợp (Lifecycle chuyển vào INTELLIGENT_TIERING).</li>
+</ol>
+</section>
+
+<section class="card" id="t6">
+<h2><span class="n">6</span>Mở rộng (đọc, không chạy)</h2>
+<p class="goal">Các biến thể cấu hình hay xuất hiện trong đề.</p>
+<h3>SSE-KMS</h3>
+<p>Mặc định object mã hóa bằng KMS key <b>không</b> được replicate. Thêm vào rule:</p>
+<div class="tw"><table><tr><td><code>"SourceSelectionCriteria":{"SseKmsEncryptedObjects":{"Status":"Enabled"}}</code> và trong <code>Destination</code>: <code>"EncryptionConfiguration":{"ReplicaKmsKeyID":"arn:aws:kms:us-west-2:ACCOUNT:key/KEY_ID"}</code>. Role cần thêm <code>kms:Decrypt</code> trên key nguồn và <code>kms:Encrypt</code> trên key đích (KMS key là regional nên phải có key ở region đích).</td></tr></table></div>
+<h3>Replication Time Control (RTC)</h3>
+<p>SLA: 99.99% object replicate trong 15 phút, kèm metrics + event. Có phụ phí. Cần cả <code>ReplicationTime</code> và <code>Metrics</code>:</p>
+<div class="tw"><table><tr><td><code>"Destination":{"Bucket":"...","ReplicationTime":{"Status":"Enabled","Time":{"Minutes":15}},"Metrics":{"Status":"Enabled","EventThreshold":{"Minutes":15}}}</code></td></tr></table></div>
+<h3>Object cũ: S3 Batch Replication</h3>
+<p>Replication rule chỉ xử lý object mới. Dùng <b>S3 Batch Replication</b> (S3 Batch Operations job) để replicate object đã tồn tại và retry object <code>FAILED</code>. Console có tùy chọn "Replicate existing objects?" khi tạo rule.</p>
+<h3>CRR vs SRR</h3>
+<div class="tw"><table>
+<tr><th>CRR (khác region)</th><td>DR/compliance cách xa địa lý, giảm latency cho user vùng khác, tuân thủ lưu dữ liệu ở region khác</td></tr>
+<tr><th>SRR (cùng region)</th><td>Gom log về 1 bucket, replicate prod → test, giữ bản sao dưới account khác/chủ sở hữu khác (data sovereignty trong cùng region)</td></tr>
+<tr><th>Chung</th><td>Async, cần versioning, không replicate chuỗi (A→B→C thì object replica ở B không đi tiếp sang C), replicate hai chiều dùng 2 rule + replica modification sync</td></tr>
+</table></div>
+</section>
+
+<section class="card" id="t7">
+<h2><span class="n">7</span>💥 Phá thử</h2>
+<p class="goal">Cố ý làm sai để thấy lỗi và hành vi thật.</p>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> tạo replication cho bucket <b>chưa bật versioning</b>?
+<div class="tw"><table><tr><td><code class="cp" data-c='export BAD=sap-crr-bad-$RANDOM; aws s3api create-bucket --bucket $BAD --region $SR && aws s3api put-bucket-replication --bucket $BAD --replication-configuration file://repl.json --region $SR'>export BAD=sap-crr-bad-$RANDOM; aws s3api create-bucket --bucket $BAD --region $SR &amp;&amp; aws s3api put-bucket-replication --bucket $BAD --replication-configuration file://repl.json --region $SR</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Lỗi <code>InvalidRequest</code> kiểu "Versioning must be 'Enabled' on the bucket to apply a replication configuration" (ví dụ, câu chữ có thể khác). Xóa bucket thử: <code>aws s3api delete-bucket --bucket $BAD --region $SR</code>.</details></li>
+<li>🔮 <b>Dự đoán:</b> <code>old.txt</code> gốc (version upload trước khi có rule) có <code>ReplicationStatus</code> gì?
+<div class="tw"><table><tr><td><code class="cp" data-c='aws s3api list-object-versions --bucket $SRC --prefix old.txt --region $SR --query "Versions[].[VersionId,IsLatest]" && aws s3api head-object --bucket $SRC --key old.txt --version-id VERSION_ID_CU --region $SR'>aws s3api list-object-versions --bucket $SRC --prefix old.txt --region $SR --query "Versions[].[VersionId,IsLatest]" &amp;&amp; aws s3api head-object --bucket $SRC --key old.txt --version-id VERSION_ID_CU --region $SR</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Thay <code>VERSION_ID_CU</code> bằng version có <code>IsLatest=false</code>. Output <b>không có</b> trường <code>ReplicationStatus</code>: version này chưa bao giờ được xếp hàng replicate. Chỉ version mới (do copy đè) có <code>COMPLETED</code>.</details></li>
+<li>🔮 <b>Dự đoán:</b> thu hồi quyền ghi của role rồi upload file mới thì status là gì?
+<div class="tw"><table><tr><td><code class="cp" data-c='aws iam delete-role-policy --role-name s3-crr-role --policy-name crr-perm && echo x > broken.txt && aws s3 cp broken.txt s3://$SRC/broken.txt --region $SR && sleep 30 && aws s3api head-object --bucket $SRC --key broken.txt --region $SR --query ReplicationStatus'>aws iam delete-role-policy --role-name s3-crr-role --policy-name crr-perm &amp;&amp; echo x &gt; broken.txt &amp;&amp; aws s3 cp broken.txt s3://$SRC/broken.txt --region $SR &amp;&amp; sleep 30 &amp;&amp; aws s3api head-object --bucket $SRC --key broken.txt --region $SR --query ReplicationStatus</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Thường chuyển thành <code>"FAILED"</code> (có thể mất lâu hơn 30 giây). Object không xuất hiện ở đích. Khôi phục: chạy lại <code>aws iam put-role-policy ... file://perm.json</code> từ mục 2, rồi dùng Batch Replication/copy đè để replicate lại object FAILED.</details></li>
+<li>🔮 <b>Dự đoán:</b> đặt Standard → Standard-IA sau 10 ngày có được không?
+<div class="tw"><table><tr><td><code class="cp" data-c='cat > lc-bad.json <<EOF
+{"Rules":[{"ID":"bad","Status":"Enabled","Filter":{},"Transitions":[{"Days":10,"StorageClass":"STANDARD_IA"}]}]}
+EOF
+aws s3api put-bucket-lifecycle-configuration --bucket $SRC --lifecycle-configuration file://lc-bad.json --region $SR'>cat &gt; lc-bad.json &lt;&lt;EOF
+{"Rules":[{"ID":"bad","Status":"Enabled","Filter":{},"Transitions":[{"Days":10,"StorageClass":"STANDARD_IA"}]}]}
+EOF
+aws s3api put-bucket-lifecycle-configuration --bucket $SRC --lifecycle-configuration file://lc-bad.json --region $SR</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Theo tài liệu truyền thống, lỗi <code>InvalidArgument</code>: Days trong Transition phải &ge; 30 cho STANDARD_IA (ví dụ câu chữ). Nếu AWS đã nới và lệnh thành công, lệnh này <b>ghi đè</b> lifecycle cũ: chạy lại <code>put-bucket-lifecycle-configuration</code> với <code>lc.json</code>. Với đề thi vẫn nhớ quy tắc 30 ngày.</details></li>
+</ol>
+</section>
+
+<section class="card" id="t8">
+<h2><span class="n">8</span>🧹 Dọn dẹp</h2>
+<p class="goal">Bucket có versioning: <code>aws s3 rb --force</code> hoặc <code>rm --recursive</code> chỉ tạo delete marker, KHÔNG xóa version. Phải xóa mọi version và delete marker trước.</p>
+<ol class="steps">
+<li>Gỡ replication để tránh phát sinh delete marker mới:
+<div class="tw"><table><tr><td><code class="cp" data-c='aws s3api delete-bucket-replication --bucket $SRC --region $SR'>aws s3api delete-bucket-replication --bucket $SRC --region $SR</code></td></tr></table></div></li>
+<li>Định nghĩa hàm dọn (xóa tối đa 1000 key/lần, đủ cho lab). Lỗi "Objects: null" nghĩa là danh sách rỗng và được bỏ qua.
+<div class="tw"><table><tr><td><code class="cp" data-c='empty_bucket(){ for K in Versions DeleteMarkers; do aws s3api list-object-versions --bucket "$1" --region "$2" --query "{Objects: $K[].{Key:Key,VersionId:VersionId}}" --output json > /tmp/del.json; if ! grep -q "\"Objects\": null" /tmp/del.json; then aws s3api delete-objects --bucket "$1" --region "$2" --delete file:///tmp/del.json > /dev/null; fi; done; }'>empty_bucket(){ for K in Versions DeleteMarkers; do aws s3api list-object-versions --bucket "$1" --region "$2" --query "{Objects: $K[].{Key:Key,VersionId:VersionId}}" --output json &gt; /tmp/del.json; if ! grep -q "\"Objects\": null" /tmp/del.json; then aws s3api delete-objects --bucket "$1" --region "$2" --delete file:///tmp/del.json &gt; /dev/null; fi; done; }</code></td></tr></table></div></li>
+<li>Xóa toàn bộ version + marker rồi xóa 2 bucket (rỗng mới xóa được):
+<div class="tw"><table><tr><td><code class="cp" data-c='empty_bucket $SRC $SR; empty_bucket $DST $DR; aws s3api delete-bucket --bucket $SRC --region $SR; aws s3api delete-bucket --bucket $DST --region $DR'>empty_bucket $SRC $SR; empty_bucket $DST $DR; aws s3api delete-bucket --bucket $SRC --region $SR; aws s3api delete-bucket --bucket $DST --region $DR</code></td></tr></table></div></li>
+<li>Xóa IAM (inline policy trước, rồi role) và file tạm:
+<div class="tw"><table><tr><td><code class="cp" data-c='aws iam delete-role-policy --role-name s3-crr-role --policy-name crr-perm 2>/dev/null; aws iam delete-role --role-name s3-crr-role; rm -f old.txt new1.txt new2.txt broken.txt trust.json perm.json repl.json lc.json lc-bad.json /tmp/del.json'>aws iam delete-role-policy --role-name s3-crr-role --policy-name crr-perm 2&gt;/dev/null; aws iam delete-role --role-name s3-crr-role; rm -f old.txt new1.txt new2.txt broken.txt trust.json perm.json repl.json lc.json lc-bad.json /tmp/del.json</code></td></tr></table></div></li>
+<li>Xác nhận: <code>aws s3 ls | grep sap-crr</code> không còn bucket nào (hoặc xóa nốt <code>$BAD</code> nếu bước Phá thử 1 chưa xóa).</li>
+</ol>
+</section>
+
+<section class="card" id="t9">
+<h2><span class="n">9</span>🎯 3 câu hỏi kiểu đề</h2>
+<p class="goal">Tự suy nghĩ trước, rồi mở đáp án.</p>
+
+<h3>Câu 1</h3>
+<p>Một công ty đã lưu 40 TB log trong bucket S3 ở <code>eu-west-1</code>. Quy định mới yêu cầu có bản sao ở <code>eu-central-1</code> cho cả dữ liệu cũ lẫn mới, với lượng thay đổi vận hành tối thiểu. Giải pháp nào phù hợp?</p>
+<ol type="A">
+<li>Bật versioning ở cả 2 bucket, tạo CRR rule; dữ liệu cũ sẽ tự được sao chép sau vài giờ.</li>
+<li>Bật versioning ở cả 2 bucket, tạo CRR rule cho object mới, rồi chạy S3 Batch Replication cho object đã có.</li>
+<li>Tạo CRR rule mà không cần versioning vì bucket đích chỉ là bản sao.</li>
+<li>Dùng S3 Lifecycle rule để transition object sang bucket ở region khác.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>B.</b> Rule chỉ áp dụng cho object mới sau khi có hiệu lực (A sai); versioning là bắt buộc (C sai); lifecycle chỉ đổi storage class trong cùng bucket, không di chuyển giữa bucket/region (D sai). Batch Replication xử lý object tồn tại sẵn.</details>
+
+<h3>Câu 2</h3>
+<p>Ứng dụng tài chính ghi object vào bucket nguồn; hợp đồng yêu cầu 99.99% object xuất hiện ở region DR trong vòng 15 phút và phải có metrics để chứng minh. Cấu hình nào đáp ứng?</p>
+<ol type="A">
+<li>CRR mặc định, vì S3 replicate gần như tức thì.</li>
+<li>CRR với S3 Replication Time Control (RTC) và replication metrics.</li>
+<li>SRR sang bucket cùng region rồi dùng DataSync copy sang region DR.</li>
+<li>Bật Transfer Acceleration cho bucket đích.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>B.</b> Chỉ RTC có SLA 15 phút kèm metrics/event. CRR mặc định không có SLA (A sai). Transfer Acceleration tăng tốc upload của client, không liên quan đến replication (D sai). C phức tạp và không có SLA.</details>
+
+<h3>Câu 3</h3>
+<p>Dữ liệu ảnh người dùng 100 KB đến 2 GB, có file đột nhiên được đọc lại sau nhiều tháng, không thể dự đoán. Công ty muốn tối ưu chi phí mà không bị phí retrieval và không phải tinh chỉnh quy tắc. Chọn?</p>
+<ol type="A">
+<li>Lifecycle chuyển sang Standard-IA sau 30 ngày.</li>
+<li>Lifecycle chuyển sang Glacier Flexible Retrieval sau 90 ngày.</li>
+<li>Lưu bằng S3 Intelligent-Tiering.</li>
+<li>Lưu ở One Zone-IA ngay từ đầu.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>C.</b> Intelligent-Tiering tự chuyển tier theo truy cập, không retrieval fee, không min duration (có phí monitoring nhỏ). A có retrieval fee + min 30 ngày khi file bị đọc lại; B truy xuất chậm/tốn phí; D giảm độ bền AZ và vẫn có retrieval fee.</details>
+</section>
+
+<section class="card" id="t10">
+<h2><span class="n">10</span>📌 Quy tắc ghi nhớ</h2>
+<ol class="steps">
+<li>Replication = versioning ở CẢ HAI bucket + role trust <code>s3.amazonaws.com</code>; chỉ object MỚI, object cũ dùng Batch Replication.</li>
+<li>Delete marker mặc định KHÔNG replicate (bật <code>DeleteMarkerReplication</code>); xóa theo version ID và xóa do Lifecycle không bao giờ replicate; lifecycle config không replicate.</li>
+<li>SSE-KMS cần <code>SseKmsEncryptedObjects</code> + <code>ReplicaKmsKeyID</code>; SLA 15 phút = RTC.</li>
+<li>Lifecycle: Standard→IA tối thiểu 30 ngày; min duration IA 30 / Glacier 90 / Deep Archive 180; nhớ <code>NoncurrentVersionExpiration</code>, <code>AbortIncompleteMultipartUpload</code>, <code>ExpiredObjectDeleteMarker</code>.</li>
+<li>Pattern truy cập không đoán được = Intelligent-Tiering; bucket versioned chỉ xóa sạch khi xóa mọi version + delete marker.</li>
+</ol>
+</section>
+
+</main>
+<footer>Lab tự biên soạn cho ôn thi AWS SAP-C02. Kết quả mẫu ghi "ví dụ" có thể khác trong môi trường của bạn; kiểm tra lại tài liệu AWS khi giới hạn dịch vụ thay đổi.</footer>
+
+
+<script>
+(function(){
+  var steps=[].slice.call(document.querySelectorAll('ol.steps>li'));
+  steps.forEach(function(li){
+    var cb=document.createElement('input');cb.type='checkbox';cb.title='Đánh dấu hoàn thành';
+    cb.addEventListener('change',function(){li.classList.toggle('done',cb.checked);upd();});
+    li.appendChild(cb);
+  });
+  function upd(){
+    var d=document.querySelectorAll('ol.steps>li.done').length;
+    document.getElementById('pt').textContent=d+'/'+steps.length+' bước';
+    document.getElementById('pb').style.width=(steps.length?d/steps.length*100:0)+'%';
+  }
+  upd();
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('.cp');if(!el)return;
+    var t=el.getAttribute('data-c');
+    function ok(){el.classList.add('ok');setTimeout(function(){el.classList.remove('ok')},700)}
+    try{navigator.clipboard.writeText(t).then(ok,function(){})}catch(x){}
+  });
+})();
+</script>
+</body>
+</html>

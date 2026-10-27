@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hands-on Lab: Route 53 Resolver + Private Hosted Zone (Hybrid DNS)</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2433;--muted:#5d6779;--line:#e2e6ee;--accent:#ff9900;--accent2:#232f3e;--code:#f0f2f6;--ok:#1a7f4b;--warn:#fff6e0;--warnl:#e6a700;--info:#e8f1ff;--infol:#3b7ddd}
+@media(prefers-color-scheme:dark){:root{--bg:#12161d;--card:#1b212c;--text:#e7eaf0;--muted:#98a2b3;--line:#2c3544;--code:#252d3b;--ok:#4cc38a;--warn:#2d2610;--warnl:#d9a520;--info:#15243b;--infol:#5b9bf0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+header{background:var(--accent2);color:#fff;padding:36px 16px}
+header .w,main,.toc{max-width:920px;margin:0 auto}
+header small{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+header h1{margin:6px 0 10px;font-size:1.8rem;line-height:1.25}
+header p{margin:0;color:#c9d1dc}
+main{padding:0 16px 60px}
+.toc{padding:20px 16px 0}
+.toc ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;list-style:none;padding:0;margin:0;counter-reset:t}
+.toc li{counter-increment:t}
+.toc a{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--text);text-decoration:none;font-size:.92rem}
+.toc a:before{content:counter(t);display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--accent);color:#111;font-weight:700;font-size:.8rem;margin-right:8px}
+.toc a:hover{border-color:var(--accent)}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 20px;margin-top:22px}
+h2{margin:0 0 6px;font-size:1.3rem}
+h2 .n{display:inline-block;background:var(--accent);color:#111;border-radius:6px;padding:0 9px;margin-right:8px;font-size:1rem}
+h3{margin:22px 0 8px;font-size:1.05rem;border-left:4px solid var(--accent);padding-left:10px}
+.goal{color:var(--muted);margin:0 0 6px}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:8px 0}
+ol.steps>li{counter-increment:s;position:relative;padding:8px 8px 8px 44px;border-radius:8px}
+ol.steps>li:before{content:counter(s);position:absolute;left:8px;top:9px;width:26px;height:26px;border-radius:50%;background:var(--accent2);color:#fff;font-size:.8rem;text-align:center;line-height:26px}
+ol.steps>li.done{opacity:.55}
+ol.steps>li.done:before{content:"✓";background:var(--ok)}
+ol.steps>li label{cursor:pointer;display:block}
+ol.steps input[type=checkbox]{position:absolute;right:6px;top:12px}
+code,.kv{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:.88em}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--code);width:34%}
+.tw{overflow-x:auto}
+.note,.warn{border-left:4px solid var(--infol);background:var(--info);padding:10px 14px;border-radius:6px;margin:12px 0;font-size:.94rem}
+.warn{border-color:var(--warnl);background:var(--warn)}
+.cp{cursor:pointer;border:1px dashed var(--line)}
+.cp:hover{border-color:var(--accent)}
+.cp.ok{border-color:var(--ok);background:var(--code)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow span.b{background:var(--accent2);color:#fff;padding:8px 12px;border-radius:8px;font-size:.85rem}
+.flow span.b.o{background:var(--accent);color:#111}
+.flow i{font-style:normal;color:var(--muted)}
+.bar{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:8px 16px;font-size:.88rem;display:flex;gap:12px;align-items:center}
+.bar .pg{flex:1;height:8px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar .pg div{height:100%;width:0;background:var(--ok);transition:width .2s}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:0 16px 40px}
+@media print{.bar{display:none}section.card{break-inside:avoid-page}}
+</style>
+</head>
+<body>
+<header><div class="w">
+<small>AWS Hands-on Lab · Networking · SAP-C02</small>
+<h1>Route 53 Resolver Inbound/Outbound Endpoints + Private Hosted Zone (Hybrid DNS)</h1>
+<p>Giả lập on-prem bằng VPC thứ hai chạy dnsmasq, nối qua VPC peering; cấu hình forwarding rule, inbound endpoint và PHZ để phân giải DNS hai chiều.</p>
+</div></header>
+
+<div class="bar"><span id="pt">0/0 bước</span><div class="pg"><div id="pb"></div></div></div>
+
+<nav class="toc"><ol>
+<li><a href="#ov">Tổng quan &amp; liên hệ đề thi</a></li>
+<li><a href="#t1">Dựng mạng + peering</a></li>
+<li><a href="#t2">EC2 dnsmasq 'on-prem'</a></li>
+<li><a href="#t3">Private Hosted Zone</a></li>
+<li><a href="#t4">Outbound endpoint + rule</a></li>
+<li><a href="#t5">Inbound endpoint + forwarder</a></li>
+<li><a href="#t6b">RAM, multi-account, so sánh</a></li>
+<li><a href="#t6">💥 Phá thử</a></li>
+<li><a href="#t8">🧹 Dọn dẹp</a></li>
+<li><a href="#t9">🎯 3 câu hỏi kiểu đề</a></li>
+<li><a href="#t10">📌 Quy tắc ghi nhớ</a></li>
+</ol></nav>
+
+<main>
+
+<section class="card" id="ov"><h2>Tổng quan &amp; kịch bản</h2><p class="goal">Hybrid DNS: VPC phân giải tên on-prem (<code>corp.example</code>) và on-prem phân giải tên trong Private Hosted Zone (<code>aws.example</code>).</p><p>Công ty có data center on-prem nối với AWS (Direct Connect/VPN). Yêu cầu: workload trong VPC gọi được <code>app.corp.example</code> (DNS do on-prem quản lý) và server on-prem gọi được <code>web.aws.example</code> (record nằm trong Route 53 Private Hosted Zone). Lab này <b>giả lập on-prem bằng VPC thứ hai</b> chạy <code>dnsmasq</code> trên EC2 Amazon Linux 2023, nối với VPC chính qua VPC peering (thay cho Direct Connect/VPN).</p><div class="flow"><span class="b">EC2 client<br>VPC cloud</span><span class="b">&gt;1. hỏi app.corp.example</span><span class="b o">Route 53 Resolver<br>(VPC+2)</span><span class="b">&gt;2. rule FORWARD</span><span class="b">Outbound endpoint<br>2 ENI / 2 AZ</span><span class="b">&gt;peering →</span><span class="b">dnsmasq 'on-prem'<br>10.1.1.10</span></div><div class="flow"><span class="b">dnsmasq 'on-prem'</span><span class="b">&gt;3. hỏi web.aws.example (conditional forwarder) →</span><span class="b">Inbound endpoint<br>10.0.1.10 + 10.0.2.10</span><span class="b">&gt;→</span><span class="b o">Resolver trong VPC cloud</span><span class="b">&gt;→</span><span class="b">Private Hosted Zone<br>aws.example</span></div><div class="tw"><table><tr><th>Region</th><td><code>ap-southeast-1</code> (Singapore), 2 AZ: <code>ap-southeast-1a</code>, <code>ap-southeast-1b</code></td></tr><tr><th>VPC cloud</th><td><code>10.0.0.0/16</code> — subnet A <code>10.0.1.0/24</code> (1a), subnet B <code>10.0.2.0/24</code> (1b)</td></tr><tr><th>VPC 'on-prem'</th><td><code>10.1.0.0/16</code> — subnet <code>10.1.1.0/24</code>, DNS server <code>10.1.1.10</code> (dnsmasq)</td></tr><tr><th>Domain</th><td>on-prem: <code>corp.example</code> · PHZ: <code>aws.example</code> (tên giả, chỉ dùng trong lab)</td></tr><tr><th>Công cụ</th><td>AWS CLI v2, <code>jq</code>, session vào EC2 qua Systems Manager Session Manager (console hoặc plugin CLI)</td></tr><tr><th>Thời gian</th><td>khoảng 35-40 phút (endpoint mất 3-6 phút để lên <b>OPERATIONAL</b>)</td></tr></table></div><div class="warn"><b>Chi phí:</b> mỗi IP address (ENI) của Resolver endpoint tính khoảng <b>$0.125/giờ</b> (kiểm tra lại trang pricing). Lab tạo 2 endpoint × 2 IP = 4 ENI ≈ $0.5/giờ, chưa kể EC2 và phí query. Làm liền một mạch rồi <b>dọn dẹp ngay</b> (mục 8).</div><div class="note"><b>Liên hệ đề thi (SAP-C02)</b> — lab này sửa các bẫy:<br>• <b>Inbound vs Outbound</b>: inbound = on-prem → AWS; outbound = AWS → on-prem (hay bị đảo).<br>• Endpoint cần <b>≥ 2 IP ở 2 AZ</b> và security group mở <b>53 TCP + UDP</b>.<br>• PHZ chỉ hoạt động khi VPC bật <b>enableDnsSupport + enableDnsHostnames</b>.<br>• Chia sẻ <b>forwarding rule</b> qua RAM (không chia sẻ được endpoint); PHZ khác account dùng <b>association authorization</b>.<br>• Đáp án 'EC2 BIND forwarder' là kiểu cũ: nhiều vận hành hơn Resolver endpoint.</div><div class="note">Mẹo: giữ <b>một shell</b> cho cả lab (biến như <code>$CLOUD</code>, <code>$SG_IN</code> dùng xuyên suốt). Để phòng mất shell, chạy lệnh lưu biến ở bước 1.9 rồi <code>source ~/lab-r53.env</code> khi mở shell mới.</div></section>
+<section class="card" id="t1"><h2><span class="n">1</span>Dựng mạng: 2 VPC + peering + security group</h2><p class="goal">VPC 'cloud' (nơi đặt Resolver endpoint) và VPC 'on-prem' nối với nhau bằng VPC peering.</p><h3>1A. VPC, subnet, IGW, peering (CLI)</h3><ol class="steps"><li>Mở terminal đã cấu hình AWS CLI v2 (<code>aws sts get-caller-identity</code> chạy được). Dán đoạn script dưới (chạy trong cùng một shell):<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="export AWS_REGION=ap-southeast-1 AWS_DEFAULT_REGION=ap-southeast-1
+AZ_A=ap-southeast-1a; AZ_B=ap-southeast-1b
+
+# VPC cloud + VPC on-prem
+CLOUD=$(aws ec2 create-vpc --cidr-block 10.0.0.0/16 --tag-specifications &#x27;ResourceType=vpc,Tags=[{Key=Name,Value=lab-cloud}]&#x27; --query Vpc.VpcId --output text)
+ONPREM=$(aws ec2 create-vpc --cidr-block 10.1.0.0/16 --tag-specifications &#x27;ResourceType=vpc,Tags=[{Key=Name,Value=lab-onprem}]&#x27; --query Vpc.VpcId --output text)
+for V in $CLOUD $ONPREM; do
+  aws ec2 modify-vpc-attribute --vpc-id $V --enable-dns-support &#x27;{&quot;Value&quot;:true}&#x27;
+  aws ec2 modify-vpc-attribute --vpc-id $V --enable-dns-hostnames &#x27;{&quot;Value&quot;:true}&#x27;
+done
+
+# Subnets
+SUB_A=$(aws ec2 create-subnet --vpc-id $CLOUD --cidr-block 10.0.1.0/24 --availability-zone $AZ_A --query Subnet.SubnetId --output text)
+SUB_B=$(aws ec2 create-subnet --vpc-id $CLOUD --cidr-block 10.0.2.0/24 --availability-zone $AZ_B --query Subnet.SubnetId --output text)
+SUB_ON=$(aws ec2 create-subnet --vpc-id $ONPREM --cidr-block 10.1.1.0/24 --availability-zone $AZ_A --query Subnet.SubnetId --output text)
+
+# Internet gateway cho cả 2 VPC (chỉ để cài dnsmasq + Session Manager)
+for V in $CLOUD $ONPREM; do
+  IGW=$(aws ec2 create-internet-gateway --query InternetGateway.InternetGatewayId --output text)
+  aws ec2 attach-internet-gateway --internet-gateway-id $IGW --vpc-id $V
+  RT=$(aws ec2 describe-route-tables --filters Name=vpc-id,Values=$V Name=association.main,Values=true --query &#x27;RouteTables[0].RouteTableId&#x27; --output text)
+  aws ec2 create-route --route-table-id $RT --destination-cidr-block 0.0.0.0/0 --gateway-id $IGW &gt;/dev/null
+  [ $V = $CLOUD ] &amp;&amp; { RT_C=$RT; IGW_C=$IGW; } || { RT_O=$RT; IGW_O=$IGW; }
+done
+
+# VPC peering + route 2 chiều
+PCX=$(aws ec2 create-vpc-peering-connection --vpc-id $CLOUD --peer-vpc-id $ONPREM --query VpcPeeringConnection.VpcPeeringConnectionId --output text)
+aws ec2 accept-vpc-peering-connection --vpc-peering-connection-id $PCX &gt;/dev/null
+aws ec2 create-route --route-table-id $RT_C --destination-cidr-block 10.1.0.0/16 --vpc-peering-connection-id $PCX &gt;/dev/null
+aws ec2 create-route --route-table-id $RT_O --destination-cidr-block 10.0.0.0/16 --vpc-peering-connection-id $PCX &gt;/dev/null"><code style="background:none;padding:0">export AWS_REGION=ap-southeast-1 AWS_DEFAULT_REGION=ap-southeast-1
+AZ_A=ap-southeast-1a; AZ_B=ap-southeast-1b
+
+# VPC cloud + VPC on-prem
+CLOUD=$(aws ec2 create-vpc --cidr-block 10.0.0.0/16 --tag-specifications &#x27;ResourceType=vpc,Tags=[{Key=Name,Value=lab-cloud}]&#x27; --query Vpc.VpcId --output text)
+ONPREM=$(aws ec2 create-vpc --cidr-block 10.1.0.0/16 --tag-specifications &#x27;ResourceType=vpc,Tags=[{Key=Name,Value=lab-onprem}]&#x27; --query Vpc.VpcId --output text)
+for V in $CLOUD $ONPREM; do
+  aws ec2 modify-vpc-attribute --vpc-id $V --enable-dns-support &#x27;{&quot;Value&quot;:true}&#x27;
+  aws ec2 modify-vpc-attribute --vpc-id $V --enable-dns-hostnames &#x27;{&quot;Value&quot;:true}&#x27;
+done
+
+# Subnets
+SUB_A=$(aws ec2 create-subnet --vpc-id $CLOUD --cidr-block 10.0.1.0/24 --availability-zone $AZ_A --query Subnet.SubnetId --output text)
+SUB_B=$(aws ec2 create-subnet --vpc-id $CLOUD --cidr-block 10.0.2.0/24 --availability-zone $AZ_B --query Subnet.SubnetId --output text)
+SUB_ON=$(aws ec2 create-subnet --vpc-id $ONPREM --cidr-block 10.1.1.0/24 --availability-zone $AZ_A --query Subnet.SubnetId --output text)
+
+# Internet gateway cho cả 2 VPC (chỉ để cài dnsmasq + Session Manager)
+for V in $CLOUD $ONPREM; do
+  IGW=$(aws ec2 create-internet-gateway --query InternetGateway.InternetGatewayId --output text)
+  aws ec2 attach-internet-gateway --internet-gateway-id $IGW --vpc-id $V
+  RT=$(aws ec2 describe-route-tables --filters Name=vpc-id,Values=$V Name=association.main,Values=true --query &#x27;RouteTables[0].RouteTableId&#x27; --output text)
+  aws ec2 create-route --route-table-id $RT --destination-cidr-block 0.0.0.0/0 --gateway-id $IGW &gt;/dev/null
+  [ $V = $CLOUD ] &amp;&amp; { RT_C=$RT; IGW_C=$IGW; } || { RT_O=$RT; IGW_O=$IGW; }
+done
+
+# VPC peering + route 2 chiều
+PCX=$(aws ec2 create-vpc-peering-connection --vpc-id $CLOUD --peer-vpc-id $ONPREM --query VpcPeeringConnection.VpcPeeringConnectionId --output text)
+aws ec2 accept-vpc-peering-connection --vpc-peering-connection-id $PCX &gt;/dev/null
+aws ec2 create-route --route-table-id $RT_C --destination-cidr-block 10.1.0.0/16 --vpc-peering-connection-id $PCX &gt;/dev/null
+aws ec2 create-route --route-table-id $RT_O --destination-cidr-block 10.0.0.0/16 --vpc-peering-connection-id $PCX &gt;/dev/null</code></pre><div class="note">Hai VPC đều bật <code>enableDnsSupport</code> và <code>enableDnsHostnames</code> — VPC mới tạo bằng CLI mặc định chỉ bật DNS support, còn hostnames mặc định <b>tắt</b>, nên phải bật tay. Hai điều kiện này là bắt buộc để Private Hosted Zone hoạt động.</div><div class="note">🔮 <b>Dự đoán:</b> Sau khi chạy, peering ở trạng thái gì? Có cần bật 'DNS resolution from accepter VPC' trên peering để lab chạy không?</div><details><summary>Xem kết quả</summary>Trạng thái <code>active</code> (kiểm tra: <code>aws ec2 describe-vpc-peering-connections --vpc-peering-connection-ids $PCX --query 'VpcPeeringConnections[0].Status.Code'</code>). <b>Không cần</b> bật DNS resolution của peering: DNS ở đây đi bằng IP của endpoint/dnsmasq qua route, không dùng tên private DNS qua peering.</details></li><li>Tạo security group (4 cái):<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="# SG cho inbound endpoint: on-prem (10.1.0.0/16) được hỏi DNS vào endpoint
+SG_IN=$(aws ec2 create-security-group --group-name lab-r53-inbound --description &quot;R53 inbound endpoint&quot; --vpc-id $CLOUD --query GroupId --output text)
+aws ec2 authorize-security-group-ingress --group-id $SG_IN --ip-permissions \
+  &#x27;IpProtocol=tcp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.1.0.0/16}]&#x27; \
+  &#x27;IpProtocol=udp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.1.0.0/16}]&#x27; &gt;/dev/null
+
+# SG cho outbound endpoint: egress 53 TCP/UDP tới on-prem (SG mới mặc định cho phép mọi egress)
+SG_OUT=$(aws ec2 create-security-group --group-name lab-r53-outbound --description &quot;R53 outbound endpoint&quot; --vpc-id $CLOUD --query GroupId --output text)
+
+# SG cho DNS server &#x27;on-prem&#x27;: nhận 53 TCP/UDP từ VPC cloud (ENI của outbound endpoint)
+SG_ON=$(aws ec2 create-security-group --group-name lab-onprem-dns --description &quot;onprem dnsmasq&quot; --vpc-id $ONPREM --query GroupId --output text)
+aws ec2 authorize-security-group-ingress --group-id $SG_ON --ip-permissions \
+  &#x27;IpProtocol=tcp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.0.0.0/16}]&#x27; \
+  &#x27;IpProtocol=udp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.0.0.0/16}]&#x27; &gt;/dev/null
+
+# SG cho EC2 client trong VPC cloud (không inbound)
+SG_CL=$(aws ec2 create-security-group --group-name lab-cloud-client --description &quot;client&quot; --vpc-id $CLOUD --query GroupId --output text)"><code style="background:none;padding:0"># SG cho inbound endpoint: on-prem (10.1.0.0/16) được hỏi DNS vào endpoint
+SG_IN=$(aws ec2 create-security-group --group-name lab-r53-inbound --description &quot;R53 inbound endpoint&quot; --vpc-id $CLOUD --query GroupId --output text)
+aws ec2 authorize-security-group-ingress --group-id $SG_IN --ip-permissions \
+  &#x27;IpProtocol=tcp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.1.0.0/16}]&#x27; \
+  &#x27;IpProtocol=udp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.1.0.0/16}]&#x27; &gt;/dev/null
+
+# SG cho outbound endpoint: egress 53 TCP/UDP tới on-prem (SG mới mặc định cho phép mọi egress)
+SG_OUT=$(aws ec2 create-security-group --group-name lab-r53-outbound --description &quot;R53 outbound endpoint&quot; --vpc-id $CLOUD --query GroupId --output text)
+
+# SG cho DNS server &#x27;on-prem&#x27;: nhận 53 TCP/UDP từ VPC cloud (ENI của outbound endpoint)
+SG_ON=$(aws ec2 create-security-group --group-name lab-onprem-dns --description &quot;onprem dnsmasq&quot; --vpc-id $ONPREM --query GroupId --output text)
+aws ec2 authorize-security-group-ingress --group-id $SG_ON --ip-permissions \
+  &#x27;IpProtocol=tcp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.0.0.0/16}]&#x27; \
+  &#x27;IpProtocol=udp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.0.0.0/16}]&#x27; &gt;/dev/null
+
+# SG cho EC2 client trong VPC cloud (không inbound)
+SG_CL=$(aws ec2 create-security-group --group-name lab-cloud-client --description &quot;client&quot; --vpc-id $CLOUD --query GroupId --output text)</code></pre><div class="note">Quy tắc SG cho endpoint: <b>inbound endpoint</b> cần <i>ingress</i> TCP+UDP 53 từ dải on-prem; <b>outbound endpoint</b> cần <i>egress</i> TCP+UDP 53 tới DNS server on-prem (SG mới tạo đã cho phép mọi egress; môi trường siết chặt phải mở rõ). Resolver dùng UDP là chính, TCP khi response lớn - phải mở cả hai.</div></li><li>Lưu biến để dùng lại khi mất shell:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="for v in AWS_REGION CLOUD ONPREM SUB_A SUB_B SUB_ON RT_C RT_O IGW_C IGW_O PCX SG_IN SG_OUT SG_ON SG_CL; do echo &quot;export $v=${!v}&quot;; done &gt; ~/lab-r53.env"><code style="background:none;padding:0">for v in AWS_REGION CLOUD ONPREM SUB_A SUB_B SUB_ON RT_C RT_O IGW_C IGW_O PCX SG_IN SG_OUT SG_ON SG_CL; do echo &quot;export $v=${!v}&quot;; done &gt; ~/lab-r53.env</code></pre></li></ol></section>
+<section class="card" id="t2"><h2><span class="n">2</span>EC2: DNS server 'on-prem' (dnsmasq) và client</h2><p class="goal">Cài dnsmasq trả lời <code>app.corp.example → 10.1.1.50</code>; client ở VPC cloud dùng để chạy <code>dig</code>.</p><ol class="steps"><li>Tạo IAM role cho Session Manager:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="aws iam create-role --role-name lab-ssm-role --assume-role-policy-document &#x27;{&quot;Version&quot;:&quot;2012-10-17&quot;,&quot;Statement&quot;:[{&quot;Effect&quot;:&quot;Allow&quot;,&quot;Principal&quot;:{&quot;Service&quot;:&quot;ec2.amazonaws.com&quot;},&quot;Action&quot;:&quot;sts:AssumeRole&quot;}]}&#x27; &gt;/dev/null
+aws iam attach-role-policy --role-name lab-ssm-role --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+aws iam create-instance-profile --instance-profile-name lab-ssm-profile &gt;/dev/null
+aws iam add-role-to-instance-profile --instance-profile-name lab-ssm-profile --role-name lab-ssm-role
+sleep 15   # chờ IAM lan truyền"><code style="background:none;padding:0">aws iam create-role --role-name lab-ssm-role --assume-role-policy-document &#x27;{&quot;Version&quot;:&quot;2012-10-17&quot;,&quot;Statement&quot;:[{&quot;Effect&quot;:&quot;Allow&quot;,&quot;Principal&quot;:{&quot;Service&quot;:&quot;ec2.amazonaws.com&quot;},&quot;Action&quot;:&quot;sts:AssumeRole&quot;}]}&#x27; &gt;/dev/null
+aws iam attach-role-policy --role-name lab-ssm-role --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+aws iam create-instance-profile --instance-profile-name lab-ssm-profile &gt;/dev/null
+aws iam add-role-to-instance-profile --instance-profile-name lab-ssm-profile --role-name lab-ssm-role
+sleep 15   # chờ IAM lan truyền</code></pre></li><li>Tạo file user-data cài dnsmasq (bind-interfaces để không đụng stub resolver 127.0.0.53 của systemd-resolved):<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="cat &gt; onprem-userdata.sh &lt;&lt;&#x27;EOF&#x27;
+#!/bin/bash
+dnf install -y dnsmasq bind-utils
+cat &gt; /etc/dnsmasq.d/corp.conf &lt;&lt;&#x27;CONF&#x27;
+bind-interfaces
+listen-address=127.0.0.1
+listen-address=10.1.1.10
+log-queries
+log-facility=/var/log/dnsmasq.log
+address=/app.corp.example/10.1.1.50
+CONF
+systemctl enable --now dnsmasq
+EOF"><code style="background:none;padding:0">cat &gt; onprem-userdata.sh &lt;&lt;&#x27;EOF&#x27;
+#!/bin/bash
+dnf install -y dnsmasq bind-utils
+cat &gt; /etc/dnsmasq.d/corp.conf &lt;&lt;&#x27;CONF&#x27;
+bind-interfaces
+listen-address=127.0.0.1
+listen-address=10.1.1.10
+log-queries
+log-facility=/var/log/dnsmasq.log
+address=/app.corp.example/10.1.1.50
+CONF
+systemctl enable --now dnsmasq
+EOF</code></pre></li><li>Chạy 2 instance:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="AMI=$(aws ssm get-parameter --name /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 --query Parameter.Value --output text)
+
+# DNS server &#x27;on-prem&#x27; (IP cố định 10.1.1.10)
+I_ON=$(aws ec2 run-instances --image-id $AMI --instance-type t3.micro --subnet-id $SUB_ON --private-ip-address 10.1.1.10 \
+  --security-group-ids $SG_ON --associate-public-ip-address --iam-instance-profile Name=lab-ssm-profile \
+  --user-data file://onprem-userdata.sh --tag-specifications &#x27;ResourceType=instance,Tags=[{Key=Name,Value=lab-onprem-dns}]&#x27; \
+  --query &#x27;Instances[0].InstanceId&#x27; --output text)
+
+# Client trong VPC cloud
+I_CL=$(aws ec2 run-instances --image-id $AMI --instance-type t3.micro --subnet-id $SUB_A \
+  --security-group-ids $SG_CL --associate-public-ip-address --iam-instance-profile Name=lab-ssm-profile \
+  --user-data &#x27;#!/bin/bash
+dnf install -y bind-utils&#x27; --tag-specifications &#x27;ResourceType=instance,Tags=[{Key=Name,Value=lab-cloud-client}]&#x27; \
+  --query &#x27;Instances[0].InstanceId&#x27; --output text)
+echo &quot;export I_ON=$I_ON I_CL=$I_CL&quot; &gt;&gt; ~/lab-r53.env"><code style="background:none;padding:0">AMI=$(aws ssm get-parameter --name /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 --query Parameter.Value --output text)
+
+# DNS server &#x27;on-prem&#x27; (IP cố định 10.1.1.10)
+I_ON=$(aws ec2 run-instances --image-id $AMI --instance-type t3.micro --subnet-id $SUB_ON --private-ip-address 10.1.1.10 \
+  --security-group-ids $SG_ON --associate-public-ip-address --iam-instance-profile Name=lab-ssm-profile \
+  --user-data file://onprem-userdata.sh --tag-specifications &#x27;ResourceType=instance,Tags=[{Key=Name,Value=lab-onprem-dns}]&#x27; \
+  --query &#x27;Instances[0].InstanceId&#x27; --output text)
+
+# Client trong VPC cloud
+I_CL=$(aws ec2 run-instances --image-id $AMI --instance-type t3.micro --subnet-id $SUB_A \
+  --security-group-ids $SG_CL --associate-public-ip-address --iam-instance-profile Name=lab-ssm-profile \
+  --user-data &#x27;#!/bin/bash
+dnf install -y bind-utils&#x27; --tag-specifications &#x27;ResourceType=instance,Tags=[{Key=Name,Value=lab-cloud-client}]&#x27; \
+  --query &#x27;Instances[0].InstanceId&#x27; --output text)
+echo &quot;export I_ON=$I_ON I_CL=$I_CL&quot; &gt;&gt; ~/lab-r53.env</code></pre></li><li>Chờ ~2 phút rồi mở console <b>EC2 → chọn instance → Connect → Session Manager</b> (hoặc <code>aws ssm start-session --target $I_CL</code> nếu đã cài session-manager-plugin). Mở sẵn 2 tab: <b>lab-cloud-client</b> và <b>lab-onprem-dns</b>.<div class="note">Instance cần public IP + IGW chỉ để cài package và đăng ký Session Manager. DNS giữa hai VPC vẫn đi bằng IP private qua peering.</div></li><li>Trên <b>onprem-dns</b>, kiểm tra dnsmasq đang trả lời:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="dig +short app.corp.example @10.1.1.10"><code style="background:none;padding:0">dig +short app.corp.example @10.1.1.10</code></pre><div class="note">🔮 <b>Dự đoán:</b> Kết quả là gì? Và nếu hỏi <code>web.aws.example</code> (chưa tồn tại ở đâu cả) thì sao?</div><details><summary>Xem kết quả</summary><code>app.corp.example</code> → <code>10.1.1.50</code>. <code>web.aws.example</code> → <code>NXDOMAIN</code> (hoặc không có answer): dnsmasq không biết zone này, hỏi lên DNS public cũng không có. Đây chính là vấn đề cần giải ở mục 5.</details></li></ol></section>
+<section class="card" id="t3"><h2><span class="n">3</span>Private Hosted Zone gắn với VPC cloud</h2><p class="goal">Tạo PHZ <code>aws.example</code> gắn VPC cloud và test phân giải từ client trong chính VPC đó.</p><ol class="steps"><li>Tạo PHZ + record <code>web.aws.example</code>:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="ZONE=$(aws route53 create-hosted-zone --name aws.example --caller-reference lab-phz-$(date +%s) \
+  --vpc VPCRegion=ap-southeast-1,VPCId=$CLOUD \
+  --hosted-zone-config Comment=&quot;lab PHZ&quot;,PrivateZone=true \
+  --query HostedZone.Id --output text | sed &#x27;s#/hostedzone/##&#x27;)
+echo &quot;export ZONE=$ZONE&quot; &gt;&gt; ~/lab-r53.env
+
+cat &gt; rec.json &lt;&lt;&#x27;EOF&#x27;
+{&quot;Changes&quot;:[{&quot;Action&quot;:&quot;UPSERT&quot;,&quot;ResourceRecordSet&quot;:{&quot;Name&quot;:&quot;web.aws.example&quot;,&quot;Type&quot;:&quot;A&quot;,&quot;TTL&quot;:60,&quot;ResourceRecords&quot;:[{&quot;Value&quot;:&quot;10.0.1.100&quot;}]}}]}
+EOF
+aws route53 change-resource-record-sets --hosted-zone-id $ZONE --change-batch file://rec.json"><code style="background:none;padding:0">ZONE=$(aws route53 create-hosted-zone --name aws.example --caller-reference lab-phz-$(date +%s) \
+  --vpc VPCRegion=ap-southeast-1,VPCId=$CLOUD \
+  --hosted-zone-config Comment=&quot;lab PHZ&quot;,PrivateZone=true \
+  --query HostedZone.Id --output text | sed &#x27;s#/hostedzone/##&#x27;)
+echo &quot;export ZONE=$ZONE&quot; &gt;&gt; ~/lab-r53.env
+
+cat &gt; rec.json &lt;&lt;&#x27;EOF&#x27;
+{&quot;Changes&quot;:[{&quot;Action&quot;:&quot;UPSERT&quot;,&quot;ResourceRecordSet&quot;:{&quot;Name&quot;:&quot;web.aws.example&quot;,&quot;Type&quot;:&quot;A&quot;,&quot;TTL&quot;:60,&quot;ResourceRecords&quot;:[{&quot;Value&quot;:&quot;10.0.1.100&quot;}]}}]}
+EOF
+aws route53 change-resource-record-sets --hosted-zone-id $ZONE --change-batch file://rec.json</code></pre><div class="note">PHZ được tạo cùng một VPC liên kết ngay (<code>--vpc</code>). Muốn gắn thêm VPC cùng account: <code>aws route53 associate-vpc-with-hosted-zone</code>. VPC phải có <code>enableDnsSupport</code> và <code>enableDnsHostnames</code> = true.</div></li><li>Trên <b>cloud-client</b>:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="dig +short web.aws.example"><code style="background:none;padding:0">dig +short web.aws.example</code></pre><div class="note">🔮 <b>Dự đoán:</b> Client dùng DNS mặc định của VPC (VPC+2 = <code>10.0.0.2</code>). Có phân giải được không, ra IP gì?</div><details><summary>Xem kết quả</summary>Trả về <code>10.0.1.100</code>. Resolver của VPC thấy PHZ đã gắn với VPC nên trả lời nội bộ. (ví dụ output: <code>10.0.1.100</code>)</details></li><li>Trên <b>cloud-client</b>, thử tên on-prem:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="dig app.corp.example"><code style="background:none;padding:0">dig app.corp.example</code></pre><div class="note">🔮 <b>Dự đoán:</b> Chưa có forwarding rule. Resolver trả gì?</div><details><summary>Xem kết quả</summary><code>status: NXDOMAIN</code> — <code>corp.example</code> không tồn tại trên DNS public và chưa có rule forward. Ghi nhớ để so sánh sau mục 4.</details></li></ol></section>
+<section class="card" id="t4"><h2><span class="n">4</span>Outbound endpoint + forwarding rule (AWS → on-prem)</h2><p class="goal">VPC cloud hỏi <code>*.corp.example</code> → Resolver chuyển tiếp qua outbound endpoint tới dnsmasq.</p><ol class="steps"><li>Tạo outbound endpoint với <b>2 IP ở 2 subnet/2 AZ</b> (tối thiểu 2 IP, nên khác AZ để chịu lỗi AZ):<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="OUT=$(aws route53resolver create-resolver-endpoint --creator-request-id lab-out-$(date +%s) --name lab-outbound \
+  --direction OUTBOUND --security-group-ids $SG_OUT \
+  --ip-addresses SubnetId=$SUB_A SubnetId=$SUB_B \
+  --query ResolverEndpoint.Id --output text)
+echo &quot;export OUT=$OUT&quot; &gt;&gt; ~/lab-r53.env
+
+# chờ OPERATIONAL (khoảng 3-6 phút)
+until [ &quot;$(aws route53resolver get-resolver-endpoint --resolver-endpoint-id $OUT --query ResolverEndpoint.Status --output text)&quot; = OPERATIONAL ]; do echo -n .; sleep 15; done; echo OK
+aws route53resolver list-resolver-endpoint-ip-addresses --resolver-endpoint-id $OUT --query &#x27;IpAddresses[].[Ip,SubnetId,Status]&#x27; --output table"><code style="background:none;padding:0">OUT=$(aws route53resolver create-resolver-endpoint --creator-request-id lab-out-$(date +%s) --name lab-outbound \
+  --direction OUTBOUND --security-group-ids $SG_OUT \
+  --ip-addresses SubnetId=$SUB_A SubnetId=$SUB_B \
+  --query ResolverEndpoint.Id --output text)
+echo &quot;export OUT=$OUT&quot; &gt;&gt; ~/lab-r53.env
+
+# chờ OPERATIONAL (khoảng 3-6 phút)
+until [ &quot;$(aws route53resolver get-resolver-endpoint --resolver-endpoint-id $OUT --query ResolverEndpoint.Status --output text)&quot; = OPERATIONAL ]; do echo -n .; sleep 15; done; echo OK
+aws route53resolver list-resolver-endpoint-ip-addresses --resolver-endpoint-id $OUT --query &#x27;IpAddresses[].[Ip,SubnetId,Status]&#x27; --output table</code></pre><div class="note">🔮 <b>Dự đoán:</b> Bảng cuối liệt kê mấy IP, nằm trong dải nào, và status chuyển từ gì sang gì?</div><details><summary>Xem kết quả</summary>2 dòng, IP lấy tự động trong <code>10.0.1.0/24</code> và <code>10.0.2.0/24</code> (ví dụ <code>10.0.1.57</code>, <code>10.0.2.141</code>). Endpoint <code>CREATING</code> → <code>OPERATIONAL</code>; từ lúc này bắt đầu tính tiền theo ENI.</details><div class="warn">Mỗi IP là một ENI trong subnet của bạn, tính khoảng $0.125/giờ. Đừng để qua đêm.</div></li><li>Tạo rule FORWARD cho <code>corp.example</code> → <code>10.1.1.10:53</code> và <b>associate với VPC</b>:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="RULE=$(aws route53resolver create-resolver-rule --creator-request-id lab-rule-$(date +%s) --name fwd-corp-example \
+  --rule-type FORWARD --domain-name corp.example --resolver-endpoint-id $OUT \
+  --target-ips Ip=10.1.1.10,Port=53 --query ResolverRule.Id --output text)
+echo &quot;export RULE=$RULE&quot; &gt;&gt; ~/lab-r53.env
+
+ASSOC=$(aws route53resolver associate-resolver-rule --resolver-rule-id $RULE --vpc-id $CLOUD --name assoc-cloud \
+  --query ResolverRuleAssociation.Id --output text)
+echo &quot;export ASSOC=$ASSOC&quot; &gt;&gt; ~/lab-r53.env
+aws route53resolver get-resolver-rule-association --resolver-rule-association-id $ASSOC --query ResolverRuleAssociation.Status --output text"><code style="background:none;padding:0">RULE=$(aws route53resolver create-resolver-rule --creator-request-id lab-rule-$(date +%s) --name fwd-corp-example \
+  --rule-type FORWARD --domain-name corp.example --resolver-endpoint-id $OUT \
+  --target-ips Ip=10.1.1.10,Port=53 --query ResolverRule.Id --output text)
+echo &quot;export RULE=$RULE&quot; &gt;&gt; ~/lab-r53.env
+
+ASSOC=$(aws route53resolver associate-resolver-rule --resolver-rule-id $RULE --vpc-id $CLOUD --name assoc-cloud \
+  --query ResolverRuleAssociation.Id --output text)
+echo &quot;export ASSOC=$ASSOC&quot; &gt;&gt; ~/lab-r53.env
+aws route53resolver get-resolver-rule-association --resolver-rule-association-id $ASSOC --query ResolverRuleAssociation.Status --output text</code></pre><div class="note">Rule không có tác dụng cho tới khi <b>associate với VPC</b>. Rule dạng FORWARD gắn một outbound endpoint; nhiều target IP được phép.</div></li><li>Trên <b>cloud-client</b>:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="dig +short app.corp.example"><code style="background:none;padding:0">dig +short app.corp.example</code></pre><div class="note">🔮 <b>Dự đoán:</b> Trước khi gắn rule là NXDOMAIN (mục 3). Bây giờ sao? Và dnsmasq log sẽ thấy query đến từ IP nào?</div><details><summary>Xem kết quả</summary>Trả <code>10.1.1.50</code>. Trên <b>onprem-dns</b> chạy <code>sudo tail -n 20 /var/log/dnsmasq.log</code>: nguồn query là <b>IP của các ENI outbound endpoint</b> (dải <code>10.0.1.x</code>/<code>10.0.2.x</code>), không phải IP của client. Hệ quả: firewall on-prem phải cho phép dải IP của endpoint, không phải cả dải workload.</details></li></ol></section>
+<section class="card" id="t5"><h2><span class="n">5</span>Inbound endpoint + conditional forwarder on-prem (on-prem → AWS)</h2><p class="goal">Để on-prem phân giải PHZ: tạo inbound endpoint, rồi cấu hình DNS on-prem forward <code>aws.example</code> tới IP của endpoint.</p><ol class="steps"><li>Tạo inbound endpoint (đặt IP cố định để dễ cấu hình on-prem):<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="IN=$(aws route53resolver create-resolver-endpoint --creator-request-id lab-in-$(date +%s) --name lab-inbound \
+  --direction INBOUND --security-group-ids $SG_IN \
+  --ip-addresses SubnetId=$SUB_A,Ip=10.0.1.10 SubnetId=$SUB_B,Ip=10.0.2.10 \
+  --query ResolverEndpoint.Id --output text)
+echo &quot;export IN=$IN&quot; &gt;&gt; ~/lab-r53.env
+until [ &quot;$(aws route53resolver get-resolver-endpoint --resolver-endpoint-id $IN --query ResolverEndpoint.Status --output text)&quot; = OPERATIONAL ]; do echo -n .; sleep 15; done; echo OK
+aws route53resolver list-resolver-endpoint-ip-addresses --resolver-endpoint-id $IN --query &#x27;IpAddresses[].Ip&#x27; --output text"><code style="background:none;padding:0">IN=$(aws route53resolver create-resolver-endpoint --creator-request-id lab-in-$(date +%s) --name lab-inbound \
+  --direction INBOUND --security-group-ids $SG_IN \
+  --ip-addresses SubnetId=$SUB_A,Ip=10.0.1.10 SubnetId=$SUB_B,Ip=10.0.2.10 \
+  --query ResolverEndpoint.Id --output text)
+echo &quot;export IN=$IN&quot; &gt;&gt; ~/lab-r53.env
+until [ &quot;$(aws route53resolver get-resolver-endpoint --resolver-endpoint-id $IN --query ResolverEndpoint.Status --output text)&quot; = OPERATIONAL ]; do echo -n .; sleep 15; done; echo OK
+aws route53resolver list-resolver-endpoint-ip-addresses --resolver-endpoint-id $IN --query &#x27;IpAddresses[].Ip&#x27; --output text</code></pre><details><summary>Xem kết quả</summary>In ra <code>10.0.1.10 10.0.2.10</code> (ví dụ). Inbound endpoint nằm trong VPC cloud nên khi on-prem hỏi vào đây, Resolver trả lời <b>theo ngữ cảnh VPC đó</b>, thấy được PHZ đã gắn với VPC.</details></li><li>Trên <b>onprem-dns</b>, <b>trước khi</b> thêm forwarder hãy thử lại:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="dig +short web.aws.example @10.1.1.10"><code style="background:none;padding:0">dig +short web.aws.example @10.1.1.10</code></pre><div class="note">🔮 <b>Dự đoán:</b> Đã có inbound endpoint nhưng dnsmasq chưa biết gửi gì tới đó. Kết quả?</div><details><summary>Xem kết quả</summary>Vẫn rỗng/NXDOMAIN. Inbound endpoint chỉ là 'cửa vào'; <b>DNS on-prem phải được cấu hình conditional forwarder</b> trỏ tới IP của endpoint.</details></li><li>Thêm conditional forwarder và test lại:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="echo &#x27;server=/aws.example/10.0.1.10/10.0.2.10&#x27; | sudo tee -a /etc/dnsmasq.d/corp.conf
+sudo systemctl restart dnsmasq
+dig +short web.aws.example @10.1.1.10"><code style="background:none;padding:0">echo &#x27;server=/aws.example/10.0.1.10/10.0.2.10&#x27; | sudo tee -a /etc/dnsmasq.d/corp.conf
+sudo systemctl restart dnsmasq
+dig +short web.aws.example @10.1.1.10</code></pre><div class="note">🔮 <b>Dự đoán:</b> Lần này kết quả là gì? Server nào trong 2 IP được chọn?</div><details><summary>Xem kết quả</summary>Trả <code>10.0.1.100</code>. dnsmasq dùng cả 2 IP (có thể xoay vòng/failover); mỗi IP ở một AZ khác nhau nên mất 1 AZ vẫn phân giải được. Trong thực tế (BIND/Windows DNS) bạn tạo <i>conditional forwarder</i> cho zone <code>aws.example</code> với cả 2 IP này.</details></li></ol></section>
+<section class="card" id="t6b"><h2><span class="n">6</span>Mở rộng: RAM share rule, PHZ nhiều account, so với EC2 forwarder</h2><p class="goal">Phần đọc/ghi nhớ — các lệnh dưới là mẫu (cần account thứ hai), không bắt buộc chạy.</p><h3>6A. Chia sẻ forwarding rule qua AWS RAM</h3><pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="# Account sở hữu rule (network account)
+aws ram create-resource-share --name share-fwd-rules \
+  --resource-arns arn:aws:route53resolver:ap-southeast-1:&lt;ACCOUNT_A&gt;:resolver-rule/$RULE \
+  --principals &lt;ACCOUNT_B_ID hoặc ARN của Organization/OU&gt;
+
+# Account nhận (sau khi accept invitation, hoặc tự động nếu cùng Organization và bật sharing)
+aws route53resolver associate-resolver-rule --resolver-rule-id &lt;RULE_ID&gt; --vpc-id &lt;VPC_ACCOUNT_B&gt;"><code style="background:none;padding:0"># Account sở hữu rule (network account)
+aws ram create-resource-share --name share-fwd-rules \
+  --resource-arns arn:aws:route53resolver:ap-southeast-1:&lt;ACCOUNT_A&gt;:resolver-rule/$RULE \
+  --principals &lt;ACCOUNT_B_ID hoặc ARN của Organization/OU&gt;
+
+# Account nhận (sau khi accept invitation, hoặc tự động nếu cùng Organization và bật sharing)
+aws route53resolver associate-resolver-rule --resolver-rule-id &lt;RULE_ID&gt; --vpc-id &lt;VPC_ACCOUNT_B&gt;</code></pre><div class="note">Chỉ <b>Resolver rule</b> chia sẻ được qua RAM; <b>endpoint thì không</b>. Account nhận chỉ cần associate rule vào VPC của mình, query vẫn đi qua outbound endpoint của account chủ rule, nên VPC chứa endpoint phải route được tới on-prem. Mô hình chuẩn: 1 network account giữ endpoint + rules, share cho cả Organization.</div><h3>6B. PHZ gắn VPC của account khác</h3><pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="# Account A (chủ zone): cho phép VPC của account B
+aws route53 create-vpc-association-authorization --hosted-zone-id $ZONE \
+  --vpc VPCRegion=ap-southeast-1,VPCId=&lt;VPC_B&gt;
+
+# Account B (chủ VPC): thực hiện association
+aws route53 associate-vpc-with-hosted-zone --hosted-zone-id &lt;ZONE_ID&gt; \
+  --vpc VPCRegion=ap-southeast-1,VPCId=&lt;VPC_B&gt;
+
+# Account A: xoá authorization sau khi xong (dọn dẹp)
+aws route53 delete-vpc-association-authorization --hosted-zone-id $ZONE \
+  --vpc VPCRegion=ap-southeast-1,VPCId=&lt;VPC_B&gt;"><code style="background:none;padding:0"># Account A (chủ zone): cho phép VPC của account B
+aws route53 create-vpc-association-authorization --hosted-zone-id $ZONE \
+  --vpc VPCRegion=ap-southeast-1,VPCId=&lt;VPC_B&gt;
+
+# Account B (chủ VPC): thực hiện association
+aws route53 associate-vpc-with-hosted-zone --hosted-zone-id &lt;ZONE_ID&gt; \
+  --vpc VPCRegion=ap-southeast-1,VPCId=&lt;VPC_B&gt;
+
+# Account A: xoá authorization sau khi xong (dọn dẹp)
+aws route53 delete-vpc-association-authorization --hosted-zone-id $ZONE \
+  --vpc VPCRegion=ap-southeast-1,VPCId=&lt;VPC_B&gt;</code></pre><div class="note">Không dùng được RAM cho hosted zone. Luồng bắt buộc: <b>authorization (account chủ zone) → association (account chủ VPC)</b>. Bằng console không làm được bước authorization nên phải dùng CLI/API.</div><h3>6C. So sánh các cách làm hybrid DNS</h3><div class="tw"><table><tr><th>Cách</th><th>Đặc điểm</th><th>Khi nào</th></tr><tr><td>Resolver endpoints + rules</td><td>Managed, HA qua ≥2 ENI/2 AZ, scale tự động, share rule qua RAM, tính tiền theo ENI + query</td><td><b>Đáp án mặc định</b> cho hybrid DNS</td></tr><tr><td>EC2 BIND/Unbound forwarder (cũ)</td><td>Tự vá lỗi, tự dựng HA (ASG/NLB/2 AZ), tự scale, giới hạn ~1024 pps/ENI với VPC resolver</td><td>Chỉ hợp lý khi cần tính năng đặc thù (RPZ, logic tuỳ biến)</td></tr><tr><td>PHZ multi-account association</td><td>Giải quyết 'VPC account B thấy zone của A' — <b>không</b> giải quyết on-prem ↔ AWS</td><td>Dùng kèm Resolver khi cần cả hai</td></tr><tr><td>Route 53 Profiles</td><td>Gói PHZ + rules + DNS Firewall để gắn nhiều VPC/account một lần</td><td>Nên biết tên, là cách quản trị tập trung mới</td></tr></table></div></section>
+<section class="card" id="t6"><h2><span class="n">7</span>💥 Phá thử</h2><p class="goal">Cố ý làm hỏng từng thành phần để hiểu đúng điều kiện cần.</p><ol class="steps"><li><b>Chặn port 53 ở DNS on-prem.</b> Gỡ rule ingress của <code>$SG_ON</code>:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="aws ec2 revoke-security-group-ingress --group-id $SG_ON --ip-permissions \
+  &#x27;IpProtocol=tcp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.0.0.0/16}]&#x27; \
+  &#x27;IpProtocol=udp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.0.0.0/16}]&#x27;"><code style="background:none;padding:0">aws ec2 revoke-security-group-ingress --group-id $SG_ON --ip-permissions \
+  &#x27;IpProtocol=tcp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.0.0.0/16}]&#x27; \
+  &#x27;IpProtocol=udp,FromPort=53,ToPort=53,IpRanges=[{CidrIp=10.0.0.0/16}]&#x27;</code></pre>Trên cloud-client: <code>time dig app.corp.example</code>.<div class="note">🔮 <b>Dự đoán:</b> dig trả về status gì và mất bao lâu?</div><details><summary>Xem kết quả</summary>Chậm vài giây rồi <code>SERVFAIL</code> (Resolver không tới được target; ví dụ ~ vài giây tới hơn 10 giây). Bài học: lỗi SG/NACL/route tới DNS on-prem hiện ra là SERVFAIL/timeout, không phải NXDOMAIN. Khôi phục bằng <code>authorize-security-group-ingress</code> với cùng tham số ở mục 1.</details></li><li><b>Gỡ rule khỏi VPC.</b><pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="aws route53resolver disassociate-resolver-rule --resolver-rule-id $RULE --vpc-id $CLOUD"><code style="background:none;padding:0">aws route53resolver disassociate-resolver-rule --resolver-rule-id $RULE --vpc-id $CLOUD</code></pre>Đợi ~30-60 giây, <code>dig app.corp.example</code> trên cloud-client.<div class="note">🔮 <b>Dự đoán:</b> Rule vẫn tồn tại, endpoint vẫn OPERATIONAL. Kết quả?</div><details><summary>Xem kết quả</summary><code>NXDOMAIN</code>: rule chỉ có hiệu lực ở VPC đã <b>associate</b>. Gắn lại: <code>aws route53resolver associate-resolver-rule --resolver-rule-id $RULE --vpc-id $CLOUD --name assoc-cloud</code> (và cập nhật <code>$ASSOC</code> nếu cần dọn dẹp).</details></li><li><b>Tắt enableDnsHostnames</b> của VPC cloud:<pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="aws ec2 modify-vpc-attribute --vpc-id $CLOUD --no-enable-dns-hostnames"><code style="background:none;padding:0">aws ec2 modify-vpc-attribute --vpc-id $CLOUD --no-enable-dns-hostnames</code></pre>Trên cloud-client: <code>dig web.aws.example</code>.<div class="note">🔮 <b>Dự đoán:</b> PHZ vẫn gắn với VPC. Còn phân giải được không?</div><details><summary>Xem kết quả</summary>Không còn trả bản ghi PHZ (thường NXDOMAIN) — PHZ yêu cầu <b>cả</b> <code>enableDnsSupport</code> và <code>enableDnsHostnames</code>. Bật lại: <code>aws ec2 modify-vpc-attribute --vpc-id $CLOUD --enable-dns-hostnames '{"Value":true}'</code>. (Phản hồi có thể trễ vài chục giây; nếu thấy vẫn trả IP, đợi rồi thử lại.)</details></li></ol></section>
+<section class="card" id="t8"><h2><span class="n">8</span>🧹 Dọn dẹp</h2><p class="goal">Thứ tự quan trọng: EC2 → rule association → rule → endpoint → PHZ → mạng → IAM.</p><pre class="cp" title="Bấm để copy" style="background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.84rem;line-height:1.5;margin:8px 0;white-space:pre" data-c="# 0) nạp lại biến nếu mở shell mới:  source ~/lab-r53.env
+
+# 1) Terminate EC2 và chờ
+aws ec2 terminate-instances --instance-ids $I_ON $I_CL &gt;/dev/null
+aws ec2 wait instance-terminated --instance-ids $I_ON $I_CL
+
+# 2) Gỡ rule khỏi VPC, chờ association biến mất, rồi xoá rule
+aws route53resolver disassociate-resolver-rule --resolver-rule-id $RULE --vpc-id $CLOUD
+until ! aws route53resolver get-resolver-rule-association --resolver-rule-association-id $ASSOC &gt;/dev/null 2&gt;&amp;1; do sleep 10; done
+aws route53resolver delete-resolver-rule --resolver-rule-id $RULE
+
+# 3) Xoá 2 endpoint (outbound chỉ xoá được sau khi hết rule) -- chấm dứt tính tiền ENI
+aws route53resolver delete-resolver-endpoint --resolver-endpoint-id $OUT
+aws route53resolver delete-resolver-endpoint --resolver-endpoint-id $IN
+until [ -z &quot;$(aws route53resolver list-resolver-endpoints --query &#x27;ResolverEndpoints[?Id==`&#x27;$OUT&#x27;` || Id==`&#x27;$IN&#x27;`].Id&#x27; --output text)&quot; ]; do sleep 15; done
+
+# 4) PHZ: xoá record rồi xoá zone
+sed &#x27;s/UPSERT/DELETE/&#x27; rec.json &gt; rec-del.json
+aws route53 change-resource-record-sets --hosted-zone-id $ZONE --change-batch file://rec-del.json
+aws route53 delete-hosted-zone --id $ZONE
+
+# 5) Mạng: peering -&gt; SG -&gt; subnet -&gt; IGW -&gt; VPC
+aws ec2 delete-vpc-peering-connection --vpc-peering-connection-id $PCX
+for G in $SG_IN $SG_OUT $SG_ON $SG_CL; do aws ec2 delete-security-group --group-id $G; done
+for S in $SUB_A $SUB_B $SUB_ON; do aws ec2 delete-subnet --subnet-id $S; done
+aws ec2 detach-internet-gateway --internet-gateway-id $IGW_C --vpc-id $CLOUD;  aws ec2 delete-internet-gateway --internet-gateway-id $IGW_C
+aws ec2 detach-internet-gateway --internet-gateway-id $IGW_O --vpc-id $ONPREM; aws ec2 delete-internet-gateway --internet-gateway-id $IGW_O
+aws ec2 delete-vpc --vpc-id $CLOUD; aws ec2 delete-vpc --vpc-id $ONPREM
+
+# 6) IAM
+aws iam remove-role-from-instance-profile --instance-profile-name lab-ssm-profile --role-name lab-ssm-role
+aws iam delete-instance-profile --instance-profile-name lab-ssm-profile
+aws iam detach-role-policy --role-name lab-ssm-role --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+aws iam delete-role --role-name lab-ssm-role
+rm -f rec.json rec-del.json onprem-userdata.sh ~/lab-r53.env
+
+# 7) Kiểm tra không còn endpoint nào
+aws route53resolver list-resolver-endpoints --query &#x27;ResolverEndpoints[].[Id,Name,Status]&#x27; --output table"><code style="background:none;padding:0"># 0) nạp lại biến nếu mở shell mới:  source ~/lab-r53.env
+
+# 1) Terminate EC2 và chờ
+aws ec2 terminate-instances --instance-ids $I_ON $I_CL &gt;/dev/null
+aws ec2 wait instance-terminated --instance-ids $I_ON $I_CL
+
+# 2) Gỡ rule khỏi VPC, chờ association biến mất, rồi xoá rule
+aws route53resolver disassociate-resolver-rule --resolver-rule-id $RULE --vpc-id $CLOUD
+until ! aws route53resolver get-resolver-rule-association --resolver-rule-association-id $ASSOC &gt;/dev/null 2&gt;&amp;1; do sleep 10; done
+aws route53resolver delete-resolver-rule --resolver-rule-id $RULE
+
+# 3) Xoá 2 endpoint (outbound chỉ xoá được sau khi hết rule) -- chấm dứt tính tiền ENI
+aws route53resolver delete-resolver-endpoint --resolver-endpoint-id $OUT
+aws route53resolver delete-resolver-endpoint --resolver-endpoint-id $IN
+until [ -z &quot;$(aws route53resolver list-resolver-endpoints --query &#x27;ResolverEndpoints[?Id==`&#x27;$OUT&#x27;` || Id==`&#x27;$IN&#x27;`].Id&#x27; --output text)&quot; ]; do sleep 15; done
+
+# 4) PHZ: xoá record rồi xoá zone
+sed &#x27;s/UPSERT/DELETE/&#x27; rec.json &gt; rec-del.json
+aws route53 change-resource-record-sets --hosted-zone-id $ZONE --change-batch file://rec-del.json
+aws route53 delete-hosted-zone --id $ZONE
+
+# 5) Mạng: peering -&gt; SG -&gt; subnet -&gt; IGW -&gt; VPC
+aws ec2 delete-vpc-peering-connection --vpc-peering-connection-id $PCX
+for G in $SG_IN $SG_OUT $SG_ON $SG_CL; do aws ec2 delete-security-group --group-id $G; done
+for S in $SUB_A $SUB_B $SUB_ON; do aws ec2 delete-subnet --subnet-id $S; done
+aws ec2 detach-internet-gateway --internet-gateway-id $IGW_C --vpc-id $CLOUD;  aws ec2 delete-internet-gateway --internet-gateway-id $IGW_C
+aws ec2 detach-internet-gateway --internet-gateway-id $IGW_O --vpc-id $ONPREM; aws ec2 delete-internet-gateway --internet-gateway-id $IGW_O
+aws ec2 delete-vpc --vpc-id $CLOUD; aws ec2 delete-vpc --vpc-id $ONPREM
+
+# 6) IAM
+aws iam remove-role-from-instance-profile --instance-profile-name lab-ssm-profile --role-name lab-ssm-role
+aws iam delete-instance-profile --instance-profile-name lab-ssm-profile
+aws iam detach-role-policy --role-name lab-ssm-role --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+aws iam delete-role --role-name lab-ssm-role
+rm -f rec.json rec-del.json onprem-userdata.sh ~/lab-r53.env
+
+# 7) Kiểm tra không còn endpoint nào
+aws route53resolver list-resolver-endpoints --query &#x27;ResolverEndpoints[].[Id,Name,Status]&#x27; --output table</code></pre><div class="warn">Nếu <code>delete-security-group</code> báo <i>DependencyViolation</i>: ENI của endpoint chưa biến mất, đợi 1-2 phút rồi chạy lại. Nếu <code>delete-resolver-endpoint</code> bị từ chối: rule còn tham chiếu outbound endpoint - xoá rule trước. Sau cùng vào console Resolver, EC2, VPC kiểm tra lại không còn tài nguyên <code>lab-*</code>.</div></section>
+<section class="card" id="t9"><h2><span class="n">9</span>🎯 3 câu hỏi kiểu đề</h2><p class="goal">Tự đặt, không lấy từ bộ đề nào. Tự trả lời trước khi mở đáp án.</p><h3>Câu 1</h3><p>Một công ty nối data center với VPC bằng Direct Connect. Ứng dụng on-prem phải phân giải <code>db.prod.aws.example</code> (record trong Private Hosted Zone) và workload trong VPC phải phân giải <code>*.corp.example</code> do DNS on-prem quản lý. Yêu cầu: ít công việc vận hành nhất, chịu lỗi 1 AZ. Giải pháp nào phù hợp?</p><ol type='A'><li>Dựng cặp BIND server trên EC2 ở 2 AZ trong Auto Scaling group làm DNS forwarder hai chiều.</li><li>Tạo inbound endpoint và outbound endpoint (mỗi cái ≥2 IP ở 2 AZ), forwarding rule cho <code>corp.example</code> tới DNS on-prem, và conditional forwarder trên DNS on-prem cho <code>aws.example</code> tới IP inbound endpoint.</li><li>Tạo public hosted zone <code>aws.example</code> với cùng các record để on-prem phân giải qua Internet.</li><li>Chỉ tạo outbound endpoint với rule cho <code>aws.example</code> trỏ về DNS on-prem.</li></ol><details><summary>Xem đáp án</summary><p><b>Đáp án: B</b></p><p>Inbound = on-prem → AWS (phân giải PHZ), outbound = AWS → on-prem (forward <code>corp.example</code>). Managed, đa AZ. A hoạt động nhưng tốn vận hành. C lộ record nội bộ ra public. D đảo hướng: outbound không giúp on-prem hỏi AWS.</p></details><h3>Câu 2</h3><p>Tổ chức có 40 account trong AWS Organizations. Account 'network' đã có outbound endpoint và forwarding rule cho <code>corp.example</code>. Làm sao để VPC ở 39 account còn lại phân giải được <code>corp.example</code> mà không tạo thêm endpoint ở mỗi account?</p><ol type='A'><li>Chia sẻ outbound endpoint qua AWS RAM cho cả Organization.</li><li>Chia sẻ Resolver rule qua AWS RAM; mỗi account associate rule với VPC của mình.</li><li>Tạo VPC peering từ mọi VPC tới VPC của account network, DNS tự đi theo.</li><li>Sao chép rule vào từng account và tạo outbound endpoint riêng cho từng account.</li></ol><details><summary>Xem đáp án</summary><p><b>Đáp án: B</b></p><p>RAM chia sẻ được Resolver <b>rule</b> chứ không chia sẻ được endpoint. Account nhận associate rule vào VPC; query đi qua endpoint của account chủ rule. C không làm DNS forward theo peering. D đúng kỹ thuật nhưng tốn ENI/chi phí và không phải 'không tạo thêm endpoint'.</p></details><h3>Câu 3</h3><p>Account A sở hữu Private Hosted Zone <code>internal.example</code> (gắn với VPC của A). Một VPC ở account B (cùng region) cần phân giải zone này. Cả hai VPC đã bật <code>enableDnsSupport</code> và <code>enableDnsHostnames</code>. Bước nào đúng?</p><ol type='A'><li>Account B tạo PHZ cùng tên <code>internal.example</code> và sao chép toàn bộ record.</li><li>Chia sẻ hosted zone qua AWS RAM cho account B.</li><li>Account A chạy <code>create-vpc-association-authorization</code> cho VPC của B; sau đó account B chạy <code>associate-vpc-with-hosted-zone</code>.</li><li>Tạo VPC peering giữa hai VPC; DNS tự phân giải PHZ qua peering.</li></ol><details><summary>Xem đáp án</summary><p><b>Đáp án: C</b></p><p>PHZ khác account cần authorization từ chủ zone rồi association từ chủ VPC (làm bằng CLI/API). RAM không hỗ trợ hosted zone. Peering không mở rộng phạm vi PHZ. A tạo bản sao khó đồng bộ.</p></details></section>
+<section class="card" id="t10"><h2><span class="n">10</span>📌 Quy tắc ghi nhớ</h2><ul><li><b>Inbound</b> = on-prem hỏi vào AWS (PHZ); <b>Outbound</b> = AWS hỏi ra on-prem (forwarding rule).</li><li>Endpoint: <b>≥2 IP, 2 AZ</b>, SG mở <b>53 TCP+UDP</b>, tính tiền ~$0.125/ENI/giờ.</li><li>Rule phải <b>associate với VPC</b> mới có tác dụng; chia sẻ <b>rule</b> qua RAM, <b>không</b> chia sẻ endpoint.</li><li>PHZ cần <b>enableDnsSupport + enableDnsHostnames</b>; khác account: <b>authorization → association</b> (CLI).</li><li>Hybrid DNS trong đề: chọn Resolver endpoints, tránh EC2 forwarder tự quản trừ khi đề bắt buộc.</li></ul></section>
+</main>
+<footer>Lab tự soạn cho ôn thi SAP-C02. Các output ghi 'ví dụ' chỉ mang tính minh hoạ; tên domain <code>.example</code> là tên giả. Nhớ chạy mục Dọn dẹp để dừng tính tiền ENI.</footer>
+
+<script>
+(function(){
+  var steps=[].slice.call(document.querySelectorAll('ol.steps>li'));
+  steps.forEach(function(li){
+    var cb=document.createElement('input');cb.type='checkbox';cb.title='Đánh dấu hoàn thành';
+    cb.addEventListener('change',function(){li.classList.toggle('done',cb.checked);upd();});
+    li.appendChild(cb);
+  });
+  function upd(){
+    var d=document.querySelectorAll('ol.steps>li.done').length;
+    document.getElementById('pt').textContent=d+'/'+steps.length+' bước';
+    document.getElementById('pb').style.width=(steps.length?d/steps.length*100:0)+'%';
+  }
+  upd();
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('.cp');if(!el)return;
+    var t=el.getAttribute('data-c');
+    function ok(){el.classList.add('ok');setTimeout(function(){el.classList.remove('ok')},700)}
+    try{navigator.clipboard.writeText(t).then(ok,function(){})}catch(x){}
+  });
+})();
+</script>
+</body>
+</html>

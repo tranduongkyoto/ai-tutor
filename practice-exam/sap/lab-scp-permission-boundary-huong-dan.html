@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hands-on Lab: Organizations SCP, Permissions Boundary và Cross-account Role</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2433;--muted:#5d6779;--line:#e2e6ee;--accent:#ff9900;--accent2:#232f3e;--code:#f0f2f6;--ok:#1a7f4b;--warn:#fff6e0;--warnl:#e6a700;--info:#e8f1ff;--infol:#3b7ddd}
+@media(prefers-color-scheme:dark){:root{--bg:#12161d;--card:#1b212c;--text:#e7eaf0;--muted:#98a2b3;--line:#2c3544;--code:#252d3b;--ok:#4cc38a;--warn:#2d2610;--warnl:#d9a520;--info:#15243b;--infol:#5b9bf0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+header{background:var(--accent2);color:#fff;padding:36px 16px}
+header .w,main,.toc{max-width:920px;margin:0 auto}
+header small{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+header h1{margin:6px 0 10px;font-size:1.8rem;line-height:1.25}
+header p{margin:0;color:#c9d1dc}
+main{padding:0 16px 60px}
+.toc{padding:20px 16px 0}
+.toc ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;list-style:none;padding:0;margin:0;counter-reset:t}
+.toc li{counter-increment:t}
+.toc a{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--text);text-decoration:none;font-size:.92rem}
+.toc a:before{content:counter(t);display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--accent);color:#111;font-weight:700;font-size:.8rem;margin-right:8px}
+.toc a:hover{border-color:var(--accent)}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 20px;margin-top:22px}
+h2{margin:0 0 6px;font-size:1.3rem}
+h2 .n{display:inline-block;background:var(--accent);color:#111;border-radius:6px;padding:0 9px;margin-right:8px;font-size:1rem}
+h3{margin:22px 0 8px;font-size:1.05rem;border-left:4px solid var(--accent);padding-left:10px}
+.goal{color:var(--muted);margin:0 0 6px}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:8px 0}
+ol.steps>li{counter-increment:s;position:relative;padding:8px 8px 8px 44px;border-radius:8px}
+ol.steps>li:before{content:counter(s);position:absolute;left:8px;top:9px;width:26px;height:26px;border-radius:50%;background:var(--accent2);color:#fff;font-size:.8rem;text-align:center;line-height:26px}
+ol.steps>li.done{opacity:.55}
+ol.steps>li.done:before{content:"✓";background:var(--ok)}
+ol.steps>li label{cursor:pointer;display:block}
+ol.steps input[type=checkbox]{position:absolute;right:6px;top:12px}
+code,.kv{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:.88em}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--code);width:34%}
+.tw{overflow-x:auto}
+.note,.warn{border-left:4px solid var(--infol);background:var(--info);padding:10px 14px;border-radius:6px;margin:12px 0;font-size:.94rem}
+.warn{border-color:var(--warnl);background:var(--warn)}
+.cp{cursor:pointer;border:1px dashed var(--line)}
+.cp:hover{border-color:var(--accent)}
+.cp.ok{border-color:var(--ok);background:var(--code)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow span.b{background:var(--accent2);color:#fff;padding:8px 12px;border-radius:8px;font-size:.85rem}
+.flow span.b.o{background:var(--accent);color:#111}
+.flow i{font-style:normal;color:var(--muted)}
+.bar{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:8px 16px;font-size:.88rem;display:flex;gap:12px;align-items:center}
+.bar .pg{flex:1;height:8px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar .pg div{height:100%;width:0;background:var(--ok);transition:width .2s}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:0 16px 40px}
+@media print{.bar{display:none}section.card{break-inside:avoid-page}}
+</style>
+</head>
+<body>
+
+<header><div class="w">
+<small>AWS Hands-on Lab · Security &amp; Governance (SAP-C02)</small>
+<h1>Organizations SCP + Permissions Boundary + Cross-account Role</h1>
+<p>Lab trên giấy (paper lab) cho SCP, kèm phần tùy chọn thực hành IAM-only trong sandbox 1 account: permissions boundary, ủy quyền tạo role và cross-account AssumeRole với ExternalId.</p>
+</div></header>
+
+<div class="bar"><span id="pt">0/0 bước</span><div class="pg"><div id="pb"></div></div></div>
+
+<nav class="toc"><ol>
+<li><a href="#t1">Mô hình đánh giá quyền (SCP ∩ boundary ∩ identity)</a></li>
+<li><a href="#t2">Paper lab: deny-list SCP &amp; bài tập quyền hiệu lực</a></li>
+<li><a href="#t3">SCP giới hạn Region &amp; chặn rời Organization</a></li>
+<li><a href="#t4">Permissions boundary cho delegated admin</a></li>
+<li><a href="#t5">Cross-account AssumeRole + ExternalId</a></li>
+<li><a href="#t6">Tùy chọn: thực hành IAM-only trong sandbox</a></li>
+<li><a href="#t7">💥 Phá thử</a></li>
+<li><a href="#t8">🧹 Dọn dẹp</a></li>
+<li><a href="#t9">🎯 3 câu hỏi kiểu đề</a></li>
+<li><a href="#t10">📌 Quy tắc ghi nhớ</a></li>
+</ol></nav>
+
+<main>
+
+<section class="card" id="ov">
+<h2>Tổng quan &amp; kịch bản</h2>
+<p>Công ty có một AWS Organization gồm management account và hai OU: <b>Dev</b> và <b>Prod</b>. Bạn là cloud architect phải (1) chặn một số hành động trên toàn org bất kể IAM admin trong member account cho phép gì, (2) cho developer tự tạo IAM role mà không thể tự nâng quyền, (3) cho phép account Dev đọc tài nguyên account Prod an toàn qua cross-account role.</p>
+<div class="flow">
+<span class="b">Organization root</span><i>→</i><span class="b">OU Dev</span><i>→</i><span class="b o">SCP</span><i>→</i><span class="b">Permissions boundary</span><i>→</i><span class="b">Identity policy</span><i>→</i><span class="b">Quyền hiệu lực</span>
+</div>
+<div class="flow">
+<span class="b">User (Dev account)</span><i>→ sts:AssumeRole + ExternalId →</i><span class="b o">Role (Prod account)</span><i>→</i><span class="b">Credential tạm thời</span>
+</div>
+<div class="tw"><table>
+<tr><th>Chế độ</th><td><b>Lab trên giấy</b> là mặc định (sandbox Udemy thường chặn <code>organizations:*</code>). Mục 2-3 chỉ cần đọc, tính toán, trả lời. Mục 6 là phần thực hành IAM-only chạy được trong 1 account.</td></tr>
+<tr><th>Thời gian</th><td>Khoảng 30-40 phút (paper ~25 phút, IAM-only ~15 phút)</td></tr>
+<tr><th>Region</th><td>IAM/STS là global; CLI dùng <code>us-east-1</code> hoặc <code>ap-southeast-1</code> đều được</td></tr>
+<tr><th>Công cụ</th><td>AWS CLI v2. Account ID trong bài (111111111111, 222222222222, 333333333333) chỉ là ví dụ.</td></tr>
+<tr><th>Chi phí</th><td>IAM, STS, Organizations miễn phí</td></tr>
+</table></div>
+
+<div class="note"><b>Liên hệ đề thi.</b> Các bẫy bài này xử lý:
+<ul>
+<li>"SCP cấp quyền cho account" - sai: SCP chỉ đặt <b>trần</b>, không bao giờ grant.</li>
+<li>"SCP chặn được management account" - sai: management account <b>không bị</b> SCP ảnh hưởng.</li>
+<li>Quyền hiệu lực = giao của SCP, boundary, identity policy; <b>explicit Deny</b> ở bất kỳ tầng nào thắng.</li>
+<li>Giới hạn Region bằng <code>aws:RequestedRegion</code> nhưng quên <code>NotAction</code> cho global services (IAM, STS, Route 53, CloudFront...) làm hỏng account.</li>
+<li>Cho developer tạo role mà không leo thang đặc quyền: <b>permissions boundary</b> + condition <code>iam:PermissionsBoundary</code> (không phải SCP).</li>
+<li>Third-party truy cập account: trust policy + <b>ExternalId</b> chống confused deputy.</li>
+</ul></div>
+<div class="note">Mẹo: bấm vào các ô viền nét đứt để copy nhanh. Tick checkbox bên phải mỗi bước để theo dõi tiến độ (chỉ lưu trong phiên xem).</div>
+</section>
+
+<!-- 1 -->
+<section class="card" id="t1">
+<h2><span class="n">1</span>Mô hình đánh giá quyền</h2>
+<p class="goal">Nắm 5 quy tắc trước khi làm bài tập.</p>
+<div class="tw"><table>
+<tr><th>Cơ chế</th><th>Vai trò</th><th>Cấp quyền?</th></tr>
+<tr><td>SCP</td><td>Trần quyền tối đa cho mọi principal trong member account (kể cả root user của member). Gắn ở root/OU/account.</td><td>Không</td></tr>
+<tr><td>Permissions boundary</td><td>Trần quyền tối đa cho 1 IAM user/role cụ thể.</td><td>Không</td></tr>
+<tr><td>Identity policy</td><td>Quyền gắn cho user/role/group.</td><td>Có</td></tr>
+<tr><td>Resource-based policy</td><td>Quyền gắn trên tài nguyên (S3 bucket, trust policy của role...).</td><td>Có</td></tr>
+</table></div>
+<ol class="steps">
+<li>Management account <b>không bị</b> SCP ảnh hưởng (dù SCP gắn ở root). Vì vậy không nên chạy workload trong management account.</li>
+<li>SCP cũng không áp dụng cho <b>service-linked role</b>.</li>
+<li>Mặc định mỗi root/OU/account có SCP <code>FullAWSAccess</code> (Allow <code>*</code>). Nếu gỡ nó mà không thay bằng Allow khác thì <b>mọi thứ bị chặn</b> (implicit deny).</li>
+<li><b>Deny-list strategy</b> (khuyến nghị): giữ <code>FullAWSAccess</code> + thêm SCP với explicit Deny cho thứ cần cấm. <b>Allow-list strategy</b>: gỡ <code>FullAWSAccess</code>, chỉ Allow dịch vụ được duyệt (phải Allow ở <b>mọi</b> cấp từ root xuống account).</li>
+<li>Quyền hiệu lực = <b>SCP ∩ boundary ∩ identity policy</b>; bất kỳ explicit Deny nào thắng tất cả.</li>
+</ol>
+<div class="flow">
+<span class="b">Request</span><i>→</i><span class="b">Có explicit Deny?</span><i>→ không →</i><span class="b">SCP Allow?</span><i>→</i><span class="b">Boundary Allow?</span><i>→</i><span class="b o">Identity/Resource Allow?</span><i>→</i><span class="b">Cho phép</span>
+</div>
+</section>
+
+<!-- 2 -->
+<section class="card" id="t2">
+<h2><span class="n">2</span>Paper lab: deny-list SCP và bài tập quyền hiệu lực</h2>
+<p class="goal">Đọc SCP mẫu và tự tính kết quả cho 6 tình huống. Cần giấy bút, không cần AWS.</p>
+
+<h3>2A. SCP deny-list mẫu</h3>
+<p>Cấm tắt CloudTrail và cấm tạo access key cho IAM user (gắn ở OU Dev, giữ nguyên <code>FullAWSAccess</code>):</p>
+<div class="tw"><pre class="json"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyCloudTrailTamper",
+      "Effect": "Deny",
+      "Action": [
+        "cloudtrail:StopLogging",
+        "cloudtrail:DeleteTrail"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyIamAccessKeys",
+      "Effect": "Deny",
+      "Action": "iam:CreateAccessKey",
+      "Resource": "*"
+    }
+  ]
+}</code></pre></div>
+
+<h3>2B. Bài tập</h3>
+<p>Dự đoán Allow hay Deny cho từng ca. Hành động mặc định là <code>s3:PutObject</code> trừ khi ghi khác.</p>
+<ol class="steps">
+<li>🔮 <b>Dự đoán ca 1:</b> OU có <code>FullAWSAccess</code>; role không boundary; identity policy Allow <code>s3:*</code>.
+<details><summary>Xem kết quả</summary>Allow. SCP và identity đều cho phép, không có Deny.</details></li>
+<li>🔮 <b>Dự đoán ca 2:</b> Gỡ <code>FullAWSAccess</code> khỏi OU, thay bằng SCP chỉ Allow <code>ec2:*</code>; user có <code>AdministratorAccess</code>.
+<details><summary>Xem kết quả</summary>Deny. SCP không Allow S3 nên implicit deny, dù user là admin.</details></li>
+<li>🔮 <b>Dự đoán ca 3:</b> OU có <code>FullAWSAccess</code> + SCP ở 2A; admin user gọi <code>cloudtrail:StopLogging</code>.
+<details><summary>Xem kết quả</summary>Deny. Explicit Deny trong SCP thắng mọi Allow trong identity policy.</details></li>
+<li>🔮 <b>Dự đoán ca 4:</b> Role có boundary chỉ Allow <code>s3:*</code>, identity policy Allow <code>ec2:*</code>; gọi <code>ec2:RunInstances</code>.
+<details><summary>Xem kết quả</summary>Deny. Quyền hiệu lực là giao của boundary và identity: boundary không có <code>ec2:*</code> nên giao rỗng.</details></li>
+<li>🔮 <b>Dự đoán ca 5:</b> Gắn SCP Deny <code>ec2:*</code> vào Organization root; admin của <b>management account</b> chạy <code>ec2:RunInstances</code>.
+<details><summary>Xem kết quả</summary>Allow (nếu identity policy cho phép). SCP không ảnh hưởng management account, nhưng cùng SCP đó chặn mọi member account.</details></li>
+<li>🔮 <b>Dự đoán ca 6:</b> Bucket policy (cùng account) Allow trực tiếp ARN của IAM <b>user</b> <code>alice</code> với <code>s3:PutObject</code>; alice có boundary chỉ Allow <code>dynamodb:*</code> và không có identity policy S3. SCP là <code>FullAWSAccess</code>.
+<details><summary>Xem kết quả</summary>Allow. Với IAM user được nêu đích danh trong resource-based policy cùng account, boundary không giới hạn quyền này. SCP vẫn áp dụng: nếu SCP chặn S3 thì vẫn Deny.</details></li>
+</ol>
+<div class="warn">Bẫy: SCP chỉ lọc request từ principal <b>trong account bị gắn SCP</b>. Principal ở account khác truy cập bucket của bạn qua bucket policy không bị SCP của account bucket chặn (họ chịu SCP của account họ).</div>
+</section>
+
+<!-- 3 -->
+<section class="card" id="t3">
+<h2><span class="n">3</span>SCP giới hạn Region và chặn rời Organization</h2>
+<p class="goal">Chỉ cho dùng <code>ap-southeast-1</code> và <code>us-east-1</code>, miễn trừ global services bằng <code>NotAction</code>; cấm member account tự rời org.</p>
+
+<h3>3A. Region restriction</h3>
+<div class="tw"><pre class="json"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyOutsideApprovedRegions",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:*",
+        "organizations:*",
+        "sts:*",
+        "route53:*",
+        "route53domains:*",
+        "cloudfront:*",
+        "waf:*",
+        "wafv2:*",
+        "shield:*",
+        "globalaccelerator:*",
+        "budgets:*",
+        "ce:*",
+        "cur:*",
+        "health:*",
+        "support:*",
+        "trustedadvisor:*",
+        "aws-portal:*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:RequestedRegion": [
+            "ap-southeast-1",
+            "us-east-1"
+          ]
+        }
+      }
+    }
+  ]
+}</code></pre></div>
+<div class="note">Danh sách <code>NotAction</code> trên đã rút gọn để dễ đọc. Ví dụ đầy đủ nằm trong tài liệu AWS Organizations ("Deny access to AWS based on the requested AWS Region"). Hãy đối chiếu lại với tài liệu hiện hành trước khi dùng thật.</div>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> Vì sao SCP dùng <code>NotAction</code> thay vì <code>Action: "*"</code>? Điều gì xảy ra với IAM/Route 53/CloudFront nếu bỏ <code>NotAction</code> và allow-list Region chỉ còn <code>ap-southeast-1</code>?
+<details><summary>Xem kết quả</summary>Global service (IAM, Route 53, CloudFront, Organizations...) có endpoint đặt ở <code>us-east-1</code>, nên request global được đánh giá với Region đó. Nếu <code>us-east-1</code> không nằm trong allow-list và không có <code>NotAction</code>, các lời gọi này bị Deny và bạn không quản lý được account. <code>NotAction</code> miễn trừ chúng bất kể Region.</details></li>
+<li>🔮 <b>Dự đoán:</b> Với SCP ở trên, admin gọi <code>ec2:RunInstances</code> ở <code>eu-west-1</code>; rồi gọi <code>iam:CreateRole</code>.
+<details><summary>Xem kết quả</summary><code>RunInstances</code> ở eu-west-1: Deny (explicit deny từ SCP). <code>iam:CreateRole</code>: nằm trong <code>NotAction</code> nên không bị Deny này.</details></li>
+</ol>
+
+<h3>3B. Chặn rời Organization</h3>
+<div class="tw"><pre class="json"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyLeaveOrganization",
+      "Effect": "Deny",
+      "Action": "organizations:LeaveOrganization",
+      "Resource": "*"
+    }
+  ]
+}</code></pre></div>
+
+<h3>3C. Nếu có Organizations thật (tùy chọn)</h3>
+<p>Chạy từ <b>management account</b>. Thay <code>r-xxxx</code>, <code>ou-xxxx-xxxxxxxx</code>, <code>p-xxxxxxxx</code> bằng ID thật (xem bằng <code>aws organizations list-roots</code> và <code>list-organizational-units-for-parent</code>; policy ID có trong output của <code>create-policy</code>).</p>
+<div class="tw"><pre><code>aws organizations enable-policy-type --root-id r-xxxx --policy-type SERVICE_CONTROL_POLICY
+aws organizations create-policy --name DenyLeaveOrg \
+  --description "Deny leaving the organization" \
+  --type SERVICE_CONTROL_POLICY \
+  --content file://deny-leave-org.json
+aws organizations attach-policy --policy-id p-xxxxxxxx --target-id ou-xxxx-xxxxxxxx
+aws organizations list-policies-for-target --target-id ou-xxxx-xxxxxxxx --filter SERVICE_CONTROL_POLICY</code></pre></div>
+<div class="warn">Không thử SCP trên account production. Thử trên OU/account riêng, quy mô nhỏ trước.</div>
+</section>
+
+<!-- 4 -->
+<section class="card" id="t4">
+<h2><span class="n">4</span>Permissions boundary cho delegated admin</h2>
+<p class="goal">Developer được tự tạo role (cho Lambda...) nhưng mọi role phải mang boundary <code>DevBoundary</code>, nên không thể tạo role có quyền vượt mức cho phép.</p>
+<div class="flow">
+<span class="b">Developer</span><i>→ iam:CreateRole →</i><span class="b o">Có PermissionsBoundary = DevBoundary?</span><i>→ có →</i><span class="b">Tạo được</span>
+</div>
+
+<h3>4A. Boundary policy <code>DevBoundary</code> (trần quyền cho role do dev tạo)</h3>
+<div class="tw"><pre class="json"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowedServicesCeiling",
+      "Effect": "Allow",
+      "Action": [
+        "s3:*",
+        "dynamodb:*",
+        "lambda:*",
+        "logs:*",
+        "sqs:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}</code></pre></div>
+
+<h3>4B. Identity policy gắn cho developer (ví dụ account 222222222222)</h3>
+<div class="tw"><pre class="json"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CreateRoleOnlyWithBoundary",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:PutRolePermissionsBoundary"
+      ],
+      "Resource": "arn:aws:iam::222222222222:role/dev-*",
+      "Condition": {
+        "StringEquals": {
+          "iam:PermissionsBoundary": "arn:aws:iam::222222222222:policy/DevBoundary"
+        }
+      }
+    },
+    {
+      "Sid": "ManagePoliciesOnBoundedRolesOnly",
+      "Effect": "Allow",
+      "Action": [
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy"
+      ],
+      "Resource": "arn:aws:iam::222222222222:role/dev-*",
+      "Condition": {
+        "StringEquals": {
+          "iam:PermissionsBoundary": "arn:aws:iam::222222222222:policy/DevBoundary"
+        }
+      }
+    },
+    {
+      "Sid": "DenyBoundaryRemovalAndTamper",
+      "Effect": "Deny",
+      "Action": [
+        "iam:DeleteRolePermissionsBoundary",
+        "iam:CreatePolicyVersion",
+        "iam:DeletePolicy",
+        "iam:DeletePolicyVersion",
+        "iam:SetDefaultPolicyVersion"
+      ],
+      "Resource": [
+        "arn:aws:iam::222222222222:role/dev-*",
+        "arn:aws:iam::222222222222:policy/DevBoundary"
+      ]
+    }
+  ]
+}</code></pre></div>
+<div class="note">Ba khối: (1) chỉ tạo role tên <code>dev-*</code> khi gắn đúng boundary; (2) chỉ sửa policy của role đã mang boundary; (3) cấm gỡ boundary và cấm sửa chính policy boundary. Thiếu khối 3 là lỗ hổng leo thang quyền kinh điển. Dev cần thêm <code>iam:PassRole</code> (giới hạn theo role <code>dev-*</code>) để gán role cho service.</div>
+
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> Dev chạy <code>iam:CreateRole</code> cho <code>dev-app</code> mà <b>không</b> truyền <code>--permissions-boundary</code>.
+<details><summary>Xem kết quả</summary>AccessDenied. Không có Allow nào khớp vì condition <code>iam:PermissionsBoundary</code> không thỏa (implicit deny).</details></li>
+<li>🔮 <b>Dự đoán:</b> Dev tạo <code>dev-app</code> với boundary DevBoundary rồi gắn <code>AdministratorAccess</code> cho role. Role làm được gì?
+<details><summary>Xem kết quả</summary>Chỉ làm được trong S3, DynamoDB, Lambda, CloudWatch Logs, SQS. Quyền hiệu lực = Admin ∩ DevBoundary, tức trần của boundary. Dev gắn Admin cũng không vượt được trần.</details></li>
+<li>🔮 <b>Dự đoán:</b> Dev chạy <code>iam:DeleteRolePermissionsBoundary</code> trên <code>dev-app</code>.
+<details><summary>Xem kết quả</summary>Deny rõ ràng (khối 3). Không gỡ được boundary để leo thang.</details></li>
+</ol>
+<div class="note"><b>Khác biệt với SCP:</b> boundary gắn cho từng user/role và do admin của account quản; SCP gắn cho cả account/OU và do Organizations quản. Để "delegated admin" tạo role an toàn dùng boundary + condition, không dùng SCP.</div>
+</section>
+
+<!-- 5 -->
+<section class="card" id="t5">
+<h2><span class="n">5</span>Cross-account AssumeRole + ExternalId</h2>
+<p class="goal">Account Dev (222222222222) assume role <code>ProdReadOnly</code> ở account Prod (333333333333). Cần cả hai phía: trust policy ở Prod và quyền <code>sts:AssumeRole</code> ở Dev.</p>
+<div class="flow">
+<span class="b">Dev user</span><i>→ identity policy sts:AssumeRole →</i><span class="b o">Prod role trust policy (Dev + ExternalId)</span><i>→</i><span class="b">Temporary credentials</span>
+</div>
+
+<h3>5A. Trust policy của role ở Prod (account 333333333333)</h3>
+<div class="tw"><pre class="json"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::222222222222:root"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "sts:ExternalId": "lab-ext-2026"
+        }
+      }
+    }
+  ]
+}</code></pre></div>
+<p>Gắn permissions policy cho role (ví dụ <code>ReadOnlyAccess</code>).</p>
+
+<h3>5B. Identity policy phía Dev cho phép assume</h3>
+<div class="tw"><pre class="json"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": "arn:aws:iam::333333333333:role/ProdReadOnly"
+    }
+  ]
+}</code></pre></div>
+
+<h3>5C. CLI</h3>
+<div class="tw"><pre><code>aws sts assume-role \
+  --role-arn arn:aws:iam::333333333333:role/ProdReadOnly \
+  --role-session-name lab-session \
+  --external-id lab-ext-2026 \
+  --duration-seconds 3600</code></pre></div>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> Trust policy có <code>Principal: arn:aws:iam::222222222222:root</code>. "root" nghĩa là root user hay cả account Dev?
+<details><summary>Xem kết quả</summary>Nghĩa là <b>toàn bộ account Dev</b> (ủy quyền cho account đó quyết định ai được assume), không phải root user. Principal trong Dev vẫn cần identity policy cho <code>sts:AssumeRole</code> (5B). Muốn hẹp hơn thì ghi ARN của user/role cụ thể.</details></li>
+<li>🔮 <b>Dự đoán:</b> Gọi assume-role <b>không</b> có <code>--external-id</code>.
+<details><summary>Xem kết quả</summary>AccessDenied. Condition <code>sts:ExternalId</code> không thỏa. ExternalId là giá trị chia sẻ giữa bạn và bên thứ ba, giúp chống <b>confused deputy</b>.</details></li>
+<li>Khi thành công, kết quả có <code>AccessKeyId</code>, <code>SecretAccessKey</code>, <code>SessionToken</code>, <code>Expiration</code>. Phải dùng cả 3 giá trị đầu cho các lời gọi sau. <code>aws sts get-caller-identity</code> sẽ cho ARN dạng <code>arn:aws:sts::333333333333:assumed-role/ProdReadOnly/lab-session</code>.</li>
+</ol>
+<div class="note">ExternalId không thay thế xác thực; nó dùng cho ngữ cảnh third-party. Với account nội bộ cùng Organization, thường dùng <code>aws:PrincipalOrgID</code> trong trust/resource policy thay vì ExternalId.</div>
+</section>
+
+<!-- 6 -->
+<section class="card" id="t6">
+<h2><span class="n">6</span>Tùy chọn: thực hành IAM-only trong sandbox 1 account</h2>
+<p class="goal">Mô phỏng permissions boundary và cross-account role ngay trong 1 account (role "cross-account" ở đây cùng account). Không cần Organizations.</p>
+<div class="warn">Sandbox có thể chặn <code>iam:*</code>. Nếu <code>create-policy</code> báo AccessDenied thì quay về đọc như lab trên giấy. Chỉ dùng account sandbox.</div>
+
+<h3>6A. Chuẩn bị biến, boundary, trust policy</h3>
+<ol class="steps">
+<li>Mở AWS CloudShell (hoặc terminal có credential admin sandbox) và đặt biến:
+<div class="tw"><pre><code>ACCT=$(aws sts get-caller-identity --query Account --output text)
+echo $ACCT</code></pre></div></li>
+<li>Tạo boundary (S3 + CloudWatch Logs):
+<div class="tw"><pre><code>cat &gt; boundary.json &lt;&lt;'EOF'
+{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["s3:*","logs:*"],"Resource":"*"}]}
+EOF
+aws iam create-policy --policy-name DevBoundary --policy-document file://boundary.json</code></pre></div></li>
+<li>Tạo trust policy cho role lab, có ExternalId (principal là chính account của bạn):
+<div class="tw"><pre><code>cat &gt; trust.json &lt;&lt;EOF
+{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":"arn:aws:iam::${ACCT}:root"},"Action":"sts:AssumeRole","Condition":{"StringEquals":{"sts:ExternalId":"lab-ext-2026"}}}]}
+EOF</code></pre></div></li>
+</ol>
+
+<h3>6B. Role có boundary + Admin, rồi assume</h3>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> Role <code>dev-lab-role</code> có <code>AdministratorAccess</code> nhưng boundary chỉ S3+Logs. Gọi <code>s3 ls</code> và <code>ec2 describe-instances</code> bằng role này sẽ ra sao?
+<details><summary>Xem kết quả</summary><code>s3 ls</code> thành công; <code>ec2 describe-instances</code> bị từ chối (UnauthorizedOperation/AccessDenied) vì EC2 không nằm trong boundary.</details>
+<div class="tw"><pre><code>aws iam create-role --role-name dev-lab-role \
+  --assume-role-policy-document file://trust.json \
+  --permissions-boundary arn:aws:iam::${ACCT}:policy/DevBoundary
+aws iam attach-role-policy --role-name dev-lab-role \
+  --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+sleep 15</code></pre></div></li>
+<li>Assume role (có ExternalId) và nạp credential vào biến môi trường:
+<div class="tw"><pre><code>read AK SK ST &lt;&lt;&lt; $(aws sts assume-role \
+  --role-arn arn:aws:iam::${ACCT}:role/dev-lab-role \
+  --role-session-name lab --external-id lab-ext-2026 \
+  --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text)
+export AWS_ACCESS_KEY_ID=$AK AWS_SECRET_ACCESS_KEY=$SK AWS_SESSION_TOKEN=$ST
+aws sts get-caller-identity</code></pre></div></li>
+<li>Kiểm tra quyền hiệu lực:
+<div class="tw"><pre><code>aws s3 ls
+aws ec2 describe-instances --region us-east-1</code></pre></div>
+Kết quả mong đợi (mô tả): lệnh đầu chạy được (có thể ra danh sách rỗng); lệnh sau báo lỗi từ chối quyền.</li>
+<li>Thoát phiên role để quay về credential admin:
+<div class="tw"><pre><code>unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN</code></pre></div></li>
+</ol>
+
+<h3>6C. Delegated admin: user chỉ tạo role khi có boundary</h3>
+<ol class="steps">
+<li>Tạo user <code>dev-delegate</code> với policy ủy quyền (rút gọn từ 4B, đúng account của bạn):
+<div class="tw"><pre><code>cat &gt; delegate.json &lt;&lt;EOF
+{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["iam:CreateRole","iam:PutRolePermissionsBoundary"],"Resource":"arn:aws:iam::${ACCT}:role/dev-*","Condition":{"StringEquals":{"iam:PermissionsBoundary":"arn:aws:iam::${ACCT}:policy/DevBoundary"}}}]}
+EOF
+aws iam create-user --user-name dev-delegate
+aws iam put-user-policy --user-name dev-delegate --policy-name delegate --policy-document file://delegate.json
+aws iam create-access-key --user-name dev-delegate</code></pre></div>
+Lưu <code>AccessKeyId</code>/<code>SecretAccessKey</code> chỉ trong phiên lab, không commit hay dán vào nơi công khai.</li>
+<li>🔮 <b>Dự đoán:</b> Dùng credential của <code>dev-delegate</code> (đặt vào <code>AWS_ACCESS_KEY_ID</code>/<code>AWS_SECRET_ACCESS_KEY</code>), tạo role (a) không boundary, (b) có boundary. Kết quả?
+<div class="tw"><pre><code># (a) không boundary
+aws iam create-role --role-name dev-nobound --assume-role-policy-document file://trust.json
+# (b) có boundary
+aws iam create-role --role-name dev-bound --assume-role-policy-document file://trust.json \
+  --permissions-boundary arn:aws:iam::${ACCT}:policy/DevBoundary</code></pre></div>
+<details><summary>Xem kết quả</summary>(a) AccessDenied. (b) thành công. Sau đó <code>unset</code> các biến credential để quay về admin.</details></li>
+</ol>
+</section>
+
+<!-- 7 -->
+<section class="card" id="t7">
+<h2><span class="n">7</span>💥 Phá thử</h2>
+<p class="goal">Cố ý làm hỏng để thấy cơ chế. Mỗi thí nghiệm: dự đoán trước, xem kết quả sau.</p>
+<ol class="steps">
+<li>🔮 <b>Bỏ Allow (paper):</b> Gỡ <code>FullAWSAccess</code> khỏi OU Dev và chỉ để SCP Deny ở mục 2A. Admin chạy được <code>ec2:RunInstances</code> không?
+<details><summary>Xem kết quả</summary>Không. Không còn SCP nào Allow nên implicit deny cho mọi thứ. Deny-list chỉ hoạt động khi <code>FullAWSAccess</code> vẫn còn.</details></li>
+<li>🔮 <b>Quên NotAction (paper):</b> Dùng SCP Region với allow-list chỉ <code>ap-southeast-1</code> và <code>Action: "*"</code> thay cho <code>NotAction</code>. Admin gọi <code>iam:CreateRole</code>?
+<details><summary>Xem kết quả</summary>Deny: request IAM (global) được đánh giá với Region <code>us-east-1</code>, không nằm trong allow-list. Cả Route 53, CloudFront, Organizations cũng hỏng. Luôn miễn trừ global service bằng NotAction.</details></li>
+<li>🔮 <b>Sai ExternalId (sandbox):</b> chạy lại assume-role với <code>--external-id sai-roi</code>.
+<details><summary>Xem kết quả</summary>AccessDenied khi gọi AssumeRole. Sửa lại đúng ExternalId thì thành công.</details></li>
+<li>🔮 <b>Sai trust (sandbox):</b> với credential admin, sửa <code>Principal</code> trong trust.json thành account khác (ví dụ <code>arn:aws:iam::999999999999:root</code>) rồi cập nhật và assume lại.
+<div class="tw"><pre><code>aws iam update-assume-role-policy --role-name dev-lab-role --policy-document file://trust.json</code></pre></div>
+<details><summary>Xem kết quả</summary>Không assume được vì principal của bạn không còn nằm trong trust policy. Đưa trust về như cũ để dùng tiếp.</details></li>
+<li>🔮 <b>Gỡ boundary (sandbox):</b> với credential admin chạy lệnh dưới rồi lặp lại <code>ec2 describe-instances</code> bằng role (assume lại).
+<div class="tw"><pre><code>aws iam delete-role-permissions-boundary --role-name dev-lab-role</code></pre></div>
+<details><summary>Xem kết quả</summary>Sau khi gỡ boundary, role có quyền Admin đầy đủ nên EC2 describe thành công. Đó là lý do khối Deny gỡ boundary ở 4B quan trọng.</details></li>
+</ol>
+</section>
+
+<!-- 8 -->
+<section class="card" id="t8">
+<h2><span class="n">8</span>🧹 Dọn dẹp</h2>
+<p class="goal">Thứ tự: bỏ phiên → xóa access key/user → detach policy → xóa role → xóa policy boundary sau cùng.</p>
+<h3>Sandbox IAM (mục 6)</h3>
+<div class="tw"><pre><code>unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
+# user dev-delegate
+for K in $(aws iam list-access-keys --user-name dev-delegate --query 'AccessKeyMetadata[].AccessKeyId' --output text); do
+  aws iam delete-access-key --user-name dev-delegate --access-key-id $K; done
+aws iam delete-user-policy --user-name dev-delegate --policy-name delegate
+aws iam delete-user --user-name dev-delegate
+# roles
+aws iam detach-role-policy --role-name dev-lab-role --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+aws iam delete-role --role-name dev-lab-role
+aws iam delete-role --role-name dev-bound
+# policy boundary: xóa SAU khi không còn role nào dùng
+aws iam delete-policy --policy-arn arn:aws:iam::${ACCT}:policy/DevBoundary
+rm -f boundary.json trust.json delegate.json</code></pre></div>
+<p>Nếu <code>delete-role</code> báo NoSuchEntity (chưa tạo role đó) thì bỏ qua. Nếu <code>dev-nobound</code> lỡ tạo được thì cũng xóa. Nếu bạn đã thử gỡ boundary ở mục 7 thì <code>dev-lab-role</code> vẫn xóa bình thường.</p>
+<h3>Organizations (chỉ nếu đã làm 3C)</h3>
+<div class="tw"><pre><code>aws organizations detach-policy --policy-id p-xxxxxxxx --target-id ou-xxxx-xxxxxxxx
+aws organizations delete-policy --policy-id p-xxxxxxxx</code></pre></div>
+<div class="warn">Phải <code>detach-policy</code> trước thì <code>delete-policy</code> mới thành công. Không xóa được SCP <code>FullAWSAccess</code> do AWS quản lý.</div>
+</section>
+
+<!-- 9 -->
+<section class="card" id="t9">
+<h2><span class="n">9</span>🎯 3 câu hỏi kiểu đề</h2>
+<p class="goal">Tình huống tự soạn, không lấy từ bộ đề nào.</p>
+
+<h3>Câu 1</h3>
+<p>Một công ty có Organization 40 account. Đội bảo mật muốn đảm bảo không ai, kể cả admin trong member account, tắt được CloudTrail. Kiểm toán viên cũng yêu cầu management account tuân thủ cùng quy tắc. Kiến trúc sư nên làm gì?</p>
+<ol type="A">
+<li>Gắn SCP Deny <code>cloudtrail:StopLogging</code> ở root, vậy là đủ cho cả management account.</li>
+<li>Gắn SCP Deny ở root cho các member account, và áp dụng biện pháp riêng cho management account (IAM policy, hạn chế người dùng trong chính account đó).</li>
+<li>Gắn permissions boundary cho mọi IAM role trong org.</li>
+<li>Gỡ <code>FullAWSAccess</code> và dùng allow-list ở root.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>B.</b> SCP không áp dụng cho management account nên A sai; phải kiểm soát bằng IAM policy/quy trình riêng ở management account (và tránh chạy workload ở đó). C không bao phủ toàn bộ principal và khó thực thi toàn org. D không tới được management account và rủi ro làm hỏng mọi thứ.</details>
+
+<h3>Câu 2</h3>
+<p>Đội platform muốn developer tự tạo IAM role cho Lambda mà không cần ticket, nhưng không muốn bất kỳ role nào do dev tạo có quyền IAM hoặc EC2. Giải pháp nào ít vận hành nhất?</p>
+<ol type="A">
+<li>Dùng SCP Deny <code>iam:CreateRole</code> cho OU developer.</li>
+<li>Cho developer <code>AdministratorAccess</code> và giám sát bằng AWS Config.</li>
+<li>Cho phép <code>iam:CreateRole</code>/<code>iam:AttachRolePolicy</code> chỉ khi role mang một permissions boundary xác định (condition <code>iam:PermissionsBoundary</code>), đồng thời Deny việc gỡ boundary.</li>
+<li>Tạo role giúp developer qua ticket.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>C.</b> Đây là mô hình delegated admin chuẩn. A chặn hẳn nhu cầu. B không ngăn leo thang đặc quyền, chỉ phát hiện sau. D tăng vận hành. SCP không phù hợp vì cần cho phép tạo role có điều kiện.</details>
+
+<h3>Câu 3</h3>
+<p>Một nhà cung cấp SaaS giám sát cần assume role trong account khách hàng. Công ty lo một khách hàng khác của vendor có thể lừa vendor thao tác lên account của mình bằng cách khai ARN role của họ (confused deputy). Biện pháp đúng?</p>
+<ol type="A">
+<li>Trust policy của role khách hàng yêu cầu <code>sts:ExternalId</code> duy nhất cho từng khách hàng, do vendor cấp.</li>
+<li>Tạo IAM user cho vendor và gửi access key dài hạn.</li>
+<li>Dùng SCP Deny <code>sts:AssumeRole</code>.</li>
+<li>Mở trust cho <code>Principal: "*"</code> kèm security group giới hạn IP.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>A.</b> ExternalId duy nhất cho mỗi khách hàng ngăn confused deputy. B dùng credential dài hạn, kém an toàn. C chặn luôn việc assume cần thiết. D trust <code>*</code> là cấu hình nguy hiểm và security group không liên quan đến STS.</details>
+</section>
+
+<!-- 10 -->
+<section class="card" id="t10">
+<h2><span class="n">10</span>📌 Quy tắc ghi nhớ</h2>
+<ol class="steps">
+<li>SCP chỉ đặt <b>trần</b>, không bao giờ grant; không áp dụng cho management account và service-linked role.</li>
+<li>Quyền hiệu lực = SCP ∩ boundary ∩ identity policy; explicit Deny thắng tất cả.</li>
+<li>Deny-list: giữ <code>FullAWSAccess</code> + Deny cụ thể; gỡ <code>FullAWSAccess</code> mà không Allow thay thế = chặn hết.</li>
+<li>Giới hạn Region: <code>aws:RequestedRegion</code> + <code>NotAction</code> cho global services.</li>
+<li>Delegated admin tạo role: permissions boundary + condition <code>iam:PermissionsBoundary</code>; third-party: trust policy + ExternalId.</li>
+</ol>
+</section>
+
+</main>
+<footer>Lab tự biên soạn cho ôn thi AWS SAP-C02. Account ID, tên tài nguyên và kết quả đều là ví dụ; đối chiếu AWS docs hiện hành trước khi dùng thực tế.</footer>
+
+<script>
+(function(){
+  var steps=[].slice.call(document.querySelectorAll('ol.steps>li'));
+  steps.forEach(function(li){
+    var cb=document.createElement('input');cb.type='checkbox';cb.title='Đánh dấu hoàn thành';
+    cb.addEventListener('change',function(){li.classList.toggle('done',cb.checked);upd();});
+    li.appendChild(cb);
+  });
+  function upd(){
+    var d=document.querySelectorAll('ol.steps>li.done').length;
+    document.getElementById('pt').textContent=d+'/'+steps.length+' bước';
+    document.getElementById('pb').style.width=(steps.length?d/steps.length*100:0)+'%';
+  }
+  upd();
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('.cp');if(!el)return;
+    var t=el.getAttribute('data-c');
+    function ok(){el.classList.add('ok');setTimeout(function(){el.classList.remove('ok')},700)}
+    try{navigator.clipboard.writeText(t).then(ok,function(){})}catch(x){}
+  });
+})();
+</script>
+</body>
+</html>

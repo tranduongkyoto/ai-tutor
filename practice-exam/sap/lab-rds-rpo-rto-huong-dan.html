@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hands-on Lab: Automated Recovery RPO/RTO với Amazon RDS</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2433;--muted:#5d6779;--line:#e2e6ee;--accent:#ff9900;--accent2:#232f3e;--code:#f0f2f6;--ok:#1a7f4b;--warn:#fff6e0;--warnl:#e6a700;--info:#e8f1ff;--infol:#3b7ddd}
+@media(prefers-color-scheme:dark){:root{--bg:#12161d;--card:#1b212c;--text:#e7eaf0;--muted:#98a2b3;--line:#2c3544;--code:#252d3b;--ok:#4cc38a;--warn:#2d2610;--warnl:#d9a520;--info:#15243b;--infol:#5b9bf0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+header{background:var(--accent2);color:#fff;padding:36px 16px}
+header .w,main,.toc{max-width:920px;margin:0 auto}
+header small{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+header h1{margin:6px 0 10px;font-size:1.8rem;line-height:1.25}
+header p{margin:0;color:#c9d1dc}
+main{padding:0 16px 60px}
+.toc{padding:20px 16px 0}
+.toc ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;list-style:none;padding:0;margin:0;counter-reset:t}
+.toc li{counter-increment:t}
+.toc a{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--text);text-decoration:none;font-size:.92rem}
+.toc a:before{content:counter(t);display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--accent);color:#111;font-weight:700;font-size:.8rem;margin-right:8px}
+.toc a:hover{border-color:var(--accent)}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 20px;margin-top:22px}
+h2{margin:0 0 6px;font-size:1.3rem}
+h2 .n{display:inline-block;background:var(--accent);color:#111;border-radius:6px;padding:0 9px;margin-right:8px;font-size:1rem}
+h3{margin:22px 0 8px;font-size:1.05rem;border-left:4px solid var(--accent);padding-left:10px}
+.goal{color:var(--muted);margin:0 0 6px}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:8px 0}
+ol.steps>li{counter-increment:s;position:relative;padding:8px 8px 8px 44px;border-radius:8px}
+ol.steps>li:before{content:counter(s);position:absolute;left:8px;top:9px;width:26px;height:26px;border-radius:50%;background:var(--accent2);color:#fff;font-size:.8rem;text-align:center;line-height:26px}
+ol.steps>li.done{opacity:.55}
+ol.steps>li.done:before{content:"✓";background:var(--ok)}
+ol.steps>li label{cursor:pointer;display:block}
+ol.steps input[type=checkbox]{position:absolute;right:6px;top:12px}
+code,.kv{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:.88em}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--code);width:34%}
+.tw{overflow-x:auto}
+.note,.warn{border-left:4px solid var(--infol);background:var(--info);padding:10px 14px;border-radius:6px;margin:12px 0;font-size:.94rem}
+.warn{border-color:var(--warnl);background:var(--warn)}
+.cp{cursor:pointer;border:1px dashed var(--line)}
+.cp:hover{border-color:var(--accent)}
+.cp.ok{border-color:var(--ok);background:var(--code)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow span.b{background:var(--accent2);color:#fff;padding:8px 12px;border-radius:8px;font-size:.85rem}
+.flow span.b.o{background:var(--accent);color:#111}
+.flow i{font-style:normal;color:var(--muted)}
+.bar{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:8px 16px;font-size:.88rem;display:flex;gap:12px;align-items:center}
+.bar .pg{flex:1;height:8px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar .pg div{height:100%;width:0;background:var(--ok);transition:width .2s}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:0 16px 40px}
+@media print{.bar{display:none}section.card{break-inside:avoid-page}}
+</style>
+</head>
+<body>
+<header><div class="w">
+<small>AWS Hands-on Lab · Disaster Recovery</small>
+<h1>Implement Automated Recovery Processes to Meet RPO/RTO Requirements Using Amazon RDS</h1>
+<p>Tự động hóa khôi phục sau thảm họa cho ứng dụng SparkLink bằng RDS cross-region read replica, SSM Parameter Store, SNS, Lambda và RDS Event Subscription.</p>
+</div></header>
+
+<div class="bar"><span id="pt">0/0 bước</span><div class="pg"><div id="pb"></div></div></div>
+
+<nav class="toc"><ol>
+<li><a href="#t1">Tạo RDS primary + cross-region read replica</a></li>
+<li><a href="#t2">Parameter Store &amp; SNS email topic</a></li>
+<li><a href="#t3">Lambda <code>monitor-databases</code></a></li>
+<li><a href="#t4">RDS Event Subscription</a></li>
+<li><a href="#t5">Giả lập sự cố: xóa primary DB</a></li>
+<li><a href="#t6">Dọn dẹp tài nguyên</a></li>
+</ol></nav>
+
+<main>
+
+<section class="card" id="ov">
+<h2>Tổng quan &amp; kịch bản</h2>
+<p>Bạn là DevOps engineer của SparkLink. Mục tiêu là xây dựng giải pháp phục hồi tự động, đáp ứng yêu cầu <b>RTO</b> (thời gian khôi phục tối đa) và <b>RPO</b> (lượng dữ liệu mất tối đa) bằng Amazon RDS và cross-region read replica. Khi DB primary gặp sự cố, hệ thống tự động promote replica ở region khác và gửi email thông báo.</p>
+<div class="flow">
+<span class="b">RDS primary<br>us-east-1</span><i>→ replicate →</i><span class="b">RDS replica<br>us-west-2</span>
+</div>
+<div class="flow">
+<span class="b">Primary bị xóa/lỗi</span><i>→</i><span class="b">RDS Event Subscription</span><i>→</i><span class="b">SNS RDS-Events-Topic</span><i>→</i><span class="b o">Lambda monitor-databases</span><i>→</i><span class="b">Promote replica</span><i>+</i><span class="b">Email (Database-Emails-Topic)</span>
+</div>
+<div class="tw"><table>
+<tr><th>Region chính</th><td><code>us-east-1</code> (N. Virginia) — làm hầu hết các bước</td></tr>
+<tr><th>Region DR</th><td><code>us-west-2</code> (Oregon) — chứa read replica</td></tr>
+<tr><th>RPO</th><td>Thường dưới 1 giây (replication bất đồng bộ)</td></tr>
+<tr><th>Dịch vụ dùng</th><td>RDS, Systems Manager Parameter Store, SNS, Lambda (Python 3.11), IAM</td></tr>
+<tr><th>Tệp cần có</th><td><code>monitor-databases.py</code> — tải trong mục <b>Assets</b> của Task 3 trên trang lab</td></tr>
+</table></div>
+<div class="note">Mẹo: bấm vào các ô giá trị có viền nét đứt để copy nhanh. Tick checkbox bên phải mỗi bước để theo dõi tiến độ (chỉ lưu trong phiên xem).</div>
+</section>
+
+<!-- TASK 1 -->
+<section class="card" id="t1">
+<h2><span class="n">1</span>Tạo RDS primary và cross-region read replica</h2>
+<p class="goal">Tạo DB ở us-east-1, rồi tạo read replica ở us-west-2 làm giải pháp DR (RPO thường &lt; 1 giây).</p>
+
+<h3>1A. Tạo DB primary</h3>
+<ol class="steps">
+<li>Đảm bảo đang ở region <b>N. Virginia (us-east-1)</b>. Tìm <b>RDS</b> trên AWS Management Console.</li>
+<li>Bấm <b>Create database</b>.</li>
+<li>Chọn <b>Standard create</b>, Engine = <b>MySQL</b>, giữ nguyên Engine Version mặc định.</li>
+<li>Template = <b>Free Tier</b>. DB instance identifier = <code class="cp" data-c="database-primary">database-primary</code>. Nhập <b>Master username</b> và <b>Master password</b> (xác nhận lại).
+<div class="warn">Ghi lại username/password — cần dùng ở Task 2 khi tạo parameter.</div></li>
+<li>DB instance class = <b>db.t3.micro</b>; phần Storage giữ mặc định.</li>
+<li>Connectivity giữ mặc định.</li>
+<li>Database authentication = <b>Password authentication</b>, các mục khác mặc định, bấm <b>Create database</b>.</li>
+<li>Chờ vài phút đến khi status = <b>Available</b>, bấm vào <b>database-primary</b> và <b>ghi lại Endpoint</b> (dùng ở Task 2). Sau đó quay lại danh sách <b>Databases</b>.</li>
+</ol>
+
+<h3>1B. Tạo cross-region read replica</h3>
+<ol class="steps">
+<li>Chọn <b>database-primary</b> → <b>Actions</b> → <b>Create read replica</b>.</li>
+<li>Replica source = <b>database-primary</b>. DB instance identifier = <code class="cp" data-c="database-secondary">database-secondary</code>. Instance class = <b>db.t3.micro</b>. Destination Region = <b>US West (Oregon)</b>.</li>
+<li>Storage mặc định; Deployment option = <b>Single DB instance</b>.</li>
+<li>Connectivity mặc định; Database authentication = <b>Password authentication</b>.</li>
+<li>Additional configuration mặc định, bấm <b>Create read replica</b>.</li>
+<li>Chờ status = <b>Available</b> (cột Role hiện <b>Replica</b>). Bấm vào <b>database-secondary</b> và <b>ghi lại Endpoint</b> của replica.</li>
+</ol>
+</section>
+
+<!-- TASK 2 -->
+<section class="card" id="t2">
+<h2><span class="n">2</span>Parameter Store &amp; SNS email topic</h2>
+<p class="goal">Lưu thông tin kết nối DB vào SSM Parameter Store (Lambda sẽ đọc) và tạo SNS topic gửi email.</p>
+
+<h3>2A. Tạo 6 parameter (region us-east-1)</h3>
+<ol class="steps">
+<li>Mở <b>Systems Manager</b> → <b>Parameter Store</b> → <b>Create parameter</b>. Với mọi parameter: Tier = <b>Standard</b>, Data type = <b>Text</b> (trừ khi ghi khác).</li>
+</ol>
+<div class="tw"><table>
+<tr><th>Name</th><th>Type</th><th>Value</th></tr>
+<tr><td><code class="cp" data-c="/SparkLinkApp/prod/primary-db-identifier">/SparkLinkApp/prod/primary-db-identifier</code></td><td>String</td><td><code class="cp" data-c="database-primary">database-primary</code></td></tr>
+<tr><td><code class="cp" data-c="/SparkLinkApp/prod/primary-db-endpoint">/SparkLinkApp/prod/primary-db-endpoint</code></td><td>String</td><td>Endpoint của primary (đã ghi ở 1A)</td></tr>
+<tr><td><code class="cp" data-c="/SparkLinkApp/prod/primary-db-user">/SparkLinkApp/prod/primary-db-user</code></td><td>String</td><td>Master username đã đặt</td></tr>
+<tr><td><code class="cp" data-c="/SparkLinkApp/prod/primary-db-password">/SparkLinkApp/prod/primary-db-password</code></td><td><b>SecureString</b><br>KMS key source: My current account<br>KMS Key ID: <code>alias/aws/ssm</code></td><td>Master password đã đặt</td></tr>
+<tr><td><code class="cp" data-c="/SparkLinkApp/prod/secondary-db-identifier">/SparkLinkApp/prod/secondary-db-identifier</code></td><td>String</td><td><code class="cp" data-c="database-secondary">database-secondary</code></td></tr>
+<tr><td><code class="cp" data-c="/SparkLinkApp/prod/secondary-db-endpoint">/SparkLinkApp/prod/secondary-db-endpoint</code></td><td>String</td><td>Endpoint của replica (đã ghi ở 1B)</td></tr>
+</table></div>
+<p>Description gợi ý theo mẫu: <i>"Primary database identifier for the SparkLink app in production"</i> (tương tự cho các parameter còn lại, đổi Primary/Secondary và identifier/endpoint/user/password).</p>
+<ol class="steps">
+<li>Với mỗi parameter: điền thông tin → <b>Create parameter</b> → xác nhận thông báo thành công → lặp lại cho parameter kế tiếp.</li>
+<li>Kiểm tra cuối cùng: danh sách có đủ 6 parameter (3 cho primary + password, 2 cho secondary + identifier).</li>
+</ol>
+
+<h3>2B. Tạo SNS topic gửi email</h3>
+<ol class="steps">
+<li>Tìm <b>SNS</b> (vẫn ở N. Virginia) → <b>Topics</b> → <b>Create topic</b>.</li>
+<li>Type = <b>Standard</b>, Name = <code class="cp" data-c="Database-Emails-Topic">Database-Emails-Topic</code>, còn lại mặc định → <b>Create topic</b>.</li>
+<li>Bấm <b>Create subscription</b>: Topic ARN = ARN của <b>Database-Emails-Topic</b>, Protocol = <b>Email</b>, Endpoint = email của bạn → <b>Create subscription</b>.</li>
+<li>Mở hộp thư (kiểm tra cả Spam) tìm email <i>AWS Notifications</i>, bấm <b>Confirm subscription</b>.</li>
+<li>Quay lại console, trang Subscriptions phải hiện status <b>Confirmed</b>.</li>
+</ol>
+</section>
+
+<!-- TASK 3 -->
+<section class="card" id="t3">
+<h2><span class="n">3</span>Lambda <code>monitor-databases</code></h2>
+<p class="goal">Lambda kiểm tra primary, nếu không khả dụng thì promote cross-region replica và gửi email thông báo.</p>
+<ol class="steps">
+<li>Tìm <b>Lambda</b> (N. Virginia) → <b>Functions</b> → <b>Create function</b>.</li>
+<li>Chọn <b>Author from scratch</b>, Function name = <code class="cp" data-c="monitor-databases">monitor-databases</code>, Runtime = <b>Python 3.11</b>, giữ mặc định → <b>Create function</b>.</li>
+<li>Mở file <code>monitor-databases.py</code> (tải ở mục <b>Assets</b> của Task 3 trên trang lab) bằng editor trên máy. Thay toàn bộ code trong <code>lambda_function.py</code> bằng nội dung file này, rồi bấm <b>Deploy</b>.</li>
+</ol>
+
+<h3>Cấp quyền cho execution role</h3>
+<ol class="steps">
+<li>Tab <b>Configuration</b> → <b>Permissions</b> → bấm link <b>Execution role</b> (mở tab mới, vào IAM).</li>
+<li>Tab <b>Permissions</b> → <b>Add permissions</b> → <b>Attach policies</b>. Tìm <code>SSM</code>, chọn <code class="cp" data-c="AmazonSSMFullAccess">AmazonSSMFullAccess</code> → <b>Add permissions</b>.</li>
+<li>Lặp lại: <b>Add permissions</b> → <b>Attach policies</b>, tìm <code>RDS</code>, chọn <code class="cp" data-c="AmazonRDSFullAccess">AmazonRDSFullAccess</code> → <b>Add permissions</b>.</li>
+<li>Xác nhận role có cả hai policy.
+<div class="note">Lab dùng policy FullAccess cho tiện. Trên production nên dùng least-privilege (chỉ <code>ssm:GetParameter</code>, <code>rds:DescribeDBInstances</code>, <code>rds:PromoteReadReplica</code>, <code>sns:Publish</code>…). Lưu ý: code cần quyền gửi SNS — nếu Lambda báo lỗi <code>sns:Publish</code>, bổ sung policy SNS cho role.</div></li>
+</ol>
+
+<h3>Timeout &amp; biến môi trường</h3>
+<ol class="steps">
+<li>Quay lại tab Lambda console. <b>Configuration</b> → <b>General configuration</b> → <b>Edit</b>.</li>
+<li>Đặt <b>Timeout = 1 min</b>, còn lại mặc định → <b>Save</b>.</li>
+<li>Vào SNS console, copy <b>ARN</b> của <b>Database-Emails-Topic</b>.</li>
+<li>Lambda → <b>Configuration</b> → <b>Environment variables</b> → <b>Edit</b> → <b>Add environment variable</b>.</li>
+<li>Key = <code class="cp" data-c="DatabaseEmailsTopic">DatabaseEmailsTopic</code>, Value = ARN vừa copy → <b>Save</b>.</li>
+</ol>
+</section>
+
+<!-- TASK 4 -->
+<section class="card" id="t4">
+<h2><span class="n">4</span>RDS Event Subscription</h2>
+<p class="goal">Nối sự kiện RDS (availability, deletion, failure) → SNS → Lambda.</p>
+
+<h3>4A. SNS topic kích hoạt Lambda</h3>
+<ol class="steps">
+<li>SNS (N. Virginia) → <b>Topics</b> → <b>Create topic</b>: Type = <b>Standard</b>, Name = <code class="cp" data-c="RDS-Events-Topic">RDS-Events-Topic</code> → <b>Create topic</b>.</li>
+<li>Mở Lambda console, copy <b>ARN</b> của hàm <code>monitor-databases</code>.</li>
+<li>Quay lại SNS → <b>Create subscription</b>: Topic ARN = <b>RDS-Events-Topic</b>, Protocol = <b>AWS Lambda</b>, Endpoint = Lambda ARN → <b>Create subscription</b>.</li>
+</ol>
+
+<h3>4B. Event subscription trên RDS</h3>
+<ol class="steps">
+<li>RDS console → <b>Event subscriptions</b> → <b>Create event subscription</b>.</li>
+<li>Name = <code class="cp" data-c="RDS-Monitored-Events">RDS-Monitored-Events</code>. Target type = <b>Amazon Resource Name (ARN)</b>, chọn ARN của <b>RDS-Events-Topic</b>.</li>
+<li>Source: Source type = <b>Instances</b>, <b>All instances</b>, chọn <b>Select specific event categories</b>.</li>
+<li>Mở dropdown Specific event categories, chọn <b>availability</b>, <b>deletion</b>, <b>failure</b> → <b>Create</b>.</li>
+<li>Xác nhận event subscription tạo thành công.</li>
+</ol>
+</section>
+
+<!-- TASK 5 -->
+<section class="card" id="t5">
+<h2><span class="n">5</span>Giả lập sự cố: xóa primary DB</h2>
+<p class="goal">Xóa primary để mô phỏng mất region do thiên tai, quan sát Lambda tự promote replica.</p>
+<ol class="steps">
+<li>RDS console (N. Virginia) → <b>DB instances</b> (Databases).</li>
+<li>Chọn <b>database-primary</b> → <b>Actions</b> → <b>Delete</b>.</li>
+<li>Theo các tùy chọn trong lab (thường bỏ tick tạo final snapshot/giữ automated backups), gõ <code class="cp" data-c="delete me">delete me</code> vào ô xác nhận → <b>Delete</b>.</li>
+<li>Chờ vài phút cho đến khi DB bị xóa hoàn toàn.</li>
+<li>Kiểm tra email: bạn sẽ nhận thông báo từ <i>AWS Notifications</i> rằng Production Primary Database không khả dụng và read replica đã được promote.</li>
+<li>Chuyển sang region <b>US West (Oregon)</b> → RDS → <b>DB instances</b>: <b>database-secondary</b> đang cập nhật.</li>
+<li>Sau vài phút: status <b>Available</b> và Role đổi từ <i>Replica</i> thành <b>Instance</b> → promote thành công.</li>
+</ol>
+</section>
+
+<!-- TASK 6 -->
+<section class="card" id="t6">
+<h2><span class="n">6</span>Dọn dẹp tài nguyên</h2>
+<p class="goal">Xóa DB ở Oregon, SNS ở N. Virginia, Lambda ở N. Virginia để tránh phát sinh chi phí.</p>
+<ol class="steps">
+<li>Chuyển sang region <b>Oregon</b> → RDS → <b>Databases</b> → chọn <b>database-secondary</b> → <b>Actions</b> → <b>Delete</b>.</li>
+<li>Gõ <code class="cp" data-c="delete me">delete me</code> xác nhận → <b>Delete</b>, chờ xóa xong.</li>
+<li>Chuyển về <b>N. Virginia</b> → SNS → <b>Subscriptions</b>: chọn từng subscription và xóa.</li>
+<li>SNS → <b>Topics</b>: chọn từng topic (<code>Database-Emails-Topic</code>, <code>RDS-Events-Topic</code>) và xóa.</li>
+<li>Lambda → <b>Functions</b> → chọn <b>monitor-databases</b> → <b>Actions</b> → <b>Delete</b>, gõ <code class="cp" data-c="delete">delete</code> → <b>Delete</b>.</li>
+<li>Tùy chọn (nên làm): xóa các parameter <code>/SparkLinkApp/prod/*</code> trong Parameter Store, RDS event subscription <code>RDS-Monitored-Events</code> và các policy đã gắn vào Lambda role.</li>
+</ol>
+<div class="warn">Thứ tự đúng: xóa Event Subscription/SNS trước khi xóa DB sẽ tránh việc Lambda bị kích hoạt không mong muốn khi bạn xóa database-secondary.</div>
+</section>
+
+<section class="card">
+<h2>Tóm tắt tên tài nguyên</h2>
+<div class="tw"><table>
+<tr><th>RDS</th><td><code>database-primary</code> (us-east-1), <code>database-secondary</code> (us-west-2)</td></tr>
+<tr><th>Parameter Store</th><td><code>/SparkLinkApp/prod/{primary|secondary}-db-{identifier|endpoint}</code>, <code>primary-db-user</code>, <code>primary-db-password</code></td></tr>
+<tr><th>SNS</th><td><code>Database-Emails-Topic</code> (email), <code>RDS-Events-Topic</code> (→ Lambda)</td></tr>
+<tr><th>Lambda</th><td><code>monitor-databases</code> — Python 3.11, timeout 1 phút, env <code>DatabaseEmailsTopic</code></td></tr>
+<tr><th>RDS Event Subscription</th><td><code>RDS-Monitored-Events</code> — availability, deletion, failure</td></tr>
+</table></div>
+</section>
+</main>
+<footer>Tài liệu hướng dẫn tổng hợp từ nội dung lab trên Udemy Business. Tệp <code>monitor-databases.py</code> cần tải từ mục Assets của lab.</footer>
+
+<script>
+(function(){
+  var steps=[].slice.call(document.querySelectorAll('ol.steps>li'));
+  steps.forEach(function(li){
+    var cb=document.createElement('input');cb.type='checkbox';cb.title='Đánh dấu hoàn thành';
+    cb.addEventListener('change',function(){li.classList.toggle('done',cb.checked);upd();});
+    li.appendChild(cb);
+  });
+  function upd(){
+    var d=document.querySelectorAll('ol.steps>li.done').length;
+    document.getElementById('pt').textContent=d+'/'+steps.length+' bước';
+    document.getElementById('pb').style.width=(steps.length?d/steps.length*100:0)+'%';
+  }
+  upd();
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('.cp');if(!el)return;
+    var t=el.getAttribute('data-c');
+    function ok(){el.classList.add('ok');setTimeout(function(){el.classList.remove('ok')},700)}
+    try{navigator.clipboard.writeText(t).then(ok,function(){})}catch(x){}
+  });
+})();
+</script>
+</body>
+</html>

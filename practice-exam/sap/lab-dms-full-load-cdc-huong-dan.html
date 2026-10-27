@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hands-on Lab: DMS full load + CDC và SCT</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2433;--muted:#5d6779;--line:#e2e6ee;--accent:#ff9900;--accent2:#232f3e;--code:#f0f2f6;--ok:#1a7f4b;--warn:#fff6e0;--warnl:#e6a700;--info:#e8f1ff;--infol:#3b7ddd}
+@media(prefers-color-scheme:dark){:root{--bg:#12161d;--card:#1b212c;--text:#e7eaf0;--muted:#98a2b3;--line:#2c3544;--code:#252d3b;--ok:#4cc38a;--warn:#2d2610;--warnl:#d9a520;--info:#15243b;--infol:#5b9bf0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+header{background:var(--accent2);color:#fff;padding:36px 16px}
+header .w,main,.toc{max-width:920px;margin:0 auto}
+header small{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+header h1{margin:6px 0 10px;font-size:1.8rem;line-height:1.25}
+header p{margin:0;color:#c9d1dc}
+main{padding:0 16px 60px}
+.toc{padding:20px 16px 0}
+.toc ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;list-style:none;padding:0;margin:0;counter-reset:t}
+.toc li{counter-increment:t}
+.toc a{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--text);text-decoration:none;font-size:.92rem}
+.toc a:before{content:counter(t);display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--accent);color:#111;font-weight:700;font-size:.8rem;margin-right:8px}
+.toc a:hover{border-color:var(--accent)}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 20px;margin-top:22px}
+h2{margin:0 0 6px;font-size:1.3rem}
+h2 .n{display:inline-block;background:var(--accent);color:#111;border-radius:6px;padding:0 9px;margin-right:8px;font-size:1rem}
+h3{margin:22px 0 8px;font-size:1.05rem;border-left:4px solid var(--accent);padding-left:10px}
+.goal{color:var(--muted);margin:0 0 6px}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:8px 0}
+ol.steps>li{counter-increment:s;position:relative;padding:8px 8px 8px 44px;border-radius:8px}
+ol.steps>li:before{content:counter(s);position:absolute;left:8px;top:9px;width:26px;height:26px;border-radius:50%;background:var(--accent2);color:#fff;font-size:.8rem;text-align:center;line-height:26px}
+ol.steps>li.done{opacity:.55}
+ol.steps>li.done:before{content:"✓";background:var(--ok)}
+ol.steps>li label{cursor:pointer;display:block}
+ol.steps input[type=checkbox]{position:absolute;right:6px;top:12px}
+code,.kv{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:.88em}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--code);width:34%}
+.tw{overflow-x:auto}
+.note,.warn{border-left:4px solid var(--infol);background:var(--info);padding:10px 14px;border-radius:6px;margin:12px 0;font-size:.94rem}
+.warn{border-color:var(--warnl);background:var(--warn)}
+.cp{cursor:pointer;border:1px dashed var(--line)}
+.cp:hover{border-color:var(--accent)}
+.cp.ok{border-color:var(--ok);background:var(--code)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow span.b{background:var(--accent2);color:#fff;padding:8px 12px;border-radius:8px;font-size:.85rem}
+.flow span.b.o{background:var(--accent);color:#111}
+.flow i{font-style:normal;color:var(--muted)}
+.bar{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:8px 16px;font-size:.88rem;display:flex;gap:12px;align-items:center}
+.bar .pg{flex:1;height:8px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar .pg div{height:100%;width:0;background:var(--ok);transition:width .2s}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:0 16px 40px}
+@media print{.bar{display:none}section.card{break-inside:avoid-page}}
+</style>
+</head>
+<body>
+<header><div class="w">
+<small>AWS Hands-on Lab · Migration &amp; Database · SAP-C02</small>
+<h1>DMS full load + CDC (homogeneous) và SCT cho heterogeneous</h1>
+<p>Paper lab là chính: hiểu luồng DMS (replication instance, endpoint, task, table mapping, validation, cutover) và khi nào cần SCT, Snowball Edge, native tools. Có nhánh sandbox tùy chọn với RDS MySQL. Ước lượng 30-40 phút.</p>
+</div></header>
+
+<div class="bar"><span id="pt">0/0 bước</span><div class="pg"><div id="pb"></div></div></div>
+
+<nav class="toc"><ol>
+<li><a href="#ov">Tổng quan &amp; liên hệ đề thi</a></li>
+<li><a href="#t1">Chọn công cụ &amp; thiết kế (paper)</a></li>
+<li><a href="#t2">Sandbox: source/target RDS + binlog</a></li>
+<li><a href="#t3">Replication instance &amp; endpoints</a></li>
+<li><a href="#t4">Task, table mappings, validation</a></li>
+<li><a href="#t5">CDC &amp; cutover</a></li>
+<li><a href="#t6">Heterogeneous: SCT, Serverless, Snowball</a></li>
+<li><a href="#t7">💥 Phá thử</a></li>
+<li><a href="#t8">🧹 Dọn dẹp</a></li>
+<li><a href="#t9">🎯 3 câu hỏi kiểu đề</a></li>
+<li><a href="#t10">📌 Quy tắc ghi nhớ</a></li>
+</ol></nav>
+
+<main>
+
+<section class="card" id="ov">
+<h2>Tổng quan &amp; kịch bản</h2>
+<p>Công ty muốn chuyển DB on-prem sang AWS với downtime tối thiểu. Với cùng engine (homogeneous, ví dụ MySQL → Aurora MySQL) bạn dùng DMS <b>full load + CDC</b>. Với khác engine (heterogeneous, ví dụ Oracle → Aurora PostgreSQL) phải chuyển schema/code bằng <b>SCT</b> (hoặc DMS Schema Conversion) trước, DMS lo phần dữ liệu.</p>
+<div class="flow">
+<span class="b">Source DB</span><i>→ đọc →</i><span class="b o">DMS replication instance</span><i>→ ghi →</i><span class="b">Target DB</span>
+</div>
+<div class="flow">
+<span class="b">Full load</span><i>→ cache thay đổi →</i><span class="b">CDC apply</span><i>→ lag ~0 →</i><span class="b o">Cutover</span>
+</div>
+<div class="tw"><table>
+<tr><th>Chế độ</th><td><b>Paper lab mặc định</b> (mục 1, 6 và các câu "Dự đoán"). Mục 2-5, 7 có nhánh <b>Sandbox tùy chọn</b>: RDS MySQL nguồn + đích, DMS <code>dms.t3.micro</code>. Chi phí khoảng vài chục cent nếu dọn kịp trong 1-2 giờ.</td></tr>
+<tr><th>Yêu cầu sandbox</th><td>AWS CLI v2, default VPC (RDS và DMS dùng chung default security group, đã cho phép traffic nội bộ), một máy trong VPC có <code>mysql</code> client (EC2 nhỏ hoặc CloudShell VPC environment) để tạo bảng/dữ liệu.</td></tr>
+<tr><th>Region</th><td><code>ap-southeast-1</code> (hoặc region bạn quen)</td></tr>
+</table></div>
+<div class="note"><b>Liên hệ đề thi</b> — sửa các bẫy:
+<ul>
+<li>CDC với MySQL nguồn cần <b>binlog bật, <code>binlog_format=ROW</code></b>; trên RDS cần automated backup retention &gt; 0.</li>
+<li>Full load + CDC để cutover gần như không downtime; full load thuần thì cần ngừng ghi.</li>
+<li>DMS không tự chuyển schema khác engine: cần SCT. DMS chỉ tạo bảng + primary key, không tạo secondary index, FK, trigger... (dựng bằng native tool/SCT).</li>
+<li>DB hàng chục TB, băng thông yếu: SCT extraction agents/Snowball Edge rồi DMS CDC bắt kịp. Server/VM dùng <b>MGN</b>, file dùng <b>DataSync</b>.</li>
+<li>Cùng engine, DB lớn, chấp nhận downtime: native tools (mysqldump, pg_dump, Oracle Data Pump, backup/restore) thường đơn giản, nhanh hơn.</li>
+</ul></div>
+<div class="note">Mẹo: bấm vào ô có viền nét đứt để copy. Tick checkbox bên phải mỗi bước để theo dõi tiến độ.</div>
+</section>
+
+<section class="card" id="t1">
+<h2><span class="n">1</span>Chọn công cụ và thiết kế (paper)</h2>
+<p class="goal">Trả lời các câu hỏi thiết kế trước khi đụng vào console. Đây là phần quan trọng nhất cho đề thi.</p>
+<div class="tw"><table>
+<tr><th>Thành phần</th><th>Vai trò</th></tr>
+<tr><td>Replication instance</td><td>EC2 do DMS quản lý chạy task; chọn class theo tải (dms.t3 cho lab, dms.c5/r5 cho production); cần storage cho log và cache CDC. Nên Multi-AZ khi chạy lâu cho production.</td></tr>
+<tr><td>Source/target endpoint</td><td>Thông tin kết nối (engine, host, port, user, SSL). Phải <b>Test connection</b> thành công từ replication instance.</td></tr>
+<tr><td>Replication task</td><td>Định nghĩa migration type + table mappings + task settings.</td></tr>
+<tr><td>Table mappings</td><td>JSON: selection rules (include/exclude) và transformation rules (rename schema/table/column...).</td></tr>
+<tr><td>Validation</td><td>So sánh dữ liệu nguồn và đích trong lúc/ sau khi migrate (<code>EnableValidation</code>).</td></tr>
+</table></div>
+<div class="tw"><table>
+<tr><th>Migration type</th><th>Khi dùng</th></tr>
+<tr><td><code>full-load</code></td><td>Copy một lần, chấp nhận downtime hoặc dữ liệu tĩnh</td></tr>
+<tr><td><code>full-load-and-cdc</code></td><td>Copy + đồng bộ thay đổi liên tục; cutover ngắn (migrate gần như không downtime)</td></tr>
+<tr><td><code>cdc</code></td><td>Chỉ thay đổi từ một điểm (log position/thời gian), thường sau khi đã load bằng native backup hoặc Snowball</td></tr>
+</table></div>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> MySQL 8 on-prem 800 GB, yêu cầu downtime dưới 5 phút, cùng engine sang Aurora MySQL. Bạn chọn migration type nào và cần chuẩn bị gì ở nguồn?
+<details><summary>Xem kết quả</summary><code>full-load-and-cdc</code>. Nguồn: bật binary log, <code>binlog_format=ROW</code>, <code>binlog_row_image=FULL</code>, tăng binlog retention (RDS: <code>CALL mysql.rds_set_configuration('binlog retention hours', 24)</code>), user DMS có quyền SELECT + REPLICATION CLIENT + REPLICATION SLAVE. Tạo schema (bảng, index, FK) ở đích trước bằng mysqldump --no-data.</details></li>
+<li>🔮 <b>Dự đoán:</b> cùng bài toán nhưng DB 80 TB, đường truyền 100 Mbps, và chấp nhận downtime cuối tuần. DMS full load qua mạng có hợp lý không?
+<details><summary>Xem kết quả</summary>Không. 80 TB qua 100 Mbps mất vài tháng (ước lượng thô: 80 TB / ~10 MB/s thực tế). Hướng: copy backup/snapshot offline (Snowball Edge nếu còn dùng được, hoặc Direct Connect nâng băng thông), restore native, rồi dùng DMS chế độ <code>cdc</code> để bắt kịp thay đổi. Lưu ý: Snowball Edge từ 11/2025 chỉ còn cho khách hàng hiện hữu; nhưng đề thi vẫn có thể nhắc, và AWS gợi ý DataSync/Data Transfer Terminal cho khách mới.</details></li>
+<li>🔮 <b>Dự đoán:</b> cùng engine, DB 2 TB, cutover cuối tuần 8 giờ downtime được. DMS hay native tool?
+<details><summary>Xem kết quả</summary>Native (mysqldump/xtrabackup/snapshot restore hoặc Aurora read replica từ RDS MySQL) thường đơn giản và nhanh hơn. DMS tỏa sáng khi cần <b>giảm downtime</b> (CDC), cần lọc/biến đổi bảng, hoặc khác engine. Còn có <b>DMS Homogeneous Data Migrations</b>: dùng native tool ở phía sau, serverless, cho MySQL/PostgreSQL/MariaDB/MongoDB cùng engine.</details></li>
+</ol>
+</section>
+
+<section class="card" id="t2">
+<h2><span class="n">2</span>Sandbox (tùy chọn): RDS MySQL nguồn + đích, binlog</h2>
+<p class="goal">Tạo hai RDS MySQL nhỏ. Nguồn có binlog ROW. Bỏ qua mục này nếu chỉ làm paper lab.</p>
+<ol class="steps">
+<li>Khai báo biến và tạo parameter group cho nguồn với <code>binlog_format=ROW</code>.
+<div class="tw"><table><tr><td><code class="cp" data-c='export AWS_REGION=ap-southeast-1 PW="Lab_Only_Change_123"
+aws rds create-db-parameter-group --db-parameter-group-name sap-dms-src-mysql8 --db-parameter-group-family mysql8.0 --description "binlog ROW for DMS"
+aws rds modify-db-parameter-group --db-parameter-group-name sap-dms-src-mysql8 --parameters "ParameterName=binlog_format,ParameterValue=ROW,ApplyMethod=immediate"'>export AWS_REGION=ap-southeast-1 PW="Lab_Only_Change_123"
+aws rds create-db-parameter-group --db-parameter-group-name sap-dms-src-mysql8 --db-parameter-group-family mysql8.0 --description "binlog ROW for DMS"
+aws rds modify-db-parameter-group --db-parameter-group-name sap-dms-src-mysql8 --parameters "ParameterName=binlog_format,ParameterValue=ROW,ApplyMethod=immediate"</code></td></tr></table></div>
+<div class="warn">Mật khẩu trên chỉ là ví dụ cho lab dùng một lần. Không dùng lại ở nơi khác và không commit vào git.</div></li>
+<li>🔮 <b>Dự đoán:</b> nếu tạo nguồn với <code>--backup-retention-period 0</code>, CDC có chạy được không? Hãy tạo nguồn với retention 1 (bật binlog) và đích:
+<div class="tw"><table><tr><td><code class="cp" data-c='aws rds create-db-instance --db-instance-identifier dms-src --engine mysql --db-instance-class db.t3.micro --allocated-storage 20 --master-username admin --master-user-password "$PW" --backup-retention-period 1 --db-parameter-group-name sap-dms-src-mysql8 --no-multi-az
+aws rds create-db-instance --db-instance-identifier dms-tgt --engine mysql --db-instance-class db.t3.micro --allocated-storage 20 --master-username admin --master-user-password "$PW" --backup-retention-period 0 --no-multi-az
+aws rds wait db-instance-available --db-instance-identifier dms-src; aws rds wait db-instance-available --db-instance-identifier dms-tgt
+aws rds describe-db-instances --query "DBInstances[].[DBInstanceIdentifier,Endpoint.Address]" --output text'>aws rds create-db-instance --db-instance-identifier dms-src --engine mysql --db-instance-class db.t3.micro --allocated-storage 20 --master-username admin --master-user-password "$PW" --backup-retention-period 1 --db-parameter-group-name sap-dms-src-mysql8 --no-multi-az
+aws rds create-db-instance --db-instance-identifier dms-tgt --engine mysql --db-instance-class db.t3.micro --allocated-storage 20 --master-username admin --master-user-password "$PW" --backup-retention-period 0 --no-multi-az
+aws rds wait db-instance-available --db-instance-identifier dms-src; aws rds wait db-instance-available --db-instance-identifier dms-tgt
+aws rds describe-db-instances --query "DBInstances[].[DBInstanceIdentifier,Endpoint.Address]" --output text</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Mất khoảng 5-10 phút. Với retention 0, RDS không bật binary log nên CDC không thể chạy (xem Phá thử). In ra 2 endpoint dạng <code>dms-src.xxxx.ap-southeast-1.rds.amazonaws.com</code> (ví dụ); ghi lại để dùng ở mục 3 (<code>SRC_HOST</code>, <code>TGT_HOST</code>).</details></li>
+<li>Từ máy trong VPC có mysql client, tạo dữ liệu mẫu ở <b>nguồn</b> và cùng schema (không dữ liệu) ở <b>đích</b>, đặt binlog retention.
+<div class="tw"><table><tr><td><code class="cp" data-c='SCHEMA="CREATE DATABASE shop; CREATE TABLE shop.orders (id INT PRIMARY KEY AUTO_INCREMENT, item VARCHAR(50), qty INT);"
+mysql -h SRC_HOST -u admin -p"$PW" -e "$SCHEMA INSERT INTO shop.orders(item,qty) VALUES (\"a\",1),(\"b\",2),(\"c\",3); CALL mysql.rds_set_configuration(\"binlog retention hours\", 24);"
+mysql -h TGT_HOST -u admin -p"$PW" -e "$SCHEMA"'>SCHEMA="CREATE DATABASE shop; CREATE TABLE shop.orders (id INT PRIMARY KEY AUTO_INCREMENT, item VARCHAR(50), qty INT);"
+mysql -h SRC_HOST -u admin -p"$PW" -e "$SCHEMA INSERT INTO shop.orders(item,qty) VALUES (\"a\",1),(\"b\",2),(\"c\",3); CALL mysql.rds_set_configuration(\"binlog retention hours\", 24);"
+mysql -h TGT_HOST -u admin -p"$PW" -e "$SCHEMA"</code></td></tr></table></div>
+<div class="note">Dùng master user <code>admin</code> làm DMS user cho nhanh trong lab. Production nên tạo user riêng chỉ có SELECT + REPLICATION CLIENT + REPLICATION SLAVE. Xác nhận ROW: <code>SHOW VARIABLES LIKE 'binlog_format';</code> (kết nối mới).</div></li>
+</ol>
+</section>
+
+<section class="card" id="t3">
+<h2><span class="n">3</span>Replication instance &amp; endpoints</h2>
+<p class="goal">Tạo replication instance, hai endpoint, và <b>Test connection</b>. Console sẽ tạo service role tự động, còn dùng CLI thì cần role <code>dms-vpc-role</code> có sẵn.</p>
+<ol class="steps">
+<li>(CLI, tài khoản chưa dùng DMS) tạo role bắt buộc, đúng tên <code>dms-vpc-role</code>.
+<div class="tw"><table><tr><td><code class="cp" data-c='aws iam get-role --role-name dms-vpc-role >/dev/null 2>&1 || { aws iam create-role --role-name dms-vpc-role --assume-role-policy-document "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"dms.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}" && aws iam attach-role-policy --role-name dms-vpc-role --policy-arn arn:aws:iam::aws:policy/service-role/AmazonDMSVPCManagementRole; }'>aws iam get-role --role-name dms-vpc-role &gt;/dev/null 2&gt;&amp;1 || { aws iam create-role --role-name dms-vpc-role --assume-role-policy-document "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"dms.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}" &amp;&amp; aws iam attach-role-policy --role-name dms-vpc-role --policy-arn arn:aws:iam::aws:policy/service-role/AmazonDMSVPCManagementRole; }</code></td></tr></table></div>
+Console: bỏ qua bước này.</li>
+<li>🔮 <b>Dự đoán:</b> khi nào replication instance chuyển sang <code>available</code>? Tạo:
+<div class="tw"><table><tr><td><code class="cp" data-c='aws dms create-replication-instance --replication-instance-identifier sap-dms-ri --replication-instance-class dms.t3.micro --allocated-storage 20 --no-publicly-accessible --no-multi-az
+aws dms wait replication-instance-available --filters Name=replication-instance-id,Values=sap-dms-ri
+export RI_ARN=$(aws dms describe-replication-instances --filters Name=replication-instance-id,Values=sap-dms-ri --query "ReplicationInstances[0].ReplicationInstanceArn" --output text); echo $RI_ARN'>aws dms create-replication-instance --replication-instance-identifier sap-dms-ri --replication-instance-class dms.t3.micro --allocated-storage 20 --no-publicly-accessible --no-multi-az
+aws dms wait replication-instance-available --filters Name=replication-instance-id,Values=sap-dms-ri
+export RI_ARN=$(aws dms describe-replication-instances --filters Name=replication-instance-id,Values=sap-dms-ri --query "ReplicationInstances[0].ReplicationInstanceArn" --output text); echo $RI_ARN</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Thường 5-15 phút. Console: <b>DMS &rarr; Replication instances &rarr; Create</b> (chọn VPC chứa RDS, bỏ Public access). In ra ARN dạng <code>arn:aws:dms:ap-southeast-1:123456789012:rep:XXXX</code> (ví dụ). Không có <code>--no-publicly-accessible</code> mặc định là public.</details></li>
+<li>Tạo hai endpoint (thay <code>SRC_HOST</code>/<code>TGT_HOST</code>).
+<div class="tw"><table><tr><td><code class="cp" data-c='export SRC_EP=$(aws dms create-endpoint --endpoint-identifier sap-src --endpoint-type source --engine-name mysql --server-name SRC_HOST --port 3306 --username admin --password "$PW" --query Endpoint.EndpointArn --output text)
+export TGT_EP=$(aws dms create-endpoint --endpoint-identifier sap-tgt --endpoint-type target --engine-name mysql --server-name TGT_HOST --port 3306 --username admin --password "$PW" --query Endpoint.EndpointArn --output text)
+echo $SRC_EP $TGT_EP'>export SRC_EP=$(aws dms create-endpoint --endpoint-identifier sap-src --endpoint-type source --engine-name mysql --server-name SRC_HOST --port 3306 --username admin --password "$PW" --query Endpoint.EndpointArn --output text)
+export TGT_EP=$(aws dms create-endpoint --endpoint-identifier sap-tgt --endpoint-type target --engine-name mysql --server-name TGT_HOST --port 3306 --username admin --password "$PW" --query Endpoint.EndpointArn --output text)
+echo $SRC_EP $TGT_EP</code></td></tr></table></div></li>
+<li>🔮 <b>Dự đoán:</b> status của test-connection?
+<div class="tw"><table><tr><td><code class="cp" data-c='for E in $SRC_EP $TGT_EP; do aws dms test-connection --replication-instance-arn $RI_ARN --endpoint-arn $E >/dev/null; done; sleep 60; aws dms describe-connections --query "Connections[].[EndpointIdentifier,Status,LastFailureMessage]" --output text'>for E in $SRC_EP $TGT_EP; do aws dms test-connection --replication-instance-arn $RI_ARN --endpoint-arn $E &gt;/dev/null; done; sleep 60; aws dms describe-connections --query "Connections[].[EndpointIdentifier,Status,LastFailureMessage]" --output text</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Mỗi endpoint <code>successful</code> (ví dụ <code>sap-src successful None</code>). Nếu <code>failed</code>: kiểm tra security group (3306 từ replication instance), sai mật khẩu, DB chưa available; xem <code>LastFailureMessage</code>. Có thể chờ lâu hơn 60 giây, chạy lại <code>describe-connections</code>.</details></li>
+</ol>
+</section>
+
+<section class="card" id="t4">
+<h2><span class="n">4</span>Task, table mappings, validation</h2>
+<p class="goal">Tạo task <code>full-load-and-cdc</code>, chọn bảng bằng selection rule và bật validation.</p>
+<ol class="steps">
+<li>Tạo table mappings và task settings (JSON hợp lệ). Mapping include mọi bảng của schema <code>shop</code>, loại bảng <code>tmp_%</code>.
+<div class="tw"><table><tr><td><code class="cp" data-c='cat > tm.json <<EOF
+{"rules":[
+ {"rule-type":"selection","rule-id":"1","rule-name":"inc-shop","object-locator":{"schema-name":"shop","table-name":"%"},"rule-action":"include"},
+ {"rule-type":"selection","rule-id":"2","rule-name":"exc-tmp","object-locator":{"schema-name":"shop","table-name":"tmp_%"},"rule-action":"exclude"}]}
+EOF
+cat > ts.json <<EOF
+{"TargetMetadata":{"SupportLobs":true,"LimitedSizeLobMode":true,"LobMaxSize":32},
+ "FullLoadSettings":{"TargetTablePrepMode":"DO_NOTHING"},
+ "ValidationSettings":{"EnableValidation":true}}
+EOF
+python3 -c "import json;[json.load(open(f)) for f in (\"tm.json\",\"ts.json\")];print(\"JSON ok\")"'>cat &gt; tm.json &lt;&lt;EOF
+{"rules":[
+ {"rule-type":"selection","rule-id":"1","rule-name":"inc-shop","object-locator":{"schema-name":"shop","table-name":"%"},"rule-action":"include"},
+ {"rule-type":"selection","rule-id":"2","rule-name":"exc-tmp","object-locator":{"schema-name":"shop","table-name":"tmp_%"},"rule-action":"exclude"}]}
+EOF
+cat &gt; ts.json &lt;&lt;EOF
+{"TargetMetadata":{"SupportLobs":true,"LimitedSizeLobMode":true,"LobMaxSize":32},
+ "FullLoadSettings":{"TargetTablePrepMode":"DO_NOTHING"},
+ "ValidationSettings":{"EnableValidation":true}}
+EOF
+python3 -c "import json;[json.load(open(f)) for f in ('tm.json','ts.json')];print('JSON ok')"</code></td></tr></table></div>
+<div class="note"><code>DO_NOTHING</code> vì bạn đã tạo schema ở đích (có index/FK). Với <code>DROP_AND_CREATE</code> DMS tạo lại bảng nhưng chỉ có cột + primary key. Transformation rule (đổi tên schema/bảng/cột, thêm cột...) dùng <code>"rule-type":"transformation"</code> cùng <code>"rule-action":"rename"</code>.</div></li>
+<li>🔮 <b>Dự đoán:</b> sau khi start, task ở trạng thái nào lâu dài, <code>stopped</code> hay <code>running</code>? Tạo và chạy:
+<div class="tw"><table><tr><td><code class="cp" data-c='export TASK_ARN=$(aws dms create-replication-task --replication-task-identifier sap-dms-task --source-endpoint-arn $SRC_EP --target-endpoint-arn $TGT_EP --replication-instance-arn $RI_ARN --migration-type full-load-and-cdc --table-mappings file://tm.json --replication-task-settings file://ts.json --query ReplicationTask.ReplicationTaskArn --output text)
+aws dms wait replication-task-ready --filters Name=replication-task-arn,Values=$TASK_ARN
+aws dms start-replication-task --replication-task-arn $TASK_ARN --start-replication-task-type start-replication
+sleep 90; aws dms describe-replication-tasks --filters Name=replication-task-arn,Values=$TASK_ARN --query "ReplicationTasks[0].[Status,ReplicationTaskStats.FullLoadProgressPercent]" --output text'>export TASK_ARN=$(aws dms create-replication-task --replication-task-identifier sap-dms-task --source-endpoint-arn $SRC_EP --target-endpoint-arn $TGT_EP --replication-instance-arn $RI_ARN --migration-type full-load-and-cdc --table-mappings file://tm.json --replication-task-settings file://ts.json --query ReplicationTask.ReplicationTaskArn --output text)
+aws dms wait replication-task-ready --filters Name=replication-task-arn,Values=$TASK_ARN
+aws dms start-replication-task --replication-task-arn $TASK_ARN --start-replication-task-type start-replication
+sleep 90; aws dms describe-replication-tasks --filters Name=replication-task-arn,Values=$TASK_ARN --query "ReplicationTasks[0].[Status,ReplicationTaskStats.FullLoadProgressPercent]" --output text</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Ví dụ: <code>running 100</code>. Full load xong (100%) nhưng task <b>vẫn running</b> để áp dụng CDC liên tục; một task <code>full-load</code> thuần mới tự chuyển <code>stopped</code> khi xong. Nếu status <code>failed</code>, xem mục Phá thử/CloudWatch Logs.</details></li>
+<li>Xem thống kê bảng và validation.
+<div class="tw"><table><tr><td><code class="cp" data-c='aws dms describe-table-statistics --replication-task-arn $TASK_ARN --query "TableStatistics[].[SchemaName,TableName,FullLoadRows,Inserts,ValidationState]" --output text'>aws dms describe-table-statistics --replication-task-arn $TASK_ARN --query "TableStatistics[].[SchemaName,TableName,FullLoadRows,Inserts,ValidationState]" --output text</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Ví dụ: <code>shop orders 3 0 Validated</code>. Trạng thái <code>Pending records</code> hoặc <code>Mismatched records</code> là dấu hiệu cần điều tra trước cutover.</details></li>
+</ol>
+</section>
+
+<section class="card" id="t5">
+<h2><span class="n">5</span>CDC và cutover</h2>
+<p class="goal">Thấy thay đổi ở nguồn tự chảy sang đích, rồi luyện quy trình cutover.</p>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> insert thêm 2 dòng ở nguồn, đích có nhận không và sau bao lâu?
+<div class="tw"><table><tr><td><code class="cp" data-c='mysql -h SRC_HOST -u admin -p"$PW" -e "INSERT INTO shop.orders(item,qty) VALUES (\"d\",4),(\"e\",5);"; sleep 30; mysql -h TGT_HOST -u admin -p"$PW" -e "SELECT COUNT(*) FROM shop.orders;"'>mysql -h SRC_HOST -u admin -p"$PW" -e "INSERT INTO shop.orders(item,qty) VALUES (\"d\",4),(\"e\",5);"; sleep 30; mysql -h TGT_HOST -u admin -p"$PW" -e "SELECT COUNT(*) FROM shop.orders;"</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Đích có <code>COUNT(*) = 5</code> sau vài giây (ví dụ). <code>describe-table-statistics</code> cho thấy <code>Inserts = 2</code>.</details></li>
+<li>Quy trình cutover (paper, thuộc lòng thứ tự):
+<ol>
+<li>Xác nhận validation sạch và <code>CDCLatencySource</code>/<code>CDCLatencyTarget</code> (CloudWatch) gần 0.</li>
+<li>Dừng ghi vào nguồn (maintenance mode/read-only).</li>
+<li>Chờ latency về 0 và đợt thay đổi cuối được apply.</li>
+<li>Stop task: <code>aws dms stop-replication-task --replication-task-arn $TASK_ARN</code>.</li>
+<li>Tạo phần DMS không chuyển: secondary index, FK, trigger, sequence/auto-increment, user/grant.</li>
+<li>Đổi connection string của app (Route 53/Parameter Store) sang đích; test smoke.</li>
+<li>Giữ nguồn nguyên trạng một thời gian để rollback, rồi mới tắt.</li>
+</ol></li>
+</ol>
+</section>
+
+<section class="card" id="t6">
+<h2><span class="n">6</span>Heterogeneous: SCT, DMS Serverless, Snowball, so sánh (paper)</h2>
+<p class="goal">Oracle on-prem → Aurora PostgreSQL: các mảnh ghép và khi nào dùng công cụ nào.</p>
+<div class="flow">
+<span class="b">Oracle</span><i>→ SCT assessment →</i><span class="b o">Schema + code conversion</span><i>→ apply →</i><span class="b">Aurora PostgreSQL</span>
+</div>
+<div class="flow">
+<span class="b">Oracle</span><i>→ DMS full load + CDC →</i><span class="b o">Aurora PostgreSQL</span>
+</div>
+<ol class="steps">
+<li><b>SCT (Schema Conversion Tool)</b>: ứng dụng cài trên máy, tạo <i>assessment report</i> (tỷ lệ chuyển tự động, các mục cần sửa tay), chuyển schema, stored procedure, function và SQL trong code ứng dụng. Phần không tự chuyển được phải sửa thủ công. Thay thế không cần cài đặt: <b>DMS Schema Conversion</b> trong console. Thứ tự: SCT/Schema Conversion tạo schema đích &rarr; DMS di chuyển dữ liệu (tắt FK/trigger ở đích khi full load, bật lại sau).</li>
+<li>🔮 <b>Dự đoán:</b> bạn chạy DMS full load Oracle &rarr; Aurora PostgreSQL mà chưa chuyển schema. Chuyện gì xảy ra?
+<details><summary>Xem kết quả</summary>DMS chỉ có thể tạo bảng cơ bản (cột + PK, kiểu dữ liệu ánh xạ mặc định); stored procedure, package, trigger, view phức tạp, sequence không được chuyển. Ứng dụng sẽ hỏng. Đây là lý do đề thi luôn kèm SCT với heterogeneous.</details></li>
+<li><b>DMS Serverless</b>: DMS tự cấp phát và scale năng lượng (DCU) theo tải, không phải chọn class/instance. Phù hợp tải không đoán được, giảm vận hành. CLI dùng <code>create-replication-config</code>. Có thể đặt min/max capacity.</li>
+<li><b>Fleet Advisor</b>: công cụ khám phá/đánh giá fleet DB. <b>Đã ngừng hỗ trợ ngày 20/05/2026</b> (không nhận khách mới từ 20/05/2025); AWS đề xuất <b>AWS Migration Evaluator</b>. Có thể vẫn xuất hiện trong tài liệu ôn cũ: biết vai trò, nhưng đừng chọn nó cho dự án mới.</li>
+<li><b>DB cực lớn + băng thông hạn chế</b>: SCT data extraction agent (hoặc dump native) lưu vào Snowball Edge &rarr; gửi về AWS &rarr; vào S3 &rarr; DMS nạp vào đích, rồi CDC bắt kịp thay đổi trong lúc vận chuyển. Snowball Edge chỉ còn cho khách hàng hiện hữu từ 11/2025; khách mới được hướng tới DataSync/Direct Connect/Data Transfer Terminal.</li>
+<li>Bảng so sánh các dịch vụ di chuyển hay bị nhầm:
+<div class="tw"><table>
+<tr><th>Dịch vụ</th><th>Đối tượng</th><th>Ghi chú</th></tr>
+<tr><td>DMS (+ SCT)</td><td>Database (cùng hoặc khác engine)</td><td>Full load + CDC; SCT cho schema/code</td></tr>
+<tr><td>Native tools</td><td>Database cùng engine</td><td>Dump/restore, snapshot, replica; downtime dài hơn nhưng đơn giản</td></tr>
+<tr><td>Application Migration Service (MGN)</td><td>Server/VM (lift-and-shift)</td><td>Replicate block-level liên tục, cutover bằng test/launch instance; không dành cho chuyển engine DB</td></tr>
+<tr><td>DataSync</td><td>File/object (NFS, SMB, HDFS, S3...)</td><td>Chuyển dữ liệu online có lịch, verify; không phải CDC cho DB</td></tr>
+<tr><td>Snowball Edge</td><td>Dữ liệu lớn offline</td><td>Ship thiết bị; chỉ khách hiện hữu từ 11/2025</td></tr>
+</table></div></li>
+</ol>
+</section>
+
+<section class="card" id="t7">
+<h2><span class="n">7</span>💥 Phá thử</h2>
+<p class="goal">Làm hỏng cố ý để hiểu điều kiện CDC. Phần sandbox yêu cầu đã làm mục 2-4; nếu paper thì chỉ đọc kết quả.</p>
+<ol class="steps">
+<li>🔮 <b>Dự đoán:</b> đổi nguồn sang <code>binlog_format=MIXED</code>, rồi tạo task CDC mới. Kết quả?
+<div class="tw"><table><tr><td><code class="cp" data-c='aws rds modify-db-parameter-group --db-parameter-group-name sap-dms-src-mysql8 --parameters "ParameterName=binlog_format,ParameterValue=MIXED,ApplyMethod=immediate"
+aws dms create-replication-task --replication-task-identifier sap-dms-task-bad --source-endpoint-arn $SRC_EP --target-endpoint-arn $TGT_EP --replication-instance-arn $RI_ARN --migration-type cdc --cdc-start-time $(date -u -d "10 minutes ago" +%s) --table-mappings file://tm.json'>aws rds modify-db-parameter-group --db-parameter-group-name sap-dms-src-mysql8 --parameters "ParameterName=binlog_format,ParameterValue=MIXED,ApplyMethod=immediate"
+aws dms create-replication-task --replication-task-identifier sap-dms-task-bad --source-endpoint-arn $SRC_EP --target-endpoint-arn $TGT_EP --replication-instance-arn $RI_ARN --migration-type cdc --cdc-start-time $(date -u -d "10 minutes ago" +%s) --table-mappings file://tm.json</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary>Start task mới sẽ <code>failed</code> với thông báo yêu cầu binlog_format phải là ROW (ví dụ; nội dung chính xác tùy phiên bản). Test connection vẫn có thể thành công, vì lỗi chỉ lộ khi task đọc binlog. Khôi phục: đặt lại <code>ROW</code>. Task cũ đang chạy có thể không phản ánh ngay vì session cũ giữ giá trị cũ; tạo lại kết nối.</details></li>
+<li>🔮 <b>Dự đoán:</b> nếu RDS nguồn có automated backup retention = 0 thì sao? (Đối chiếu với <code>dms-tgt</code> đã tạo ở mục 2 với retention 0.)
+<details><summary>Xem kết quả</summary>Không có binary log, nên CDC bất khả thi dù parameter group đặt ROW. Full load vẫn chạy được. Đích <code>dms-tgt</code> (retention 0) chỉ là đích nên không sao. Quy tắc: nguồn RDS cho CDC phải có retention &gt; 0.</details></li>
+<li>🔮 <b>Dự đoán:</b> tạo endpoint với mật khẩu sai rồi test-connection?
+<div class="tw"><table><tr><td><code class="cp" data-c='BAD_EP=$(aws dms create-endpoint --endpoint-identifier sap-bad --endpoint-type source --engine-name mysql --server-name SRC_HOST --port 3306 --username admin --password wrongpass --query Endpoint.EndpointArn --output text)
+aws dms test-connection --replication-instance-arn $RI_ARN --endpoint-arn $BAD_EP > /dev/null; sleep 45
+aws dms describe-connections --filters Name=endpoint-arn,Values=$BAD_EP --query "Connections[0].[Status,LastFailureMessage]" --output text'>BAD_EP=$(aws dms create-endpoint --endpoint-identifier sap-bad --endpoint-type source --engine-name mysql --server-name SRC_HOST --port 3306 --username admin --password wrongpass --query Endpoint.EndpointArn --output text)
+aws dms test-connection --replication-instance-arn $RI_ARN --endpoint-arn $BAD_EP &gt; /dev/null; sleep 45
+aws dms describe-connections --filters Name=endpoint-arn,Values=$BAD_EP --query "Connections[0].[Status,LastFailureMessage]" --output text</code></td></tr></table></div>
+<details><summary>Xem kết quả</summary><code>failed</code> kèm thông báo kiểu "Access denied for user" (ví dụ). Trong thực tế lỗi kết nối thường do security group/route, không phải mật khẩu. Test connection là cổng chặn đầu tiên.</details></li>
+<li>🔮 <b>Dự đoán (paper):</b> bảng không có primary key và dùng full load + CDC thì sao?
+<details><summary>Xem kết quả</summary>Full load vẫn chạy nhưng CDC/validation gặp hạn chế: bảng không có PK/unique key không được validate và update/delete trong CDC có thể không áp chính xác (DMS cần khóa để định danh dòng; với MySQL cần bổ sung supplemental info/khóa). Bài học: thêm PK trước khi migrate.</details></li>
+</ol>
+</section>
+
+<section class="card" id="t8">
+<h2><span class="n">8</span>🧹 Dọn dẹp</h2>
+<p class="goal">Thứ tự: task &rarr; endpoint &rarr; replication instance &rarr; RDS &rarr; parameter group &rarr; IAM. Replication instance và RDS là phần tốn tiền nhất, xóa ngay khi xong. Bỏ qua nếu chỉ làm paper.</p>
+<ol class="steps">
+<li>Dừng và xóa task (dừng trước, chờ stopped; endpoint đang gắn task thì không xóa được):
+<div class="tw"><table><tr><td><code class="cp" data-c='aws dms stop-replication-task --replication-task-arn $TASK_ARN; aws dms wait replication-task-stopped --filters Name=replication-task-arn,Values=$TASK_ARN
+for T in $(aws dms describe-replication-tasks --query "ReplicationTasks[].ReplicationTaskArn" --output text); do aws dms delete-replication-task --replication-task-arn $T; done'>aws dms stop-replication-task --replication-task-arn $TASK_ARN; aws dms wait replication-task-stopped --filters Name=replication-task-arn,Values=$TASK_ARN
+for T in $(aws dms describe-replication-tasks --query "ReplicationTasks[].ReplicationTaskArn" --output text); do aws dms delete-replication-task --replication-task-arn $T; done</code></td></tr></table></div>
+<div class="note">Vòng lặp xóa mọi task trong region; chỉ dùng trong sandbox. Task bị <code>failed</code>/<code>ready</code> không cần stop; nếu <code>wait</code> báo lỗi vì task đã dừng, bỏ qua.</div></li>
+<li>Xóa endpoint:
+<div class="tw"><table><tr><td><code class="cp" data-c='for E in $(aws dms describe-endpoints --query "Endpoints[?starts_with(EndpointIdentifier,`sap-`)].EndpointArn" --output text); do aws dms delete-endpoint --endpoint-arn $E; done'>for E in $(aws dms describe-endpoints --query "Endpoints[?starts_with(EndpointIdentifier,`sap-`)].EndpointArn" --output text); do aws dms delete-endpoint --endpoint-arn $E; done</code></td></tr></table></div></li>
+<li>Xóa replication instance, chờ xóa xong:
+<div class="tw"><table><tr><td><code class="cp" data-c='aws dms delete-replication-instance --replication-instance-arn $RI_ARN; aws dms wait replication-instance-deleted --filters Name=replication-instance-id,Values=sap-dms-ri'>aws dms delete-replication-instance --replication-instance-arn $RI_ARN; aws dms wait replication-instance-deleted --filters Name=replication-instance-id,Values=sap-dms-ri</code></td></tr></table></div></li>
+<li>Xóa 2 RDS (không giữ snapshot/backup), rồi parameter group (chỉ xóa được sau khi instance dùng nó đã bị xóa):
+<div class="tw"><table><tr><td><code class="cp" data-c='for D in dms-src dms-tgt; do aws rds delete-db-instance --db-instance-identifier $D --skip-final-snapshot --delete-automated-backups; done
+aws rds wait db-instance-deleted --db-instance-identifier dms-src; aws rds wait db-instance-deleted --db-instance-identifier dms-tgt
+aws rds delete-db-parameter-group --db-parameter-group-name sap-dms-src-mysql8'>for D in dms-src dms-tgt; do aws rds delete-db-instance --db-instance-identifier $D --skip-final-snapshot --delete-automated-backups; done
+aws rds wait db-instance-deleted --db-instance-identifier dms-src; aws rds wait db-instance-deleted --db-instance-identifier dms-tgt
+aws rds delete-db-parameter-group --db-parameter-group-name sap-dms-src-mysql8</code></td></tr></table></div></li>
+<li>Dọn IAM (nếu <b>bạn</b> đã tạo ở mục 3 và không dùng DMS nữa) và file tạm; tắt EC2 có mysql client nếu đã tạo:
+<div class="tw"><table><tr><td><code class="cp" data-c='aws iam detach-role-policy --role-name dms-vpc-role --policy-arn arn:aws:iam::aws:policy/service-role/AmazonDMSVPCManagementRole; aws iam delete-role --role-name dms-vpc-role; rm -f tm.json ts.json'>aws iam detach-role-policy --role-name dms-vpc-role --policy-arn arn:aws:iam::aws:policy/service-role/AmazonDMSVPCManagementRole; aws iam delete-role --role-name dms-vpc-role; rm -f tm.json ts.json</code></td></tr></table></div></li>
+<li>Xác nhận: <code>aws dms describe-replication-instances</code> và <code>aws rds describe-db-instances</code> không còn tài nguyên lab.</li>
+</ol>
+</section>
+
+<section class="card" id="t9">
+<h2><span class="n">9</span>🎯 3 câu hỏi kiểu đề</h2>
+<p class="goal">Tự suy nghĩ trước, rồi mở đáp án.</p>
+
+<h3>Câu 1</h3>
+<p>Một công ty chạy PostgreSQL 14 on-prem (1.5 TB) và cần chuyển sang Amazon Aurora PostgreSQL. Ứng dụng chỉ chịu được downtime vài phút. Có Site-to-Site VPN ổn định 1 Gbps. Giải pháp nào phù hợp nhất?</p>
+<ol type="A">
+<li>Dùng AWS DMS với migration type full-load, ngừng ứng dụng trong lúc copy.</li>
+<li>Dùng AWS DMS với full-load-and-cdc, rồi cutover khi replication lag gần 0.</li>
+<li>Dùng AWS DataSync để copy file dữ liệu của PostgreSQL sang Aurora.</li>
+<li>Dùng AWS MGN để replicate máy chủ DB sang EC2 rồi đổi sang Aurora.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>B.</b> Cùng engine, cần downtime tối thiểu, băng thông đủ: full load + CDC. A gây downtime dài. DataSync chuyển file, không biết cấu trúc DB để nạp vào Aurora (C sai). MGN chuyển server thành EC2, không tạo ra Aurora (D sai).</details>
+
+<h3>Câu 2</h3>
+<p>Công ty muốn chuyển cơ sở dữ liệu Oracle có nhiều package PL/SQL sang Aurora PostgreSQL. Đội ngũ chạy thử DMS full load và thấy dữ liệu sang nhưng ứng dụng báo thiếu hàm và procedure. Cần làm gì?</p>
+<ol type="A">
+<li>Tăng kích thước replication instance và chạy lại.</li>
+<li>Bật validation trong task settings.</li>
+<li>Dùng AWS SCT (hoặc DMS Schema Conversion) để chuyển schema và code, xử lý thủ công phần không tự chuyển được, rồi dùng DMS để di chuyển dữ liệu.</li>
+<li>Chuyển sang CDC-only để DMS tự tạo procedure từ redo log.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>C.</b> DMS di chuyển dữ liệu, không chuyển code đối tượng khác engine. Kích thước instance (A) và validation (B) không giải quyết thiếu code. CDC (D) chỉ đồng bộ thay đổi dữ liệu.</details>
+
+<h3>Câu 3</h3>
+<p>Task DMS full-load-and-cdc từ RDS for MySQL nguồn đã chạy full load thành công, nhưng giai đoạn CDC liên tục thất bại. Nhật ký cho thấy binary log không khả dụng. Nguồn là RDS với automated backups tắt. Nguyên nhân và cách sửa nào đúng?</p>
+<ol type="A">
+<li>Thiếu quyền IAM cho DMS; gắn thêm AmazonRDSFullAccess.</li>
+<li>Bật automated backups (retention &gt; 0) để RDS ghi binlog, đặt <code>binlog_format=ROW</code>, tăng binlog retention rồi chạy lại.</li>
+<li>Chuyển target sang Aurora Serverless.</li>
+<li>Đổi task thành full-load để tránh dùng binlog.</li>
+</ol>
+<details><summary>Xem đáp án</summary><b>B.</b> RDS chỉ bật binary log khi automated backup retention &gt; 0; CDC của MySQL đọc binlog, cần ROW. IAM (A) không liên quan đến việc đọc binlog trong DB; đổi target (C) không ảnh hưởng nguồn; D bỏ mất yêu cầu đồng bộ liên tục.</details>
+</section>
+
+<section class="card" id="t10">
+<h2><span class="n">10</span>📌 Quy tắc ghi nhớ</h2>
+<ol class="steps">
+<li>Downtime tối thiểu = <code>full-load-and-cdc</code>; cutover khi lag ~0; CDC MySQL cần binlog ROW và RDS backup retention &gt; 0.</li>
+<li>Khác engine = SCT (hoặc DMS Schema Conversion) cho schema/code + DMS cho dữ liệu; DMS chỉ tạo bảng và PK, index/FK/trigger làm riêng.</li>
+<li>Endpoint phải Test connection thành công từ replication instance; lỗi thường là security group/route.</li>
+<li>DB rất lớn + băng thông yếu: seed offline (Snowball Edge/backup) rồi DMS CDC; cùng engine, chịu downtime: native tools thường đủ.</li>
+<li>DMS = database; MGN = server; DataSync = file/object; Fleet Advisor đã ngừng (dùng Migration Evaluator).</li>
+</ol>
+</section>
+
+</main>
+<footer>Lab tự biên soạn cho ôn thi AWS SAP-C02. Kết quả mẫu ghi "ví dụ"; một số dịch vụ (Fleet Advisor, Snowball Edge) đã thay đổi khả dụng, hãy kiểm tra lại tài liệu AWS.</footer>
+
+
+<script>
+(function(){
+  var steps=[].slice.call(document.querySelectorAll('ol.steps>li'));
+  steps.forEach(function(li){
+    var cb=document.createElement('input');cb.type='checkbox';cb.title='Đánh dấu hoàn thành';
+    cb.addEventListener('change',function(){li.classList.toggle('done',cb.checked);upd();});
+    li.appendChild(cb);
+  });
+  function upd(){
+    var d=document.querySelectorAll('ol.steps>li.done').length;
+    document.getElementById('pt').textContent=d+'/'+steps.length+' bước';
+    document.getElementById('pb').style.width=(steps.length?d/steps.length*100:0)+'%';
+  }
+  upd();
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('.cp');if(!el)return;
+    var t=el.getAttribute('data-c');
+    function ok(){el.classList.add('ok');setTimeout(function(){el.classList.remove('ok')},700)}
+    try{navigator.clipboard.writeText(t).then(ok,function(){})}catch(x){}
+  });
+})();
+</script>
+</body>
+</html>
