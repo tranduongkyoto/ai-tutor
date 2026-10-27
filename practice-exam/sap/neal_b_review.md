@@ -12,26 +12,26 @@ Source: `sap-neal-exam-b-2026-10-260916-results.md` (Q# = shuffled web order). Q
 
 | Group | Q | Pass 1 | Pass 2 | Pass 3 |
 |---|---|---|---|---|
-| A | [Q10](#q10) | ☐ | ☐ | ☐ |
-| A | [Q61](#q61) | ☐ | ☐ | ☐ |
-| A | [Q63](#q63) | ☐ | ☐ | ☐ |
-| A | [Q71](#q71) | ☐ | ☐ | ☐ |
-| B | [Q14](#q14) | ☐ | ☐ | ☐ |
-| B | [Q23](#q23) | ☐ | ☐ | ☐ |
-| B | [Q28](#q28) | ☐ | ☐ | ☐ |
-| B | [Q51](#q51) | ☐ | ☐ | ☐ |
-| B | [Q56](#q56) | ☐ | ☐ | ☐ |
-| B | [Q59](#q59) | ☐ | ☐ | ☐ |
-| C | [Q17](#q17) | ☐ | ☐ | ☐ |
-| C | [Q22](#q22) | ☐ | ☐ | ☐ |
-| C | [Q34](#q34) | ☐ | ☐ | ☐ |
-| C | [Q35](#q35) | ☐ | ☐ | ☐ |
-| C | [Q37](#q37) | ☐ | ☐ | ☐ |
-| C | [Q45](#q45) | ☐ | ☐ | ☐ |
-| D | [Q41](#q41) | ☐ | ☐ | ☐ |
-| D | [Q68](#q68) | ☐ | ☐ | ☐ |
-| D | [Q70](#q70) | ☐ | ☐ | ☐ |
-| D | [Q74](#q74) | ☐ | ☐ | ☐ |
+| A | [Q10](#q10) | ❌ 10-27 | ☐ | ☐ |
+| A | [Q61](#q61) | ✅ 10-27 | ☐ | ☐ |
+| A | [Q63](#q63) | ✅ 10-27 | ☐ | ☐ |
+| A | [Q71](#q71) | ✅ 10-27 | ☐ | ☐ |
+| B | [Q14](#q14) | ✅ 10-27 | ☐ | ☐ |
+| B | [Q23](#q23) | ✅ 10-27 | ☐ | ☐ |
+| B | [Q28](#q28) | ✅ 10-27 | ☐ | ☐ |
+| B | [Q51](#q51) | ✅ 10-27 | ☐ | ☐ |
+| B | [Q56](#q56) | ✅ 10-27 | ☐ | ☐ |
+| B | [Q59](#q59) | ✅ 10-27 | ☐ | ☐ |
+| C | [Q17](#q17) | ✅ 10-27 | ☐ | ☐ |
+| C | [Q22](#q22) | ✅ 10-27 | ☐ | ☐ |
+| C | [Q34](#q34) | ✅ 10-27 | ☐ | ☐ |
+| C | [Q35](#q35) | ✅ 10-27 | ☐ | ☐ |
+| C | [Q37](#q37) | ✅ 10-27 | ☐ | ☐ |
+| C | [Q45](#q45) | ✅ 10-27 | ☐ | ☐ |
+| D | [Q41](#q41) | ✅ 10-27 | ☐ | ☐ |
+| D | [Q68](#q68) | ✅ 10-27 | ☐ | ☐ |
+| D | [Q70](#q70) | ✅ 10-27 | ☐ | ☐ |
+| D | [Q74](#q74) | ✅ 10-27 | ☐ | ☐ |
 
 ---
 
@@ -306,9 +306,31 @@ C: **Aurora Global database**.
 
 Aurora storage luôn trải 3 AZ, nhưng nếu chỉ có **một instance** thì AZ đó chết là phải dựng lại instance - **compute** vẫn là điểm lỗi.
 
+#### Thắc mắc: "Global Database cũng trải ≥ 3 AZ mà?"
+
+**Đúng một nửa.** Storage của Global Database trải 3 AZ ở mỗi Region, nhưng đó là đặc điểm của **mọi** Aurora cluster (kể cả D chỉ có 1 instance), nên **không phải điểm phân biệt**.
+
+```
+Aurora STORAGE: luôn 6 bản copy / 3 AZ   ← A, C, D đều có
+Aurora COMPUTE (instance):                ← đây mới quyết định HA
+  - 1 instance → AZ chết = mất writer, phải dựng lại (vài phút+)
+  - writer + replica ở AZ khác → tự promote ~30 giây
+```
+
+| | A. Aurora + replica 3 AZ | C. Aurora Global Database |
+|---|---|---|
+| Storage 3 AZ | Có | Có (mỗi Region) |
+| **Compute HA qua 3 AZ** | **Có, nêu rõ** (writer + 2 replica) | **Không nêu**: Region chính chỉ có 1 writer nếu không thêm replica |
+| Failover | Tự động trong Region, ~30 giây | Sang **Region phụ (read-only)** = failover **cross-Region**, mất vài phút, đổi endpoint |
+| Phạm vi đề yêu cầu | Đúng: 3 AZ, 1 Region | Thừa: thêm Region không được yêu cầu |
+
+→ Đề hỏi **HA qua AZ** chứ không hỏi **sống sót khi mất cả Region**, nên chọn A.
+
+**Quy tắc:** "HA qua **AZ**" → **replica ở AZ khác** (Aurora replica hoặc RDS Multi-AZ DB cluster). "Sống sót khi **mất Region** / RPO < 1 giây cross-Region" → **Aurora Global Database**. Storage 3 AZ có sẵn ở mọi Aurora, **không bao giờ là yếu tố quyết định**.
+
 #### Các phương án còn lại
 
-- **B**: NLB + **RDS Multi-AZ** (2 AZ) + **Read Replica** ở AZ thứ ba. Multi-AZ chỉ dùng **2 AZ**; Read Replica không phải đích failover tự động. Không đạt "HA qua 3 AZ".
+- **B**: NLB + **RDS Multi-AZ** (2 AZ) + **Read Replica** ở AZ thứ ba. Kiểu Multi-AZ **instance** (như option mô tả) chỉ dùng **2 AZ**; Read Replica phải **promote thủ công**, không phải đích failover tự động. Không đạt "HA qua 3 AZ".
 - **D**: Aurora **một AZ** + storage auto scaling. Neal: storage auto scaling vốn bật sẵn cho mọi Aurora và chỉ là **scale dung lượng**, không phải HA.
 
 | Phương án | HA compute qua 3 AZ | Ghi chú |
@@ -326,7 +348,8 @@ Aurora storage luôn trải 3 AZ, nhưng nếu chỉ có **một instance** thì
 #### Quy tắc nhớ cho thi
 
 - **Thấy "HA qua 3 AZ" + DB** → **Aurora với replica ở 3 AZ**
-- **RDS Multi-AZ** = 2 AZ (primary + standby); **Aurora** mới trải 3 AZ qua replica
+- **RDS Multi-AZ DB instance** = 2 AZ (primary + standby không đọc được); **Aurora** trải 3 AZ qua replica
+- 📝 **Ghi chú kiểm định (10-26):** từ 2022 RDS MySQL/PostgreSQL còn có **Multi-AZ DB cluster** (1 writer + 2 standby **đọc được** ở 3 AZ, failover ~35 giây). Nếu đề có lựa chọn này thì nó cũng đạt "HA qua 3 AZ". Câu này không có, nên đáp án A vẫn đúng.
 - **Thấy "Global database"** → chỉ khi đề nói **multi-Region**
 - **"Storage auto scaling"** = tăng dung lượng, không phải HA
 
