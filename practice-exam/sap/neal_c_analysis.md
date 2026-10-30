@@ -30,7 +30,7 @@
 | B. Security control mismatch (4) | 9, 12, 19, 30 | Interface endpoint = SG + DNS, no route · conditions only in bucket policies · SSE-S3 never uses your key → SSE-KMS CMK · NLB instance targets keep client IP |
 | C. Resilience / governance lever (3) | 11, 20, 31 | EKS resilience = AZ topology spread · cost per project = cost allocation tags + Service Catalog · DX redundancy = 2nd DX same Region + DX gateway |
 
-🔁 Repeats: Q5 (WorkSpaces vs AppStream, Neal B Q34), Q7 (DAX, Official Q68), Q13 (WAF/CloudFront, Neal B Q22).
+🔁 Repeats: Q5 (WorkSpaces vs AppStream, Neal B Q35), Q7 (DAX, Official Q68), Q13 (WAF/CloudFront, Neal B Q22).
 
 ## 5 rules
 1. **First pick stands** on single-answer questions unless you find a stem phrase that rules it out (Q5, Q30 lost; Udemy #2 Q11/Q67 same).

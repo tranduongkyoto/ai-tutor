@@ -119,7 +119,7 @@ D trông "an toàn hơn" vì có chữ Multi-AZ và cache, nhưng mỗi componen
 | Trạng thái | Persistent, gắn với user | Non-persistent (mặc định) |
 | Dùng khi | User cần cả máy làm việc | Cần đưa **một app desktop** đến user ở xa |
 
-> ⚠️ **Lỗi lặp lại (1) — WorkSpaces vs AppStream 2.0:** Anh đã nhầm cặp này ở **Neal B Q34**. Từ khóa "desktop client application" + "remote users slow" → **AppStream 2.0**, không phải WorkSpaces, không phải CloudFront.
+> ⚠️ **Lỗi lặp lại (1) — WorkSpaces vs AppStream 2.0:** Anh đã nhầm cặp này ở **Neal B Q35**. Từ khóa "desktop client application" + "remote users slow" → **AppStream 2.0**, không phải WorkSpaces, không phải CloudFront.
 
 > ⚠️ **Lỗi lặp lại (2) — Đổi đáp án đúng khi không có bằng chứng mới:** Lượt đầu Anh chọn B (đúng) rồi đổi sang D. Lỗi này đã xảy ra ở **Udemy #2 Q11/Q67**. Câu single-answer: chỉ đổi khi tìm được **một từ khóa cụ thể trong đề** mà lựa chọn đầu vi phạm. "Multi-AZ nghe an toàn hơn" không phải bằng chứng — đề còn yêu cầu minimize costs.
 
