@@ -1,0 +1,892 @@
+{
+ "note": "Neal Exam C page state at end of first pass, before flag review (~12 min left of 98). Saved 2026-10-30. Pre-review 24/35 → final 25/35 (review changed Q22 T5Q7 B→A, fixed). Final export: practice-exam/sap/sap-neal-exam-c-2026-10-300938-results.md",
+ "answers": {
+  "T2Q24": [
+   "A"
+  ],
+  "T4Q14": [
+   "A"
+  ],
+  "T4Q13": [
+   "D"
+  ],
+  "T5Q18": [
+   "A"
+  ],
+  "T3Q9": [
+   "D"
+  ],
+  "T5Q16": [
+   "C"
+  ],
+  "T5Q1": [
+   "A"
+  ],
+  "T3Q17": [
+   "A"
+  ],
+  "T4Q16": [
+   "B"
+  ],
+  "T2Q12": [
+   "C"
+  ],
+  "T4Q17": [
+   "C"
+  ],
+  "T2Q1": [
+   "A"
+  ],
+  "T2Q21": [
+   "C"
+  ],
+  "T5Q28": [
+   "A"
+  ],
+  "T5Q7": [
+   "B"
+  ],
+  "T1Q15": [
+   "D"
+  ],
+  "T3Q11": [
+   "A"
+  ],
+  "T1Q6": [
+   "C"
+  ],
+  "T1Q8": [
+   "C"
+  ],
+  "T4Q35": [
+   "C"
+  ],
+  "T2Q10": [
+   "A"
+  ],
+  "T1Q14": [
+   "C"
+  ],
+  "T6Q4": [
+   "A"
+  ],
+  "T6Q22": [
+   "B"
+  ],
+  "T1Q26": [
+   "D"
+  ],
+  "T1Q19": [
+   "B"
+  ],
+  "T3Q25": [
+   "D",
+   "E"
+  ],
+  "T1Q7": [
+   "C",
+   "E"
+  ],
+  "T6Q26": [
+   "C"
+  ],
+  "T4Q5": [
+   "A",
+   "B",
+   "E"
+  ],
+  "T1Q12": [
+   "A",
+   "C"
+  ],
+  "T2Q29": [
+   "B",
+   "D"
+  ],
+  "T2Q15": [
+   "B"
+  ],
+  "T3Q7": [
+   "A",
+   "D"
+  ],
+  "T3Q35": [
+   "A",
+   "C",
+   "D"
+  ]
+ },
+ "flags": [
+  "T2Q24",
+  "T4Q14",
+  "T5Q18",
+  "T5Q16",
+  "T5Q1",
+  "T2Q12",
+  "T2Q1",
+  "T2Q21",
+  "T5Q28",
+  "T5Q7",
+  "T3Q11",
+  "T4Q35",
+  "T1Q14",
+  "T1Q12",
+  "T2Q29"
+ ],
+ "idx": 28,
+ "elapsed": 5168731,
+ "running": false,
+ "resumedAt": 1793352254987,
+ "started": "2026-10-30T03:52:12.008Z",
+ "t": {
+  "T3Q25": {
+   "dwell_ms": 225969,
+   "visits": 2,
+   "first_answer_ms": 3929846,
+   "changes": 1,
+   "last": 3962112
+  },
+  "T2Q24": {
+   "dwell_ms": 118501,
+   "visits": 2,
+   "first_answer_ms": 127272,
+   "changes": 0,
+   "last": 127272
+  },
+  "T4Q14": {
+   "dwell_ms": 185202,
+   "visits": 1,
+   "first_answer_ms": 310890,
+   "changes": 1,
+   "last": 311600
+  },
+  "T1Q7": {
+   "dwell_ms": 89064,
+   "visits": 2,
+   "first_answer_ms": 4034838,
+   "changes": 1,
+   "last": 4036712
+  },
+  "T4Q13": {
+   "dwell_ms": 169763,
+   "visits": 2,
+   "first_answer_ms": 482746,
+   "changes": 1,
+   "last": 484279
+  },
+  "T5Q18": {
+   "dwell_ms": 103425,
+   "visits": 1,
+   "first_answer_ms": 587177,
+   "changes": 0,
+   "last": 587177
+  },
+  "T3Q9": {
+   "dwell_ms": 152376,
+   "visits": 1,
+   "first_answer_ms": 738182,
+   "changes": 0,
+   "last": 738182
+  },
+  "T5Q16": {
+   "dwell_ms": 131009,
+   "visits": 1,
+   "first_answer_ms": 869651,
+   "changes": 0,
+   "last": 869651
+  },
+  "T5Q1": {
+   "dwell_ms": 84046,
+   "visits": 1,
+   "first_answer_ms": 950201,
+   "changes": 0,
+   "last": 950201
+  },
+  "T3Q17": {
+   "dwell_ms": 99016,
+   "visits": 1,
+   "first_answer_ms": 1054123,
+   "changes": 0,
+   "last": 1054123
+  },
+  "T6Q26": {
+   "dwell_ms": 196763,
+   "visits": 2,
+   "first_answer_ms": 4135051,
+   "changes": 0,
+   "last": 4135051
+  },
+  "T4Q5": {
+   "dwell_ms": 183314,
+   "visits": 2,
+   "first_answer_ms": 4214242,
+   "changes": 4,
+   "last": 4306832
+  },
+  "T1Q12": {
+   "dwell_ms": 161995,
+   "visits": 2,
+   "first_answer_ms": 4422392,
+   "changes": 1,
+   "last": 4475366
+  },
+  "T4Q16": {
+   "dwell_ms": 142373,
+   "visits": 1,
+   "first_answer_ms": 1271025,
+   "changes": 2,
+   "last": 1313572
+  },
+  "T2Q12": {
+   "dwell_ms": 107492,
+   "visits": 1,
+   "first_answer_ms": 1374210,
+   "changes": 2,
+   "last": 1408030
+  },
+  "T4Q17": {
+   "dwell_ms": 138879,
+   "visits": 1,
+   "first_answer_ms": 1508381,
+   "changes": 1,
+   "last": 1543079
+  },
+  "T2Q1": {
+   "dwell_ms": 112350,
+   "visits": 1,
+   "first_answer_ms": 1671864,
+   "changes": 0,
+   "last": 1671864
+  },
+  "T2Q21": {
+   "dwell_ms": 199142,
+   "visits": 1,
+   "first_answer_ms": 1851460,
+   "changes": 2,
+   "last": 1853208
+  },
+  "T5Q28": {
+   "dwell_ms": 196324,
+   "visits": 1,
+   "first_answer_ms": 2064681,
+   "changes": 0,
+   "last": 2064681
+  },
+  "T2Q29": {
+   "dwell_ms": 224319,
+   "visits": 2,
+   "first_answer_ms": 4622294,
+   "changes": 1,
+   "last": 4680955
+  },
+  "T2Q15": {
+   "dwell_ms": 166128,
+   "visits": 2,
+   "first_answer_ms": 4853119,
+   "changes": 0,
+   "last": 4853119
+  },
+  "T5Q7": {
+   "dwell_ms": 77677,
+   "visits": 1,
+   "first_answer_ms": 2145245,
+   "changes": 0,
+   "last": 2145245
+  },
+  "T1Q15": {
+   "dwell_ms": 65093,
+   "visits": 1,
+   "first_answer_ms": 2223289,
+   "changes": 0,
+   "last": 2223289
+  },
+  "T3Q11": {
+   "dwell_ms": 252957,
+   "visits": 1,
+   "first_answer_ms": 2471982,
+   "changes": 0,
+   "last": 2471982
+  },
+  "T1Q6": {
+   "dwell_ms": 215131,
+   "visits": 1,
+   "first_answer_ms": 2690417,
+   "changes": 0,
+   "last": 2690417
+  },
+  "T1Q8": {
+   "dwell_ms": 93010,
+   "visits": 1,
+   "first_answer_ms": 2784327,
+   "changes": 0,
+   "last": 2784327
+  },
+  "T4Q35": {
+   "dwell_ms": 164911,
+   "visits": 1,
+   "first_answer_ms": 2948014,
+   "changes": 0,
+   "last": 2948014
+  },
+  "T3Q7": {
+   "dwell_ms": 180024,
+   "visits": 2,
+   "first_answer_ms": 5023799,
+   "changes": 1,
+   "last": 5024498
+  },
+  "T3Q35": {
+   "dwell_ms": 127526,
+   "visits": 2,
+   "first_answer_ms": 5154183,
+   "changes": 2,
+   "last": 5158307
+  },
+  "T2Q10": {
+   "dwell_ms": 91942,
+   "visits": 1,
+   "first_answer_ms": 3024859,
+   "changes": 1,
+   "last": 3046550
+  },
+  "T1Q14": {
+   "dwell_ms": 202919,
+   "visits": 1,
+   "first_answer_ms": 3236787,
+   "changes": 0,
+   "last": 3236787
+  },
+  "T6Q4": {
+   "dwell_ms": 87337,
+   "visits": 1,
+   "first_answer_ms": 3311067,
+   "changes": 1,
+   "last": 3337181
+  },
+  "T6Q22": {
+   "dwell_ms": 164214,
+   "visits": 1,
+   "first_answer_ms": 3464578,
+   "changes": 1,
+   "last": 3489329
+  },
+  "T1Q26": {
+   "dwell_ms": 135152,
+   "visits": 1,
+   "first_answer_ms": 3619243,
+   "changes": 0,
+   "last": 3619243
+  },
+  "T1Q19": {
+   "dwell_ms": 112965,
+   "visits": 1,
+   "first_answer_ms": 3747208,
+   "changes": 0,
+   "last": 3747208
+  }
+ },
+ "log": [
+  {
+   "id": "T2Q24",
+   "i": 1,
+   "at": 127272,
+   "picks": "A"
+  },
+  {
+   "id": "T4Q14",
+   "i": 2,
+   "at": 310890,
+   "picks": "B"
+  },
+  {
+   "id": "T4Q14",
+   "i": 2,
+   "at": 311600,
+   "picks": "A"
+  },
+  {
+   "id": "T4Q13",
+   "i": 4,
+   "at": 482746,
+   "picks": "B"
+  },
+  {
+   "id": "T4Q13",
+   "i": 4,
+   "at": 484279,
+   "picks": "D"
+  },
+  {
+   "id": "T5Q18",
+   "i": 5,
+   "at": 587177,
+   "picks": "A"
+  },
+  {
+   "id": "T3Q9",
+   "i": 6,
+   "at": 738182,
+   "picks": "D"
+  },
+  {
+   "id": "T5Q16",
+   "i": 7,
+   "at": 869651,
+   "picks": "C"
+  },
+  {
+   "id": "T5Q1",
+   "i": 8,
+   "at": 950201,
+   "picks": "A"
+  },
+  {
+   "id": "T3Q17",
+   "i": 9,
+   "at": 1054123,
+   "picks": "A"
+  },
+  {
+   "id": "T4Q16",
+   "i": 13,
+   "at": 1271025,
+   "picks": "B"
+  },
+  {
+   "id": "T4Q16",
+   "i": 13,
+   "at": 1312236,
+   "picks": "D"
+  },
+  {
+   "id": "T4Q16",
+   "i": 13,
+   "at": 1313572,
+   "picks": "B"
+  },
+  {
+   "id": "T2Q12",
+   "i": 14,
+   "at": 1374210,
+   "picks": "B"
+  },
+  {
+   "id": "T2Q12",
+   "i": 14,
+   "at": 1376423,
+   "picks": "B"
+  },
+  {
+   "id": "T2Q12",
+   "i": 14,
+   "at": 1408030,
+   "picks": "C"
+  },
+  {
+   "id": "T4Q17",
+   "i": 15,
+   "at": 1508381,
+   "picks": "A"
+  },
+  {
+   "id": "T4Q17",
+   "i": 15,
+   "at": 1543079,
+   "picks": "C"
+  },
+  {
+   "id": "T2Q1",
+   "i": 16,
+   "at": 1671864,
+   "picks": "A"
+  },
+  {
+   "id": "T2Q21",
+   "i": 17,
+   "at": 1851460,
+   "picks": "A"
+  },
+  {
+   "id": "T2Q21",
+   "i": 17,
+   "at": 1852669,
+   "picks": "C"
+  },
+  {
+   "id": "T2Q21",
+   "i": 17,
+   "at": 1853208,
+   "picks": "C"
+  },
+  {
+   "id": "T5Q28",
+   "i": 18,
+   "at": 2064681,
+   "picks": "A"
+  },
+  {
+   "id": "T5Q7",
+   "i": 21,
+   "at": 2145245,
+   "picks": "B"
+  },
+  {
+   "id": "T1Q15",
+   "i": 22,
+   "at": 2223289,
+   "picks": "D"
+  },
+  {
+   "id": "T3Q11",
+   "i": 23,
+   "at": 2471982,
+   "picks": "A"
+  },
+  {
+   "id": "T1Q6",
+   "i": 24,
+   "at": 2690417,
+   "picks": "C"
+  },
+  {
+   "id": "T1Q8",
+   "i": 25,
+   "at": 2784327,
+   "picks": "C"
+  },
+  {
+   "id": "T4Q35",
+   "i": 26,
+   "at": 2948014,
+   "picks": "C"
+  },
+  {
+   "id": "T2Q10",
+   "i": 29,
+   "at": 3024859,
+   "picks": "B"
+  },
+  {
+   "id": "T2Q10",
+   "i": 29,
+   "at": 3046550,
+   "picks": "A"
+  },
+  {
+   "id": "T1Q14",
+   "i": 30,
+   "at": 3236787,
+   "picks": "C"
+  },
+  {
+   "id": "T6Q4",
+   "i": 31,
+   "at": 3311067,
+   "picks": "D"
+  },
+  {
+   "id": "T6Q4",
+   "i": 31,
+   "at": 3337181,
+   "picks": "A"
+  },
+  {
+   "id": "T6Q22",
+   "i": 32,
+   "at": 3464578,
+   "picks": "B"
+  },
+  {
+   "id": "T6Q22",
+   "i": 32,
+   "at": 3489329,
+   "picks": "B"
+  },
+  {
+   "id": "T1Q26",
+   "i": 33,
+   "at": 3619243,
+   "picks": "D"
+  },
+  {
+   "id": "T1Q19",
+   "i": 34,
+   "at": 3747208,
+   "picks": "B"
+  },
+  {
+   "id": "T3Q25",
+   "i": 0,
+   "at": 3929846,
+   "picks": "E"
+  },
+  {
+   "id": "T3Q25",
+   "i": 0,
+   "at": 3962112,
+   "picks": "DE"
+  },
+  {
+   "id": "T1Q7",
+   "i": 3,
+   "at": 4034838,
+   "picks": "C"
+  },
+  {
+   "id": "T1Q7",
+   "i": 3,
+   "at": 4036712,
+   "picks": "CE"
+  },
+  {
+   "id": "T6Q26",
+   "i": 10,
+   "at": 4135051,
+   "picks": "C"
+  },
+  {
+   "id": "T4Q5",
+   "i": 11,
+   "at": 4214242,
+   "picks": "A"
+  },
+  {
+   "id": "T4Q5",
+   "i": 11,
+   "at": 4225674,
+   "picks": "AD"
+  },
+  {
+   "id": "T4Q5",
+   "i": 11,
+   "at": 4229812,
+   "picks": "ADE"
+  },
+  {
+   "id": "T4Q5",
+   "i": 11,
+   "at": 4306270,
+   "picks": "AE"
+  },
+  {
+   "id": "T4Q5",
+   "i": 11,
+   "at": 4306832,
+   "picks": "ABE"
+  },
+  {
+   "id": "T1Q12",
+   "i": 12,
+   "at": 4422392,
+   "picks": "C"
+  },
+  {
+   "id": "T1Q12",
+   "i": 12,
+   "at": 4475366,
+   "picks": "AC"
+  },
+  {
+   "id": "T2Q29",
+   "i": 19,
+   "at": 4622294,
+   "picks": "D"
+  },
+  {
+   "id": "T2Q29",
+   "i": 19,
+   "at": 4680955,
+   "picks": "BD"
+  },
+  {
+   "id": "T2Q15",
+   "i": 20,
+   "at": 4853119,
+   "picks": "B"
+  },
+  {
+   "id": "T3Q7",
+   "i": 27,
+   "at": 5023799,
+   "picks": "D"
+  },
+  {
+   "id": "T3Q7",
+   "i": 27,
+   "at": 5024498,
+   "picks": "AD"
+  },
+  {
+   "id": "T3Q35",
+   "i": 28,
+   "at": 5154183,
+   "picks": "D"
+  },
+  {
+   "id": "T3Q35",
+   "i": 28,
+   "at": 5155757,
+   "picks": "CD"
+  },
+  {
+   "id": "T3Q35",
+   "i": 28,
+   "at": 5158307,
+   "picks": "ACD"
+  }
+ ],
+ "viewStart": 5158308,
+ "viewId": "T3Q35",
+ "strike": {
+  "T4Q14": [
+   "C",
+   "D",
+   "B"
+  ],
+  "T4Q13": [
+   "C",
+   "A",
+   "B"
+  ],
+  "T3Q9": [
+   "B",
+   "A",
+   "C"
+  ],
+  "T5Q16": [
+   "D",
+   "B",
+   "A"
+  ],
+  "T3Q17": [
+   "B",
+   "C",
+   "D"
+  ],
+  "T4Q16": [
+   "A",
+   "C",
+   "D"
+  ],
+  "T2Q12": [
+   "B"
+  ],
+  "T4Q17": [
+   "B",
+   "D",
+   "A"
+  ],
+  "T2Q1": [
+   "B",
+   "C",
+   "D"
+  ],
+  "T2Q21": [
+   "B"
+  ],
+  "T5Q28": [
+   "B",
+   "C",
+   "D"
+  ],
+  "T1Q15": [
+   "B",
+   "A"
+  ],
+  "T3Q11": [
+   "B",
+   "C",
+   "D"
+  ],
+  "T1Q6": [
+   "B",
+   "D",
+   "A"
+  ],
+  "T1Q8": [
+   "A",
+   "D",
+   "B"
+  ],
+  "T4Q35": [
+   "D",
+   "A"
+  ],
+  "T2Q10": [
+   "B",
+   "C",
+   "D"
+  ],
+  "T1Q14": [
+   "B",
+   "D"
+  ],
+  "T6Q4": [
+   "B",
+   "D",
+   "C"
+  ],
+  "T6Q22": [
+   "C",
+   "A",
+   "D"
+  ],
+  "T1Q19": [
+   "C",
+   "D",
+   "A"
+  ],
+  "T3Q25": [
+   "A",
+   "C",
+   "B"
+  ],
+  "T1Q7": [
+   "A",
+   "B",
+   "D"
+  ],
+  "T4Q5": [
+   "F",
+   "D",
+   "C"
+  ],
+  "T1Q12": [
+   "B",
+   "D",
+   "E"
+  ],
+  "T2Q29": [
+   "E",
+   "C",
+   "A"
+  ],
+  "T2Q15": [
+   "D",
+   "A"
+  ],
+  "T3Q7": [
+   "B",
+   "C",
+   "E"
+  ],
+  "T3Q35": [
+   "B",
+   "F",
+   "E"
+  ]
+ },
+ "hl": {
+  "T4Q13": [
+   "improving the user experience, minimizing costs, and ensuring the availability requirements"
+  ],
+  "T2Q21": [
+   "dynamically scale and must be fault tolerant across multiple AWS Regions",
+   "structured data"
+  ],
+  "T2Q29": [
+   "be restricted to deploying pre-approved IT services only.",
+   "ssociated with each project and each environment"
+  ]
+ }
+}
