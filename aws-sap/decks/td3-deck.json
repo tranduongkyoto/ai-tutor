@@ -1,0 +1,689 @@
+{
+ "sections": {
+  "A": "Identity & governance",
+  "B": "Networking & hybrid",
+  "C": "Edge, DNS & global delivery",
+  "D": "Compute, containers & deployment",
+  "E": "Data, analytics & app integration",
+  "F": "Storage, migration & DR",
+  "G": "Security",
+  "H": "Monitoring, cost & operations"
+ },
+ "cards": [
+  {
+   "id": "A1",
+   "q": 35,
+   "ans": "D",
+   "scenario": "External auditor from own AWS account needs read-only access across all accounts.",
+   "ok": "IAM role in each account with trust policy naming the auditor's ARN and read-only permissions.",
+   "bad": "Create an IAM user with access keys and read-only permissions for the auditor.",
+   "why": "Roles give temporary credentials revocable after the audit; IAM user access keys are long-term credentials, less secure."
+  },
+  {
+   "id": "A2",
+   "q": 52,
+   "ans": "D",
+   "scenario": "EC2 web app generates S3 pre-signed URLs for upload/download and checks object existence; access S3 securely.",
+   "ok": "IAM role allowing list and upload on the bucket, attached to the instance; app fetches temporary credentials from instance metadata.",
+   "bad": "Store access keys inside the EC2 instance and have the app read them.",
+   "why": "Roles supply temporary credentials via instance metadata; stored keys need distribution and rotation. Role also needs list and upload."
+  },
+  {
+   "id": "A3",
+   "q": 57,
+   "ans": "A",
+   "scenario": "Mobile app connects directly to S3 and DynamoDB and handles authentication; MOST cost-effective and scalable.",
+   "ok": "Web identity federation with AssumeRoleWithWebIdentity, IAM role for the provider, app uses temporary security credentials.",
+   "bad": "Web identity federation via Cognito, but app uses access and secret keys.",
+   "why": "Federation yields temporary credentials mapped to an IAM role; the app must not embed long-term access and secret keys."
+  },
+  {
+   "id": "A4",
+   "q": 68,
+   "ans": "D",
+   "scenario": "Set up AWS Organizations across existing accounts for central policy and full administrative control with the LEAST effort.",
+   "ok": "Invite member accounts from the management account; create OrganizationAccountAccessRole in each member trusting the management account.",
+   "bad": "Rely on cross-account access alone, assuming management account automatically has full admin control.",
+   "why": "Invited accounts do not give automatic admin control; the OrganizationAccountAccessRole must be created in the member account."
+  },
+  {
+   "id": "A5",
+   "q": 70,
+   "ans": "B, D",
+   "scenario": "Ensure tags are always added on resource creation across Organization accounts using centralized provisioning tools and IaC (select two).",
+   "ok": "AWS Service Catalog tagging provisioned resources + CloudFormation Resource Tags property applying tags on creation.",
+   "bad": "AWS Config adding corresponding tags to resources the moment they are created.",
+   "why": "Config evaluates and flags resources after creation and does not tag at creation; Service Catalog and CloudFormation apply tags proactively."
+  },
+  {
+   "id": "A6",
+   "q": 71,
+   "ans": "A",
+   "scenario": "Developers create and configure AWS resources (Windows EC2) and view Organizations info; least privilege.",
+   "ok": "Attach the PowerUserAccess AWS managed policy to the IAM users.",
+   "bad": "Create an IAM role with AdministratorAccess and assign it to the IAM users.",
+   "why": "AdministratorAccess grants all actions on all resources; PowerUserAccess excludes IAM and Organizations but allows read of org info, which is least privilege."
+  },
+  {
+   "id": "A7",
+   "q": 73,
+   "ans": "A",
+   "scenario": "Third-party vendor with own AWS account needs least-privilege API access to discover EC2; credentials unusable by other third parties.",
+   "ok": "IAM role with needed permissions only; trust policy with ExternalId condition matching the vendor's unique customer ID.",
+   "bad": "IAM user with required permissions and access keys given to the vendor.",
+   "why": "Roles give temporary credentials and ExternalId stops other parties assuming it (confused deputy); shared long-term keys are insecure."
+  },
+  {
+   "id": "A8",
+   "q": 74,
+   "ans": "A",
+   "scenario": "On-premises LDAP over IPSec VPN; employees use corporate accounts to access AWS resources.",
+   "ok": "Custom identity broker authenticates against LDAP, then calls STS to assume an IAM role and returns temporary credentials.",
+   "bad": "Integrate LDAP directly with IAM so employees log into IAM with LDAP credentials.",
+   "why": "IAM cannot integrate LDAP directly; LDAP is not SAML compatible, so an identity broker obtaining STS temporary credentials is required."
+  },
+  {
+   "id": "A9",
+   "q": 75,
+   "ans": "A",
+   "scenario": "SCP allows only cloudtrail and iam actions; IAM policy allows s3:*. Account cannot create S3 bucket; root cause.",
+   "ok": "SCP is the cause: it does not explicitly allow the S3 actions needed to create a bucket.",
+   "bad": "IAM policy is the cause because it denies users all S3-related actions.",
+   "why": "The IAM policy actually allows S3; SCPs set maximum permissions and a replaced FullAWSAccess means S3 is not allowed, blocking bucket creation."
+  },
+  {
+   "id": "B1",
+   "q": 5,
+   "ans": "B, C",
+   "scenario": "VPC web app needs private dedicated connection to on-premises servers (select two).",
+   "ok": "BGP/MD5-capable on-premises network device + Direct Connect link between VPC and internal network.",
+   "bad": "Transit VPC between the on-premises data center and the VPC.",
+   "why": "Direct Connect plus a BGP-capable device gives the dedicated private link; a Transit VPC is not the needed approach."
+  },
+  {
+   "id": "B2",
+   "q": 8,
+   "ans": "A",
+   "scenario": "Dual-tunnel VPN between CGW and VGW; find the single point of failure to fix for high availability.",
+   "ok": "Add a second Customer Gateway in a different data center with another dual-tunnel VPN connection.",
+   "bad": "Second Virtual Gateway in another AZ plus a second Customer Gateway and VPN.",
+   "why": "Only one VGW can attach to a VPC, so redundancy must come from a second customer gateway and VPN connection."
+  },
+  {
+   "id": "B3",
+   "q": 39,
+   "ans": "A",
+   "scenario": "DB patch downloads via single NAT instance time out; find root cause and fix.",
+   "ok": "NAT instance sends FIN on connection timeout and does not continue connection; use a NAT Gateway instead.",
+   "bad": "Database servers not in a Placement Group; use Spread or Cluster placement group.",
+   "why": "Failures stem from NAT instance timeout behavior on internet downloads; placement groups affect inter-instance traffic, not patch downloads."
+  },
+  {
+   "id": "B4",
+   "q": 45,
+   "ans": "C",
+   "scenario": "Inspect network payloads reaching the application to reverse-engineer sophisticated attacks.",
+   "ok": "Traffic Mirroring on the instances' ENI sending mirrored traffic to a monitoring appliance for storage and inspection.",
+   "bad": "VPC flow log to an S3 bucket for analysis.",
+   "why": "Traffic Mirroring copies actual packets for content inspection; flow logs only record Layer 4 metadata, not payloads."
+  },
+  {
+   "id": "B5",
+   "q": 47,
+   "ans": "C",
+   "scenario": "Employees-only access from corporate network or Internet; app server not exposed to Internet.",
+   "ok": "SSL VPN in the public subnet with client software on workstations; app servers in a private subnet.",
+   "bad": "IPsec VPN for employees with application servers in a public subnet.",
+   "why": "Servers stay unexposed in a private subnet and reached via VPN; a public subnet still exposes the instances."
+  },
+  {
+   "id": "B6",
+   "q": 55,
+   "ans": "B, C",
+   "scenario": "EC2 Auto Scaling in public subnet must reach Aurora MySQL in private subnet; least-privilege recommended rules (select two).",
+   "ok": "EC2 SG outbound to DB SG on 3306 + Aurora SG inbound from EC2 SG on 3306.",
+   "bad": "Update inbound NACL of the private subnet to allow the public subnet CIDR on 3306.",
+   "why": "Security group rules referencing SGs are least privilege and stateful; NACL CIDR rules are broader and not needed here."
+  },
+  {
+   "id": "B7",
+   "q": 58,
+   "ans": "B",
+   "scenario": "AI traffic-monitoring portal with strict RPO/RTO, highly available and fault-tolerant; MOST suitable architecture.",
+   "ok": "Auto Scaling EC2 across three AZs behind ALB, Aurora with Aurora Replicas, Route 53 Alias record to the ELB.",
+   "bad": "DynamoDB, EC2 Auto Scaling over four AZs behind ALB, Route 53 A record to the ELB.",
+   "why": "Alias record is the correct Route 53 record type for an ELB and Aurora replicas give strict RPO/RTO; a plain A record to the ELB is not valid."
+  },
+  {
+   "id": "C1",
+   "q": 10,
+   "ans": "C, D",
+   "scenario": "Multiple domains serve SSL on ALB without re-provisioning certificates per new domain (select two).",
+   "ok": "CloudFront with dedicated-IP custom SSL for alternate domains + ALB listener with multiple certificates using SNI.",
+   "bad": "One wildcard certificate to cover sub-domains and different domains.",
+   "why": "Per the key, ALB SNI with multiple bound certificates and CloudFront custom SSL fit; a wildcard cert only covers sub-domains of one domain."
+  },
+  {
+   "id": "C2",
+   "q": 23,
+   "ans": "C",
+   "scenario": "CloudFront with ALB origin; enable end-to-end HTTPS from browser to origin.",
+   "ok": "Redirect HTTP to HTTPS in CloudFront, with an ACM-issued certificate on both CloudFront and origin ALB.",
+   "bad": "CloudFront default certificate with redirect to HTTPS, ACM certificate only on origin.",
+   "why": "The default CloudFront certificate is not valid for the site's own domain name; use ACM certificate for custom domain on CloudFront and ALB."
+  },
+  {
+   "id": "C3",
+   "q": 40,
+   "ans": "A, C",
+   "scenario": "Cut page load from 7s to under 3s for global audience; MOST cost-effective (select two).",
+   "ok": "ElastiCache caching layer for sessions and frequent DB queries + CloudFront caching of re-usable content.",
+   "bad": "Second regional installation with Route 53 latency-based routing.",
+   "why": "Caching and CDN cut load times cheaply; duplicating a full regional stack is costly."
+  },
+  {
+   "id": "C4",
+   "q": 42,
+   "ans": "D",
+   "scenario": "Quickly handle unpredictable web traffic bursts for on-premises 2-tier gaming store before sale in weeks.",
+   "ok": "CloudFront distribution with custom on-premises origin, customized cache behavior and TTL to offload traffic.",
+   "bad": "Migrate with VM Import, ASG on imported AMI, RDS read replica and replicate Oracle database to RDS.",
+   "why": "Time is short; CloudFront offloads traffic with little change to existing infrastructure, while a full migration is slow and risky."
+  },
+  {
+   "id": "C5",
+   "q": 43,
+   "ans": "A",
+   "scenario": "Region power outage; short recovery downtime allowed across multi-region ASG apps.",
+   "ok": "DNS active-active failover using latency-based routing to ELBs with Evaluate Target Health set to Yes.",
+   "bad": "Enable DNSSEC and failover to standby with Evaluate Target Health set to No.",
+   "why": "Health-evaluated latency routing sends users only to healthy Regions; DNSSEC only prevents spoofing and No keeps routing to failing targets."
+  },
+  {
+   "id": "C6",
+   "q": 44,
+   "ans": "C",
+   "scenario": "Cost-effective, faster worldwide download of 5GB game package for millions of users.",
+   "ok": "S3 website-hosted bucket with CloudFront distribution as origin; Route 53 entry points to CloudFront.",
+   "bad": "Auto Scaling EC2 fleet with EBS volumes behind ALB, Route 53 pointing to ALB.",
+   "why": "CloudFront serves from nearby edge locations for faster, cheaper downloads; EC2 fleets cost more and give no global edge caching."
+  },
+  {
+   "id": "C7",
+   "q": 50,
+   "ans": "A, C",
+   "scenario": "Require HTTPS between viewers and CloudFront using the default cloudfront.net domain (select two).",
+   "ok": "Viewer Protocol Policy Redirect HTTP to HTTPS or HTTPS Only + CloudFront default SSL/TLS certificate with that cache behavior setting.",
+   "bad": "Use a self-signed certificate in the ELB.",
+   "why": "Viewer-to-CloudFront HTTPS needs only viewer protocol policy; ELB certificate concerns origin HTTPS, and self-signed certificates are not allowed there."
+  },
+  {
+   "id": "C8",
+   "q": 62,
+   "ans": "A",
+   "scenario": "CloudFront cache hit ratio dropping because query strings are inconsistent in order and case; increase cache hit ratio.",
+   "ok": "Lambda@Edge viewer request function normalizing query parameters (sorted, lower case) before cache lookup.",
+   "bad": "Enable a \"case insensitive\" option for query string processing on the distribution.",
+   "why": "No such CloudFront option exists; normalizing order and case at the viewer request makes identical requests share one cached object."
+  },
+  {
+   "id": "D1",
+   "q": 1,
+   "ans": "D",
+   "scenario": "Media uploads, 30-min processing, queue backlog during business hours; migrate to AWS, MOST cost-effective.",
+   "ok": "SQS standard queue + EC2 Auto Scaling group scaled on queue length, output to S3.",
+   "bad": "SQS queue + Lambda invoked per message, output to S3.",
+   "why": "Lambda max runtime is 15 minutes, so 30-minute media jobs cannot finish; EC2 ASG scaled on queue length handles them."
+  },
+  {
+   "id": "D2",
+   "q": 12,
+   "ans": "A, C, F",
+   "scenario": "Tightly coupled HPC cluster of 1000 EC2 nodes on EFS performs poorly; maximize performance (select three).",
+   "ok": "Cluster placement group in a single AZ + EFA network interfaces + FSx for Lustre instead of EFS.",
+   "bad": "Spread instances across multiple AZs with EBS RAID 0 instead of EFS.",
+   "why": "Tightly coupled HPC needs low latency in one AZ; multi-AZ spreading hurts network performance, and FSx for Lustre outperforms EFS."
+  },
+  {
+   "id": "D3",
+   "q": 25,
+   "ans": "A",
+   "scenario": "ALB with ASG across 3 AZs spikes above 90% at events; recover quickly if one AZ fails; MOST cost-effective.",
+   "ok": "Raise ASG capacity and thresholds across AZs; Reserved for steady load, On-Demand plus Spot for peak, scale down after.",
+   "bad": "Deploy six Reserved and Spot instances in each of the 3 AZs.",
+   "why": "Fixed static capacity wastes money off-peak; Auto Scaling with Reserved baseline and On-Demand/Spot peak is cheaper and absorbs an AZ loss."
+  },
+  {
+   "id": "D4",
+   "q": 31,
+   "ans": "B",
+   "scenario": "Lambda deploy shifting 10% then rest after 5 minutes; trace event source and downstream calls.",
+   "ok": "Canary deployment configuration plus active tracing to integrate AWS X-Ray.",
+   "bad": "Linear deployment configuration with AWS Config tracing event source and downstream calls.",
+   "why": "Canary shifts traffic in two increments; X-Ray active tracing gives tracing, while AWS Config cannot trace invocations."
+  },
+  {
+   "id": "D5",
+   "q": 46,
+   "ans": "C",
+   "scenario": "Zero-downtime AMI rollout via UpdateStack replacing old EC2 instances from CloudFormation template.",
+   "ok": "UpdatePolicy attribute with AutoScalingRollingUpdate policy on the AutoScalingGroup resource.",
+   "bad": "DeletionPolicy attribute with MinSuccessfulInstancesPercent on the LaunchConfiguration resource.",
+   "why": "UpdatePolicy rolling update replaces instances in batches automatically; DeletionPolicy only governs resource retention on stack deletion."
+  },
+  {
+   "id": "D6",
+   "q": 53,
+   "ans": "C",
+   "scenario": "Lambda/DynamoDB/OpenSearch ERP API: no downtime on failed deploy, prevent subsequent deployments, full capacity during deployment, MOST efficient.",
+   "ok": "CodeDeploy blue/green + CloudFormation for DynamoDB, Lambda, OpenSearch; Elastic Beanstalk with Immutable deployment policy.",
+   "bad": "Blue/green via CodeDeploy with SAM, Elastic Beanstalk set to All at Once.",
+   "why": "All at Once updates every instance together and risks downtime; Immutable launches a new full set, keeping full capacity and leaving originals untouched on failure."
+  },
+  {
+   "id": "D7",
+   "q": 54,
+   "ans": "B",
+   "scenario": "CI/CD deploying new versions several times an hour with quick rollback to previous version.",
+   "ok": "Elastic Beanstalk staging environment; deploy new version there, then swap staging and production URLs.",
+   "bad": "Bake AMI, update Auto Scaling launch template, scale out and terminate old instances.",
+   "why": "URL swap shifts traffic instantly and rolls back by swapping again; AMI rebuild and instance replacement is slow for hourly releases."
+  },
+  {
+   "id": "D8",
+   "q": 56,
+   "ans": "B",
+   "scenario": "CloudFormation template update caused major downtime; reduce downtime chances during deployments.",
+   "ok": "CodeBuild test stage on non-production + CloudFormation change sets to preview + CodeDeploy blue/green with quick rollback.",
+   "bad": "CodeDeploy blue/green then manually log in to instances to verify the deployment.",
+   "why": "Automated tests and change sets catch destructive changes before production; manual login verification is slow and error prone."
+  },
+  {
+   "id": "D9",
+   "q": 63,
+   "ans": "C",
+   "scenario": "Move multi-tier app with remote users facing latency; MOST cost-effective, MINIMAL change, improve uptime and user experience.",
+   "ok": "AppStream (WorkSpaces applications) for desktop apps, MySQL to Aurora, app/presentation tiers in Auto Scaling EC2 behind ALB.",
+   "bad": "WorkSpaces per user, self-hosted MySQL on a large EC2 instance, ECS containers behind ALB.",
+   "why": "Self-hosted MySQL on one EC2 hurts uptime and per-user WorkSpaces costs more; Aurora is managed and AppStream streams the desktop apps."
+  },
+  {
+   "id": "E1",
+   "q": 11,
+   "ans": "D",
+   "scenario": "Automate extraction of data from scanned forms, reduce human effort, keep high accuracy.",
+   "ok": "Step Functions + Lambda orchestrating Amazon Textract (OCR) and Comprehend, output to S3.",
+   "bad": "Rekognition and Transcribe with Step Functions, output in Amazon DocumentDB.",
+   "why": "Textract extracts text, forms and tables from scanned documents; Rekognition and Transcribe are for images and audio, not form data."
+  },
+  {
+   "id": "E2",
+   "q": 19,
+   "ans": "A",
+   "scenario": "RDS MySQL spikes during daily batch analytics and CRM becomes unresponsive; notify on-premises dashboard via SMTP email, automate.",
+   "ok": "RDS read replicas for batch analytics + SNS to notify the on-premises system by email.",
+   "bad": "RDS read replicas + Amazon SQS to notify the on-premises system.",
+   "why": "SQS cannot push email to an SMTP endpoint; SNS can send email notifications, and read replicas offload the batch reads."
+  },
+  {
+   "id": "E3",
+   "q": 20,
+   "ans": "C",
+   "scenario": "One-time EMR cluster, 20 TB, 30 instances, 48 hours; MOST cost-effective without sacrificing data integrity.",
+   "ok": "On-Demand master and core nodes, Spot instances for task nodes.",
+   "bad": "Reserved instances for master and core nodes, Spot for task nodes.",
+   "why": "Reserved instances need a 1-3 year commitment, wasteful for a one-time 48-hour run; On-Demand keeps core nodes stable and Spot handles tasks."
+  },
+  {
+   "id": "E4",
+   "q": 21,
+   "ans": "B",
+   "scenario": "Sudden unpredictable write spike during sale; ensure all submissions committed to DB without changing data model.",
+   "ok": "SQS queue between application and database, Lambda consuming messages and writing to the database.",
+   "bad": "Migrate the database to DynamoDB with automatic scaling.",
+   "why": "Moving to DynamoDB changes the data model, which is not allowed; SQS buffers writes durably and Lambda writes at a sustainable pace."
+  },
+  {
+   "id": "E5",
+   "q": 22,
+   "ans": "B",
+   "scenario": "Image analysis taking 20 hours per day on one EC2 instance and EBS volume; cut processing time, improve availability.",
+   "ok": "Store I/O files in S3, SQS to distribute work, Auto Scaling group scaled on SQS queue length.",
+   "bad": "EBS Provisioned IOPS volume, SNS for parallel hosts, scale on SNS notification count.",
+   "why": "EBS is just storage and SNS only notifies; S3 plus SQS with queue-length scaling enables parallel, available processing."
+  },
+  {
+   "id": "E6",
+   "q": 24,
+   "ans": "B",
+   "scenario": "App on EC2 with BASE-model on-premises DB over Direct Connect; erratic during heavy writes; cost-effective fix.",
+   "ok": "SQS queue for writes with a consumer process flushing the queue to the on-premises database.",
+   "bad": "Write to DynamoDB, feed table to an EMR cluster map function updating the on-premises database.",
+   "why": "EMR plus DynamoDB adds cost and complexity; SQS cheaply buffers writes, which suits an eventually consistent database."
+  },
+  {
+   "id": "E7",
+   "q": 26,
+   "ans": "B",
+   "scenario": "Improve reliability of overloaded EC2 MQTT broker losing sensor data to DynamoDB; cost-effective.",
+   "ok": "AWS IoT Core Data-ATS endpoint via Route 53 + IoT rule inserting directly into DynamoDB.",
+   "bad": "ASG of EC2 MQTT brokers behind NLB (Alias record) with EFS shared storage.",
+   "why": "IoT Core is managed, scales to many devices, and rules write straight to DynamoDB; self-managed brokers keep operational burden and EFS does not fix broker load."
+  },
+  {
+   "id": "E8",
+   "q": 27,
+   "ans": "D",
+   "scenario": "Prevent data loss when DynamoDB writes throttle; MOST cost-effective way to reduce table load.",
+   "ok": "SQS queue decoupling application from database, buffering writes until throttling subsides.",
+   "bad": "Replicate the table to another Region using global tables.",
+   "why": "SQS smooths traffic and holds items until the loader writes them; global tables are for multi-region fault tolerance and do not reduce load."
+  },
+  {
+   "id": "E9",
+   "q": 30,
+   "ans": "C",
+   "scenario": "Reduce page latency for Spot-EC2 portal with on-premises database; quick, cost-effective change.",
+   "ok": "ElastiCache for Redis in the VPC to cache queries, with Redis replication for read scaling and availability.",
+   "bad": "Migrate on-premises DB to Aurora with DMS/SCT and Aurora Replicas.",
+   "why": "Cache cuts DB round-trips to the data center quickly and cheaply; Aurora migration is slower and more costly."
+  },
+  {
+   "id": "E10",
+   "q": 32,
+   "ans": "B",
+   "scenario": "Near-real-time genomic data ingestion, parallel durable storage, analytics, output to data warehouse.",
+   "ok": "Kinesis Data Streams collecting data, Kinesis client (KCL) analysis, then EMR saving results to Redshift.",
+   "bad": "Store inbound files in S3, use Kinesis with SQS for analysis, send results to Redshift.",
+   "why": "Kinesis Data Streams gives near-real-time, durable, parallel stream processing; S3 landing with SQS is not a real-time analytics path."
+  },
+  {
+   "id": "E11",
+   "q": 38,
+   "ans": "C",
+   "scenario": "Semi-structured data web service, handles load spikes, highly available and fault-tolerant across a regional failure.",
+   "ok": "DynamoDB global table in two Regions, on-demand capacity, Fargate behind ALB per Region, Route 53 latency routing with health checks.",
+   "bad": "Primary S3 bucket with Cross-Region Replication, API Gateway/Lambda per Region behind two CloudFront distributions with failover routing.",
+   "why": "DynamoDB global tables are multi-active, on-demand absorbs spikes, and Route 53 health checks fail over; S3 is not suited to read/write semi-structured data."
+  },
+  {
+   "id": "E12",
+   "q": 49,
+   "ans": "B",
+   "scenario": "Store 50 TB of written materials in AWS with searchable collection on dynamic website.",
+   "ok": "CloudFormation deploying S3 bucket storage, OpenSearch for search, and EC2 to host the website.",
+   "bad": "CodeDeploy deploying two S3 buckets, using native S3 search for search.",
+   "why": "S3 is great storage but lacks an effective search feature; OpenSearch provides full-text search over the collection."
+  },
+  {
+   "id": "E13",
+   "q": 67,
+   "ans": "A",
+   "scenario": "Detect new DynamoDB entries and automatically run Lambda tests on results, with minimal configuration changes.",
+   "ok": "Enable a DynamoDB stream and trigger the Lambda function from it.",
+   "bad": "Migrate the table to DocumentDB and use its EventBridge integration to invoke Lambda.",
+   "why": "DynamoDB Streams integrate natively with Lambda triggers on item changes; a database migration is far more change than needed."
+  },
+  {
+   "id": "F1",
+   "q": 2,
+   "ans": "D",
+   "scenario": "Migrate NGINX web server and Oracle RAC One Node database to AWS with automated backup.",
+   "ok": "EC2 for NGINX and database, EBS volumes, Data Lifecycle Manager scheduled snapshots.",
+   "bad": "RDS instance with automated backups on an RDS RAC cluster.",
+   "why": "RDS does not support Oracle RAC, so database must run on EC2; DLM automates snapshots and retention without scripts."
+  },
+  {
+   "id": "F2",
+   "q": 3,
+   "ans": "A",
+   "scenario": "Durable, cost-effective archive of sensitive data from on-premises tape backup infrastructure.",
+   "ok": "Tape Gateway backing up to S3, archiving to Glacier, using existing tape processes.",
+   "bad": "Stored Volume Gateway with point-in-time EBS snapshots.",
+   "why": "Volume Gateway is not for tape archives; Tape Gateway VTL keeps existing tape tooling and archives to Glacier cheaply."
+  },
+  {
+   "id": "F3",
+   "q": 4,
+   "ans": "D",
+   "scenario": "Collect configuration, usage, behavior data from on-premises servers for TCO analysis before migration.",
+   "ok": "AWS Application Discovery Service to gather on-premises data and support TCO analysis.",
+   "bad": "AWS Migration Hub to collect data from each server and do TCO.",
+   "why": "Migration Hub only tracks migration progress; Discovery Service collects configuration, usage and behavior data, exportable for TCO."
+  },
+  {
+   "id": "F4",
+   "q": 14,
+   "ans": "A",
+   "scenario": "Migrate 40 TB tape video files from MAM to AWS; auto-build object/face metadata catalog using existing people photos.",
+   "ok": "File Gateway to S3, Rekognition collection from people catalog, Lambda pulls metadata into MAM catalog.",
+   "bad": "DataSync to S3, SageMaker Jupyter notebook to build the collection, Lambda invokes SageMaker.",
+   "why": "Rekognition natively detects objects and faces and builds face collections; SageMaker needs custom model work and the MAM integration is awkward."
+  },
+  {
+   "id": "F5",
+   "q": 15,
+   "ans": "B",
+   "scenario": "Cross-Region DR for web service with MySQL on EC2; RPO under a minute, RTO under 5 minutes, low operational overhead.",
+   "ok": "Migrate to Aurora global database, us-east-1 primary and us-west-2 secondary, Route 53 failover with health checks.",
+   "bad": "Migrate to RDS for MySQL with Multi-AZ, Route 53 failover to us-west-2.",
+   "why": "Multi-AZ stays in one Region; Aurora Global Database gives RPO about 1 second and RTO under 1 minute across Regions."
+  },
+  {
+   "id": "F6",
+   "q": 16,
+   "ans": "A, D",
+   "scenario": "Aurora 40 TB, stateless EC2 tiers, RTO 30 minutes, RPO 5 minutes, cost-effective DR (select two).",
+   "ok": "Daily copied EC2 snapshots to backup Region + Aurora cross-Region read replica promoted on disaster.",
+   "bad": "Hot-standby of web and application tiers in backup Region.",
+   "why": "Hot standby is costly and unnecessary for a 30-minute RTO; snapshot restore of stateless tiers is cheaper and replica meets the RPO."
+  },
+  {
+   "id": "F7",
+   "q": 33,
+   "ans": "C",
+   "scenario": "Windows CMS on 3+ multi-AZ instances needing identical data, Windows ACLs, AD join, LEAST management overhead.",
+   "ok": "New Windows AMI ASG across three AZs, FSx for Windows File Server shared storage, user data installs app, mounts share and joins AD.",
+   "bad": "EBS volume with Multi-Attach shared across instances in the ASG.",
+   "why": "FSx for Windows is fully managed SMB storage with native ACLs and AD integration; EBS Multi-Attach lacks a shared Windows file system and ACLs."
+  },
+  {
+   "id": "F8",
+   "q": 36,
+   "ans": "A",
+   "scenario": "200 TB monthly 72-hour job needing high-performance shared access; largest overall storage cost reduction.",
+   "ok": "Data in S3 Intelligent-Tiering, lazy-loaded FSx for Lustre used only for the job then deleted.",
+   "bad": "EFS Standard-IA as shared filesystem mounted for the job.",
+   "why": "S3 plus a temporary FSx for Lustre gives cheap storage and high performance only when needed; EFS-IA stays costlier and slower."
+  },
+  {
+   "id": "F9",
+   "q": 51,
+   "ans": "D",
+   "scenario": "Gateway-stored volume (iSCSI) on-premises; DR requires running web app on AWS if on-premises fails. MOST suitable restore.",
+   "ok": "Generate EBS snapshot from the Storage Gateway volume, restore to an EBS volume, attach to the EC2 app server.",
+   "bad": "Attach the Storage Gateway directly to the EC2 instance hosting the app server.",
+   "why": "Stored volumes back up to S3 as EBS snapshots; you cannot attach a gateway directly, so snapshot then EBS volume is the restore path."
+  },
+  {
+   "id": "F10",
+   "q": 65,
+   "ans": "B",
+   "scenario": "KMS-encrypted Redshift cluster DR with recovery site at least 500 miles away; make architecture highly available.",
+   "ok": "Create a snapshot copy grant for a KMS key in the destination region and enable cross-region snapshot copy.",
+   "bad": "Enable cross-region snapshot copy without a snapshot copy grant.",
+   "why": "KMS keys are region specific, so an encrypted cluster needs a snapshot copy grant in the destination region for Redshift to encrypt there."
+  },
+  {
+   "id": "F11",
+   "q": 72,
+   "ans": "B",
+   "scenario": "WorkSpaces logins fail because 10 TB FSx for Windows profile file system is full; fix and prevent recurrence.",
+   "ok": "CloudWatch alarm on FreeStorageCapacity, EventBridge invokes Lambda that increases capacity with update-file-system.",
+   "bad": "New larger FSx file system, script to copy profiles, CloudWatch metric and SNS notification.",
+   "why": "FSx storage capacity can be increased in place via update-file-system and automated; building a new file system and copying data is manual and disruptive."
+  },
+  {
+   "id": "G1",
+   "q": 6,
+   "ans": "C, E",
+   "scenario": "Portal on EC2 can no longer upload via pre-signed URLs though developer laptop worked; valid reasons (select two).",
+   "ok": "Pre-signed URL expiry set too short + misconfigured AWS credentials on the portal's EC2 instances.",
+   "bad": "Enabling S3 versioning invalidates all pre-signed URLs.",
+   "why": "Versioning does not invalidate pre-signed URLs; tight expiry and missing or bad credentials on the EC2 instances explain the failure."
+  },
+  {
+   "id": "G2",
+   "q": 7,
+   "ans": "A",
+   "scenario": "Only authorized IAM users/roles may call API Gateway; inspect each request end-to-end for latency and service maps.",
+   "ok": "AWS_IAM authorization, execute-api:Invoke permission, SigV4 signing, and AWS X-Ray tracing.",
+   "bad": "CORS allowed-origin headers, execute-api:Invoke, and CloudWatch Logs for tracing.",
+   "why": "CORS does not authenticate callers and CloudWatch Logs gives no end-to-end service map; AWS_IAM plus X-Ray does."
+  },
+  {
+   "id": "G3",
+   "q": 9,
+   "ans": "C, E",
+   "scenario": "SSE-C for S3 bucket, data secure at rest and in transit (select two).",
+   "ok": "REST API requests with the three SSE-C customer-key headers + presigned URLs using the customer-algorithm header.",
+   "bad": "Use WSS (WebSocket Secure).",
+   "why": "SSE-C works through S3 request headers over HTTPS; WSS is not an S3 mechanism."
+  },
+  {
+   "id": "G4",
+   "q": 13,
+   "ans": "B",
+   "scenario": "Fully managed, encrypted at rest and in transit, durable, own rotated key, Redshift Spectrum analysis.",
+   "ok": "S3 bucket with SSE-KMS and bucket policy enforcing HTTPS-only connections.",
+   "bad": "Storage Gateway File Gateway with data stored in S3 using SSE-S3.",
+   "why": "SSE-S3 keys are S3-managed, so company cannot use its own rotated key; SSE-KMS with HTTPS-only policy meets all requirements."
+  },
+  {
+   "id": "G5",
+   "q": 17,
+   "ans": "C",
+   "scenario": "Confidential S3 files must not traverse the Internet; only the web portal's EC2 instances may access the bucket.",
+   "ok": "VPC endpoint policy for the bucket + IAM role on EC2 + bucket policy allowing only the VPC endpoint and that role.",
+   "bad": "Endpoint policy + bucket policy allowing only the VPC endpoint + NACL denying other instances to the S3 prefix list.",
+   "why": "Endpoint condition lets every instance in the VPC in, and NACLs are subnet-level. Identity needs an IAM role named in the bucket policy."
+  },
+  {
+   "id": "G6",
+   "q": 18,
+   "ans": "B, C",
+   "scenario": "Reduce DDoS attack surface and blast radius (select two).",
+   "ok": "Restrictive security group, origin behind CloudFront, Shield Advanced + NACLs allowing only required ports and AWS WAF blocking DDoS patterns.",
+   "bad": "Add ELB and Auto Scaling with extra-large instances, Session Manager filtering client web sessions.",
+   "why": "Session Manager is for admin shell access, not web traffic filtering; reducing exposed surface with Shield, WAF, CloudFront limits DDoS impact."
+  },
+  {
+   "id": "G7",
+   "q": 28,
+   "ans": "C",
+   "scenario": "Use company HSMs to generate key material for S3 log encryption at rest.",
+   "ok": "KMS key with EXTERNAL origin, import on-premises HSM key material via import token; bucket policy requires KMS, denies unencrypted.",
+   "bad": "New CloudHSM cluster as KMS key material source with 1-year rotation.",
+   "why": "Requirement is to use the company's existing HSMs; imported external key material does that, whereas CloudHSM cluster makes AWS-hosted HSM keys."
+  },
+  {
+   "id": "G8",
+   "q": 34,
+   "ans": "B",
+   "scenario": "Most durable and secure logging to track changes to all resources across all accounts globally.",
+   "ok": "Organization trail for all accounts and Regions, new S3 bucket, MFA Delete and log encryption.",
+   "bad": "One trail applied to all regions using an existing S3 bucket with MFA Delete only.",
+   "why": "Organization trail covers every member account centrally; the single-account all-regions trail misses other accounts and lacks encryption."
+  },
+  {
+   "id": "G9",
+   "q": 37,
+   "ans": "D",
+   "scenario": "Allow only private files in S3 bucket, no public read or write; MINIMAL effort.",
+   "ok": "Enable Amazon S3 Block Public Access on the bucket.",
+   "bad": "SCP via Organizations denying public objects, attached to the account.",
+   "why": "Block Public Access overrides policies and ACLs with one setting; an SCP cannot target object ACLs and adds effort."
+  },
+  {
+   "id": "G10",
+   "q": 41,
+   "ans": "C",
+   "scenario": "Protect multi-tier app from DDoS, SQL injection, HTTP floods and bad bots; MOST suitable, scalable.",
+   "ok": "AWS WAF and AWS Shield Advanced on all web endpoints, with WAF rules against SQL injection and common exploits.",
+   "bad": "NACL deny for suspect source IP with AWS Config auditing the rules.",
+   "why": "WAF plus Shield Advanced covers DDoS, SQLi, floods and bots at scale; blocking one IP does not stop distributed attacks."
+  },
+  {
+   "id": "G11",
+   "q": 48,
+   "ans": "B, C",
+   "scenario": "Automated CVE scan and tagging of new custom AMIs, plus 30-day rescans and patching (select two).",
+   "ok": "Lambda approval rules + SSM Parameter Store approved-AMI list + 30-day EventBridge cron triggering SSM Automation, plus Inspector assessment template CVE scans.",
+   "bad": "Lambda approval rules, Parameter Store AMI list, AWS Config managed rule scanning instances and running SSM Automation on findings.",
+   "why": "Config managed rules evaluate configuration compliance, not CVE scanning; Inspector scans CVEs and scheduled SSM Automation handles patching."
+  },
+  {
+   "id": "G12",
+   "q": 60,
+   "ans": "B, C",
+   "scenario": "Ensure running EC2 uses pre-approved AMIs without stalling agile CI/CD; check only after deployment; LEAST impact (select two).",
+   "ok": "AWS Config rule detecting non-approved AMIs + Lambda terminate and SNS notify; scheduled Lambda scanning running instances for unauthorized AMIs.",
+   "bad": "IAM policies restricting users to launch only from tagged pre-approved AMIs.",
+   "why": "IAM policies are preventive and block launches, stalling the pipeline; the requirement is to analyze after the release is deployed."
+  },
+  {
+   "id": "G13",
+   "q": 64,
+   "ans": "B",
+   "scenario": "Automatically find S3 objects containing PII at large volume and determine whether the data was accessed.",
+   "ok": "Enable Amazon Macie to classify and detect PII objects; track GET API calls in AWS CloudTrail.",
+   "bad": "Detect PII using Athena and track GET calls with CloudWatch.",
+   "why": "Athena cannot detect PII; Macie does ML-based discovery, and CloudTrail (not CloudWatch) records the GET API calls."
+  },
+  {
+   "id": "G14",
+   "q": 69,
+   "ans": "A",
+   "scenario": "Control Tower multi-account environment: centralize compliance and security findings with preventive, detective, responsive controls.",
+   "ok": "Create a member account, enable AWS Security Hub there and designate it the delegated administrator.",
+   "bad": "Enable GuardDuty in each account and export findings to a central S3 bucket for analysis.",
+   "why": "Security Hub aggregates findings from GuardDuty, Config, Inspector, Macie with a delegated admin; per-account GuardDuty export lacks central compliance view."
+  },
+  {
+   "id": "H1",
+   "q": 29,
+   "ans": "A",
+   "scenario": "One-time EMR cluster, 200 instances, ~8 hours; most cost-effective node purchasing.",
+   "ok": "On-Demand for master and core nodes, Spot for task nodes.",
+   "bad": "Reserved instances for master and core nodes, Spot for task nodes.",
+   "why": "Reserved needs long-term commitment, unsuitable for a one-off 8-hour job; On-Demand core nodes are safe for HDFS data while task nodes can be Spot."
+  },
+  {
+   "id": "H2",
+   "q": 59,
+   "ans": "C",
+   "scenario": "Org with consolidated billing: enforce cost center and project ID tags on existing and future RDS and DynamoDB resources.",
+   "ok": "Tag existing resources with Tag Editor, activate cost allocation tags in Billing, apply SCP on the OU denying creation without the tags.",
+   "bad": "Config rule emailing finance plus hourly cross-account Lambda that tags RDS and DynamoDB resources.",
+   "why": "SCP preventively enforces tags on future resources and Tag Editor covers existing ones; the Lambda approach is reactive and operationally heavy."
+  },
+  {
+   "id": "H3",
+   "q": 61,
+   "ans": "B",
+   "scenario": "Windows Server on EC2 must always have latest OS patches, patched even outside the maintenance window; LEAST administrative overhead.",
+   "ok": "Windows Server on EC2 with Systems Manager Patch Manager auto-approving patches via baselines.",
+   "bad": "Hardened Marketplace image hosted on AWS CloudShell, Patch Manager, and AppStream/WorkSpaces applications as bastion.",
+   "why": "CloudShell cannot host the server and AppStream bastion adds components; Patch Manager on EC2 alone automates patching with least effort."
+  },
+  {
+   "id": "H4",
+   "q": 66,
+   "ans": "B",
+   "scenario": "Patch known OS vulnerability on EC2 fleet quickly and record all patch and association compliance changes.",
+   "ok": "Systems Manager Patch Manager to deploy patches + AWS Config to record and evaluate compliance.",
+   "bad": "Build a new AMI that installs weekly OS patches and roll it out to the fleet.",
+   "why": "AMI approach gives no per-patch control and cumbersome rollback; Patch Manager deploys patches and Config records compliance changes."
+  }
+ ]
+}
