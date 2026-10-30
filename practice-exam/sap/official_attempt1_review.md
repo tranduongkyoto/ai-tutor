@@ -12,34 +12,34 @@ Source: `official_attempt1_export.md` (Q# = shuffled web order). Question, optio
 
 | Group | Q | Pass 1 | Pass 2 | Pass 3 |
 |---|---|---|---|---|
-| A | [Q9](#q9) | ☐ | ☐ | ☐ |
-| A | [Q13](#q13) | ☐ | ☐ | ☐ |
-| A | [Q30](#q30) | ☐ | ☐ | ☐ |
-| A | [Q38](#q38) | ☐ | ☐ | ☐ |
-| A | [Q43](#q43) | ☐ | ☐ | ☐ |
-| A | [Q45](#q45) | ☐ | ☐ | ☐ |
-| A | [Q54](#q54) | ☐ | ☐ | ☐ |
-| A | [Q60](#q60) | ☐ | ☐ | ☐ |
-| A | [Q61](#q61) | ☐ | ☐ | ☐ |
-| A | [Q64](#q64) | ☐ | ☐ | ☐ |
-| A | [Q65](#q65) | ☐ | ☐ | ☐ |
-| A | [Q66](#q66) | ☐ | ☐ | ☐ |
-| A | [Q68](#q68) | ☐ | ☐ | ☐ |
-| A | [Q74](#q74) | ☐ | ☐ | ☐ |
-| B | [Q11](#q11) | ☐ | ☐ | ☐ |
-| B | [Q16](#q16) | ☐ | ☐ | ☐ |
-| B | [Q17](#q17) | ☐ | ☐ | ☐ |
-| B | [Q19](#q19) | ☐ | ☐ | ☐ |
-| B | [Q21](#q21) | ☐ | ☐ | ☐ |
-| B | [Q25](#q25) | ☐ | ☐ | ☐ |
-| B | [Q32](#q32) | ☐ | ☐ | ☐ |
-| B | [Q53](#q53) | ☐ | ☐ | ☐ |
-| B | [Q58](#q58) | ☐ | ☐ | ☐ |
-| B | [Q70](#q70) | ☐ | ☐ | ☐ |
-| B | [Q73](#q73) | ☐ | ☐ | ☐ |
-| C | [Q26](#q26) | ☐ | ☐ | ☐ |
-| C | [Q57](#q57) | ☐ | ☐ | ☐ |
-| C | [Q62](#q62) | ☐ | ☐ | ☐ |
+| A | [Q9](#q9) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q13](#q13) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q30](#q30) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q38](#q38) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q43](#q43) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q45](#q45) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q54](#q54) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q60](#q60) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q61](#q61) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q64](#q64) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q65](#q65) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q66](#q66) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q68](#q68) | ✅ 10-30 | ☐ | ☐ |
+| A | [Q74](#q74) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q11](#q11) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q16](#q16) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q17](#q17) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q19](#q19) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q21](#q21) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q25](#q25) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q32](#q32) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q53](#q53) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q58](#q58) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q70](#q70) | ✅ 10-30 | ☐ | ☐ |
+| B | [Q73](#q73) | ✅ 10-30 | ☐ | ☐ |
+| C | [Q26](#q26) | ✅ 10-30 | ☐ | ☐ |
+| C | [Q57](#q57) | ✅ 10-30 | ☐ | ☐ |
+| C | [Q62](#q62) | ✅ 10-30 | ☐ | ☐ |
 
 ---
 
@@ -2898,5 +2898,328 @@ D ✔. IAM Access Analyzer helps identify the resources that are shared with an 
   For more information about IAM Access Analyzer, see Using AWS IAM Access Analyzer. https://docs.aws.amazon.com/IAM/latest/UserGuide/what-is-access-analyzer.html
   For more information about IAM Access Analyzer resource types, see Access Analyzer Resource Types. https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-resources.html
   For more information about filtering IAM Access Analyzer findings, see Filtering Findings. https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-findings-filter.html
+
+</details>
+
+---
+
+# 📌 Câu đúng cần ôn thêm (3 câu)
+
+Ba câu bạn trả lời đúng nhưng muốn hiểu kỹ hơn. Không tính vào bảng theo dõi làm lại.
+
+<a id="q47"></a>
+
+## Q47 · câu đúng — ôn thêm
+
+<!-- source: OFF1Q47 · Multiple Choice · 2 minutes 18 seconds -->
+
+A company has migrated most of its on-premises infrastructure to the AWS Cloud. The company is planning to complete the migration soon. After the migration, the company will retire its on-premises infrastructure. The company currently uses Active Directory to manage and authenticate its users. The company wants an AWS solution to manage users on AWS. The company has hundreds of users and needs only basic LDAP functionality. The company wants to implement multi-factor authentication (MFA) as part of the solution.
+
+Which solution will meet these requirements with the LEAST operational effort?
+
+- **A.** Configure an Active Directory Connector directory in AWS Directory Service. Connect the Active Directory Connector directory to the on-premises Active Directory.
+- **B.** Configure a directory with AWS Managed Microsoft AD. Use the Active Directory Migration Toolkit to migrate the users from the on-premises Active Directory to AWS.
+- **C.** Configure a Simple Active Directory directory in AWS Directory Service. Use the Comma Separated Value Directory Exchange (CSVDE) utility to migrate the users from the on-premises Active Directory to AWS.
+- **D.** Configure an AWS IAM Identity Center identity store to manage the users in AWS. Provision users, groups, and entitlements in IAM Identity Center.
+
+<details>
+<summary><b>Answer & explanation</b></summary>
+
+**Correct:** B · **You picked:** B (right)
+
+🔑 **Key words:** on-prem AD being retired, hundreds of users, basic LDAP, MFA, LEAST operational effort
+
+👀 **Watch:** AD Connector needs the on-prem AD that is being retired; Simple AD has no MFA/RADIUS support; IAM Identity Center store is not LDAP and needs users recreated.
+
+🧠 **Rule:** Retiring on-prem AD + LDAP + MFA = AWS Managed Microsoft AD (migrate with ADMT, MFA via RADIUS). AD Connector only while on-prem AD stays.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+Hiện tại                                  Sau khi migrate xong
+┌──────────────────────┐                  ┌──────────────────────────┐
+│ On-prem Active Dir.  │  ── migrate ──►  │ Directory trên AWS       │
+│ (hàng trăm user)     │                  │ - basic LDAP             │
+└──────────────────────┘                  │ - MFA                    │
+   SẼ BỊ RETIRE (tắt hẳn)                 │ - ÍT công vận hành nhất  │
+                                          └──────────────────────────┘
+```
+
+Từ khóa quyết định: **on-prem bị retire** + **basic LDAP** + **MFA** + **LEAST operational effort**. Đáp án đúng: **B (AWS Managed Microsoft AD + ADMT)**. Anh chọn đúng B.
+
+#### Vì sao B thắng
+
+- **AWS Managed Microsoft AD** chạy Active Directory thật (managed service), nên đáp ứng LDAP (dư sức cho "basic LDAP") và **hỗ trợ MFA** (qua RADIUS).
+- **Active Directory Migration Toolkit (ADMT)** là công cụ chính thức để chuyển user từ on-prem AD sang Managed Microsoft AD, giữ nguyên user/group, không phải tạo lại bằng tay.
+- AWS lo patch, HA, backup cho domain controller, nên công vận hành thấp.
+- Không phụ thuộc on-prem: phù hợp với việc tắt hạ tầng on-prem.
+
+📝 Ghi chú kỹ thuật: MFA trên Managed Microsoft AD hoạt động bằng cách tích hợp với hạ tầng **RADIUS** (RADIUS server của anh hoặc dịch vụ MFA), đề chỉ cần biết "có hỗ trợ MFA".
+
+#### Vì sao các option còn lại sai
+
+- **A. AD Connector:** chỉ là gateway/proxy chuyển request về on-prem AD, không cache gì trên cloud. On-prem bị retire thì Connector không còn gì để kết nối tới.
+- **C. Simple AD + CSVDE:** Simple AD là directory chạy Samba 4, chỉ có tập con tính năng của Managed Microsoft AD và **không hỗ trợ MFA**, nên loại ngay vì MFA là yêu cầu bắt buộc.
+- **D. IAM Identity Center identity store:** phải **tạo lại** user, group, assignment (entitlement) vì không migrate trực tiếp từ AD, tốn công hơn mức cần thiết, và đây là identity store cho SSO chứ không phải LDAP directory.
+
+#### Bảng so sánh
+
+| Option | Giải pháp | Hết phụ thuộc on-prem? | MFA | Công migrate / vận hành |
+|---|---|---|---|---|
+| A | AD Connector | Không, cần on-prem AD sống | Phụ thuộc AD đích | Dễ, nhưng vô nghĩa khi retire on-prem |
+| **B** | **AWS Managed Microsoft AD + ADMT** | **Có** | **Có (RADIUS)** | **Thấp, công cụ migrate chính thức** |
+| C | Simple AD + CSVDE | Có | Không | Loại vì thiếu MFA |
+| D | IAM Identity Center store | Có | Có ở mức SSO, nhưng không phải LDAP | Cao: tạo lại user/group/entitlement |
+
+#### Biến thể đề có thể gặp
+
+- **On-prem AD vẫn tiếp tục dùng** (không retire, chỉ cho AWS dùng chung identity) → **AD Connector** (proxy, không cache, ít công nhất). Khi đó A trở thành đáp án.
+- **Cần trust/đồng bộ hai chiều với on-prem AD, workload cần full AD feature** → **AWS Managed Microsoft AD** với trust, không dùng Connector.
+- **Bỏ yêu cầu MFA, vài trăm user, chỉ cần LDAP cơ bản, chi phí thấp** → **Simple AD** mới hợp lý. Chỉ thêm chữ "MFA" là Simple AD bị loại.
+- **Chỉ cần SSO vào AWS account/ứng dụng SaaS, không cần LDAP/Windows domain** → **IAM Identity Center** (có thể dùng built-in store).
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "on-prem AD sẽ bị retire/migrate hết"** → **AWS Managed Microsoft AD** (migrate bằng ADMT), không phải AD Connector.
+- **Thấy "on-prem AD vẫn giữ, không muốn cache/ không muốn replicate"** → **AD Connector**.
+- **Thấy "MFA" trong câu có Directory Service** → loại **Simple AD** (không hỗ trợ MFA).
+- **Thấy "LDAP" + "directory"** → họ Directory Service; **IAM Identity Center** là SSO, không phải LDAP.
+- **Mẹo nhớ:** Simple = đơn giản = thiếu MFA; Connector = ống dẫn = cần nguồn phía sau.
+
+### TD explanation
+
+A. Active Directory Connector is a directory gateway that can redirect directory requests to an on-premises Active Directory without the need to cache any information in the cloud. However, the company plans to retire its on-premises infrastructure.
+  For more information about Active Directory Connector, see Active Directory Connector
+  .
+
+B ✔. AWS Directory Service for Microsoft Active Directory, also known as AWS Managed Microsoft AD, runs Active Directory as a managed service. The Active Directory Migration Toolkit can migrate users from an on-premises Active Directory to AWS Managed Microsoft AD. This solution also supports MFA.
+  For more information about AWS Managed Microsoft AD, see AWS Managed Microsoft AD
+  .
+  For more information about user migration, see Migrating Active Directory users to AWS Managed Microsoft AD
+  .
+
+C. Simple Active Directory is a standalone managed directory that is powered by a Samba 4 Active Directory Compatible Server. Simple Active Directory provides a subset of the features that AWS Managed Microsoft AD offers. However, Simple Active Directory does not support MFA, which is one of the requirements.
+  For more information about Simple Active Directory, see Simple Active Directory
+  .
+
+D. You configure an identity store when you configure IAM Identity Center. However, migration from Active Directory to the identity store used by IAM Identity Center would require recreation of the users, groups, and assignments (entitlements). This solution requires more operational effort than necessary.
+  For more information about how to configure an identity store, see Manage Identities in IAM Identity Center
+  .
+  For more information about how to change identity stores from Active Directory to IAM Identity Center, see Considerations for Changing Your Identity Source
+  .
+
+</details>
+
+<a id="q49"></a>
+
+## Q49 · câu đúng — ôn thêm
+
+<!-- source: OFF1Q49 · Multiple Choice · 3 minutes 4 seconds -->
+
+A company deploys a new internal application on two Amazon EC2 instances behind an Application Load Balancer (ALB). The ALB and the EC2 instances operate across two Availability Zones. The company's employees depend on the application to perform their work.
+
+When workloads are high, employees report slow response times and reliability issues with the application. Some incoming requests can generate significant compute activity on the EC2 instances. The workload can increase by 2 to 10 times the typical load in a matter of minutes. A solutions architect needs to change the configuration so that the application will scale in response to multiple workload changes in the least amount of time possible.
+
+How should the solutions architect configure Amazon EC2 Auto Scaling to meet these requirements?
+
+- **A.** Configure a simple scaling policy that scales EC2 instances based on the CPUUtilization metric.
+- **B.** Configure a simple scaling policy that scales EC2 instances based on the RequestCountPerTarget metric from the ALB.
+- **C.** Configure a step scaling policy that scales EC2 instances based on the CPUUtilization metric.
+- **D.** Configure a step scaling policy that scales EC2 instances based on the RequestCountPerTarget metric from the ALB.
+
+<details>
+<summary><b>Answer & explanation</b></summary>
+
+**Correct:** C · **You picked:** C (right)
+
+🔑 **Key words:** requests generate different CPU load, scale on multiple workload changes, least time
+
+👀 **Watch:** Simple scaling waits for the cooldown after each activity; request count does not reflect load because each request costs a different amount of CPU.
+
+🧠 **Rule:** Fast reaction to repeated changes = step scaling (no cooldown wait, step adjustments by breach size). Pick the metric that tracks real load — here CPU, not request count.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+         ┌───────────────┐
+Users ──►│     ALB       │   (2 AZ)
+         └───┬───────┬───┘
+             ▼       ▼
+          EC2 #1   EC2 #2     ◄── Auto Scaling group
+   Có request tốn rất nhiều CPU, có request nhẹ
+   Tải tăng 2x – 10x chỉ trong vài phút, nhiều đợt liên tiếp
+   Yêu cầu: scale kịp NHIỀU lần thay đổi, thời gian NGẮN NHẤT
+```
+
+Hai trục quyết định: (1) **loại policy** phản ứng nhanh, nhiều lần liên tiếp; (2) **metric** phản ánh tải thật. Đáp án đúng: **C (step scaling + CPUUtilization)**. Anh chọn đúng C.
+
+#### Vì sao C thắng
+
+- **Trục policy:** step scaling phản ứng theo mức vượt ngưỡng của alarm (vượt ít thì thêm ít, vượt nhiều thì thêm nhiều), và **vẫn phản ứng với thay đổi mới ngay cả khi một scale-out đang chạy**. Đúng với "nhiều đợt tăng tải liên tiếp".
+- **Trục metric:** request có mức tốn CPU khác nhau, vài request có thể gây ra rất nhiều activity. Vậy **CPUUtilization** mới phản ánh tải thật trên instance.
+
+```
+Simple scaling:  alarm ─► scale ─► CHỜ hoàn tất + COOLDOWN ─► mới xử lý alarm kế
+Step scaling:    alarm ─► scale theo bậc ─► alarm mới vẫn xử lý được ngay
+```
+
+#### Vì sao các option còn lại sai
+
+- **A. Simple + CPU:** metric đúng nhưng policy sai. Simple scaling phải đợi scaling activity xong rồi đến **cooldown** mới đáp ứng được thay đổi tiếp theo, trong khi tải tăng 2-10x trong vài phút.
+- **B. Simple + RequestCountPerTarget:** sai cả hai trục. Vừa bị cooldown, vừa dùng metric không phản ánh tải khi mỗi request tốn CPU khác nhau.
+- **D. Step + RequestCountPerTarget:** policy đúng nhưng metric sai. Vài request nặng có thể làm CPU quá tải trong khi request count vẫn thấp, nên scale không kịp.
+
+#### Bảng so sánh
+
+| Option | Policy | Metric | Phản ứng nhiều đợt tăng tải | Metric phản ánh tải thật |
+|---|---|---|---|---|
+| A | Simple | CPUUtilization | Chậm (chờ activity + cooldown) | Có |
+| B | Simple | RequestCountPerTarget | Chậm | Không |
+| **C** | **Step** | **CPUUtilization** | **Nhanh, xử lý cả khi đang scale-out** | **Có** |
+| D | Step | RequestCountPerTarget | Nhanh | Không |
+
+#### Biến thể đề có thể gặp
+
+- **Mỗi request tốn CPU gần như nhau** (request đồng đều) → **target tracking trên ALBRequestCountPerTarget** là lựa chọn tự nhiên, vì số request/target tỷ lệ với tải thật, và target tracking lo cả scale-out lẫn scale-in.
+- **Đề nói "giữ CPU ở khoảng 50%, ít cấu hình nhất"** → **target tracking** trên CPU, không cần tự định nghĩa step.
+- **Tải theo lịch cố định (9h sáng mỗi ngày)** → **scheduled scaling**.
+- **Cần chuẩn bị trước theo mẫu lặp lại** → **predictive scaling**.
+- **Đề không có chữ "multiple/least time" và chỉ một đợt tăng** → simple scaling cũng chấp nhận được, nhưng thường vẫn không phải đáp án tốt nhất.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "nhiều thay đổi tải liên tiếp / phản ứng nhanh nhất"** → **step scaling** (loại simple vì cooldown).
+- **Thấy "mỗi request tốn tải khác nhau"** → dùng **CPUUtilization**, đừng dùng RequestCountPerTarget.
+- **Thấy "request đồng đều" hoặc "giữ metric ở mức mục tiêu"** → **target tracking**.
+- **Mẹo nhớ:** Simple = một bậc, chờ cooldown; Step = nhiều bậc, không đợi.
+- **Cách làm bài hai trục:** loại theo policy trước (A, B), rồi chọn metric (C hơn D).
+
+### TD explanation
+
+A. EC2 Auto Scaling helps to ensure that the correct number of instances are available to handle the load for an application. CPU utilization is the correct policy basis because requests can generate different amounts of activity on the instances. However, an Auto Scaling group with a simple scaling policy must wait for scaling activity to finish running, followed by a cooldown period, before the Auto Scaling group can respond to additional workload changes. The requirement is that the solution must respond to multiple workload changes in the least amount of time possible. A step scaling policy would respond faster to workload changes.
+  For more information about Auto Scaling groups, see What Is Amazon EC2 Auto Scaling? https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html
+  For more information about step and simple scaling policies, see Step and Simple Scaling Policies for Amazon EC2 Auto Scaling. https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-simple-step.html
+
+B. EC2 Auto Scaling helps to ensure that the correct number of instances are available to handle the load for an application. However, an Auto Scaling group with a simple scaling policy must wait for scaling activity to finish running, followed by a cooldown period, before the Auto Scaling group can respond to additional alarms. The requirement is that the solution must respond to multiple workload changes in the least amount of time possible. A step scaling policy would respond faster to workload changes. Additionally, different requests can generate different levels of activity on the instances, so a few requests could generate a lot of activity. A policy that is based on the RequestCountPerTarget metric would not be as effective as a policy that is based on CPU utilization.
+  For more information about Auto Scaling groups, see What Is Amazon EC2 Auto Scaling? https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html
+  For more information about step and simple scaling policies, see Step and Simple Scaling Policies for Amazon EC2 Auto Scaling. https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-simple-step.html
+
+C ✔. EC2 Auto Scaling helps to ensure that the correct number of instances are available to handle the load for an application. An Auto Scaling group with a step scaling policy would quickly respond to multiple workload changes, even while another scale-out activity is in progress. CPU utilization is the correct policy basis because requests can generate different amounts of activity on the instances.
+  For more information about Auto Scaling groups, see What Is Amazon EC2 Auto Scaling? https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html
+  For more information about step and simple scaling policies, see Step and Simple Scaling Policies for Amazon EC2 Auto Scaling. https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-simple-step.html
+
+D. EC2 Auto Scaling helps to ensure that the correct number of instances are available to handle the load for an application. An Auto Scaling group with a step scaling policy would quickly respond to multiple workload changes, even while another scale-out activity is in progress. However, different requests can generate different levels of activity on the instances, and a few requests could generate a lot of activity. A policy that is based on the RequestCountPerTarget metric would not be as effective as a policy that is based on CPU utilization.
+  For more information about Auto Scaling groups, see What Is Amazon EC2 Auto Scaling? https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html
+  For more information about step and simple scaling policies, see Step and Simple Scaling Policies for Amazon EC2 Auto Scaling. https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-simple-step.html
+
+</details>
+
+<a id="q59"></a>
+
+## Q59 · câu đúng — ôn thêm
+
+<!-- source: OFF1Q59 · Multiple Choice · 2 minutes 28 seconds -->
+
+A company has resources in on-premises networks and in multiple VPCs on AWS. The company needs a networking solution that will give the on-premises resources the ability to communicate with the VPC resources. The VPC resources also must be able to communicate with each other.
+
+The company has configured a customer gateway device on premises and has attached virtual private gateways to each VPC. The company wants a scalable solution so that the company can easily add more VPCs in the future.
+
+How should a solutions architect configure the network connectivity to meet these requirements with the LEAST operational overhead?
+
+- **A.** Set up a connection through AWS Direct Connect. Create VIFs to provide access to the virtual private gateways. Configure VPC peering connections between all the VPCs.
+- **B.** Create a transit VPC. Create VPN connections from the transit VPC to each virtual private gateway. Create AWS Site-to-Site VPN connections between the customer gateway device and the transit VPC.
+- **C.** Create an individual AWS Site-to-Site VPN connection between the customer gateway device and each of the virtual private gateways. Configure VPC peering connections between all the VPCs.
+- **D.** Create a transit gateway. Create an AWS Site-to-Site VPN attachment between the customer gateway device and the transit gateway. Attach the VPCs to the transit gateway. Remove the virtual private gateways.
+
+<details>
+<summary><b>Answer & explanation</b></summary>
+
+**Correct:** D · **You picked:** D (right)
+
+🔑 **Key words:** on-prem + multiple VPCs with VGWs, VPCs talk to each other, easily add VPCs, LEAST overhead
+
+👀 **Watch:** VPC peering is non-transitive and grows as a full mesh; transit VPC needs self-managed appliances; per-VGW VPNs multiply tunnels.
+
+🧠 **Rule:** Hub-and-spoke for many VPCs + on-prem = Transit Gateway with one Site-to-Site VPN (or DX) attachment; attach each new VPC and drop the VGWs.
+
+### 🇻🇳 Phân tích chi tiết
+
+#### Tình huống
+
+```
+On-prem ── customer gateway
+    │
+    ?   (cần nối tới TẤT CẢ VPC, hiện mỗi VPC có một VGW)
+    │
+ ┌──┴───┬───────┬───────┐
+VPC-A  VPC-B  VPC-C   ... thêm VPC mới trong tương lai
+   ▲ các VPC cũng phải nói chuyện với nhau ▲
+```
+
+Từ khóa quyết định: **on-prem + nhiều VPC**, **VPC nói chuyện với nhau**, **dễ thêm VPC**, **LEAST operational overhead**. Đáp án đúng: **D (Transit Gateway + Site-to-Site VPN attachment, gỡ các VGW)**. Anh chọn đúng D.
+
+#### Vì sao D thắng
+
+- **Transit Gateway** là network transit hub: nối VPC với VPC và với on-prem qua một điểm trung tâm.
+- Chỉ cần **một VPN attachment** từ customer gateway tới TGW; mỗi VPC mới chỉ cần **attach** vào TGW, không phải tạo thêm VPN hay peering.
+- Không có EC2 để quản lý, nên overhead thấp nhất.
+- Gỡ VGW vì không còn dùng; VPC attach vào TGW thay cho VGW.
+
+```
+On-prem ──(1 Site-to-Site VPN)──► Transit Gateway ◄── VPC-A
+                                       ▲  ▲   ▲
+                                       │  └── VPC-B
+                                       └── VPC mới: chỉ thêm 1 attachment
+```
+
+#### Vì sao các option còn lại sai
+
+- **A. Direct Connect + VIF tới VGW + VPC peering:** phải dựng và quản lý Direct Connect, lại còn mạng lưới peering giữa tất cả VPC, nên overhead tăng đáng kể. Peering cũng **non-transitive** nên số kết nối tăng theo kiểu full mesh khi thêm VPC.
+- **B. Transit VPC:** vẫn chạy được (hub-and-spoke) nhưng phải tự quản lý **EC2 instance** (appliance VPN) trong transit VPC. Transit Gateway không cần EC2.
+- **C. VPN riêng tới từng VGW + VPC peering:** phải tạo và quản lý nhiều VPN và nhiều peering. Càng thêm VPC thì số kết nối càng phình, không scalable.
+
+#### Bảng so sánh
+
+| Option | Mô hình | Kết nối on-prem | Kết nối VPC-VPC | Thêm VPC mới | Overhead |
+|---|---|---|---|---|---|
+| A | DX + peering | DX + VIF | Peering full mesh | Thêm nhiều peering | Cao |
+| B | Transit VPC | VPN tới transit VPC | VPN qua EC2 | Thêm VPN + cấu hình | Cao (quản lý EC2) |
+| C | VPN mỗi VGW + peering | Một VPN mỗi VPC | Peering full mesh | Thêm VPN + peering | Rất cao |
+| **D** | **Transit Gateway** | **1 VPN attachment** | **Qua TGW** | **Chỉ attach** | **Thấp nhất** |
+
+#### Biến thể đề có thể gặp
+
+- **Chỉ có 2 VPC (và sẽ không thêm)** → **VPC peering giữa hai VPC + VPN tới từng VGW** là hợp lý, rẻ hơn TGW. Lưu ý peering không cho on-prem đi xuyên qua một VPC để sang VPC kia, nên mỗi VPC vẫn cần đường VPN riêng.
+- **Cần băng thông lớn, ổn định, độ trễ thấp** → thay VPN bằng **Direct Connect gateway + Transit VIF** tới Transit Gateway; có thể giữ VPN làm backup.
+- **Cần tăng throughput của VPN** → dùng nhiều tunnel với **ECMP** trên TGW.
+- **VPC ở nhiều Region** → **TGW peering** giữa các Region.
+- **Cần cô lập một số VPC với nhau** → dùng nhiều **TGW route table**.
+
+#### Quy tắc nhớ cho thi
+
+- **Thấy "nhiều VPC + on-prem + dễ mở rộng + ít vận hành"** → **Transit Gateway**.
+- **Thấy "transit VPC"** → gần như luôn là đáp án cũ, tốn EC2; TGW thắng.
+- **Thấy "peering giữa tất cả VPC"** → full mesh, không scalable, và **không transitive**.
+- **Thấy "VPN riêng cho từng VPC"** → loại khi đề nhấn mạnh scalable.
+- **Chỉ 2 VPC** → peering + VPN vẫn là phương án đơn giản, đừng ép dùng TGW.
+
+### TD explanation
+
+A. Direct Connect can connect on-premises networks to AWS. This solution would require the configuration and management of a Direct Connect connection and multiple VPC peering connections, significantly increasing operational overhead.
+  For more information about Direct Connect, see What is AWS Direct Connect? https://docs.aws.amazon.com/directconnect/latest/UserGuide/Welcome.html
+
+B. A transit VPC is a common way to connect geographically dispersed VPCs and remote networks to create a global network transit center. However, a transit VPC requires additional configuration and operational overhead because you must manage Amazon EC2 instances. With a transit gateway, there are no EC2 instances to manage.
+  For more information about transit VPCs, see Transit VPC Solution. https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/transit-vpc-solution.html
+
+C. Site-to-Site VPN is a fully managed service that creates a secure connection between on-premises resources and AWS resources by using IPsec tunnels. A VPC peering connection is a network connection between two VPCs that gives you the ability to route traffic between the VPCs by using private addresses. A significant amount of operational overhead would result from the creation and management of multiple VPN connections and VPC peering connections.
+  For more information about Site-to-Site VPN, see What is AWS Site-to-Site VPN? https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC\_VPN.html
+  For more information about how to peer VPCs, see What is VPC Peering? https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html
+
+D ✔. A transit gateway is a network transit hub that you can use to interconnect VPCs and on-premises networks. All the necessary connections can occur through a single transit gateway, minimizing operational overhead.
+  For more information about transit gateways, see What is a Transit Gateway? https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html
 
 </details>
