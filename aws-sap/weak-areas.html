@@ -46,9 +46,10 @@ body.selftest .ans.shown{filter:none}
 <div id="view" style="max-width:820px;margin:20px auto;padding:0 16px"></div>
 <div class="layout" id="main"><nav class="toc" id="toc"><b>Sections</b></nav><article class="doc" id="doc"><h1>SAP-C02 Weak Areas — ranked, with confusion pairs</h1>
 <p>Built 2026-10-13 from the wrong-answer notes of TD5, TD1, TD2, TD3, TD6 and Udemy #2/#3 unseen (165 misses). Validated + TD6 added 2026-10-13.
+Updated 2026-10-30 with TD4, Neal A/B/C, Udemy #2 full, Official exam (118 misses) — final review for the exam on 2026-11-02.
 Companion files: <code>rule-sheet.md</code> (1-line rules), <code>new-solutions-flashcards.md</code> (Domain 2 self-test).
 HTML view: <code>weak-areas.html</code> (search + self-test + pair drill); rebuild after editing this file: <code>python3 aws-sap/build_study_pages.py</code>.
-Ranking = repeat misses first, then miss count, then the sprint day it's scheduled for.</p>
+Ranking (10-30) = what cost points in the last 6 tests first (Continuous Improvement, twin options, overbuild, answer switching), then repeat misses, then miss count.</p>
 <h2>Priority map</h2>
 <table>
 <thead>
@@ -63,59 +64,80 @@ Ranking = repeat misses first, then miss count, then the sprint day it's schedul
 <tbody>
 <tr>
 <td>1</td>
-<td><strong>Reading: overbuild / DIY</strong></td>
-<td>TD5 12 · TD3 9 · TD6 3/5 misses · repeats on new questions</td>
-<td>"More robust = better" — but the stem asked for quick / cheap / least ops</td>
-<td>every test</td>
+<td><strong>Continuous Improvement</strong> — security / reliability / cost fixes on existing systems</td>
+<td>Official CI 10/20 (<strong>50%, Needs Improvement</strong>: security 2/5, cost 2/5, reliability 1/3) · Neal C CI 7/13 (54%) · TD4 CI 56%</td>
+<td>Add more (Multi-AZ, DAX, multi-Region, scaling) and it gets fixed — but the stem wants the one control that removes the failure, at the stated SLA and cost</td>
+<td><strong>10-31</strong> (§9)</td>
 </tr>
 <tr>
 <td>2</td>
-<td><strong>Identity &amp; org governance</strong></td>
-<td>TD2 Org Complexity 25% · TD5 9 · TD6 Q6/Q15 (Continuous Improvement 2/5)</td>
-<td>SCP can grant; WebIdentity works for SAML; the role lives in the caller's account</td>
-<td>10-14 marathon</td>
+<td><strong>Twin options</strong></td>
+<td>Official 14/28 misses (Archive vs Deep Archive, DLM vs AWS Backup, Volume vs File Gateway, Budgets action vs operator, Fargate vs custom AMI…)</td>
+<td>Both look right, pick by feel — find the one differing phrase and test it against the stem</td>
+<td><strong>10-31</strong> + exam-day</td>
 </tr>
 <tr>
 <td>3</td>
-<td><strong>Edge &amp; DNS</strong> (Route 53 / CloudFront / GA)</td>
-<td>🔁 GA→S3, 🔁 origin group, TD3 4, Udemy 4</td>
-<td>GA and Route 53 are interchangeable; any cert works on CloudFront</td>
-<td><strong>10-15</strong></td>
+<td><strong>Reading: overbuild / DIY</strong></td>
+<td>Neal C Q5/Q7/Q13 🔁 · Neal B Q61/Q63 🔁 · Official Q19 · TD5 12 · TD3 9 · TD6 3/5</td>
+<td>"More robust = better" — but the stem asked for quick / cheap / least ops / the stated SLA</td>
+<td>exam-day</td>
 </tr>
 <tr>
 <td>4</td>
-<td><strong>Streaming &amp; analytics</strong> (Kinesis / EMR / Redshift)</td>
-<td>Udemy2 Kinesis ×3 · EMR ×2 · Redshift grant ×2 (drill)</td>
-<td>SQS/Firehose can fan out; RIs are always cheapest</td>
-<td><strong>10-17</strong></td>
+<td><strong>Answer switching</strong></td>
+<td>Neal C Q5/Q30 (right on first pick, then changed) · Udemy2 Q11/Q67 (broken in review) · Neal C in-pass changes 5 fixed / 2 broken</td>
+<td>A second look is better — change only when you find new evidence in the stem</td>
+<td>exam-day</td>
 </tr>
 <tr>
 <td>5</td>
-<td><strong>Migration + DR</strong></td>
-<td>TD5 Migration 27.8% · Snow ×2 · tape/file GW ×3 · DR tier ×3</td>
-<td>Any replication = DR; Tape GW can feed ML</td>
-<td><strong>10-19</strong></td>
+<td><strong>Identity &amp; org governance</strong></td>
+<td>Official ORG 56% (multi-account 1/4), governance misses Q13 Q26 Q57 Q62 Q64 Q65 · Neal B ORG 57% 🔁 Q23 Q56 Q71 · TD2 Org 25%</td>
+<td>SCP can grant; one account for everything security; detect = prevent</td>
+<td><strong>10-31</strong></td>
 </tr>
 <tr>
 <td>6</td>
-<td><strong>Hybrid networking</strong></td>
-<td>Public VIF ×4 · PrivateLink NLB 🔁 · GWLB 🔁 · S3 endpoint 🔁</td>
-<td>Private VIF carries VPN; ALB backs PrivateLink</td>
-<td>10-14 marathon</td>
+<td><strong>Migration + DR / resilience</strong></td>
+<td>Official resilience 0/2 (Q25 Q45 Q61) · Neal B Q61/Q63 🔁 · TD4 Q28/Q64 🔁 · Neal B Q10 🔁</td>
+<td>Multi-Region / global DB is safer; replicas are backups</td>
+<td><strong>11-01</strong></td>
 </tr>
 <tr>
 <td>7</td>
-<td><strong>Ops: patching, ASG, compliance</strong></td>
-<td>TD1 patching ×3 · Udemy2 ×2 · TD3 ×2</td>
-<td>Config patches things; blocking = detecting</td>
-<td>10-21 marathon 2</td>
+<td><strong>Hybrid networking</strong></td>
+<td>Neal C Q9 Q30 🔁 Q31 · Udemy2 Q67/Q68 🔁 · Public VIF ×4 (earlier)</td>
+<td>Interface endpoints use routes; a new DX in another Region = redundancy</td>
+<td><strong>11-01</strong></td>
 </tr>
 <tr>
 <td>8</td>
+<td><strong>Edge &amp; DNS</strong> (Route 53 / CloudFront / GA)</td>
+<td>Official Q16 Q38 · Neal B Q22 🔁 · Neal A Q41 🔁 · Udemy2 Q13 🔁</td>
+<td>WAF = DDoS baseline; Evaluate Target Health sees partial failures</td>
+<td><strong>11-01</strong></td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Ops: scaling, deployment, detection</strong></td>
+<td>Official Q17 Q30 Q60 (deployment task 0/3) · Udemy2 Q24/Q63 🔁</td>
+<td>Scale on queue depth / schedule; S3 events can filter by ACL</td>
+<td><strong>10-31</strong></td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Streaming &amp; analytics</strong></td>
+<td>Udemy2 Q54 🔁 · Official Q68 · Neal C Q7 🔁 (DAX)</td>
+<td>Firehose writes to DynamoDB; Savings Plans cover DynamoDB</td>
+<td>11-01 (light)</td>
+</tr>
+<tr>
+<td>11</td>
 <td><strong>Multi-select</strong></td>
-<td>TD5 5/21 · TD3 all 7 misses had 1 correct pick</td>
+<td>Neal C 4/7 (3 half-right) · TD4 9/16 · Neal A 12/21 · Udemy2 Select THREE 3/6</td>
 <td>Second pick can be any true statement</td>
-<td>every test</td>
+<td>exam-day</td>
 </tr>
 </tbody>
 </table>
@@ -167,7 +189,9 @@ Ranking = repeat misses first, then miss count, then the sprint day it's schedul
 </tr>
 </tbody>
 </table>
-<p><strong>Multi-select:</strong> after choosing pick 1, ask "<em>what's still missing for this exact solution?</em>" — pick 2 must answer that. Reject options with one wrong clause (TD1 Q26: "Multi-AZ RDS in one AZ").</p>
+<p><strong>Multi-select:</strong> after choosing pick 1, ask "<em>what's still missing for this exact solution?</em>" — pick 2 must answer that. Reject options with one wrong clause (TD1 Q26: "Multi-AZ RDS in one AZ").
+<strong>Twin options:</strong> underline the one phrase that differs (Archive vs Deep Archive, DLM vs AWS Backup, Volume vs File Gateway), then test only that phrase against the stem's constraint (Official 14/28).
+<strong>Answer switching:</strong> change an answer only when you can name the stem word that proves the first pick wrong (Neal C Q5/Q30, Udemy2 Q11/Q67 were right first).</p>
 <h2>2. Identity &amp; org governance — confusion pairs</h2>
 <table>
 <thead>
@@ -248,10 +272,60 @@ Ranking = repeat misses first, then miss count, then the sprint day it's schedul
 <td><span class="ans"><code>InspectorCodeExclusion</code> tag + standard <strong>and</strong> code scan</span></td>
 <td>TD6 Q6</td>
 </tr>
+<tr>
+<td>Organizations backup policy using Data Lifecycle Manager</td>
+<td><span class="ans">Organizations <strong>backup policy</strong> → AWS Backup plans in every account</span></td>
+<td>DLM = per-account EBS/AMI lifecycle; twin option (Official Q13)</td>
+</tr>
+<tr>
+<td>StackSets + drift detection to keep Config rules unchanged</td>
+<td><span class="ans"><strong>Organization conformance pack</strong> (excluded accounts) via delegated admin</span></td>
+<td>drift detection only detects (Official Q26)</td>
+</tr>
+<tr>
+<td>AWS Managed Microsoft AD + trust for WorkSpaces</td>
+<td><span class="ans"><strong>AD Connector</strong></span></td>
+<td>"credentials must not be stored outside the company" (Official Q32)</td>
+</tr>
+<tr>
+<td>One central security account for logging, tooling and audit</td>
+<td><span class="ans">Separate <strong>Log Archive</strong>, <strong>Security Tooling</strong>, <strong>Audit</strong> accounts + Exceptions OU</span></td>
+<td>limit blast radius (Official Q57)</td>
+</tr>
+<tr>
+<td>CloudTrail data events to find external principals</td>
+<td><span class="ans"><strong>IAM Access Analyzer</strong>, organization as zone of trust</span></td>
+<td>"who CAN access", not who called (Official Q62)</td>
+</tr>
+<tr>
+<td>Firewall Manager strict order: allow rule at the highest order number</td>
+<td><span class="ans">Trusted-CIDR allow at the <strong>lowest</strong> number, deny-all after</span></td>
+<td>lowest priority number is evaluated first (Official Q64)</td>
+</tr>
+<tr>
+<td>Remove accounts from the org and re-invite</td>
+<td><span class="ans">Nest the stricter OU under the shared OU, <strong>move</strong> accounts between OUs</span></td>
+<td>SCPs inherit down the tree (Official Q65)</td>
+</tr>
+<tr>
+<td>Allow-list SCP for many blocked services + exceptions</td>
+<td><span class="ans"><strong>Deny-list</strong> SCP, keep FullAWSAccess, exceptions OU with fewer denies</span></td>
+<td>allow list = every action listed 🔁 (Neal B Q23)</td>
+</tr>
+<tr>
+<td>IAM users in each account + SCPs</td>
+<td><span class="ans">Users in one <strong>identity account</strong>, roles in target accounts trusting it</span></td>
+<td>SCPs never grant 🔁 (Neal B Q56)</td>
+</tr>
+<tr>
+<td>Manual accounts + per-account SAML</td>
+<td><span class="ans"><strong>Control Tower</strong> + Account Factory + Identity Center</span></td>
+<td>"minimal overhead" governance 🔁 (Neal B Q71)</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Re-watch:</strong> Maarek <em>Identity &amp; Federation</em> (your lowest drill: 53%) — STS APIs, Identity Center, Cognito. <em>SCP evaluation</em> slide.</p>
-<h2>3. Edge &amp; DNS (10-15) — confusion pairs</h2>
+<h2>3. Edge &amp; DNS — confusion pairs</h2>
 <table>
 <thead>
 <tr>
@@ -321,11 +395,31 @@ Ranking = repeat misses first, then miss count, then the sprint day it's schedul
 <td><span class="ans">CloudFront geo restriction / WAF geo match</span></td>
 <td>geolocation only routes</td>
 </tr>
+<tr>
+<td>Route 53 Evaluate Target Health for partial failures</td>
+<td><span class="ans">Route 53 <strong>Application Recovery Controller</strong> routing controls (alarms + Lambda)</span></td>
+<td>"full AND partial failures" (Official Q16)</td>
+</tr>
+<tr>
+<td>CloudFront path behaviors + redirects for A/B test</td>
+<td><span class="ans"><strong>Lambda@Edge</strong> (origin request) picks the origin</span></td>
+<td>"users must not notice" (Official Q38)</td>
+</tr>
+<tr>
+<td>WAF web ACL for baseline DDoS</td>
+<td><span class="ans"><strong>CloudFront</strong> (Shield Standard included)</span></td>
+<td>WAF = L7 rules (SQLi/XSS) 🔁 (Neal B Q22)</td>
+</tr>
+<tr>
+<td>CloudFront + WAF per-day rate rule for a few known clients</td>
+<td><span class="ans">WAF <strong>IP allow-list</strong> on the API + usage plan + API key</span></td>
+<td>rate rules use short windows, CloudFront adds cost 🔁 (Neal A Q41)</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Routing policy card:</strong> failover = active-passive · latency + Evaluate Target Health = active-active · weighted = % split / testing · geolocation = by user location · geoproximity = bias · multivalue = DNS LB with health checks · alias at the apex.
 <strong>Do:</strong> Maarek <em>Route 53</em> + <em>CloudFront</em> + <em>Global Accelerator</em> sections; re-run TD1 Q17, TD5 Q12/Q42, Udemy2 Q20, Udemy3 Q21/Q26 from the review files.</p>
-<h2>4. Streaming &amp; analytics (10-17) — confusion pairs</h2>
+<h2>4. Streaming &amp; analytics — confusion pairs</h2>
 <table>
 <thead>
 <tr>
@@ -390,12 +484,22 @@ Ranking = repeat misses first, then miss count, then the sprint day it's schedul
 <td><span class="ans">EC2 Instance SP + Compute SP + <strong>reserved nodes</strong> for DB/cache</span></td>
 <td>TD6 Q16</td>
 </tr>
+<tr>
+<td>Firehose writes sensor data to DynamoDB</td>
+<td><span class="ans"><strong>SQS + Lambda</strong> (DynamoDB auto scaling)</span></td>
+<td>DynamoDB is not a Firehose destination 🔁 (Udemy2 Q54)</td>
+</tr>
+<tr>
+<td>DAX + Savings Plans for DynamoDB hot keys</td>
+<td><span class="ans">DAX + <strong>provisioned capacity</strong> + auto scaling (or reserved capacity)</span></td>
+<td>Savings Plans don't cover DynamoDB (Official Q68)</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Kinesis card:</strong> KDS = real-time, shards, custom consumers, replay (24 h–365 d) · Firehose = near-real-time delivery to S3/Redshift/OpenSearch/HTTP, Lambda transform, no replay · MSF (Managed Flink) = SQL/Flink on streams · Redshift streaming ingestion can also read KDS/MSK directly.
 <strong>EMR card:</strong> master + core = On-Demand (core holds HDFS data) · task = Spot · long-running steady → RI/Savings Plans.
 <strong>Do:</strong> Maarek <em>Data Engineering</em> (Kinesis, EMR, Redshift); TD Dojo drill only from TD1/2/5 pool (not TD4/TD6).</p>
-<h2>5. Migration + DR (10-19) — confusion pairs</h2>
+<h2>5. Migration + DR — confusion pairs</h2>
 <table>
 <thead>
 <tr>
@@ -465,6 +569,46 @@ Ranking = repeat misses first, then miss count, then the sprint day it's schedul
 <td><span class="ans">S3 hourly backups + 5-min transaction logs</span></td>
 <td>Glacier retrieval breaks RTO</td>
 </tr>
+<tr>
+<td>Volume Gateway for shared on-prem files → S3</td>
+<td><span class="ans"><strong>S3 File Gateway</strong> (NFS/SMB)</span></td>
+<td>Volume = iSCSI block; twin option (Official Q61)</td>
+</tr>
+<tr>
+<td>AWS Backup + RDS cross-Region read replicas</td>
+<td><span class="ans"><strong>AWS Backup</strong> plan + vault copy in another Region</span></td>
+<td>replicas are not backups (Official Q25)</td>
+</tr>
+<tr>
+<td>Aurora Global: read from secondary, write to primary</td>
+<td><span class="ans"><strong>Write forwarding</strong> on the secondary; test with managed failover</span></td>
+<td>"read-after-write" (Official Q45)</td>
+</tr>
+<tr>
+<td>Snowball for 25 TB on a 1 Gbps link</td>
+<td><span class="ans"><strong>S3 Transfer Acceleration</strong> over the fastest link</span></td>
+<td>do the math: ~2–3 days online 🔁 (Neal B Q10, key debatable)</td>
+</tr>
+<tr>
+<td>Two Regions + Aurora Global for 99.9%</td>
+<td><span class="ans"><strong>One Region, Multi-AZ</strong> + CloudFront for global latency</span></td>
+<td>match the stated SLA 🔁 (Neal B Q61)</td>
+</tr>
+<tr>
+<td>Aurora Global database for three-AZ HA</td>
+<td><span class="ans">Aurora cluster + <strong>replicas in other AZs</strong></span></td>
+<td>Global = cross-Region DR 🔁 (Neal B Q63)</td>
+</tr>
+<tr>
+<td>Redis cache + RDS MySQL read replicas for faster failover</td>
+<td><span class="ans"><strong>RDS Proxy</strong> + Aurora with Aurora Replicas</span></td>
+<td>caches don't queue writes 🔁 (TD4 Q28)</td>
+</tr>
+<tr>
+<td>Redshift replication to a secondary-Region cluster</td>
+<td><span class="ans">Automated snapshots + <strong>cross-Region snapshot copy</strong></span></td>
+<td>Redshift has no cross-Region replication 🔁 (TD4 Q64)</td>
+</tr>
 </tbody>
 </table>
 <p><strong>DR ladder:</strong> backup/restore (hours) → pilot light (core DB running, tens of min) → warm standby (scaled-down full stack, minutes) → multi-site (~0). RPO &lt; 1 s → Aurora Global; active-active NoSQL → DynamoDB global tables.
@@ -530,6 +674,31 @@ Ranking = repeat misses first, then miss count, then the sprint day it's schedul
 <td><span class="ans">Proxy / Network Firewall</span></td>
 <td>domain-based egress</td>
 </tr>
+<tr>
+<td>Route table entry to fix an interface endpoint</td>
+<td><span class="ans">Endpoint <strong>ENI security group</strong> allows 443 from the VPC + private DNS</span></td>
+<td>routes = gateway endpoints only (Neal C Q9)</td>
+</tr>
+<tr>
+<td>EC2 SG allows the NLB subnets (instance-id targets)</td>
+<td><span class="ans">EC2 SG allows the <strong>client CIDRs</strong></span></td>
+<td>instance-id targets keep the client IP; first pick was right 🔁 (Neal C Q30)</td>
+</tr>
+<tr>
+<td>New DX to the second Region for redundancy</td>
+<td><span class="ans"><strong>Second DX</strong> at the same location + DX gateway for the other Region</span></td>
+<td>redundancy = same path doubled (Neal C Q31)</td>
+</tr>
+<tr>
+<td>DX + VPN backup for HA, high bandwidth, multi-Region</td>
+<td><span class="ans"><strong>Redundant DX</strong> at each DC from different providers</span></td>
+<td>VPN = low bandwidth; first pick was right (Udemy2 Q67)</td>
+</tr>
+<tr>
+<td>S3 gateway endpoint over the private VIF</td>
+<td><span class="ans"><strong>Public VIF</strong> on the existing DX</span></td>
+<td>gateway endpoint not reachable from on-prem 🔁 (Udemy2 Q68)</td>
+</tr>
 </tbody>
 </table>
 <h2>7. Ops — patching, ASG, compliance</h2>
@@ -577,17 +746,159 @@ Ranking = repeat misses first, then miss count, then the sprint day it's schedul
 <td><span class="ans">Extract the <strong>public</strong> key, push via Run Command</span></td>
 <td>TD5 Q51</td>
 </tr>
+<tr>
+<td>Scheduled scaling for unexpected peaks</td>
+<td><span class="ans"><strong>Target tracking</strong> on <code>ALBRequestCountPerTarget</code></span></td>
+<td>"no correlation with time" (Official Q17)</td>
+</tr>
+<tr>
+<td>Scale SQS workers on <code>ApproximateNumberOfMessagesVisible</code></td>
+<td><span class="ans">Target tracking on <strong>backlog per instance</strong> (custom metric)</span></td>
+<td>queue depth ignores fleet size; twin option (Official Q60)</td>
+</tr>
+<tr>
+<td>CloudFormation for infra, manual runbook for install</td>
+<td><span class="ans">CloudFormation + <strong>user data / cfn-init</strong></span></td>
+<td>automate the whole runbook (Official Q30)</td>
+</tr>
+<tr>
+<td>Enable ENA for grid timeouts</td>
+<td><span class="ans"><strong>Cluster placement group</strong></span></td>
+<td>ENA already on; latency is node-to-node (Official Q58)</td>
+</tr>
+<tr>
+<td>API Gateway execution logging for 504 root cause</td>
+<td><span class="ans"><strong>X-Ray</strong> + Lambda CloudWatch Logs</span></td>
+<td>logs confirm the error, X-Ray shows the hop 🔁 (Udemy2 Q24)</td>
+</tr>
+<tr>
+<td>S3 event notifications to detect public-read objects</td>
+<td><span class="ans"><strong>CloudTrail data events</strong> + EventBridge rule → SNS/Lambda</span></td>
+<td>events can't filter by ACL 🔁 (Udemy2 Q63)</td>
+</tr>
 </tbody>
 </table>
-<h2>8. Repeat-miss marathon list (10-14 round 1, 10-21 round 2)</h2>
-<p>Redo these from the review files, every answer justified out loud:
-- TD5: Q10, Q12, Q21, Q22, Q23, Q29, Q32, Q48, Q62, Q69
-  - Round 1 (10-13): <strong>5/10</strong> ✅ Q21 Q22 Q23 Q32 Q62 · ❌ Q10 Q12 Q29 Q48 Q69 → retry 10-14 (full text, shuffled letters) <strong>5/5</strong> ✅
-- TD1: Q17, Q25, Q26, Q57, Q69, Q74
-  - Round 1 (10-14, shuffled letters): <strong>5/6</strong> ✅ Q17 Q25 Q57 Q69 Q74 · ❌ Q26 (picked S3 static site for a dynamic NGINX+MySQL app)
-- TD3: Q6, Q10, Q14, Q63, Q71
-- TD6: Q1, Q11, Q16 (overbuild 🔁), Q6, Q15 — Pass 1 not done yet
-- Udemy2 unseen Pass 1 misses (14) · Udemy3 unseen misses (8, Pass 1 not done yet)</p>
+<h2>8. Final-2-days list (10-31 → 11-01) — 🔁 repeats from recent tests</h2>
+<p>Redo these from the review files (shuffled letters, every answer justified out loud; for twins, say the one differing phrase):
+- Official — <code>practice-exam/sap/official_attempt1_review.md</code>: twin options Q9, Q13, Q30, Q38, Q43, Q45, Q54, Q60, Q61, Q64, Q65, Q66, Q68, Q74 · governance Q26, Q57, Q62 (no 🔁 marks — first attempt; CI is the weakest domain)
+- Neal C — <code>practice-exam/sap/neal_c_review.md</code>: 🔁 Q5, Q7, Q13 · first pick right then changed Q5, Q30 · security control Q9, Q12, Q19
+- Neal B — <code>practice-exam/sap/neal_b_review.md</code>: 🔁 Q10, Q22, Q23, Q28, Q56, Q61, Q63, Q71, Q74
+- Neal A — <code>practice-exam/sap/neal_a_review.md</code>: 🔁 Q11, Q13, Q32, Q34, Q41
+- TD4 — <code>practice-exam/sap/td4_review.md</code>: 🔁 Q5, Q28, Q58, Q64
+- Udemy #2 full — <code>practice-exam/sap/udemy2_full_review.md</code>: 🔁 Q13, Q24, Q33, Q54, Q63, Q68 · broken in review Q11, Q67</p>
+<h2>9. Continuous Improvement — recent misses (Official, Neal C)</h2>
+<p>Security, reliability and cost fixes on an existing system. Official CI 10/20 (50%), Neal C CI 7/13 (54%).</p>
+<table>
+<thead>
+<tr>
+<th>You picked</th>
+<th>Correct</th>
+<th>Tell</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intelligent-Tiering Deep Archive Access for 6-hour retrieval</td>
+<td><span class="ans"><strong>Archive Access</strong> tier</span></td>
+<td>Deep Archive ≤ 12 h breaks the SLA; twin option (Official Q9)</td>
+</tr>
+<tr>
+<td>DynamoDB global tables to raise multi-AZ resilience</td>
+<td><span class="ans"><strong>One NAT gateway per AZ</strong></span></td>
+<td>find the one zonal resource (Official Q19)</td>
+</tr>
+<tr>
+<td>Copy objects to a new encrypted bucket</td>
+<td><span class="ans">Default encryption + S3 Inventory + <strong>Batch Operations</strong> copy in place</span></td>
+<td>every app would change bucket names (Official Q43)</td>
+</tr>
+<tr>
+<td>Client VPN to stop SSH brute force</td>
+<td><span class="ans"><strong>Session Manager</strong> (close port 22, log sessions)</span></td>
+<td>"log commands", "keep port forwarding" (Official Q53)</td>
+</tr>
+<tr>
+<td>AWS Batch on Fargate Spot with a custom AMI</td>
+<td><span class="ans">Managed <strong>EC2</strong> compute environment with Spot</span></td>
+<td>Fargate has no custom AMI; twin option (Official Q54)</td>
+</tr>
+<tr>
+<td>Budgets alert to an operator who stops instances</td>
+<td><span class="ans">Budgets forecast alert + <strong>Budgets action</strong></span></td>
+<td>"lowest risk of overspending" (Official Q66)</td>
+</tr>
+<tr>
+<td>KMS with scheduled disable/enable for FIPS 140-2 Level 3</td>
+<td><span class="ans"><strong>CloudHSM</strong> cluster (delete/restore from backup off-hours)</span></td>
+<td>exam rule: Level 3 = CloudHSM (real AWS: KMS HSMs Level 3 since 2023) (Official Q70)</td>
+</tr>
+<tr>
+<td>Elastic Beanstalk + DynamoDB for a simple LAMP app</td>
+<td><span class="ans"><strong>Lightsail</strong></span></td>
+<td>"predictable pricing", "little AWS expertise" (Official Q73)</td>
+</tr>
+<tr>
+<td>Enable Object Lock on the existing bucket</td>
+<td><span class="ans"><strong>New bucket</strong> with Object Lock compliance mode, move objects</span></td>
+<td>exam key (real AWS: existing buckets allowed since 2023) (Official Q74)</td>
+</tr>
+<tr>
+<td>RDS Multi-AZ + ElastiCache for 99.5% + slow remote desktop client</td>
+<td><span class="ans">RDS single-AZ + <strong>AppStream 2.0</strong></span></td>
+<td>match the SLA; first pick was right 🔁 (Neal C Q5)</td>
+</tr>
+<tr>
+<td>On-demand + DAX for a write-heavy dev table</td>
+<td><span class="ans"><strong>On-demand</strong> capacity alone</span></td>
+<td>DAX caches reads only 🔁 (Neal C Q7)</td>
+</tr>
+<tr>
+<td>Cluster Autoscaler under-provisioned for EKS resilience</td>
+<td><span class="ans"><strong>Topology spread</strong> across AZs + multi-AZ node groups</span></td>
+<td>resilience = survive an AZ failure (Neal C Q11)</td>
+</tr>
+<tr>
+<td><code>aws:SecureTransport</code> in S3 ACLs</td>
+<td><span class="ans"><strong>Bucket policy</strong> denying unencrypted PutObject + default encryption + CloudFront HTTPS redirect</span></td>
+<td>conditions live in bucket policies, never ACLs (Neal C Q12)</td>
+</tr>
+<tr>
+<td>Auto scaling + DAX to stop web attacks</td>
+<td><span class="ans">CloudFront + <strong>WAF</strong> + custom-header origin lock on the ALB</span></td>
+<td>scaling treats symptoms 🔁 (Neal C Q13)</td>
+</tr>
+<tr>
+<td>SSE-S3 with a customer managed key</td>
+<td><span class="ans"><strong>SSE-KMS</strong> with a customer managed key + deny unencrypted PutObject</span></td>
+<td>SSE-S3 never uses your key (Neal C Q19)</td>
+</tr>
+<tr>
+<td>Custom budgets for cost per project/environment</td>
+<td><span class="ans"><strong>Cost allocation tags</strong> + Service Catalog portfolios</span></td>
+<td>budgets alert, they don't attribute (Neal C Q20)</td>
+</tr>
+<tr>
+<td>CloudTrail data events + billing alarm for team cost</td>
+<td><span class="ans"><strong>AWS Budgets</strong> (in CloudFormation) + Service Catalog products</span></td>
+<td>CloudTrail logs API calls, not cost 🔁 (Neal A Q13)</td>
+</tr>
+<tr>
+<td>Cost Explorer RI utilization report for a 70% target</td>
+<td><span class="ans">AWS Budgets <strong>RI coverage</strong> budget</span></td>
+<td>utilization ≠ coverage; Cost Explorer doesn't alert 🔁 (Neal A Q32)</td>
+</tr>
+<tr>
+<td>AWS Budgets for 80% service-quota alerts</td>
+<td><span class="ans">Trusted Advisor check + Lambda → <strong>SNS</strong> (or CloudWatch <code>AWS/Usage</code> alarm)</span></td>
+<td>Budgets tracks spend, not quotas 🔁 (Neal B Q74)</td>
+</tr>
+<tr>
+<td>EFS for +3,000 IOPS on gp2</td>
+<td><span class="ans"><strong>Grow the gp2 volume</strong> (+1 TB = +3,000 IOPS) or gp3</span></td>
+<td>3 IOPS/GiB; first pick was right (Udemy2 Q11)</td>
+</tr>
+</tbody>
+</table>
 <h2>Pair drill log (<code>weak-areas.html</code> → Pair drill)</h2>
 <table>
 <thead>
@@ -608,9 +919,9 @@ Ranking = repeat misses first, then miss count, then the sprint day it's schedul
 <td>Redshift snapshot copy grant 🔁 · warm standby for RTO 5 min · DX Gateway for 2 Regions · CloudFront/WAF geo block · NLB/GWLB endpoint service 🔁 · instance profile alone · ECR endpoints (api + dkr + S3 gateway) · PHZ association authorization 🔁 · AssumeRoleWithSAML 🔁 · Snowball Edge ×N · backup/restore for RTO 30 min 🔁</td>
 </tr>
 <tr>
-<td>2 (due 10-15)</td>
+<td>2 (due 10-31)</td>
 <td></td>
-<td>/11</td>
+<td></td>
 <td></td>
 <td></td>
 </tr>
@@ -640,7 +951,7 @@ st.onclick = () => { const on = document.body.classList.toggle("selftest"); st.s
   doc.querySelectorAll(".ans.shown").forEach(a => a.classList.remove("shown")); };
 doc.addEventListener("click", e => { const a = e.target.closest(".ans"); if (a) a.classList.toggle("shown"); });
 
-const PAIRS = [{"sec": "2. Identity &amp; org governance", "bad": "<code>AssumeRoleWithWebIdentity</code> for corporate SSO", "ok": "<code>AssumeRoleWithSAML</code> / Identity Center", "tell": "<strong>SAML</strong> IdP = corporate; Google/Facebook = web identity 🔁"}, {"sec": "2. Identity &amp; org governance", "bad": "SAML for social login", "ok": "Cognito / web identity federation", "tell": "mobile, SPA, \"millions of users\""}, {"sec": "2. Identity &amp; org governance", "bad": "Role in the management account", "ok": "Role in the <strong>target</strong> account, trusting the caller", "tell": "\"access Dev from mgmt\" → role lives in Dev"}, {"sec": "2. Identity &amp; org governance", "bad": "\"SCP that allows\"", "ok": "IAM policy (grants) + SCP (limits)", "tell": "an SCP never grants anything 🔁"}, {"sec": "2. Identity &amp; org governance", "bad": "IAM deny in every account", "ok": "SCP at the OU", "tell": "\"all accounts\", \"central\""}, {"sec": "2. Identity &amp; org governance", "bad": "Move SCP deny to … root", "ok": "Attach at the <strong>Production OU</strong> + onboarding OU", "tell": "deny at root hits every OU"}, {"sec": "2. Identity &amp; org governance", "bad": "Cost allocation tag in member account", "ok": "Activate in the <strong>management account</strong> + CUR", "tell": "🔁 TD5 Q29"}, {"sec": "2. Identity &amp; org governance", "bad": "RAM can generate CUR", "ok": "CUR from mgmt account → QuickSight", "tell": "TD5 Q16"}, {"sec": "2. Identity &amp; org governance", "bad": "Parameter Store for rotation", "ok": "Secrets Manager", "tell": "\"rotation\" / \"lifecycle\" 🔁"}, {"sec": "2. Identity &amp; org governance", "bad": "Role ARN in Parameter Store for EC2", "ok": "Instance profile alone", "tell": "nothing else is needed"}, {"sec": "2. Identity &amp; org governance", "bad": "AdministratorAccess for devs", "ok": "PowerUserAccess", "tell": "\"everything except IAM\""}, {"sec": "2. Identity &amp; org governance", "bad": "KMS on CloudTrail = tamper-proof", "ok": "Log file validation + MFA Delete", "tell": "KMS = confidentiality"}, {"sec": "2. Identity &amp; org governance", "bad": "Config + automation to enforce tag values", "ok": "<strong>Tag policy</strong> + SCP deny create without <code>aws:RequestTag</code>", "tell": "\"enforce\" at creation (TD6 Q15)"}, {"sec": "2. Identity &amp; org governance", "bad": "IAM to exclude functions from Inspector", "ok": "<code>InspectorCodeExclusion</code> tag + standard <strong>and</strong> code scan", "tell": "TD6 Q6"}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "Global Accelerator for S3", "ok": "S3 CRR + CloudFront / Lambda@Edge", "tell": "GA endpoints = ALB, NLB, EC2, EIP only 🔁"}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "Multi-Region + latency routing for 504s", "ok": "CloudFront <strong>origin group</strong> failover", "tell": "\"minimal cost\" 🔁"}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "Route 53 weighted for a fast shift", "ok": "GA traffic dials / endpoint weights", "tell": "\"DNS caching\", \"clients ignore TTL\""}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "NLB for user→instance pinning", "ok": "GA <strong>custom routing</strong>", "tell": "\"deterministic\", \"specific instance\""}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "Route 53 health check on a private IP", "ok": "CloudWatch alarm → health check on the alarm", "tell": "private hosted zone resources"}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "NS delegation for a cross-account PHZ", "ok": "VPC association authorization (CLI)", "tell": "🔁 TD1 Q27"}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "Default cert on a custom domain", "ok": "ACM cert in <strong>us-east-1</strong>", "tell": "default = <code>*.cloudfront.net</code> only"}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "Wildcard for many domains", "ok": "SNI, multiple certs on the listener", "tell": "wildcard = one domain's sub-domains"}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "ALB path condition for sub-domains", "ok": "ALB <strong>host</strong> condition", "tell": "<code>*.example.com</code> + apex"}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "Lambda@Edge for query-string normalization", "ok": "<strong>CloudFront Functions</strong>", "tell": "\"least overhead and cost\" 🔁 overbuild (TD6 Q11)"}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "All CloudFront traffic via the regional edge cache", "ok": "PUT/POST/PATCH/DELETE/OPTIONS + all-header dynamic skip it", "tell": "Udemy2 Q21"}, {"sec": "3. Edge &amp; DNS (10-15)", "bad": "Route 53 geolocation blocks countries", "ok": "CloudFront geo restriction / WAF geo match", "tell": "geolocation only routes"}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "SQS for many readers", "ok": "Kinesis Data Streams", "tell": "\"same record\", \"replay\", \"multiple apps\""}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "Firehose for consumer apps", "ok": "KDS + <strong>Enhanced Fan-Out</strong>", "tell": "\"consumers lagging\""}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "Producers keep calling Firehose PutRecord", "ok": "Write to the KDS (it's the Firehose source)", "tell": "KDS as source disables direct PutRecord"}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "Step Functions per data point", "ok": "IoT rule → Firehose + Lambda transform", "tell": "\"minutes of latency OK\""}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "S3 + SQS for near-real-time", "ok": "KDS + consumers → Redshift", "tell": "\"near-real-time analytics\""}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "Reserved for a one-off EMR job", "ok": "On-Demand master/core + <strong>Spot task</strong>", "tell": "🔁 TD3 Q20/Q29"}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "Lambda → SQS → Fargate ETL", "ok": "Glue crawler + ETL job", "tell": "\"extend with new fields\""}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "Encrypted Redshift snapshot copy w/o grant", "ok": "<strong>Snapshot copy grant</strong> in the destination Region", "tell": "🔁 drill ×2"}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "KCL to produce", "ok": "KPL produces, KCL consumes", "tell": ""}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "Redshift for queries 6 PM–2 AM on ORC", "ok": "<strong>S3 + Athena + Glue Catalog</strong>", "tell": "pay per scan, no idle cluster (TD6 Q1)"}, {"sec": "4. Streaming &amp; analytics (10-17)", "bad": "Compute SP covers MemoryDB", "ok": "EC2 Instance SP + Compute SP + <strong>reserved nodes</strong> for DB/cache", "tell": "TD6 Q16"}, {"sec": "5. Migration + DR (10-19)", "bad": "Tape Gateway → Glacier for ML on video", "ok": "<strong>File Gateway</strong> → S3 + Rekognition", "tell": "\"process / tag the content\" 🔁×3"}, {"sec": "5. Migration + DR (10-19)", "bad": "File Gateway for Windows servers in AWS", "ok": "<strong>FSx for Windows + DataSync</strong>", "tell": "servers are <strong>in AWS</strong> 🔁"}, {"sec": "5. Migration + DR (10-19)", "bad": "SSM + Image Builder for \"keep the VM\"", "ok": "<strong>VM Import/Export</strong>", "tell": "\"as-is\""}, {"sec": "5. Migration + DR (10-19)", "bad": "Scheduled VM Import scripts", "ok": "<strong>MGN</strong>", "tell": "\"continuous replication\", \"short cutover\""}, {"sec": "5. Migration + DR (10-19)", "bad": "Application Discovery Service for TCO", "ok": "<strong>Migration Evaluator</strong>", "tell": "\"business case\", \"TCO\""}, {"sec": "5. Migration + DR (10-19)", "bad": "CloudWatch agent for discovery", "ok": "ADS / <strong>AWS Transform</strong> discovery", "tell": "\"dependencies\", \"inventory\""}, {"sec": "5. Migration + DR (10-19)", "bad": "Snowmobile for &lt; 10 PB / network for 200 TB", "ok": "Snowball Edge ×N", "tell": "do the math: 1 Gbps ≈ 10.8 TB/day · Snowmobile retired 2024"}, {"sec": "5. Migration + DR (10-19)", "bad": "Snowball straight to Glacier", "ok": "Snow → S3 → lifecycle rule", "tell": ""}, {"sec": "5. Migration + DR (10-19)", "bad": "Hot standby for RTO 30 min", "ok": "Backup/restore + cross-Region read replica", "tell": "🔁 TD3 Q16"}, {"sec": "5. Migration + DR (10-19)", "bad": "Multi-AZ as DR", "ok": "Cross-Region backup / replica", "tell": "Multi-AZ = HA only 🔁"}, {"sec": "5. Migration + DR (10-19)", "bad": "Pilot light for RTO 5 min", "ok": "Warm standby", "tell": "pilot light must still build tiers"}, {"sec": "5. Migration + DR (10-19)", "bad": "Glacier backups every 15 min", "ok": "S3 hourly backups + 5-min transaction logs", "tell": "Glacier retrieval breaks RTO"}, {"sec": "6. Hybrid networking", "bad": "Private VIF for VPN-over-DX", "ok": "<strong>Public VIF</strong> (or transit VIF + TGW)", "tell": "🔁×4"}, {"sec": "6. Hybrid networking", "bad": "Second DX for \"cheapest backup\"", "ok": "Site-to-Site VPN", "tell": "\"cheapest\" vs \"max resilience\""}, {"sec": "6. Hybrid networking", "bad": "One private VIF to 2 Regions", "ok": "DX Gateway", "tell": ""}, {"sec": "6. Hybrid networking", "bad": "Second VGW for VPN HA", "ok": "Second <strong>CGW</strong>", "tell": "one VGW per VPC"}, {"sec": "6. Hybrid networking", "bad": "ALB for an endpoint service", "ok": "<strong>NLB</strong> / GWLB", "tell": "🔁 TD5 Q69"}, {"sec": "6. Hybrid networking", "bad": "DX for appliance scaling", "ok": "<strong>GWLB + ASG</strong>", "tell": "🔁 TD5 Q62"}, {"sec": "6. Hybrid networking", "bad": "NAT for S3 traffic", "ok": "<strong>Gateway endpoint</strong>", "tell": "🔁 TD5 Q21"}, {"sec": "6. Hybrid networking", "bad": "Single gateway endpoint for ECR", "ok": "ecr.api + ecr.dkr interface + S3 gateway", "tell": "private Fargate image pull"}, {"sec": "6. Hybrid networking", "bad": "Flow Logs for packet payloads", "ok": "<strong>Traffic Mirroring</strong>", "tell": "🔁 TD3 Q45, Udemy3 Q14"}, {"sec": "6. Hybrid networking", "bad": "SG/NACL for URL filtering", "ok": "Proxy / Network Firewall", "tell": "domain-based egress"}, {"sec": "7. Ops", "bad": "Config for patching", "ok": "<strong>Patch Manager</strong> + Maintenance Windows (<code>AWS-RunPatchBaseline</code>)", "tell": "Config = compliance only"}, {"sec": "7. Ops", "bad": "One patch group + cron", "ok": "2+ patch groups (tags) + non-overlapping windows", "tell": "\"staggered\""}, {"sec": "7. Ops", "bad": "Tag by OS only", "ok": "Tag by environment + OS", "tell": "\"exclude prod\""}, {"sec": "7. Ops", "bad": "Verbose logging to debug", "ok": "Suspend ASG <strong>Terminate</strong> / standby", "tell": "🔁 TD1 Q73"}, {"sec": "7. Ops", "bad": "ASG terminates + launches in one step", "ok": "Unhealthy: terminate first · rebalance: launch first", "tell": "Udemy2 Q27"}, {"sec": "7. Ops", "bad": "Config for CVEs", "ok": "<strong>Inspector</strong> + EventBridge schedule", "tell": ""}, {"sec": "7. Ops", "bad": "<code>.pem</code> pushed to authorized_keys", "ok": "Extract the <strong>public</strong> key, push via Run Command", "tell": "TD5 Q51"}];
+const PAIRS = [{"sec": "2. Identity &amp; org governance", "bad": "<code>AssumeRoleWithWebIdentity</code> for corporate SSO", "ok": "<code>AssumeRoleWithSAML</code> / Identity Center", "tell": "<strong>SAML</strong> IdP = corporate; Google/Facebook = web identity 🔁"}, {"sec": "2. Identity &amp; org governance", "bad": "SAML for social login", "ok": "Cognito / web identity federation", "tell": "mobile, SPA, \"millions of users\""}, {"sec": "2. Identity &amp; org governance", "bad": "Role in the management account", "ok": "Role in the <strong>target</strong> account, trusting the caller", "tell": "\"access Dev from mgmt\" → role lives in Dev"}, {"sec": "2. Identity &amp; org governance", "bad": "\"SCP that allows\"", "ok": "IAM policy (grants) + SCP (limits)", "tell": "an SCP never grants anything 🔁"}, {"sec": "2. Identity &amp; org governance", "bad": "IAM deny in every account", "ok": "SCP at the OU", "tell": "\"all accounts\", \"central\""}, {"sec": "2. Identity &amp; org governance", "bad": "Move SCP deny to … root", "ok": "Attach at the <strong>Production OU</strong> + onboarding OU", "tell": "deny at root hits every OU"}, {"sec": "2. Identity &amp; org governance", "bad": "Cost allocation tag in member account", "ok": "Activate in the <strong>management account</strong> + CUR", "tell": "🔁 TD5 Q29"}, {"sec": "2. Identity &amp; org governance", "bad": "RAM can generate CUR", "ok": "CUR from mgmt account → QuickSight", "tell": "TD5 Q16"}, {"sec": "2. Identity &amp; org governance", "bad": "Parameter Store for rotation", "ok": "Secrets Manager", "tell": "\"rotation\" / \"lifecycle\" 🔁"}, {"sec": "2. Identity &amp; org governance", "bad": "Role ARN in Parameter Store for EC2", "ok": "Instance profile alone", "tell": "nothing else is needed"}, {"sec": "2. Identity &amp; org governance", "bad": "AdministratorAccess for devs", "ok": "PowerUserAccess", "tell": "\"everything except IAM\""}, {"sec": "2. Identity &amp; org governance", "bad": "KMS on CloudTrail = tamper-proof", "ok": "Log file validation + MFA Delete", "tell": "KMS = confidentiality"}, {"sec": "2. Identity &amp; org governance", "bad": "Config + automation to enforce tag values", "ok": "<strong>Tag policy</strong> + SCP deny create without <code>aws:RequestTag</code>", "tell": "\"enforce\" at creation (TD6 Q15)"}, {"sec": "2. Identity &amp; org governance", "bad": "IAM to exclude functions from Inspector", "ok": "<code>InspectorCodeExclusion</code> tag + standard <strong>and</strong> code scan", "tell": "TD6 Q6"}, {"sec": "2. Identity &amp; org governance", "bad": "Organizations backup policy using Data Lifecycle Manager", "ok": "Organizations <strong>backup policy</strong> → AWS Backup plans in every account", "tell": "DLM = per-account EBS/AMI lifecycle; twin option (Official Q13)"}, {"sec": "2. Identity &amp; org governance", "bad": "StackSets + drift detection to keep Config rules unchanged", "ok": "<strong>Organization conformance pack</strong> (excluded accounts) via delegated admin", "tell": "drift detection only detects (Official Q26)"}, {"sec": "2. Identity &amp; org governance", "bad": "AWS Managed Microsoft AD + trust for WorkSpaces", "ok": "<strong>AD Connector</strong>", "tell": "\"credentials must not be stored outside the company\" (Official Q32)"}, {"sec": "2. Identity &amp; org governance", "bad": "One central security account for logging, tooling and audit", "ok": "Separate <strong>Log Archive</strong>, <strong>Security Tooling</strong>, <strong>Audit</strong> accounts + Exceptions OU", "tell": "limit blast radius (Official Q57)"}, {"sec": "2. Identity &amp; org governance", "bad": "CloudTrail data events to find external principals", "ok": "<strong>IAM Access Analyzer</strong>, organization as zone of trust", "tell": "\"who CAN access\", not who called (Official Q62)"}, {"sec": "2. Identity &amp; org governance", "bad": "Firewall Manager strict order: allow rule at the highest order number", "ok": "Trusted-CIDR allow at the <strong>lowest</strong> number, deny-all after", "tell": "lowest priority number is evaluated first (Official Q64)"}, {"sec": "2. Identity &amp; org governance", "bad": "Remove accounts from the org and re-invite", "ok": "Nest the stricter OU under the shared OU, <strong>move</strong> accounts between OUs", "tell": "SCPs inherit down the tree (Official Q65)"}, {"sec": "2. Identity &amp; org governance", "bad": "Allow-list SCP for many blocked services + exceptions", "ok": "<strong>Deny-list</strong> SCP, keep FullAWSAccess, exceptions OU with fewer denies", "tell": "allow list = every action listed 🔁 (Neal B Q23)"}, {"sec": "2. Identity &amp; org governance", "bad": "IAM users in each account + SCPs", "ok": "Users in one <strong>identity account</strong>, roles in target accounts trusting it", "tell": "SCPs never grant 🔁 (Neal B Q56)"}, {"sec": "2. Identity &amp; org governance", "bad": "Manual accounts + per-account SAML", "ok": "<strong>Control Tower</strong> + Account Factory + Identity Center", "tell": "\"minimal overhead\" governance 🔁 (Neal B Q71)"}, {"sec": "3. Edge &amp; DNS", "bad": "Global Accelerator for S3", "ok": "S3 CRR + CloudFront / Lambda@Edge", "tell": "GA endpoints = ALB, NLB, EC2, EIP only 🔁"}, {"sec": "3. Edge &amp; DNS", "bad": "Multi-Region + latency routing for 504s", "ok": "CloudFront <strong>origin group</strong> failover", "tell": "\"minimal cost\" 🔁"}, {"sec": "3. Edge &amp; DNS", "bad": "Route 53 weighted for a fast shift", "ok": "GA traffic dials / endpoint weights", "tell": "\"DNS caching\", \"clients ignore TTL\""}, {"sec": "3. Edge &amp; DNS", "bad": "NLB for user→instance pinning", "ok": "GA <strong>custom routing</strong>", "tell": "\"deterministic\", \"specific instance\""}, {"sec": "3. Edge &amp; DNS", "bad": "Route 53 health check on a private IP", "ok": "CloudWatch alarm → health check on the alarm", "tell": "private hosted zone resources"}, {"sec": "3. Edge &amp; DNS", "bad": "NS delegation for a cross-account PHZ", "ok": "VPC association authorization (CLI)", "tell": "🔁 TD1 Q27"}, {"sec": "3. Edge &amp; DNS", "bad": "Default cert on a custom domain", "ok": "ACM cert in <strong>us-east-1</strong>", "tell": "default = <code>*.cloudfront.net</code> only"}, {"sec": "3. Edge &amp; DNS", "bad": "Wildcard for many domains", "ok": "SNI, multiple certs on the listener", "tell": "wildcard = one domain's sub-domains"}, {"sec": "3. Edge &amp; DNS", "bad": "ALB path condition for sub-domains", "ok": "ALB <strong>host</strong> condition", "tell": "<code>*.example.com</code> + apex"}, {"sec": "3. Edge &amp; DNS", "bad": "Lambda@Edge for query-string normalization", "ok": "<strong>CloudFront Functions</strong>", "tell": "\"least overhead and cost\" 🔁 overbuild (TD6 Q11)"}, {"sec": "3. Edge &amp; DNS", "bad": "All CloudFront traffic via the regional edge cache", "ok": "PUT/POST/PATCH/DELETE/OPTIONS + all-header dynamic skip it", "tell": "Udemy2 Q21"}, {"sec": "3. Edge &amp; DNS", "bad": "Route 53 geolocation blocks countries", "ok": "CloudFront geo restriction / WAF geo match", "tell": "geolocation only routes"}, {"sec": "3. Edge &amp; DNS", "bad": "Route 53 Evaluate Target Health for partial failures", "ok": "Route 53 <strong>Application Recovery Controller</strong> routing controls (alarms + Lambda)", "tell": "\"full AND partial failures\" (Official Q16)"}, {"sec": "3. Edge &amp; DNS", "bad": "CloudFront path behaviors + redirects for A/B test", "ok": "<strong>Lambda@Edge</strong> (origin request) picks the origin", "tell": "\"users must not notice\" (Official Q38)"}, {"sec": "3. Edge &amp; DNS", "bad": "WAF web ACL for baseline DDoS", "ok": "<strong>CloudFront</strong> (Shield Standard included)", "tell": "WAF = L7 rules (SQLi/XSS) 🔁 (Neal B Q22)"}, {"sec": "3. Edge &amp; DNS", "bad": "CloudFront + WAF per-day rate rule for a few known clients", "ok": "WAF <strong>IP allow-list</strong> on the API + usage plan + API key", "tell": "rate rules use short windows, CloudFront adds cost 🔁 (Neal A Q41)"}, {"sec": "4. Streaming &amp; analytics", "bad": "SQS for many readers", "ok": "Kinesis Data Streams", "tell": "\"same record\", \"replay\", \"multiple apps\""}, {"sec": "4. Streaming &amp; analytics", "bad": "Firehose for consumer apps", "ok": "KDS + <strong>Enhanced Fan-Out</strong>", "tell": "\"consumers lagging\""}, {"sec": "4. Streaming &amp; analytics", "bad": "Producers keep calling Firehose PutRecord", "ok": "Write to the KDS (it's the Firehose source)", "tell": "KDS as source disables direct PutRecord"}, {"sec": "4. Streaming &amp; analytics", "bad": "Step Functions per data point", "ok": "IoT rule → Firehose + Lambda transform", "tell": "\"minutes of latency OK\""}, {"sec": "4. Streaming &amp; analytics", "bad": "S3 + SQS for near-real-time", "ok": "KDS + consumers → Redshift", "tell": "\"near-real-time analytics\""}, {"sec": "4. Streaming &amp; analytics", "bad": "Reserved for a one-off EMR job", "ok": "On-Demand master/core + <strong>Spot task</strong>", "tell": "🔁 TD3 Q20/Q29"}, {"sec": "4. Streaming &amp; analytics", "bad": "Lambda → SQS → Fargate ETL", "ok": "Glue crawler + ETL job", "tell": "\"extend with new fields\""}, {"sec": "4. Streaming &amp; analytics", "bad": "Encrypted Redshift snapshot copy w/o grant", "ok": "<strong>Snapshot copy grant</strong> in the destination Region", "tell": "🔁 drill ×2"}, {"sec": "4. Streaming &amp; analytics", "bad": "KCL to produce", "ok": "KPL produces, KCL consumes", "tell": ""}, {"sec": "4. Streaming &amp; analytics", "bad": "Redshift for queries 6 PM–2 AM on ORC", "ok": "<strong>S3 + Athena + Glue Catalog</strong>", "tell": "pay per scan, no idle cluster (TD6 Q1)"}, {"sec": "4. Streaming &amp; analytics", "bad": "Compute SP covers MemoryDB", "ok": "EC2 Instance SP + Compute SP + <strong>reserved nodes</strong> for DB/cache", "tell": "TD6 Q16"}, {"sec": "4. Streaming &amp; analytics", "bad": "Firehose writes sensor data to DynamoDB", "ok": "<strong>SQS + Lambda</strong> (DynamoDB auto scaling)", "tell": "DynamoDB is not a Firehose destination 🔁 (Udemy2 Q54)"}, {"sec": "4. Streaming &amp; analytics", "bad": "DAX + Savings Plans for DynamoDB hot keys", "ok": "DAX + <strong>provisioned capacity</strong> + auto scaling (or reserved capacity)", "tell": "Savings Plans don't cover DynamoDB (Official Q68)"}, {"sec": "5. Migration + DR", "bad": "Tape Gateway → Glacier for ML on video", "ok": "<strong>File Gateway</strong> → S3 + Rekognition", "tell": "\"process / tag the content\" 🔁×3"}, {"sec": "5. Migration + DR", "bad": "File Gateway for Windows servers in AWS", "ok": "<strong>FSx for Windows + DataSync</strong>", "tell": "servers are <strong>in AWS</strong> 🔁"}, {"sec": "5. Migration + DR", "bad": "SSM + Image Builder for \"keep the VM\"", "ok": "<strong>VM Import/Export</strong>", "tell": "\"as-is\""}, {"sec": "5. Migration + DR", "bad": "Scheduled VM Import scripts", "ok": "<strong>MGN</strong>", "tell": "\"continuous replication\", \"short cutover\""}, {"sec": "5. Migration + DR", "bad": "Application Discovery Service for TCO", "ok": "<strong>Migration Evaluator</strong>", "tell": "\"business case\", \"TCO\""}, {"sec": "5. Migration + DR", "bad": "CloudWatch agent for discovery", "ok": "ADS / <strong>AWS Transform</strong> discovery", "tell": "\"dependencies\", \"inventory\""}, {"sec": "5. Migration + DR", "bad": "Snowmobile for &lt; 10 PB / network for 200 TB", "ok": "Snowball Edge ×N", "tell": "do the math: 1 Gbps ≈ 10.8 TB/day · Snowmobile retired 2024"}, {"sec": "5. Migration + DR", "bad": "Snowball straight to Glacier", "ok": "Snow → S3 → lifecycle rule", "tell": ""}, {"sec": "5. Migration + DR", "bad": "Hot standby for RTO 30 min", "ok": "Backup/restore + cross-Region read replica", "tell": "🔁 TD3 Q16"}, {"sec": "5. Migration + DR", "bad": "Multi-AZ as DR", "ok": "Cross-Region backup / replica", "tell": "Multi-AZ = HA only 🔁"}, {"sec": "5. Migration + DR", "bad": "Pilot light for RTO 5 min", "ok": "Warm standby", "tell": "pilot light must still build tiers"}, {"sec": "5. Migration + DR", "bad": "Glacier backups every 15 min", "ok": "S3 hourly backups + 5-min transaction logs", "tell": "Glacier retrieval breaks RTO"}, {"sec": "5. Migration + DR", "bad": "Volume Gateway for shared on-prem files → S3", "ok": "<strong>S3 File Gateway</strong> (NFS/SMB)", "tell": "Volume = iSCSI block; twin option (Official Q61)"}, {"sec": "5. Migration + DR", "bad": "AWS Backup + RDS cross-Region read replicas", "ok": "<strong>AWS Backup</strong> plan + vault copy in another Region", "tell": "replicas are not backups (Official Q25)"}, {"sec": "5. Migration + DR", "bad": "Aurora Global: read from secondary, write to primary", "ok": "<strong>Write forwarding</strong> on the secondary; test with managed failover", "tell": "\"read-after-write\" (Official Q45)"}, {"sec": "5. Migration + DR", "bad": "Snowball for 25 TB on a 1 Gbps link", "ok": "<strong>S3 Transfer Acceleration</strong> over the fastest link", "tell": "do the math: ~2–3 days online 🔁 (Neal B Q10, key debatable)"}, {"sec": "5. Migration + DR", "bad": "Two Regions + Aurora Global for 99.9%", "ok": "<strong>One Region, Multi-AZ</strong> + CloudFront for global latency", "tell": "match the stated SLA 🔁 (Neal B Q61)"}, {"sec": "5. Migration + DR", "bad": "Aurora Global database for three-AZ HA", "ok": "Aurora cluster + <strong>replicas in other AZs</strong>", "tell": "Global = cross-Region DR 🔁 (Neal B Q63)"}, {"sec": "5. Migration + DR", "bad": "Redis cache + RDS MySQL read replicas for faster failover", "ok": "<strong>RDS Proxy</strong> + Aurora with Aurora Replicas", "tell": "caches don't queue writes 🔁 (TD4 Q28)"}, {"sec": "5. Migration + DR", "bad": "Redshift replication to a secondary-Region cluster", "ok": "Automated snapshots + <strong>cross-Region snapshot copy</strong>", "tell": "Redshift has no cross-Region replication 🔁 (TD4 Q64)"}, {"sec": "6. Hybrid networking", "bad": "Private VIF for VPN-over-DX", "ok": "<strong>Public VIF</strong> (or transit VIF + TGW)", "tell": "🔁×4"}, {"sec": "6. Hybrid networking", "bad": "Second DX for \"cheapest backup\"", "ok": "Site-to-Site VPN", "tell": "\"cheapest\" vs \"max resilience\""}, {"sec": "6. Hybrid networking", "bad": "One private VIF to 2 Regions", "ok": "DX Gateway", "tell": ""}, {"sec": "6. Hybrid networking", "bad": "Second VGW for VPN HA", "ok": "Second <strong>CGW</strong>", "tell": "one VGW per VPC"}, {"sec": "6. Hybrid networking", "bad": "ALB for an endpoint service", "ok": "<strong>NLB</strong> / GWLB", "tell": "🔁 TD5 Q69"}, {"sec": "6. Hybrid networking", "bad": "DX for appliance scaling", "ok": "<strong>GWLB + ASG</strong>", "tell": "🔁 TD5 Q62"}, {"sec": "6. Hybrid networking", "bad": "NAT for S3 traffic", "ok": "<strong>Gateway endpoint</strong>", "tell": "🔁 TD5 Q21"}, {"sec": "6. Hybrid networking", "bad": "Single gateway endpoint for ECR", "ok": "ecr.api + ecr.dkr interface + S3 gateway", "tell": "private Fargate image pull"}, {"sec": "6. Hybrid networking", "bad": "Flow Logs for packet payloads", "ok": "<strong>Traffic Mirroring</strong>", "tell": "🔁 TD3 Q45, Udemy3 Q14"}, {"sec": "6. Hybrid networking", "bad": "SG/NACL for URL filtering", "ok": "Proxy / Network Firewall", "tell": "domain-based egress"}, {"sec": "6. Hybrid networking", "bad": "Route table entry to fix an interface endpoint", "ok": "Endpoint <strong>ENI security group</strong> allows 443 from the VPC + private DNS", "tell": "routes = gateway endpoints only (Neal C Q9)"}, {"sec": "6. Hybrid networking", "bad": "EC2 SG allows the NLB subnets (instance-id targets)", "ok": "EC2 SG allows the <strong>client CIDRs</strong>", "tell": "instance-id targets keep the client IP; first pick was right 🔁 (Neal C Q30)"}, {"sec": "6. Hybrid networking", "bad": "New DX to the second Region for redundancy", "ok": "<strong>Second DX</strong> at the same location + DX gateway for the other Region", "tell": "redundancy = same path doubled (Neal C Q31)"}, {"sec": "6. Hybrid networking", "bad": "DX + VPN backup for HA, high bandwidth, multi-Region", "ok": "<strong>Redundant DX</strong> at each DC from different providers", "tell": "VPN = low bandwidth; first pick was right (Udemy2 Q67)"}, {"sec": "6. Hybrid networking", "bad": "S3 gateway endpoint over the private VIF", "ok": "<strong>Public VIF</strong> on the existing DX", "tell": "gateway endpoint not reachable from on-prem 🔁 (Udemy2 Q68)"}, {"sec": "7. Ops", "bad": "Config for patching", "ok": "<strong>Patch Manager</strong> + Maintenance Windows (<code>AWS-RunPatchBaseline</code>)", "tell": "Config = compliance only"}, {"sec": "7. Ops", "bad": "One patch group + cron", "ok": "2+ patch groups (tags) + non-overlapping windows", "tell": "\"staggered\""}, {"sec": "7. Ops", "bad": "Tag by OS only", "ok": "Tag by environment + OS", "tell": "\"exclude prod\""}, {"sec": "7. Ops", "bad": "Verbose logging to debug", "ok": "Suspend ASG <strong>Terminate</strong> / standby", "tell": "🔁 TD1 Q73"}, {"sec": "7. Ops", "bad": "ASG terminates + launches in one step", "ok": "Unhealthy: terminate first · rebalance: launch first", "tell": "Udemy2 Q27"}, {"sec": "7. Ops", "bad": "Config for CVEs", "ok": "<strong>Inspector</strong> + EventBridge schedule", "tell": ""}, {"sec": "7. Ops", "bad": "<code>.pem</code> pushed to authorized_keys", "ok": "Extract the <strong>public</strong> key, push via Run Command", "tell": "TD5 Q51"}, {"sec": "7. Ops", "bad": "Scheduled scaling for unexpected peaks", "ok": "<strong>Target tracking</strong> on <code>ALBRequestCountPerTarget</code>", "tell": "\"no correlation with time\" (Official Q17)"}, {"sec": "7. Ops", "bad": "Scale SQS workers on <code>ApproximateNumberOfMessagesVisible</code>", "ok": "Target tracking on <strong>backlog per instance</strong> (custom metric)", "tell": "queue depth ignores fleet size; twin option (Official Q60)"}, {"sec": "7. Ops", "bad": "CloudFormation for infra, manual runbook for install", "ok": "CloudFormation + <strong>user data / cfn-init</strong>", "tell": "automate the whole runbook (Official Q30)"}, {"sec": "7. Ops", "bad": "Enable ENA for grid timeouts", "ok": "<strong>Cluster placement group</strong>", "tell": "ENA already on; latency is node-to-node (Official Q58)"}, {"sec": "7. Ops", "bad": "API Gateway execution logging for 504 root cause", "ok": "<strong>X-Ray</strong> + Lambda CloudWatch Logs", "tell": "logs confirm the error, X-Ray shows the hop 🔁 (Udemy2 Q24)"}, {"sec": "7. Ops", "bad": "S3 event notifications to detect public-read objects", "ok": "<strong>CloudTrail data events</strong> + EventBridge rule → SNS/Lambda", "tell": "events can't filter by ACL 🔁 (Udemy2 Q63)"}, {"sec": "9. Continuous Improvement", "bad": "Intelligent-Tiering Deep Archive Access for 6-hour retrieval", "ok": "<strong>Archive Access</strong> tier", "tell": "Deep Archive ≤ 12 h breaks the SLA; twin option (Official Q9)"}, {"sec": "9. Continuous Improvement", "bad": "DynamoDB global tables to raise multi-AZ resilience", "ok": "<strong>One NAT gateway per AZ</strong>", "tell": "find the one zonal resource (Official Q19)"}, {"sec": "9. Continuous Improvement", "bad": "Copy objects to a new encrypted bucket", "ok": "Default encryption + S3 Inventory + <strong>Batch Operations</strong> copy in place", "tell": "every app would change bucket names (Official Q43)"}, {"sec": "9. Continuous Improvement", "bad": "Client VPN to stop SSH brute force", "ok": "<strong>Session Manager</strong> (close port 22, log sessions)", "tell": "\"log commands\", \"keep port forwarding\" (Official Q53)"}, {"sec": "9. Continuous Improvement", "bad": "AWS Batch on Fargate Spot with a custom AMI", "ok": "Managed <strong>EC2</strong> compute environment with Spot", "tell": "Fargate has no custom AMI; twin option (Official Q54)"}, {"sec": "9. Continuous Improvement", "bad": "Budgets alert to an operator who stops instances", "ok": "Budgets forecast alert + <strong>Budgets action</strong>", "tell": "\"lowest risk of overspending\" (Official Q66)"}, {"sec": "9. Continuous Improvement", "bad": "KMS with scheduled disable/enable for FIPS 140-2 Level 3", "ok": "<strong>CloudHSM</strong> cluster (delete/restore from backup off-hours)", "tell": "exam rule: Level 3 = CloudHSM (real AWS: KMS HSMs Level 3 since 2023) (Official Q70)"}, {"sec": "9. Continuous Improvement", "bad": "Elastic Beanstalk + DynamoDB for a simple LAMP app", "ok": "<strong>Lightsail</strong>", "tell": "\"predictable pricing\", \"little AWS expertise\" (Official Q73)"}, {"sec": "9. Continuous Improvement", "bad": "Enable Object Lock on the existing bucket", "ok": "<strong>New bucket</strong> with Object Lock compliance mode, move objects", "tell": "exam key (real AWS: existing buckets allowed since 2023) (Official Q74)"}, {"sec": "9. Continuous Improvement", "bad": "RDS Multi-AZ + ElastiCache for 99.5% + slow remote desktop client", "ok": "RDS single-AZ + <strong>AppStream 2.0</strong>", "tell": "match the SLA; first pick was right 🔁 (Neal C Q5)"}, {"sec": "9. Continuous Improvement", "bad": "On-demand + DAX for a write-heavy dev table", "ok": "<strong>On-demand</strong> capacity alone", "tell": "DAX caches reads only 🔁 (Neal C Q7)"}, {"sec": "9. Continuous Improvement", "bad": "Cluster Autoscaler under-provisioned for EKS resilience", "ok": "<strong>Topology spread</strong> across AZs + multi-AZ node groups", "tell": "resilience = survive an AZ failure (Neal C Q11)"}, {"sec": "9. Continuous Improvement", "bad": "<code>aws:SecureTransport</code> in S3 ACLs", "ok": "<strong>Bucket policy</strong> denying unencrypted PutObject + default encryption + CloudFront HTTPS redirect", "tell": "conditions live in bucket policies, never ACLs (Neal C Q12)"}, {"sec": "9. Continuous Improvement", "bad": "Auto scaling + DAX to stop web attacks", "ok": "CloudFront + <strong>WAF</strong> + custom-header origin lock on the ALB", "tell": "scaling treats symptoms 🔁 (Neal C Q13)"}, {"sec": "9. Continuous Improvement", "bad": "SSE-S3 with a customer managed key", "ok": "<strong>SSE-KMS</strong> with a customer managed key + deny unencrypted PutObject", "tell": "SSE-S3 never uses your key (Neal C Q19)"}, {"sec": "9. Continuous Improvement", "bad": "Custom budgets for cost per project/environment", "ok": "<strong>Cost allocation tags</strong> + Service Catalog portfolios", "tell": "budgets alert, they don't attribute (Neal C Q20)"}, {"sec": "9. Continuous Improvement", "bad": "CloudTrail data events + billing alarm for team cost", "ok": "<strong>AWS Budgets</strong> (in CloudFormation) + Service Catalog products", "tell": "CloudTrail logs API calls, not cost 🔁 (Neal A Q13)"}, {"sec": "9. Continuous Improvement", "bad": "Cost Explorer RI utilization report for a 70% target", "ok": "AWS Budgets <strong>RI coverage</strong> budget", "tell": "utilization ≠ coverage; Cost Explorer doesn't alert 🔁 (Neal A Q32)"}, {"sec": "9. Continuous Improvement", "bad": "AWS Budgets for 80% service-quota alerts", "ok": "Trusted Advisor check + Lambda → <strong>SNS</strong> (or CloudWatch <code>AWS/Usage</code> alarm)", "tell": "Budgets tracks spend, not quotas 🔁 (Neal B Q74)"}, {"sec": "9. Continuous Improvement", "bad": "EFS for +3,000 IOPS on gp2", "ok": "<strong>Grow the gp2 volume</strong> (+1 TB = +3,000 IOPS) or gp3", "tell": "3 IOPS/GiB; first pick was right (Udemy2 Q11)"}];
 const drillBtn = document.getElementById("drill");
 const view = document.getElementById("view");
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };

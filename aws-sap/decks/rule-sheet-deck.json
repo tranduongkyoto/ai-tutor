@@ -87,6 +87,50 @@
    "rep": 1
   },
   {
+   "id": "A8",
+   "q": 0,
+   "ans": "",
+   "scenario": "Single-answer question. First pick fits; on review another option looks more complete, but no stem phrase rules out the first.",
+   "ok": "Keep the first pick",
+   "bad": "Switch to the option that feels more complete",
+   "why": "Review changes without new evidence broke right answers in Neal C and Udemy #2.",
+   "src": "Neal C Q5",
+   "rep": 1
+  },
+  {
+   "id": "A9",
+   "q": 0,
+   "ans": "",
+   "scenario": "Desktop app needs a 99.5% uptime SLA; minimize changes and costs. RDS is single-AZ today.",
+   "ok": "Keep single-AZ RDS; it already meets 99.5%",
+   "bad": "Upgrade RDS to Multi-AZ",
+   "why": "Match the SLA, don't exceed it at extra cost.",
+   "src": "Neal C Q5",
+   "rep": 1
+  },
+  {
+   "id": "A10",
+   "q": 0,
+   "ans": "",
+   "scenario": "Increase resilience across multiple AZs. App uses one NAT gateway and DynamoDB tables.",
+   "ok": "Deploy a NAT gateway in each AZ",
+   "bad": "Convert to DynamoDB global tables",
+   "why": "DynamoDB is already multi-AZ; the single NAT gateway is the zonal failure point.",
+   "src": "Official Q19",
+   "rep": 0
+  },
+  {
+   "id": "A11",
+   "q": 0,
+   "ans": "",
+   "scenario": "Projected EC2 cost may exceed budget. Notify the CFO; LOWEST risk of overspending.",
+   "ok": "Budgets forecast alert plus a Budgets action that stops instances",
+   "bad": "Budgets alert to an operator who stops instances manually",
+   "why": "Automation beats a human step; manual delay leaves overspend risk.",
+   "src": "Official Q66",
+   "rep": 0
+  },
+  {
    "id": "B1",
    "q": 0,
    "ans": "",
@@ -296,6 +340,127 @@
    "rep": 1
   },
   {
+   "id": "B20",
+   "q": 0,
+   "ans": "",
+   "scenario": "Organizations: CCoE must enforce daily EBS backups consistently across all accounts; MOST reliable.",
+   "ok": "Organizations backup policy driving AWS Backup plans",
+   "bad": "Backup policy using Data Lifecycle Manager",
+   "why": "Org backup policies are an AWS Backup feature; DLM is per-account lifecycle.",
+   "src": "Official Q13",
+   "rep": 1
+  },
+  {
+   "id": "B21",
+   "q": 0,
+   "ans": "",
+   "scenario": "Protect S3, EBS, EFS, RDS and Volume Gateway data across Regions; automate; LEAST overhead.",
+   "ok": "AWS Backup plan with cross-Region copy to a vault",
+   "bad": "AWS Backup plus RDS cross-Region read replicas",
+   "why": "Replicas aren't backups and add overhead; AWS Backup already covers RDS.",
+   "src": "Official Q25",
+   "rep": 1
+  },
+  {
+   "id": "B22",
+   "q": 0,
+   "ans": "",
+   "scenario": "Deploy Config rules to nearly all accounts incl. management, exclude a few; members must not modify them.",
+   "ok": "Organization conformance pack via a delegated admin",
+   "bad": "StackSets plus drift detection",
+   "why": "Drift detection only detects changes; it doesn't prevent them.",
+   "src": "Official Q26",
+   "rep": 0
+  },
+  {
+   "id": "B23",
+   "q": 0,
+   "ans": "",
+   "scenario": "WorkSpaces users sign in with on-prem AD credentials; credentials must not be stored outside the company.",
+   "ok": "AD Connector",
+   "bad": "AWS Managed Microsoft AD with a trust",
+   "why": "AD Connector is a proxy; Managed AD creates a directory in AWS.",
+   "src": "Official Q32",
+   "rep": 0
+  },
+  {
+   "id": "B24",
+   "q": 0,
+   "ans": "",
+   "scenario": "500 workloads in separate accounts; security and infra teams; a few unique workloads. Account structure?",
+   "ok": "Separate Log Archive, Security Tooling and Audit accounts plus an Exceptions OU",
+   "bad": "One central security account for logging, tooling and audit",
+   "why": "Separating them limits blast radius.",
+   "src": "Official Q57",
+   "rep": 0
+  },
+  {
+   "id": "B25",
+   "q": 0,
+   "ans": "",
+   "scenario": "SQS queue shared across org accounts. Identify principals outside the org that can access it.",
+   "ok": "IAM Access Analyzer with the organization as zone of trust",
+   "bad": "CloudTrail data events",
+   "why": "Who CAN access = policy analysis; CloudTrail only shows who DID call.",
+   "src": "Official Q62",
+   "rep": 0
+  },
+  {
+   "id": "B26",
+   "q": 0,
+   "ans": "",
+   "scenario": "HR and Recruiting share SCP requirements; Recruiting needs stricter ones. Avoid duplicate effort.",
+   "ok": "Nest the Recruiting OU under the shared OU; move accounts between OUs",
+   "bad": "Remove accounts from the org and re-invite them",
+   "why": "SCPs inherit down nested OUs; moving accounts is cheap.",
+   "src": "Official Q65",
+   "rep": 0
+  },
+  {
+   "id": "B27",
+   "q": 0,
+   "ans": "",
+   "scenario": "Only the management account may buy Reserved Instances, for all current and future member accounts.",
+   "ok": "Deny SCP attached at the root",
+   "bad": "Deny SCP on a new OU holding the current accounts",
+   "why": "Root covers every present and future member; SCPs never affect the management account.",
+   "src": "Neal B Q59",
+   "rep": 0
+  },
+  {
+   "id": "B28",
+   "q": 0,
+   "ans": "",
+   "scenario": "Mobile app with custom authentication must get IAM role credentials.",
+   "ok": "OIDC provider plus Cognito identity pool (or SAML IdP in IAM)",
+   "bad": "API Gateway Lambda authorizer issuing JWTs",
+   "why": "Authorizers only authorize API calls; they never issue AWS credentials.",
+   "src": "Neal B Q51",
+   "rep": 1
+  },
+  {
+   "id": "B29",
+   "q": 0,
+   "ans": "",
+   "scenario": "Track cost per project and per environment; teams may use only pre-approved services.",
+   "ok": "Cost allocation tags plus Service Catalog portfolios",
+   "bad": "Custom budgets per project",
+   "why": "Budgets alert on thresholds; they don't attribute cost. Tags do.",
+   "src": "Neal C Q20",
+   "rep": 1
+  },
+  {
+   "id": "B30",
+   "q": 0,
+   "ans": "",
+   "scenario": "Stop brute-force SSH, log commands per session, keep port forwarding.",
+   "ok": "Session Manager; close port 22; log to S3/CloudWatch",
+   "bad": "Client VPN in front of SSH",
+   "why": "SSH stays open behind the VPN and session commands aren't logged.",
+   "src": "Official Q53",
+   "rep": 1
+  },
+  {
    "id": "C1",
    "q": 0,
    "ans": "",
@@ -494,6 +659,116 @@
    "rep": 0
   },
   {
+   "id": "C19",
+   "q": 0,
+   "ans": "",
+   "scenario": "Multi-Region API Gateway must reroute automatically on full AND partial failures, using many metrics.",
+   "ok": "Route 53 ARC routing controls driven by alarms",
+   "bad": "Route 53 Evaluate Target Health",
+   "why": "Evaluate Target Health sees the endpoint only, not partial failures inside services.",
+   "src": "Official Q16",
+   "rep": 0
+  },
+  {
+   "id": "C20",
+   "q": 0,
+   "ans": "",
+   "scenario": "A/B test two site versions in two S3 buckets behind CloudFront; users must not notice.",
+   "ok": "Lambda@Edge origin request choosing the origin",
+   "bad": "Path-based behaviors with redirects",
+   "why": "Different paths and redirects are visible to users.",
+   "src": "Official Q38",
+   "rep": 0
+  },
+  {
+   "id": "C21",
+   "q": 0,
+   "ans": "",
+   "scenario": "Firewall Manager + Network Firewall strict order: allow SSH from trusted CIDRs, deny everything else.",
+   "ok": "Allow rule at the lowest priority number, deny-all after",
+   "bad": "Allow rule given the highest order number",
+   "why": "Rules evaluate from the lowest number; deny-all first blocks trusted SSH too.",
+   "src": "Official Q64",
+   "rep": 0
+  },
+  {
+   "id": "C22",
+   "q": 0,
+   "ans": "",
+   "scenario": "Interface endpoints in private subnets; connections fail. Which configuration change?",
+   "ok": "Allow 443 from the VPC on the endpoint ENI security group",
+   "bad": "Add a route table entry for the endpoint",
+   "why": "Interface endpoints are ENIs reached via DNS; routes are for gateway endpoints.",
+   "src": "Neal C Q9",
+   "rep": 0
+  },
+  {
+   "id": "C23",
+   "q": 0,
+   "ans": "",
+   "scenario": "NLB with instance-id targets, all healthy; customers can't connect from the office.",
+   "ok": "EC2 security group allows the office CIDR",
+   "bad": "EC2 security group allows the NLB subnets",
+   "why": "Instance-id targets preserve the client IP.",
+   "src": "Neal C Q30",
+   "rep": 1
+  },
+  {
+   "id": "C24",
+   "q": 0,
+   "ans": "",
+   "scenario": "Existing 10 Gbps DX with one private VIF needs redundancy; also reach a VPC in a second Region.",
+   "ok": "Second DX to the same Region plus a Direct Connect gateway",
+   "bad": "New DX connection to the second Region",
+   "why": "That adds a path to another VPC, not redundancy; the DX gateway is global.",
+   "src": "Neal C Q31",
+   "rep": 1
+  },
+  {
+   "id": "C25",
+   "q": 0,
+   "ans": "",
+   "scenario": "Regional REST API hit by botnets; only a few known companies call it twice daily; minimum cost.",
+   "ok": "WAF IP allow-list on the API plus usage plan and API key",
+   "bad": "CloudFront plus a WAF per-day rate rule",
+   "why": "WAF rate rules use short windows; CloudFront adds cost.",
+   "src": "Neal A Q41",
+   "rep": 1
+  },
+  {
+   "id": "C26",
+   "q": 0,
+   "ans": "",
+   "scenario": "Serverless upload app; users in many Regions need low-latency uploads to S3.",
+   "ok": "Edge-optimized API Gateway plus S3 Transfer Acceleration",
+   "bad": "Global Accelerator in front of CloudFront",
+   "why": "GA fronts ALB/NLB/EC2/EIP only, never CloudFront or S3.",
+   "src": "Udemy2 Q13",
+   "rep": 1
+  },
+  {
+   "id": "C27",
+   "q": 0,
+   "ans": "",
+   "scenario": "Several data centers on private fiber need HA, high-bandwidth, multi-Region AWS connectivity.",
+   "ok": "Direct Connect at each DC from different providers",
+   "bad": "Direct Connect with a VPN backup",
+   "why": "VPN backup is low bandwidth; diverse DX gives HA plus bandwidth.",
+   "src": "Udemy2 Q67",
+   "rep": 1
+  },
+  {
+   "id": "C28",
+   "q": 0,
+   "ans": "",
+   "scenario": "Copy 140 TB monthly on-prem to S3 over an existing 10 Gbps DX with a private VIF; LEAST expensive.",
+   "ok": "Add a public VIF on the same DX",
+   "bad": "S3 gateway endpoint over the private VIF",
+   "why": "Gateway endpoints aren't reachable from on-prem; a public VIF reaches S3.",
+   "src": "Udemy2 Q68",
+   "rep": 1
+  },
+  {
    "id": "D1",
    "q": 0,
    "ans": "",
@@ -602,6 +877,116 @@
    "why": "Exclusion is done by tag, not IAM.",
    "src": "Rule sheet §3",
    "rep": 0
+  },
+  {
+   "id": "D11",
+   "q": 0,
+   "ans": "",
+   "scenario": "Millions of unencrypted objects; many apps use the bucket; LEAST development effort to encrypt.",
+   "ok": "Default encryption plus S3 Inventory and Batch Operations copy-in-place",
+   "bad": "Copy objects to a new encrypted bucket",
+   "why": "A new bucket forces every app to change its bucket name.",
+   "src": "Official Q43",
+   "rep": 0
+  },
+  {
+   "id": "D12",
+   "q": 0,
+   "ans": "",
+   "scenario": "Keys need FIPS 140-2 Level 3, available business hours only, HA, MOST cost-effective.",
+   "ok": "CloudHSM multi-AZ cluster; delete and restore from backup off-hours",
+   "bad": "KMS with scheduled key disable/enable",
+   "why": "Exam treats KMS as Level 2 (real KMS gained Level 3 in 2023).",
+   "src": "Official Q70",
+   "rep": 0
+  },
+  {
+   "id": "D13",
+   "q": 0,
+   "ans": "",
+   "scenario": "Existing bucket with default settings; objects must not be deleted or overwritten for 5 years.",
+   "ok": "New bucket with Object Lock compliance mode; move the objects",
+   "bad": "Enable Object Lock on the existing bucket",
+   "why": "Exam key assumes Object Lock only on new buckets (real AWS allows existing since 2023).",
+   "src": "Official Q74",
+   "rep": 0
+  },
+  {
+   "id": "D14",
+   "q": 0,
+   "ans": "",
+   "scenario": "S3 behind CloudFront must enforce encryption in transit and at rest.",
+   "ok": "Bucket policy denying unencrypted PutObject plus CloudFront HTTPS redirect",
+   "bad": "<code>aws:SecureTransport</code> condition in S3 ACLs",
+   "why": "ACLs can't hold condition keys; only bucket policies can.",
+   "src": "Neal C Q12",
+   "rep": 0
+  },
+  {
+   "id": "D15",
+   "q": 0,
+   "ans": "",
+   "scenario": "PII bucket on SSE-S3; the security team must manage the keys for current and future objects.",
+   "ok": "SSE-KMS with a customer managed key; re-copy existing objects",
+   "bad": "SSE-S3 with a customer managed key",
+   "why": "SSE-S3 keys are always AWS-owned; that option is impossible.",
+   "src": "Neal C Q19",
+   "rep": 1
+  },
+  {
+   "id": "D16",
+   "q": 0,
+   "ans": "",
+   "scenario": "ECS behind ALB suffers attacks causing outages; prevent them, MOST cost-effective.",
+   "ok": "CloudFront with WAF, ALB locked by a custom header",
+   "bad": "Auto scaling plus caching",
+   "why": "Scaling and caching treat symptoms; WAF plus origin lock stops attacks.",
+   "src": "Neal C Q13",
+   "rep": 1
+  },
+  {
+   "id": "D17",
+   "q": 0,
+   "ans": "",
+   "scenario": "Serverless global app needs low latency and baseline DDoS protection.",
+   "ok": "CloudFront in front (Shield Standard included)",
+   "bad": "WAF web ACL for DDoS",
+   "why": "WAF filters L7 rules; baseline DDoS comes free with CloudFront.",
+   "src": "Neal B Q22",
+   "rep": 1
+  },
+  {
+   "id": "D18",
+   "q": 0,
+   "ans": "",
+   "scenario": "After a DDoS on EC2 + RDS serving static images, revamp security.",
+   "ok": "Route 53, CloudFront with static content on S3, WAF on CloudFront",
+   "bad": "WAF in front of the Auto Scaling group",
+   "why": "WAF attaches to CloudFront, ALB, API Gateway, AppSync, Cognito; never EC2/ASG.",
+   "src": "Udemy2 Q46",
+   "rep": 1
+  },
+  {
+   "id": "D19",
+   "q": 0,
+   "ans": "",
+   "scenario": "Detect an S3 object made public-read, alarm and auto-remediate.",
+   "ok": "CloudTrail data events plus EventBridge rule, then SNS and Lambda",
+   "bad": "S3 event notifications",
+   "why": "Event notifications can't filter by ACL, only event type and key prefix/suffix.",
+   "src": "Udemy2 Q63",
+   "rep": 1
+  },
+  {
+   "id": "D20",
+   "q": 0,
+   "ans": "",
+   "scenario": "Check service quotas every 15 minutes and alert at 80% utilization.",
+   "ok": "CloudWatch alarm on <code>AWS/Usage</code> with <code>SERVICE_QUOTA()</code> to SNS",
+   "bad": "AWS Budgets alert",
+   "why": "Budgets tracks cost and usage spend, never quotas.",
+   "src": "Neal B Q74",
+   "rep": 1
   },
   {
    "id": "E1",
@@ -934,6 +1319,160 @@
    "rep": 0
   },
   {
+   "id": "E31",
+   "q": 0,
+   "ans": "",
+   "scenario": "Unexpected sales peaks with no time pattern; two EC2 behind an ALB respond slowly.",
+   "ok": "Target tracking on <code>ALBRequestCountPerTarget</code>",
+   "bad": "Scheduled scaling",
+   "why": "Scheduled actions only fit predictable peaks.",
+   "src": "Official Q17",
+   "rep": 0
+  },
+  {
+   "id": "E32",
+   "q": 0,
+   "ans": "",
+   "scenario": "DynamoDB auto scaling at 70% target; a predictable spike up to 300% causes throttling.",
+   "ok": "Scheduled scaling action ahead of the spike",
+   "bad": "Rely on target tracking or step scaling",
+   "why": "Reactive scaling lags a sudden spike; capacity must be ready first.",
+   "src": "Neal B Q17",
+   "rep": 1
+  },
+  {
+   "id": "E33",
+   "q": 0,
+   "ans": "",
+   "scenario": "Tightly coupled HPC; increase network throughput, reduce latency. Select three.",
+   "ok": "EFA instances, cluster placement in one AZ, hyperthreading disabled",
+   "bad": "Paravirtual (PV) AMI",
+   "why": "PV is legacy and slower; use HVM AMIs.",
+   "src": "Official Q21",
+   "rep": 0
+  },
+  {
+   "id": "E34",
+   "q": 0,
+   "ans": "",
+   "scenario": "Grid computing: timeouts between instances; adding instances didn't help; LEAST effort.",
+   "ok": "Relaunch into a cluster placement group",
+   "bad": "Enable ENA",
+   "why": "Instances already use ENA; the issue is inter-node latency.",
+   "src": "Official Q58",
+   "rep": 0
+  },
+  {
+   "id": "E35",
+   "q": 0,
+   "ans": "",
+   "scenario": "Runbook describes install and config; LEAST overhead; allow future changes.",
+   "ok": "CloudFormation plus user data for install and config",
+   "bad": "CloudFormation for infra, manual runbook for software",
+   "why": "Automate the whole runbook; change via stack updates.",
+   "src": "Official Q30",
+   "rep": 0
+  },
+  {
+   "id": "E36",
+   "q": 0,
+   "ans": "",
+   "scenario": "AWS Batch with a custom AMI, restartable jobs; reduce overhead and cost.",
+   "ok": "Managed EC2 compute environment with Spot",
+   "bad": "Fargate Spot",
+   "why": "Fargate can't use a custom AMI.",
+   "src": "Official Q54",
+   "rep": 0
+  },
+  {
+   "id": "E37",
+   "q": 0,
+   "ans": "",
+   "scenario": "SQS standard workers aren't scaling with load; MOST scalable approach.",
+   "ok": "Target tracking on backlog per instance",
+   "bad": "Scale on <code>ApproximateNumberOfMessagesVisible</code>",
+   "why": "Queue depth doesn't change in proportion to fleet size.",
+   "src": "Official Q60",
+   "rep": 0
+  },
+  {
+   "id": "E38",
+   "q": 0,
+   "ans": "",
+   "scenario": "PHP LAMP developer, little AWS expertise, stable traffic, predictable monthly pricing.",
+   "ok": "Amazon Lightsail",
+   "bad": "Elastic Beanstalk with DynamoDB",
+   "why": "Pay-per-resource pricing and a new NoSQL DB break the asks.",
+   "src": "Official Q73",
+   "rep": 0
+  },
+  {
+   "id": "E39",
+   "q": 0,
+   "ans": "",
+   "scenario": "EKS with highly variable stateless pods launched quickly; optimize node resilience.",
+   "ok": "Topology spread constraints across AZs",
+   "bad": "Under-provisioned Cluster Autoscaler",
+   "why": "Resilience means surviving an AZ failure, not capacity sizing.",
+   "src": "Neal C Q11",
+   "rep": 0
+  },
+  {
+   "id": "E40",
+   "q": 0,
+   "ans": "",
+   "scenario": "Remote users find a latency-sensitive desktop client slow; minimize changes and costs.",
+   "ok": "Stream the app with AppStream 2.0",
+   "bad": "Add ElastiCache and RDS Multi-AZ",
+   "why": "Caching the DB doesn't fix a slow remote desktop client.",
+   "src": "Neal C Q5",
+   "rep": 1
+  },
+  {
+   "id": "E41",
+   "q": 0,
+   "ans": "",
+   "scenario": "350 remote staff need full Windows and Linux desktops with on-prem AD and MFA.",
+   "ok": "WorkSpaces with AD Connector and RADIUS MFA",
+   "bad": "AppStream 2.0",
+   "why": "AppStream streams apps, not full desktops.",
+   "src": "Neal B Q35",
+   "rep": 0
+  },
+  {
+   "id": "E42",
+   "q": 0,
+   "ans": "",
+   "scenario": "Expense app with Friday bursts; HA; LEAST operational overhead.",
+   "ok": "S3 + CloudFront front end, API Gateway + Lambda back end",
+   "bad": "ECS behind an ALB",
+   "why": "Containers still need cluster capacity management unless Fargate.",
+   "src": "Neal A Q22",
+   "rep": 1
+  },
+  {
+   "id": "E43",
+   "q": 0,
+   "ans": "",
+   "scenario": "gp2 3 TB volume needs +3,000 IOPS per instance; MOST cost-efficient.",
+   "ok": "Grow the gp2 volume by 1 TB (or move to gp3)",
+   "bad": "Move the data to EFS",
+   "why": "gp2 = 3 IOPS per GiB; EFS adds cost and no IOPS guarantee.",
+   "src": "Udemy2 Q11",
+   "rep": 0
+  },
+  {
+   "id": "E44",
+   "q": 0,
+   "ans": "",
+   "scenario": "Serverless API returns 504 on image loads; DynamoDB fine; find the root cause.",
+   "ok": "X-Ray traces plus Lambda CloudWatch Logs",
+   "bad": "API Gateway execution logging",
+   "why": "Gateway logs confirm the 504, not where the time goes.",
+   "src": "Udemy2 Q24",
+   "rep": 1
+  },
+  {
    "id": "F1",
    "q": 0,
    "ans": "",
@@ -1152,6 +1691,83 @@
    "why": "Tiering moves older data to cheaper storage.",
    "src": "Rule sheet §5",
    "rep": 1
+  },
+  {
+   "id": "F21",
+   "q": 0,
+   "ans": "",
+   "scenario": "Aurora global DB: low-latency local reads and writes with read-after-write; test DR.",
+   "ok": "Write forwarding on the secondary; managed failover for tests",
+   "bad": "Read from the secondary, write to the primary",
+   "why": "Secondary reads may be stale, breaking read-after-write.",
+   "src": "Official Q45",
+   "rep": 0
+  },
+  {
+   "id": "F22",
+   "q": 0,
+   "ans": "",
+   "scenario": "DynamoDB on-demand with bursts and a few hot keys; reduce cost, LEAST overhead.",
+   "ok": "DAX plus provisioned capacity with auto scaling",
+   "bad": "DAX plus Savings Plans",
+   "why": "Savings Plans never cover DynamoDB.",
+   "src": "Official Q68",
+   "rep": 1
+  },
+  {
+   "id": "F23",
+   "q": 0,
+   "ans": "",
+   "scenario": "DynamoDB dev table provisioned for peak; write-heavy weekend peak; optimize cost.",
+   "ok": "On-demand capacity",
+   "bad": "On-demand capacity plus DAX",
+   "why": "DAX caches reads only; it never helps writes.",
+   "src": "Neal C Q7",
+   "rep": 1
+  },
+  {
+   "id": "F24",
+   "q": 0,
+   "ans": "",
+   "scenario": "15 GB/day of statistics in S3 queried by Athena with date ranges; optimal performance.",
+   "ok": "Parquet/ORC with date partitions",
+   "bad": "A separate bucket per date range",
+   "why": "Partitions prune scanned data for date queries.",
+   "src": "Neal A Q4",
+   "rep": 0
+  },
+  {
+   "id": "F25",
+   "q": 0,
+   "ans": "",
+   "scenario": "Copy KMS-encrypted Redshift snapshots to another Region for DR.",
+   "ok": "Snapshot copy grant for a destination-Region key; enable copy in source",
+   "bad": "Copy grant in the source Region with the source key",
+   "why": "KMS keys are Regional; the grant must be in the destination.",
+   "src": "Udemy2 Q33",
+   "rep": 1
+  },
+  {
+   "id": "F26",
+   "q": 0,
+   "ans": "",
+   "scenario": "Fully serverless sensor ingestion into DynamoDB; no manual capacity planning.",
+   "ok": "SQS plus Lambda writing to DynamoDB",
+   "bad": "Firehose writing directly to DynamoDB",
+   "why": "DynamoDB isn't a Firehose destination.",
+   "src": "Udemy2 Q54",
+   "rep": 1
+  },
+  {
+   "id": "F27",
+   "q": 0,
+   "ans": "",
+   "scenario": "Gaming leaderboard: in-memory, single-digit ms, highly available.",
+   "ok": "ElastiCache Redis sorted sets (or DynamoDB with DAX)",
+   "bad": "DynamoDB alone",
+   "why": "DynamoDB is disk-based; the stem says in-memory.",
+   "src": "Udemy2 Q59",
+   "rep": 0
   },
   {
    "id": "G1",
@@ -1471,6 +2087,50 @@
    "why": "Step Functions tracks state, retries and branching.",
    "src": "Rule sheet §6",
    "rep": 0
+  },
+  {
+   "id": "G30",
+   "q": 0,
+   "ans": "",
+   "scenario": "Intelligent-Tiering; rarely accessed after 180 days; must retrieve within 6 hours; cheapest.",
+   "ok": "Archive Access tier",
+   "bad": "Deep Archive Access tier",
+   "why": "Deep Archive can take up to 12 hours; Archive Access restores within ~5 hours.",
+   "src": "Official Q9",
+   "rep": 1
+  },
+  {
+   "id": "G31",
+   "q": 0,
+   "ans": "",
+   "scenario": "Static files on-prem shared by several servers over NFS; migrate to S3, keep one copy.",
+   "ok": "S3 File Gateway",
+   "bad": "Volume Gateway",
+   "why": "Volume Gateway is iSCSI block storage, not S3 objects shared via NFS.",
+   "src": "Official Q61",
+   "rep": 1
+  },
+  {
+   "id": "G32",
+   "q": 0,
+   "ans": "",
+   "scenario": "Move an on-prem VMware app to EC2, preserving software and configuration.",
+   "ok": "Export OVF to S3, then VM Import",
+   "bad": "DataSync to an FSx for Windows datastore",
+   "why": "A VM isn't a file share; VM Import keeps it as-is.",
+   "src": "Neal A Q11",
+   "rep": 1
+  },
+  {
+   "id": "G33",
+   "q": 0,
+   "ans": "",
+   "scenario": "Move 25 TB to S3 fast: 1 Gbps internet, 500 Mbps Direct Connect.",
+   "ok": "S3 Transfer Acceleration over the 1 Gbps link",
+   "bad": "Snowball",
+   "why": "~2-3 days online beats shipping; Snowball pays off past ~1 week.",
+   "src": "Neal B Q10",
+   "rep": 1
   }
  ]
 }

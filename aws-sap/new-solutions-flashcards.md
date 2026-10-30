@@ -1,11 +1,11 @@
 # SAP-C02 Flashcards — Domain 2: Design for New Solutions (29%)
 
-Built 2026-10-13, validated + TD6 cards added the same day. New Solutions scores: TD5 36.4% → TD1 53.6% → TD2 50.0% → TD3 56.5% → Udemy3 58% → TD6 3/3. It's the biggest domain, so it's worth the most points.
+Built 2026-10-13, validated + TD6 cards added the same day. Updated 2026-10-30 with TD4, Neal A/B/C, Udemy #2 full, Official exam (+50 cards, A9–I12 → 122 total). New Solutions scores: TD5 36.4% → TD1 53.6% → TD2 50.0% → TD3 56.5% → Udemy3 58% → TD6 3/3. It's the biggest domain, so it's worth the most points.
 Every card comes from a question you answered (source tag). 🔁 = missed 2+ times. Answers are folded, so say yours out loud first.
 
 **Interactive version:** open `new-solutions-flashcards.html` in a browser (2 options per card, feedback, summary, saved rounds).
 
-**How to use:** 1 round = all cards, ~30 min. Mark misses with ❌ in the log at the bottom. Round 2 = only ❌ cards (+2 days).
+**How to use:** 1 round = all cards, ~50 min (or 🔁 only, ~20 min). Mark misses with ❌ in the log at the bottom. Round 2 = only ❌ cards (+2 days).
 
 ## A. Compute choice & limits
 
@@ -47,6 +47,41 @@ ALB + **sticky sessions** + ASG (or move state to ElastiCache). Aurora Auto Scal
 <details><summary><b>A8.</b> Steady EC2 fleet + bursty Lambda + MemoryDB nodes. Cheapest commitment?</summary>
 
 **EC2 Instance SP** (steady EC2, up to 72%) + **Compute SP** (Lambda) + **MemoryDB reserved nodes**. ✗ Compute SP for everything (never covers databases/caches). 🔁 *(TD6 W16)*
+</details>
+
+<details><summary><b>A9.</b> AWS Batch jobs need a custom AMI, jobs are restartable. Reduce management overhead and cost.</summary>
+
+**Batch managed compute environment on EC2 Spot with the custom AMI**. ✗ Batch on Fargate Spot. Fargate cannot use a custom AMI. Restartable jobs tolerate Spot interruptions. *(Official Q54)*
+</details>
+
+<details><summary><b>A10.</b> Tightly coupled HPC: increase network throughput, reduce latency. Pick the instance/AMI settings.</summary>
+
+**EFA-capable instances + cluster placement group (single AZ) + disable hyperthreading, HVM AMI**. ✗ Paravirtual (PV) AMI. PV is legacy and slower. Disabling hyperthreading helps tightly coupled HPC. 🔁 *(Official Q21)*
+</details>
+
+<details><summary><b>A11.</b> Grid computing: timeouts between instances, adding instances didn't help. LEAST effort fix?</summary>
+
+**Relaunch the nodes from the AMI into a cluster placement group**. ✗ Enable ENA on the instances. Current instances already use ENA. The problem is inter-node latency. 🔁 *(Official Q58)*
+</details>
+
+<details><summary><b>A12.</b> Two EC2 behind an ALB slow down at unexpected sales peaks, no time pattern.</summary>
+
+**Target tracking scaling on `ALBRequestCountPerTarget`**. ✗ Scheduled scaling for the peak hours. Scheduled actions only fit predictable peaks. *(Official Q17)*
+</details>
+
+<details><summary><b>A13.</b> SQS workers on EC2 don't scale well. MOST scalable scaling metric?</summary>
+
+**Target tracking on backlog per instance (messages ÷ in-service instances, custom metric)**. ✗ Scale on `ApproximateNumberOfMessagesVisible`. Queue depth doesn't change in proportion to fleet size. FIFO + dedup removes duplicates. *(Official Q60)*
+</details>
+
+<details><summary><b>A14.</b> One EC2 instance (RI + On-Demand) must survive an AZ outage. MOST cost-effective?</summary>
+
+**Spot Fleet mixing On-Demand baseline and Spot across AZs behind an ALB**. ✗ Auto Scaling group of On-Demand instances across AZs. All On-Demand works but costs more. All-Spot risks interruption. *(TD4 Q40)*
+</details>
+
+<details><summary><b>A15.</b> Always-on production tier in two Regions, failover within 1 minute. Capacity purchase?</summary>
+
+**Active/passive ASG on zonal RIs + On-Demand, failover record with low TTL**. ✗ Active/active on Spot instances. Spot can be reclaimed — never for the always-on production baseline. 🔁 *(Neal A Q34)*
 </details>
 
 ## B. Decoupling, serverless & workflow
@@ -94,6 +129,26 @@ ALB + **sticky sessions** + ASG (or move state to ElastiCache). Aurora Auto Scal
 <details><summary><b>B9.</b> Ordered queue, serverless consumer.</summary>
 
 **SQS FIFO + Fargate/Lambda**. ✗ Amazon MQ (not serverless; only for JMS/AMQP). *(Udemy3 R15)*
+</details>
+
+<details><summary><b>B10.</b> Batch scripts → serverless microservices, each step takes seconds. MOST cost-effective orchestration?</summary>
+
+**Lambda functions orchestrated by Step Functions**. ✗ Fargate containers orchestrated by Step Functions. Seconds-long steps fit Lambda's 15 min; Fargate costs more. EventBridge is not an orchestrator. *(Neal A Q15)*
+</details>
+
+<details><summary><b>B11.</b> Lambda metadata extraction takes 45 min per photo. Split by metadata type to cut time.</summary>
+
+**Step Functions: Parallel state per metadata type, plus a workflow iterating over photos**. ✗ Lambda sends photos to SQS as the Step Functions input. SQS cannot directly start a Step Functions workflow. *(TD4 Q63)*
+</details>
+
+<details><summary><b>B12.</b> Serverless comments app (API Gateway + Lambda + DynamoDB) must show new comments in real time.</summary>
+
+**AWS AppSync GraphQL subscriptions over WebSockets**. ✗ CloudFront caching of the API responses. Cached comments aren't new — real time needs push, not caching or polling. *(TD4 Q17)*
+</details>
+
+<details><summary><b>B13.</b> Sensor data → DynamoDB, fully serverless, no manual capacity planning.</summary>
+
+**SQS + Lambda writing to DynamoDB (auto scaling)**. ✗ Kinesis Data Firehose writing directly to DynamoDB. DynamoDB is not a Firehose destination. KDS needs shard planning. 🔁 *(Udemy2 Q54)*
 </details>
 
 ## C. Data, streaming & analytics
@@ -158,6 +213,31 @@ Batch-generate to **S3 + CloudFront** with a daily TTL. ✗ ElastiCache cluster.
 **Concurrency scaling** (extra capacity only during bursts). ✗ Offload to EMR/RDS = overbuilt. *(TD6 R2)*
 </details>
 
+<details><summary><b>C13.</b> S3 data rarely read after 180 days, must be retrieved within 6 hours. MOST cost-effective?</summary>
+
+**S3 Intelligent-Tiering Archive Access tier**. ✗ Intelligent-Tiering Deep Archive Access tier. Deep Archive Access can take up to 12 h. Match the SLA first, then the cheapest tier. *(Official Q9)*
+</details>
+
+<details><summary><b>C14.</b> DynamoDB on-demand, bursts, a few hot keys read repeatedly. Cut cost, LEAST overhead.</summary>
+
+**DAX for hot keys + provisioned capacity with auto scaling (or reserved capacity)**. ✗ DAX + Savings Plans. Savings Plans never cover DynamoDB (EC2/Fargate/Lambda/SageMaker only). 🔁 *(Official Q68)*
+</details>
+
+<details><summary><b>C15.</b> Dev DynamoDB provisioned for peak, write-heavy, 2x weekend peak. Optimize cost.</summary>
+
+**On-demand capacity only**. ✗ On-demand capacity + DAX. DAX caches reads only — it never helps writes. No hot data = pure extra cost. 🔁 *(Neal C Q7)*
+</details>
+
+<details><summary><b>C16.</b> DynamoDB auto scaling at 70%; predictable spike to 300% causes throttling.</summary>
+
+**Application Auto Scaling scheduled action to raise capacity before the spike**. ✗ Retry throttled writes from a DLQ / rely on target tracking. Target tracking and step scaling react after the breach; predictable spikes need capacity ready. *(Neal B Q17)*
+</details>
+
+<details><summary><b>C17.</b> Gaming leaderboard: in-memory, single-digit ms, highly available.</summary>
+
+**ElastiCache for Redis (sorted sets) or DynamoDB + DAX**. ✗ Plain DynamoDB tables. DynamoDB alone is disk-based, not in-memory. *(Udemy2 Q59)*
+</details>
+
 ## D. Edge, delivery & media
 
 <details><summary><b>D1.</b> CloudFront returns 504 when the origin is down. Minimal cost.</summary>
@@ -215,6 +295,21 @@ No. **GA can't front S3**. Use **S3 CRR** to a US bucket + Lambda@Edge to switch
 **NLB** per Region (ALB = HTTP/HTTPS only) + Route 53 latency + **DynamoDB global tables**. *(TD6 R8)*
 </details>
 
+<details><summary><b>D12.</b> A/B test two site versions in two S3 buckets behind CloudFront; users must not notice.</summary>
+
+**Lambda@Edge on origin request picks the origin (cookie/request attributes)**. ✗ Path-based cache behaviors + redirects. Different paths and redirects are visible to users. *(Official Q38)*
+</details>
+
+<details><summary><b>D13.</b> CloudFront default origin = ALB; S3 static assets with OAC return 404.</summary>
+
+**Add an S3 origin + a path-pattern cache behavior in CloudFront**. ✗ ALB listener path rule forwarding to S3. OAC lets only CloudFront read S3; an ALB cannot forward to S3. *(TD4 Q41)*
+</details>
+
+<details><summary><b>D14.</b> Serverless upload app, users in many Regions, low latency. API Gateway Regional + S3 today.</summary>
+
+**API Gateway edge-optimized endpoint + S3 Transfer Acceleration**. ✗ Global Accelerator in front of CloudFront. GA fronts ALB/NLB/EC2/EIP only — never CloudFront or S3. 🔁 *(Udemy2 Q13)*
+</details>
+
 ## E. Security design
 
 <details><summary><b>E1.</b> Company must own the S3 key and rotate it.</summary>
@@ -262,6 +357,71 @@ KMS key with **Origin = EXTERNAL** + import key material. ✗ CloudHSM key store
 **Inspector standard scanning** (packages/layers) + **code scanning** + `InspectorCodeExclusion` tag on the skipped functions. ✗ IAM to exclude targets. *(TD6 W6)*
 </details>
 
+<details><summary><b>E10.</b> Lambda functions share hardcoded RDS credentials. Improve security, LEAST development effort.</summary>
+
+**Secrets Manager with managed rotation**. ✗ Parameter Store + EventBridge-driven custom rotation. Parameter Store has no native RDS rotation — you'd build it yourself. 🔁 *(Official Q11)*
+</details>
+
+<details><summary><b>E11.</b> Remove open SSH/RDP and bastions, log commands per session, keep port forwarding.</summary>
+
+**Systems Manager Session Manager (close port 22, logs to S3/CloudWatch)**. ✗ Client VPN or EC2 Instance Connect. VPN keeps SSH open, no session logs; Instance Connect still needs port 22. 🔁 *(Official Q53, Neal A Q5/Q53)*
+</details>
+
+<details><summary><b>E12.</b> FIPS 140-2 Level 3 keys, needed only in business hours, HA. MOST cost-effective?</summary>
+
+**CloudHSM multi-AZ cluster; delete/restore from backup outside hours**. ✗ KMS key with scheduled disable/enable. Exam treats KMS as Level 2. (Real AWS: KMS reached Level 3 in 2023 — answer CloudHSM.) 🔁 *(Official Q70)*
+</details>
+
+<details><summary><b>E13.</b> Millions of unencrypted S3 objects, many apps use the bucket. Find PII, encrypt, LEAST effort.</summary>
+
+**Default encryption + S3 Inventory + Batch Operations copy-in-place; Macie finds PII**. ✗ Copy everything to a new encrypted bucket. A new bucket forces every application to change bucket names. *(Official Q43)*
+</details>
+
+<details><summary><b>E14.</b> S3 behind CloudFront: encrypt in transit and at rest.</summary>
+
+**Default encryption + bucket policy denying unencrypted PutObject + CloudFront HTTP→HTTPS redirect**. ✗ `aws:SecureTransport` condition in S3 ACLs. ACLs can't hold condition keys — only bucket policies can. *(Neal C Q12)*
+</details>
+
+<details><summary><b>E15.</b> PII on SSE-S3 today; security team must manage keys for current and future objects.</summary>
+
+**SSE-KMS customer managed key + deny unencrypted PutObject + re-copy existing objects**. ✗ SSE-S3 with a customer managed key. SSE-S3 keys are always AWS-owned; that option is impossible. 🔁 *(Neal C Q19)*
+</details>
+
+<details><summary><b>E16.</b> ECS behind ALB suffers attacks causing outages. Prevent attacks, MOST cost-effective.</summary>
+
+**CloudFront + WAF web ACL + custom-header origin lock on the ALB**. ✗ Auto scaling + DAX. Scaling and caching absorb load; they don't stop attacks or bypass to the ALB. 🔁 *(Neal C Q13)*
+</details>
+
+<details><summary><b>E17.</b> Serverless global app: low latency + baseline DDoS protection for S3 content.</summary>
+
+**CloudFront (Shield Standard included) in front of S3**. ✗ WAF web ACL for DDoS. WAF filters L7 rules (SQLi/XSS); baseline DDoS comes free with CloudFront. 🔁 *(Neal B Q22)*
+</details>
+
+<details><summary><b>E18.</b> NLB with instance-id targets, targets healthy, but office users can't connect.</summary>
+
+**Allow the office CIDR in the EC2 security group**. ✗ Allow the NLB subnets in the EC2 security group. Instance-id targets preserve the client IP. Healthy targets = health check already open. 🔁 *(Neal C Q30)*
+</details>
+
+<details><summary><b>E19.</b> Interface endpoints in private subnets, private IPs only, connections fail. Configuration fix?</summary>
+
+**Endpoint ENI security group allows 443 from the VPC (+ private DNS)**. ✗ Add a route table entry for the endpoint. Interface endpoints are ENIs reached via DNS; only gateway endpoints use route tables. *(Neal C Q9)*
+</details>
+
+<details><summary><b>E20.</b> Regional REST API hit by botnets; only a few known US companies call it twice daily. Minimum cost.</summary>
+
+**WAF IP allow-list on the API + usage plan and API key**. ✗ CloudFront + WAF per-day rate-based rule. Rate rules use short windows, not per day; CloudFront adds cost. 🔁 *(Neal A Q41)*
+</details>
+
+<details><summary><b>E21.</b> HA EC2 app: filter common exploits, send rejected requests to a third-party audit tool.</summary>
+
+**Multi-AZ ASG behind ALB + WAF managed rules + WAF logging to Firehose**. ✗ WAF logs via CloudWatch + Lambda polling, no multi-AZ ASG. Firehose can deliver WAF logs to third-party endpoints; HA needs a multi-AZ ASG. *(Neal A Q17)*
+</details>
+
+<details><summary><b>E22.</b> Detect an API action (CreateUser, public-read PutObject), notify and auto-remediate.</summary>
+
+**CloudTrail event → EventBridge rule → Step Functions/Lambda remediate + SNS notify**. ✗ CloudTrail alone or S3 event notifications. CloudTrail doesn't notify; S3 events can't filter on ACL. 🔁 *(TD4 Q5, Udemy2 Q63)*
+</details>
+
 ## F. Identity for apps
 
 <details><summary><b>F1.</b> Mobile/SPA app with Google/Facebook login reads DynamoDB.</summary>
@@ -277,6 +437,21 @@ KMS key with **Origin = EXTERNAL** + import key material. ✗ CloudHSM key store
 <details><summary><b>F3.</b> GitHub Actions deploys to AWS.</summary>
 
 **IAM OIDC identity provider** + role trusting `sts:AssumeRoleWithWebIdentity`. *(TD5 R70)*
+</details>
+
+<details><summary><b>F4.</b> WorkSpaces users sign in with on-prem AD; credentials must not be stored outside the company.</summary>
+
+**AD Connector (proxy, no caching)**. ✗ AWS Managed Microsoft AD with a trust. Managed AD is a real directory — credentials then live in AWS. *(Official Q32)*
+</details>
+
+<details><summary><b>F5.</b> Mobile app with custom authentication must get IAM role credentials. Pick the federation path.</summary>
+
+**OIDC IdP + Cognito identity pool, or SAML assertion via an IAM SAML IdP**. ✗ LDAP connector + API Gateway Lambda authorizer issuing JWTs. Authorizers only authorize API calls; they never issue AWS credentials. *(Neal B Q51)*
+</details>
+
+<details><summary><b>F6.</b> Security team wants all identities central across prod/test accounts.</summary>
+
+**IAM users in one identity account; roles in target accounts trust that account**. ✗ IAM users in every account restricted with SCPs. SCPs only restrict, never grant; users stay scattered. 🔁 *(Neal B Q56)*
 </details>
 
 ## G. Reliability & DR
@@ -321,6 +496,61 @@ Active-active → **latency + Evaluate Target Health**. Active-passive → **fai
 CloudWatch metric → **alarm** → Route 53 health check **on the alarm state**. Route 53 checkers can't reach private IPs. *(Udemy3 W21)*
 </details>
 
+<details><summary><b>G9.</b> Multi-Region API Gateway: reroute automatically on full AND partial failures from CloudWatch metrics.</summary>
+
+**Route 53 ARC routing controls driven by alarms + Lambda**. ✗ Route 53 Evaluate Target Health. Evaluate Target Health sees only the endpoint record, not partial failures inside the microservices. *(Official Q16)*
+</details>
+
+<details><summary><b>G10.</b> Multi-AZ app with one NAT gateway and DynamoDB tables. Increase resilience.</summary>
+
+**One NAT gateway per AZ**. ✗ DynamoDB global tables. DynamoDB is already multi-AZ. The single NAT gateway is the zonal SPOF. *(Official Q19)*
+</details>
+
+<details><summary><b>G11.</b> Protect S3, EBS, EFS, RDS, Volume Gateway against a Regional outage, LEAST overhead.</summary>
+
+**AWS Backup plan with cross-Region copy to a vault in another Region**. ✗ AWS Backup plus RDS cross-Region read replicas. Replicas aren't backups and add overhead; AWS Backup already covers RDS. *(Official Q25)*
+</details>
+
+<details><summary><b>G12.</b> Aurora Global Database: local low-latency reads with read-after-write consistency, test DR.</summary>
+
+**Write forwarding on the secondary + managed (planned) failover for DR tests**. ✗ Read from the secondary, write to the primary. Secondary reads may be stale and break read-after-write. *(Official Q45)*
+</details>
+
+<details><summary><b>G13.</b> SLA 99.5%, minimize changes and cost; remote users find the desktop client slow.</summary>
+
+**Keep RDS single-AZ; stream the client with AppStream 2.0**. ✗ Add RDS Multi-AZ + ElastiCache. Single-AZ already meets 99.5%; a cache doesn't fix a slow remote desktop client. 🔁 *(Neal C Q5)*
+</details>
+
+<details><summary><b>G14.</b> 99.9% SLA, or HA across three AZs, for an app with PostgreSQL. Users in Europe/US.</summary>
+
+**One Region: Aurora writer + replicas in other AZs; CloudFront for global latency**. ✗ Two Regions with Aurora Global Database. Aurora Global is cross-Region DR — overbuilt for a single-Region SLA. 🔁 *(Neal B Q61/Q63)*
+</details>
+
+<details><summary><b>G15.</b> EKS stateless pods, highly variable load. Optimize node resilience.</summary>
+
+**Topology spread constraints across AZs + node groups in multiple AZs**. ✗ Cluster Autoscaler with under-provisioning. Resilience = survive an AZ failure; autoscaler sizing is capacity, not fault tolerance. *(Neal C Q11)*
+</details>
+
+<details><summary><b>G16.</b> RDS Multi-AZ failover 40 s → under 20 s, keep connections alive, queue writes.</summary>
+
+**RDS Proxy + Aurora with Aurora Replicas**. ✗ Redis cache + RDS MySQL read replicas. Caches can't queue writes; RDS replicas don't give fast failover. 🔁 *(TD4 Q28)*
+</details>
+
+<details><summary><b>G17.</b> KMS-encrypted Redshift: RPO 24 h, RTO 1 h, survive a Regional outage.</summary>
+
+**Cross-Region snapshot copy; snapshot copy grant for a key in the DESTINATION Region**. ✗ Redshift replication to a cluster in another Region / grant in source Region. Redshift has no cross-Region replication. KMS keys are Regional. 🔁 *(TD4 Q64, Udemy2 Q33)*
+</details>
+
+<details><summary><b>G18.</b> Single Direct Connect for business-critical traffic. MOST resilient connectivity?</summary>
+
+**Second DX connection, different carrier/location, same Region**. ✗ VPN backup or a new DX to another Region. VPN is low-bandwidth backup; DX to another Region isn't redundancy for this one. 🔁 *(Neal A Q56, Neal C Q31, Udemy2 Q67)*
+</details>
+
+<details><summary><b>G19.</b> One data center needs low-latency links to VPCs in US East and US West.</summary>
+
+**One DX connection + Direct Connect gateway with a VGW per VPC (private VIFs)**. ✗ A separate DX connection per Region. A DX gateway is global — one connection reaches VPCs in many Regions. 🔁 *(TD4 Q58, Neal C Q31)*
+</details>
+
 ## H. Deployment
 
 <details><summary><b>H1.</b> Keep full capacity during a Beanstalk deploy.</summary>
@@ -336,6 +566,11 @@ CloudWatch metric → **alarm** → Route 53 health check **on the alarm state**
 <details><summary><b>H3.</b> Replace ASG instances on a CloudFormation update.</summary>
 
 **UpdatePolicy `AutoScalingRollingUpdate`** (✗ CreationPolicy). DeletionPolicy: **Snapshot** for RDS, **Retain** for S3. *(TD3 R46, TD1 R45)*
+</details>
+
+<details><summary><b>H4.</b> Runbook describes install and config steps. LEAST overhead, must allow future changes.</summary>
+
+**CloudFormation for infra + user data / cfn-init for install; change via stack updates**. ✗ CloudFormation for infra, keep manual runbook steps for software. Automate the whole runbook, not just the infrastructure. *(Official Q30)*
 </details>
 
 ## I. Service fit (managed > DIY)
@@ -385,9 +620,25 @@ Apps → **AppStream 2.0**. Full per-user desktops → WorkSpaces (costs more). 
 **Hash on-chain, PII off-chain** (DynamoDB). Immutable chain = can't delete PII. *(TD5 R25)*
 </details>
 
+<details><summary><b>I10.</b> PHP LAMP app, developer with little AWS skill, stable traffic, predictable pricing.</summary>
+
+**Amazon Lightsail**. ✗ Elastic Beanstalk + DynamoDB. Pay-per-resource pricing and a new NoSQL DB break the asks. *(Official Q73)*
+</details>
+
+<details><summary><b>I11.</b> On-prem apps on several servers share static files over NFS; move to S3, one copy.</summary>
+
+**S3 File Gateway**. ✗ Volume Gateway (iSCSI). Volume Gateway stores block volumes, not S3 objects, and can't be shared like NFS. 🔁 *(Official Q61)*
+</details>
+
+<details><summary><b>I12.</b> 350 remote staff need full Windows/Linux desktops with on-prem AD and MFA.</summary>
+
+**WorkSpaces + AD Connector + RADIUS MFA**. ✗ AppStream 2.0. AppStream streams apps, not full desktops. 🔁 *(Neal B Q35)*
+</details>
+
 ## Round log
 
 | Round | Date | Score | ❌ cards |
 |---|---|---|---|
 | 1 | 2026-10-13 | 69/72 (96%) | D11, H3, A3 🔁 |
 | 2 (due 10-15) | | /3 | |
+| 3 (due 10-31) | | /122 | |

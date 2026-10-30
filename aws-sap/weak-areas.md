@@ -1,22 +1,26 @@
 # SAP-C02 Weak Areas — ranked, with confusion pairs
 
 Built 2026-10-13 from the wrong-answer notes of TD5, TD1, TD2, TD3, TD6 and Udemy #2/#3 unseen (165 misses). Validated + TD6 added 2026-10-13.
+Updated 2026-10-30 with TD4, Neal A/B/C, Udemy #2 full, Official exam (118 misses) — final review for the exam on 2026-11-02.
 Companion files: `rule-sheet.md` (1-line rules), `new-solutions-flashcards.md` (Domain 2 self-test).
 HTML view: `weak-areas.html` (search + self-test + pair drill); rebuild after editing this file: `python3 aws-sap/build_study_pages.py`.
-Ranking = repeat misses first, then miss count, then the sprint day it's scheduled for.
+Ranking (10-30) = what cost points in the last 6 tests first (Continuous Improvement, twin options, overbuild, answer switching), then repeat misses, then miss count.
 
 ## Priority map
 
 | # | Area | Evidence | Wrong belief behind it | Sprint day |
 |---|---|---|---|---|
-| 1 | **Reading: overbuild / DIY** | TD5 12 · TD3 9 · TD6 3/5 misses · repeats on new questions | "More robust = better" — but the stem asked for quick / cheap / least ops | every test |
-| 2 | **Identity & org governance** | TD2 Org Complexity 25% · TD5 9 · TD6 Q6/Q15 (Continuous Improvement 2/5) | SCP can grant; WebIdentity works for SAML; the role lives in the caller's account | 10-14 marathon |
-| 3 | **Edge & DNS** (Route 53 / CloudFront / GA) | 🔁 GA→S3, 🔁 origin group, TD3 4, Udemy 4 | GA and Route 53 are interchangeable; any cert works on CloudFront | **10-15** |
-| 4 | **Streaming & analytics** (Kinesis / EMR / Redshift) | Udemy2 Kinesis ×3 · EMR ×2 · Redshift grant ×2 (drill) | SQS/Firehose can fan out; RIs are always cheapest | **10-17** |
-| 5 | **Migration + DR** | TD5 Migration 27.8% · Snow ×2 · tape/file GW ×3 · DR tier ×3 | Any replication = DR; Tape GW can feed ML | **10-19** |
-| 6 | **Hybrid networking** | Public VIF ×4 · PrivateLink NLB 🔁 · GWLB 🔁 · S3 endpoint 🔁 | Private VIF carries VPN; ALB backs PrivateLink | 10-14 marathon |
-| 7 | **Ops: patching, ASG, compliance** | TD1 patching ×3 · Udemy2 ×2 · TD3 ×2 | Config patches things; blocking = detecting | 10-21 marathon 2 |
-| 8 | **Multi-select** | TD5 5/21 · TD3 all 7 misses had 1 correct pick | Second pick can be any true statement | every test |
+| 1 | **Continuous Improvement** — security / reliability / cost fixes on existing systems | Official CI 10/20 (**50%, Needs Improvement**: security 2/5, cost 2/5, reliability 1/3) · Neal C CI 7/13 (54%) · TD4 CI 56% | Add more (Multi-AZ, DAX, multi-Region, scaling) and it gets fixed — but the stem wants the one control that removes the failure, at the stated SLA and cost | **10-31** (§9) |
+| 2 | **Twin options** | Official 14/28 misses (Archive vs Deep Archive, DLM vs AWS Backup, Volume vs File Gateway, Budgets action vs operator, Fargate vs custom AMI…) | Both look right, pick by feel — find the one differing phrase and test it against the stem | **10-31** + exam-day |
+| 3 | **Reading: overbuild / DIY** | Neal C Q5/Q7/Q13 🔁 · Neal B Q61/Q63 🔁 · Official Q19 · TD5 12 · TD3 9 · TD6 3/5 | "More robust = better" — but the stem asked for quick / cheap / least ops / the stated SLA | exam-day |
+| 4 | **Answer switching** | Neal C Q5/Q30 (right on first pick, then changed) · Udemy2 Q11/Q67 (broken in review) · Neal C in-pass changes 5 fixed / 2 broken | A second look is better — change only when you find new evidence in the stem | exam-day |
+| 5 | **Identity & org governance** | Official ORG 56% (multi-account 1/4), governance misses Q13 Q26 Q57 Q62 Q64 Q65 · Neal B ORG 57% 🔁 Q23 Q56 Q71 · TD2 Org 25% | SCP can grant; one account for everything security; detect = prevent | **10-31** |
+| 6 | **Migration + DR / resilience** | Official resilience 0/2 (Q25 Q45 Q61) · Neal B Q61/Q63 🔁 · TD4 Q28/Q64 🔁 · Neal B Q10 🔁 | Multi-Region / global DB is safer; replicas are backups | **11-01** |
+| 7 | **Hybrid networking** | Neal C Q9 Q30 🔁 Q31 · Udemy2 Q67/Q68 🔁 · Public VIF ×4 (earlier) | Interface endpoints use routes; a new DX in another Region = redundancy | **11-01** |
+| 8 | **Edge & DNS** (Route 53 / CloudFront / GA) | Official Q16 Q38 · Neal B Q22 🔁 · Neal A Q41 🔁 · Udemy2 Q13 🔁 | WAF = DDoS baseline; Evaluate Target Health sees partial failures | **11-01** |
+| 9 | **Ops: scaling, deployment, detection** | Official Q17 Q30 Q60 (deployment task 0/3) · Udemy2 Q24/Q63 🔁 | Scale on queue depth / schedule; S3 events can filter by ACL | **10-31** |
+| 10 | **Streaming & analytics** | Udemy2 Q54 🔁 · Official Q68 · Neal C Q7 🔁 (DAX) | Firehose writes to DynamoDB; Savings Plans cover DynamoDB | 11-01 (light) |
+| 11 | **Multi-select** | Neal C 4/7 (3 half-right) · TD4 9/16 · Neal A 12/21 · Udemy2 Select THREE 3/6 | Second pick can be any true statement | exam-day |
 
 ## 1. Reading discipline (fix this first — it shows up in every domain)
 
@@ -33,6 +37,8 @@ Before picking, write the **constraint word** on the whiteboard. Then eliminate:
 | prevent / **enforce** | Config, GuardDuty, Inspector (they only report) | SCP + `aws:ResourceTag` (TD5 Q19), tag policy + SCP on `CreateStack` (TD6 Q15) |
 
 **Multi-select:** after choosing pick 1, ask "*what's still missing for this exact solution?*" — pick 2 must answer that. Reject options with one wrong clause (TD1 Q26: "Multi-AZ RDS in one AZ").
+**Twin options:** underline the one phrase that differs (Archive vs Deep Archive, DLM vs AWS Backup, Volume vs File Gateway), then test only that phrase against the stem's constraint (Official 14/28).
+**Answer switching:** change an answer only when you can name the stem word that proves the first pick wrong (Neal C Q5/Q30, Udemy2 Q11/Q67 were right first).
 
 ## 2. Identity & org governance — confusion pairs
 
@@ -52,10 +58,20 @@ Before picking, write the **constraint word** on the whiteboard. Then eliminate:
 | KMS on CloudTrail = tamper-proof | Log file validation + MFA Delete | KMS = confidentiality |
 | Config + automation to enforce tag values | **Tag policy** + SCP deny create without `aws:RequestTag` | "enforce" at creation (TD6 Q15) |
 | IAM to exclude functions from Inspector | `InspectorCodeExclusion` tag + standard **and** code scan | TD6 Q6 |
+| Organizations backup policy using Data Lifecycle Manager | Organizations **backup policy** → AWS Backup plans in every account | DLM = per-account EBS/AMI lifecycle; twin option (Official Q13) |
+| StackSets + drift detection to keep Config rules unchanged | **Organization conformance pack** (excluded accounts) via delegated admin | drift detection only detects (Official Q26) |
+| AWS Managed Microsoft AD + trust for WorkSpaces | **AD Connector** | "credentials must not be stored outside the company" (Official Q32) |
+| One central security account for logging, tooling and audit | Separate **Log Archive**, **Security Tooling**, **Audit** accounts + Exceptions OU | limit blast radius (Official Q57) |
+| CloudTrail data events to find external principals | **IAM Access Analyzer**, organization as zone of trust | "who CAN access", not who called (Official Q62) |
+| Firewall Manager strict order: allow rule at the highest order number | Trusted-CIDR allow at the **lowest** number, deny-all after | lowest priority number is evaluated first (Official Q64) |
+| Remove accounts from the org and re-invite | Nest the stricter OU under the shared OU, **move** accounts between OUs | SCPs inherit down the tree (Official Q65) |
+| Allow-list SCP for many blocked services + exceptions | **Deny-list** SCP, keep FullAWSAccess, exceptions OU with fewer denies | allow list = every action listed 🔁 (Neal B Q23) |
+| IAM users in each account + SCPs | Users in one **identity account**, roles in target accounts trusting it | SCPs never grant 🔁 (Neal B Q56) |
+| Manual accounts + per-account SAML | **Control Tower** + Account Factory + Identity Center | "minimal overhead" governance 🔁 (Neal B Q71) |
 
 **Re-watch:** Maarek *Identity & Federation* (your lowest drill: 53%) — STS APIs, Identity Center, Cognito. *SCP evaluation* slide.
 
-## 3. Edge & DNS (10-15) — confusion pairs
+## 3. Edge & DNS — confusion pairs
 
 | You picked | Correct | Tell |
 |---|---|---|
@@ -71,11 +87,15 @@ Before picking, write the **constraint word** on the whiteboard. Then eliminate:
 | Lambda@Edge for query-string normalization | **CloudFront Functions** | "least overhead and cost" 🔁 overbuild (TD6 Q11) |
 | All CloudFront traffic via the regional edge cache | PUT/POST/PATCH/DELETE/OPTIONS + all-header dynamic skip it | Udemy2 Q21 |
 | Route 53 geolocation blocks countries | CloudFront geo restriction / WAF geo match | geolocation only routes |
+| Route 53 Evaluate Target Health for partial failures | Route 53 **Application Recovery Controller** routing controls (alarms + Lambda) | "full AND partial failures" (Official Q16) |
+| CloudFront path behaviors + redirects for A/B test | **Lambda@Edge** (origin request) picks the origin | "users must not notice" (Official Q38) |
+| WAF web ACL for baseline DDoS | **CloudFront** (Shield Standard included) | WAF = L7 rules (SQLi/XSS) 🔁 (Neal B Q22) |
+| CloudFront + WAF per-day rate rule for a few known clients | WAF **IP allow-list** on the API + usage plan + API key | rate rules use short windows, CloudFront adds cost 🔁 (Neal A Q41) |
 
 **Routing policy card:** failover = active-passive · latency + Evaluate Target Health = active-active · weighted = % split / testing · geolocation = by user location · geoproximity = bias · multivalue = DNS LB with health checks · alias at the apex.
 **Do:** Maarek *Route 53* + *CloudFront* + *Global Accelerator* sections; re-run TD1 Q17, TD5 Q12/Q42, Udemy2 Q20, Udemy3 Q21/Q26 from the review files.
 
-## 4. Streaming & analytics (10-17) — confusion pairs
+## 4. Streaming & analytics — confusion pairs
 
 | You picked | Correct | Tell |
 |---|---|---|
@@ -90,12 +110,14 @@ Before picking, write the **constraint word** on the whiteboard. Then eliminate:
 | KCL to produce | KPL produces, KCL consumes | |
 | Redshift for queries 6 PM–2 AM on ORC | **S3 + Athena + Glue Catalog** | pay per scan, no idle cluster (TD6 Q1) |
 | Compute SP covers MemoryDB | EC2 Instance SP + Compute SP + **reserved nodes** for DB/cache | TD6 Q16 |
+| Firehose writes sensor data to DynamoDB | **SQS + Lambda** (DynamoDB auto scaling) | DynamoDB is not a Firehose destination 🔁 (Udemy2 Q54) |
+| DAX + Savings Plans for DynamoDB hot keys | DAX + **provisioned capacity** + auto scaling (or reserved capacity) | Savings Plans don't cover DynamoDB (Official Q68) |
 
 **Kinesis card:** KDS = real-time, shards, custom consumers, replay (24 h–365 d) · Firehose = near-real-time delivery to S3/Redshift/OpenSearch/HTTP, Lambda transform, no replay · MSF (Managed Flink) = SQL/Flink on streams · Redshift streaming ingestion can also read KDS/MSK directly.
 **EMR card:** master + core = On-Demand (core holds HDFS data) · task = Spot · long-running steady → RI/Savings Plans.
 **Do:** Maarek *Data Engineering* (Kinesis, EMR, Redshift); TD Dojo drill only from TD1/2/5 pool (not TD4/TD6).
 
-## 5. Migration + DR (10-19) — confusion pairs
+## 5. Migration + DR — confusion pairs
 
 | You picked | Correct | Tell |
 |---|---|---|
@@ -111,6 +133,14 @@ Before picking, write the **constraint word** on the whiteboard. Then eliminate:
 | Multi-AZ as DR | Cross-Region backup / replica | Multi-AZ = HA only 🔁 |
 | Pilot light for RTO 5 min | Warm standby | pilot light must still build tiers |
 | Glacier backups every 15 min | S3 hourly backups + 5-min transaction logs | Glacier retrieval breaks RTO |
+| Volume Gateway for shared on-prem files → S3 | **S3 File Gateway** (NFS/SMB) | Volume = iSCSI block; twin option (Official Q61) |
+| AWS Backup + RDS cross-Region read replicas | **AWS Backup** plan + vault copy in another Region | replicas are not backups (Official Q25) |
+| Aurora Global: read from secondary, write to primary | **Write forwarding** on the secondary; test with managed failover | "read-after-write" (Official Q45) |
+| Snowball for 25 TB on a 1 Gbps link | **S3 Transfer Acceleration** over the fastest link | do the math: ~2–3 days online 🔁 (Neal B Q10, key debatable) |
+| Two Regions + Aurora Global for 99.9% | **One Region, Multi-AZ** + CloudFront for global latency | match the stated SLA 🔁 (Neal B Q61) |
+| Aurora Global database for three-AZ HA | Aurora cluster + **replicas in other AZs** | Global = cross-Region DR 🔁 (Neal B Q63) |
+| Redis cache + RDS MySQL read replicas for faster failover | **RDS Proxy** + Aurora with Aurora Replicas | caches don't queue writes 🔁 (TD4 Q28) |
+| Redshift replication to a secondary-Region cluster | Automated snapshots + **cross-Region snapshot copy** | Redshift has no cross-Region replication 🔁 (TD4 Q64) |
 
 **DR ladder:** backup/restore (hours) → pilot light (core DB running, tens of min) → warm standby (scaled-down full stack, minutes) → multi-site (~0). RPO < 1 s → Aurora Global; active-active NoSQL → DynamoDB global tables.
 **Migration tool card:** discover = ADS / Transform · TCO = Migration Evaluator · track = Migration Hub · servers = MGN · VM as-is = VM Import · DB = SCT + DMS (CDC) · files = DataSync · offline = Snowball.
@@ -130,6 +160,11 @@ Before picking, write the **constraint word** on the whiteboard. Then eliminate:
 | Single gateway endpoint for ECR | ecr.api + ecr.dkr interface + S3 gateway | private Fargate image pull |
 | Flow Logs for packet payloads | **Traffic Mirroring** | 🔁 TD3 Q45, Udemy3 Q14 |
 | SG/NACL for URL filtering | Proxy / Network Firewall | domain-based egress |
+| Route table entry to fix an interface endpoint | Endpoint **ENI security group** allows 443 from the VPC + private DNS | routes = gateway endpoints only (Neal C Q9) |
+| EC2 SG allows the NLB subnets (instance-id targets) | EC2 SG allows the **client CIDRs** | instance-id targets keep the client IP; first pick was right 🔁 (Neal C Q30) |
+| New DX to the second Region for redundancy | **Second DX** at the same location + DX gateway for the other Region | redundancy = same path doubled (Neal C Q31) |
+| DX + VPN backup for HA, high bandwidth, multi-Region | **Redundant DX** at each DC from different providers | VPN = low bandwidth; first pick was right (Udemy2 Q67) |
+| S3 gateway endpoint over the private VIF | **Public VIF** on the existing DX | gateway endpoint not reachable from on-prem 🔁 (Udemy2 Q68) |
 
 ## 7. Ops — patching, ASG, compliance
 
@@ -142,21 +177,53 @@ Before picking, write the **constraint word** on the whiteboard. Then eliminate:
 | ASG terminates + launches in one step | Unhealthy: terminate first · rebalance: launch first | Udemy2 Q27 |
 | Config for CVEs | **Inspector** + EventBridge schedule | |
 | `.pem` pushed to authorized_keys | Extract the **public** key, push via Run Command | TD5 Q51 |
+| Scheduled scaling for unexpected peaks | **Target tracking** on `ALBRequestCountPerTarget` | "no correlation with time" (Official Q17) |
+| Scale SQS workers on `ApproximateNumberOfMessagesVisible` | Target tracking on **backlog per instance** (custom metric) | queue depth ignores fleet size; twin option (Official Q60) |
+| CloudFormation for infra, manual runbook for install | CloudFormation + **user data / cfn-init** | automate the whole runbook (Official Q30) |
+| Enable ENA for grid timeouts | **Cluster placement group** | ENA already on; latency is node-to-node (Official Q58) |
+| API Gateway execution logging for 504 root cause | **X-Ray** + Lambda CloudWatch Logs | logs confirm the error, X-Ray shows the hop 🔁 (Udemy2 Q24) |
+| S3 event notifications to detect public-read objects | **CloudTrail data events** + EventBridge rule → SNS/Lambda | events can't filter by ACL 🔁 (Udemy2 Q63) |
 
-## 8. Repeat-miss marathon list (10-14 round 1, 10-21 round 2)
+## 8. Final-2-days list (10-31 → 11-01) — 🔁 repeats from recent tests
 
-Redo these from the review files, every answer justified out loud:
-- TD5: Q10, Q12, Q21, Q22, Q23, Q29, Q32, Q48, Q62, Q69
-  - Round 1 (10-13): **5/10** ✅ Q21 Q22 Q23 Q32 Q62 · ❌ Q10 Q12 Q29 Q48 Q69 → retry 10-14 (full text, shuffled letters) **5/5** ✅
-- TD1: Q17, Q25, Q26, Q57, Q69, Q74
-  - Round 1 (10-14, shuffled letters): **5/6** ✅ Q17 Q25 Q57 Q69 Q74 · ❌ Q26 (picked S3 static site for a dynamic NGINX+MySQL app)
-- TD3: Q6, Q10, Q14, Q63, Q71
-- TD6: Q1, Q11, Q16 (overbuild 🔁), Q6, Q15 — Pass 1 not done yet
-- Udemy2 unseen Pass 1 misses (14) · Udemy3 unseen misses (8, Pass 1 not done yet)
+Redo these from the review files (shuffled letters, every answer justified out loud; for twins, say the one differing phrase):
+- Official — `practice-exam/sap/official_attempt1_review.md`: twin options Q9, Q13, Q30, Q38, Q43, Q45, Q54, Q60, Q61, Q64, Q65, Q66, Q68, Q74 · governance Q26, Q57, Q62 (no 🔁 marks — first attempt; CI is the weakest domain)
+- Neal C — `practice-exam/sap/neal_c_review.md`: 🔁 Q5, Q7, Q13 · first pick right then changed Q5, Q30 · security control Q9, Q12, Q19
+- Neal B — `practice-exam/sap/neal_b_review.md`: 🔁 Q10, Q22, Q23, Q28, Q56, Q61, Q63, Q71, Q74
+- Neal A — `practice-exam/sap/neal_a_review.md`: 🔁 Q11, Q13, Q32, Q34, Q41
+- TD4 — `practice-exam/sap/td4_review.md`: 🔁 Q5, Q28, Q58, Q64
+- Udemy #2 full — `practice-exam/sap/udemy2_full_review.md`: 🔁 Q13, Q24, Q33, Q54, Q63, Q68 · broken in review Q11, Q67
+
+## 9. Continuous Improvement — recent misses (Official, Neal C)
+
+Security, reliability and cost fixes on an existing system. Official CI 10/20 (50%), Neal C CI 7/13 (54%).
+
+| You picked | Correct | Tell |
+|---|---|---|
+| Intelligent-Tiering Deep Archive Access for 6-hour retrieval | **Archive Access** tier | Deep Archive ≤ 12 h breaks the SLA; twin option (Official Q9) |
+| DynamoDB global tables to raise multi-AZ resilience | **One NAT gateway per AZ** | find the one zonal resource (Official Q19) |
+| Copy objects to a new encrypted bucket | Default encryption + S3 Inventory + **Batch Operations** copy in place | every app would change bucket names (Official Q43) |
+| Client VPN to stop SSH brute force | **Session Manager** (close port 22, log sessions) | "log commands", "keep port forwarding" (Official Q53) |
+| AWS Batch on Fargate Spot with a custom AMI | Managed **EC2** compute environment with Spot | Fargate has no custom AMI; twin option (Official Q54) |
+| Budgets alert to an operator who stops instances | Budgets forecast alert + **Budgets action** | "lowest risk of overspending" (Official Q66) |
+| KMS with scheduled disable/enable for FIPS 140-2 Level 3 | **CloudHSM** cluster (delete/restore from backup off-hours) | exam rule: Level 3 = CloudHSM (real AWS: KMS HSMs Level 3 since 2023) (Official Q70) |
+| Elastic Beanstalk + DynamoDB for a simple LAMP app | **Lightsail** | "predictable pricing", "little AWS expertise" (Official Q73) |
+| Enable Object Lock on the existing bucket | **New bucket** with Object Lock compliance mode, move objects | exam key (real AWS: existing buckets allowed since 2023) (Official Q74) |
+| RDS Multi-AZ + ElastiCache for 99.5% + slow remote desktop client | RDS single-AZ + **AppStream 2.0** | match the SLA; first pick was right 🔁 (Neal C Q5) |
+| On-demand + DAX for a write-heavy dev table | **On-demand** capacity alone | DAX caches reads only 🔁 (Neal C Q7) |
+| Cluster Autoscaler under-provisioned for EKS resilience | **Topology spread** across AZs + multi-AZ node groups | resilience = survive an AZ failure (Neal C Q11) |
+| `aws:SecureTransport` in S3 ACLs | **Bucket policy** denying unencrypted PutObject + default encryption + CloudFront HTTPS redirect | conditions live in bucket policies, never ACLs (Neal C Q12) |
+| Auto scaling + DAX to stop web attacks | CloudFront + **WAF** + custom-header origin lock on the ALB | scaling treats symptoms 🔁 (Neal C Q13) |
+| SSE-S3 with a customer managed key | **SSE-KMS** with a customer managed key + deny unencrypted PutObject | SSE-S3 never uses your key (Neal C Q19) |
+| Custom budgets for cost per project/environment | **Cost allocation tags** + Service Catalog portfolios | budgets alert, they don't attribute (Neal C Q20) |
+| CloudTrail data events + billing alarm for team cost | **AWS Budgets** (in CloudFormation) + Service Catalog products | CloudTrail logs API calls, not cost 🔁 (Neal A Q13) |
+| Cost Explorer RI utilization report for a 70% target | AWS Budgets **RI coverage** budget | utilization ≠ coverage; Cost Explorer doesn't alert 🔁 (Neal A Q32) |
+| AWS Budgets for 80% service-quota alerts | Trusted Advisor check + Lambda → **SNS** (or CloudWatch `AWS/Usage` alarm) | Budgets tracks spend, not quotas 🔁 (Neal B Q74) |
+| EFS for +3,000 IOPS on gp2 | **Grow the gp2 volume** (+1 TB = +3,000 IOPS) or gp3 | 3 IOPS/GiB; first pick was right (Udemy2 Q11) |
 
 ## Pair drill log (`weak-areas.html` → Pair drill)
 
 | Round | Date | Score | Weakest sections | ❌ pairs |
 |---|---|---|---|---|
 | 1 | 2026-10-13 | 55/66 (83%) | Hybrid networking 7/10 · Migration + DR 9/12 | Redshift snapshot copy grant 🔁 · warm standby for RTO 5 min · DX Gateway for 2 Regions · CloudFront/WAF geo block · NLB/GWLB endpoint service 🔁 · instance profile alone · ECR endpoints (api + dkr + S3 gateway) · PHZ association authorization 🔁 · AssumeRoleWithSAML 🔁 · Snowball Edge ×N · backup/restore for RTO 30 min 🔁 |
-| 2 (due 10-15) | | /11 | | |
+| 2 (due 10-31) | | | | |
