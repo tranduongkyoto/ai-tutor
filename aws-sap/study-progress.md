@@ -207,6 +207,7 @@ Pearson global free-retake offer (09-29 – 11-17) excludes SAP — not usable. 
 | **10-29** | ✅ **AWS Official Practice Exam: 783 scaled (pass ≥750)** · ✅ review 🇻🇳 (`official_attempt1_review.md`, 28 misses: A twin options 14 · B wrong fit 11 · C org tooling 3) + analysis with raw→scaled equivalence table — raw 47/75 (62.7%), first real attempt (export label 'Lần thi 2' ignored), 195.6 min · domains ORG 10/18 (56%, Task 1.3 resilience 0/2, 1.4 multi-account 1/4) · NEW 14/22 (64%, **Task 2.1 deployment 0/3**) · **CI 10/20 (50%, Needs Improvement**: security 2/5, cost 2/5, reliability 1/3, performance 2/4) · MIG 13/15 (87%) · thirds 17 / 19 / **11** (last third 44%) · single 42/67 · multi 5/8 · 28 misses: ~14 twin-option (one differing phrase: Archive vs Deep Archive, DLM vs AWS Backup, Volume vs File Gateway, Budgets action vs operator, Fargate vs custom AMI…), ORG/governance 6 (Q13 Q26 Q57 Q62 Q64 Q65), automation-over-manual 4 · ⚠️ Q74 key dated (Object Lock can be enabled on existing buckets since 2023) · gate band 750–799 → 11-02 only if Neal C ≥72% in the mix exam |
 | **10-30** | ✅ Official redo Pass 1 **28/28** (groups A–C, shuffled order + letters; 3 multi-select complete) — 1 day after review, memory-assisted |
 | **10-30** | ⚠️ **Neal Exam C 25/35 (71.4%)** unseen · ✅ review 🇻🇳 (`neal_c_review.md`, 10 misses: A over-built 5 7 13 · B security control 9 12 19 30 · C resilience/governance 11 20 31; 🔁 Q5 Q7 Q13), 94 min of 98 (first pass done at 86'; review 12' made 1 change: Q22 B→A ✅ fixed) — CI **7/13 (54%)** · 10 misses: Q5 Q7 Q9 Q11 Q12 Q13 Q19 Q20 Q30 Q31 · thirds 7/11 · 7/11 · 9/11 · multi 4/7 (3 half-right) · in-pass answer changes: 5 fixed, 2 broken (Q5, Q30) · official-equivalent ≈ 763 (Neal −10.6 pp) · **gate 70–75% band: no time-out + last third 9/11 (82%) → 11-02 allowed, thin margin** · pre-review snapshot `practice-exam/sap/exam_runs/neal-c-pre-review-snapshot-261030.json` (pre-review 24/35) |
+| **10-31** | ✅ Final-review flashcards R1 **71/73 (97%)** — official 28/28 · Neal C 8/10 · Neal A/B 17/17 · TD4 + Udemy #2 18/18 · ❌ B2 write-heavy DynamoDB → on-demand only, DAX caches reads only (Neal C Q7 🔁) · B10 DX redundancy + second Region → second DX to the same Region + DX gateway, not a new DX to Region 2 (Neal C Q31 🔁) · retry B2, B10 on 11-01 (2 cards, light review on the rest day) |
 | 10-28 – 10-30 | Neal B redo + weak domains · flashcards 🔁 |
 | 10-30 / 10-31 | **Neal Exam C** (35, 98 min) final check — ≥80% confirms; <70% → consider moving (still ≥24 h before) |
 | 11-01 | Rest · logistics (ID, check-in, ESL +30) |
@@ -308,3 +309,11 @@ Drill pool: Udemy + TD Sets 1, 2, 5 only. TD Sets 3, 4, 6 are timed-only.
 
 ### From chapter drills
 Public VIF for VPN-over-DX (×4, incl. TD1 Q36), PrivateLink for isolated cross-VPC, can't move EC2 between subnets, Fn::Cidr vs Custom Resource, DX alone not encrypted, Aurora vs RDS reliability, Redshift Spectrum vs Athena, Redshift cross-Region snapshot grant (×2), DynamoDB 400KB + drop table, DMS prerequisites, SCPs + all-features mode, Compute vs EC2 Instance Savings Plans, KPL vs KCL
+
+## Final-review deck round log
+
+Deck: `aws-sap/final-review-flashcards.html` (73 recent misses). Target ≥ 80%.
+
+| Round | Date | Score | ❌ cards |
+|-------|------|-------|----------|
+| 1 | 2026-10-31 | 71/73 | B2, B10 |
